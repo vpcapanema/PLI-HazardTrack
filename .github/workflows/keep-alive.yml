@@ -1,0 +1,60 @@
+name: Keep Render awake
+
+on:
+  schedule:
+    # A cada 10 minutos. Render free dorme apos 15 min sem trafego.
+    # Obs: o cron do GitHub Actions tem granularidade minima de 5 min
+    # e pode atrasar/pular sob carga; 10 min da uma folga segura.
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: Ping /api/health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Resolve target URL
+        id: target
+        env:
+          RENDER_URL: ${{ vars.RENDER_URL }}
+        run: |
+          # Prioridade: variavel de repositorio RENDER_URL > fallback abaixo.
+          # Edite o fallback OU cadastre em: Settings > Secrets and variables > Actions > Variables.
+          URL="${RENDER_URL:-https://pli-hazardtrack.onrender.com}"
+          # Remove barra final, se houver
+          URL="${URL%/}"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Pinging: $URL"
+
+      - name: Ping health endpoint
+        env:
+          URL: ${{ steps.target.outputs.url }}
+        run: |
+          set -e
+          # Tenta ate 5x com backoff (cold start pode levar ~30s+ na primeira request)
+          for i in 1 2 3 4 5; do
+            echo "Attempt $i ..."
+            HTTP_CODE=$(curl -sS -o /tmp/body.json -w "%{http_code}" \
+              --max-time 60 \
+              --retry 0 \
+              -H "User-Agent: pli-hazardtrack-keepalive/1.0" \
+              "$URL/api/health" || echo "000")
+            echo "HTTP $HTTP_CODE"
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Body:"
+              cat /tmp/body.json || true
+              echo
+              exit 0
+            fi
+            sleep $((i * 10))
+          done
+          echo "Health check failed after retries."
+          exit 1

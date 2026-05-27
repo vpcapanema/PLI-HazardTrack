@@ -583,6 +583,41 @@ body {
 #badge-source { background: var(--pli-accent); }
 #badge-update { background: var(--pli-verde); }
 
+/* Estados de qualidade do dado (sobrescrevem badges acima) */
+.badge.badge-ok        { background: var(--pli-verde); }
+.badge.badge-degraded  { background: #f39c12; color: #1c1207; }
+.badge.badge-no-data   { background: #b3261e; color: #fff; animation: pulse-bg 2s ease-in-out infinite; }
+.badge.badge-mock      { background: #475569; color: #cbd5e1; border: 1px dashed #94a3b8; }
+
+@keyframes pulse-bg {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(179, 38, 30, 0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(179, 38, 30, 0); }
+}
+
+/* Card "sem dado" no painel "Trecho Mais Crítico" */
+.worst-empty.no-data {
+  padding: 0.8rem 0.5rem;
+  text-align: left;
+}
+.worst-empty.no-data .no-data-title {
+  color: #b3261e;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.worst-empty.no-data .no-data-title::before {
+  content: "⚠";
+  font-size: 1rem;
+}
+.worst-empty.no-data .no-data-msg {
+  color: var(--gray-500);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 #map {
   flex: 1;
   background: var(--gray-100);

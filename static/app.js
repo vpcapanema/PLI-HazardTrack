@@ -184,17 +184,50 @@ function renderSnapshot(snap) {
   const ts = snap.timestamp_utc ? new Date(snap.timestamp_utc) : null;
   const summary = snap.summary || {};
   const maxRd = summary.max_rd ?? 0;
+  const status = summary.data_status || "ok";   // ok | degraded | no_data | mock
 
-  // Status (cabeçalho do sidebar)
+  // ---- Estado de DADOS (precede o estado operacional) ----
+  if (status === "no_data") {
+    setStatus("Sem dado real do MERGE/INPE neste ciclo", "alert");
+    document.getElementById("status-time").textContent =
+      ts ? "Última tentativa às " + formatTime(ts) : "—";
+    setBadge("badge-source", "Sem dado", "no-data");
+    setBadge("badge-update", ts ? formatTime(ts) : "—", "no-data");
+    // Limpa pontos no mapa para nao mostrar leitura "fantasma"
+    renderPointsOnMap([]);
+    renderRegionsOnMap(snap.regions || []);
+    renderRegions(snap.regions || []);
+    renderWorstNoData(summary.message);
+    document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
+    for (let i = 0; i <= 4; i++) {
+      const el = document.getElementById("count-" + i);
+      if (el) el.textContent = "—";
+    }
+    return;
+  }
+
+  // ---- Estado operacional normal ----
   const statusClasses = ["", "warn", "warn", "alert", "max"];
+  const statusSuffix = status === "degraded"
+    ? ` · dado parcial (${summary.missing_24h}h faltando em 24h)`
+    : status === "mock"
+      ? " · MODO DEV (mock)"
+      : "";
   setStatus(
-    `${NIVEL_LABEL[maxRd]} — estado geral da malha`,
+    `${NIVEL_LABEL[maxRd]} — estado geral da malha${statusSuffix}`,
     statusClasses[Math.min(4, maxRd)]
   );
   if (ts) {
     document.getElementById("status-time").textContent = "Atualizado às " + formatTime(ts);
-    document.getElementById("badge-update").textContent = formatTime(ts);
   }
+
+  // Badges da topbar
+  setBadge(
+    "badge-source",
+    status === "mock" ? "MOCK (dev)" : "MERGE / INPE",
+    status === "ok" ? "ok" : status
+  );
+  setBadge("badge-update", ts ? formatTime(ts) : "—", status === "ok" ? "ok" : status);
 
   // Distribuição por nível
   const by = summary.by_level || {};
@@ -221,6 +254,30 @@ function renderSnapshot(snap) {
     removeHeatmap();
     addHeatmap();
   }
+}
+
+function setBadge(id, text, kind) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.classList.remove("badge-ok", "badge-degraded", "badge-no-data", "badge-mock");
+  if (kind === "ok") el.classList.add("badge-ok");
+  else if (kind === "degraded") el.classList.add("badge-degraded");
+  else if (kind === "no-data" || kind === "no_data") el.classList.add("badge-no-data");
+  else if (kind === "mock") el.classList.add("badge-mock");
+}
+
+function renderWorstNoData(message) {
+  const card = document.getElementById("worst-card");
+  card.classList.add("empty");
+  card.innerHTML = `
+    <div class="worst-empty no-data">
+      <div class="no-data-title">Sem dado disponível</div>
+      <div class="no-data-msg">${escapeHtml(
+        message || "MERGE/INPE indisponível neste ciclo. Tentando novamente em 10 min."
+      )}</div>
+    </div>
+  `;
 }
 
 function setStatus(text, cls) {

@@ -2,11 +2,11 @@
 Ingestao MERGE/CPTEC/INPE em STREAMING - sem cache em disco.
 
 Estrategia:
-- HTTP GET do GRIB2 horario direto do servidor INPE
-- Parser eccodes em memoria (BytesIO) - nada toca o filesystem
+- HTTP GET do GRIB2 horario direto do servidor INPE (paralelo, 8 workers)
+- Decodificacao via eccodes 2.x com codes_new_from_message (aceita bytes)
+- Decode SERIALIZADO com lock global (eccodes MEMFS nao e thread-safe)
 - Amostragem batch via codes_grib_find_nearest_multiple (1 chamada para N pontos)
-- ThreadPool: 96 horas em paralelo (8 workers)
-- Agregacao em memoria (apenas floats das series temporais)
+- Agregacao em memoria
 
 Sem write em disco. Cada refresh busca dados frescos.
 
@@ -14,7 +14,11 @@ Estrutura no servidor INPE:
     https://ftp.cptec.inpe.br/modelos/tempo/MERGE/GPM/HOURLY/AAAA/MM/DD/MERGE_CPTEC_AAAAMMDDHH.grib2
 
 Resolucao: 0.1 graus (~10 km). Cobertura: America do Sul. Sem auth.
-Quando eccodes nao estiver disponivel, opera em MOCK (chuva sintetica).
+
+NAO HA FALLBACK MOCK NO CAMINHO DE PRODUCAO. Se nao houver eccodes ou
+nenhum GRIB chegar, fetch_real_batch retorna None e o aggregator marca o
+snapshot como degraded; a UI mostra "Dado indisponivel" em vez de fingir
+chuva sintetica.
 """
 
 from __future__ import annotations
@@ -22,7 +26,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from io import BytesIO
+from threading import Lock
 from typing import List, Optional, Tuple
 import logging
 import requests
@@ -33,6 +37,9 @@ INPE_BASE = "https://ftp.cptec.inpe.br/modelos/tempo/MERGE/GPM"
 PUBLISH_LAG_HOURS = 3
 HTTP_TIMEOUT = (10, 60)         # (connect, read)
 DEFAULT_WORKERS = 8
+
+# eccodes MEMFS nao e thread-safe: serializa o decode entre threads.
+_ECCODES_LOCK = Lock()
 
 
 def _hourly_url(dt: datetime) -> str:
@@ -99,17 +106,20 @@ def _fetch_grib_bytes(dt: datetime) -> Optional[bytes]:
 def _sample_grib_in_memory(grib_bytes: bytes,
                            lats: List[float],
                            lons_360: List[float]) -> List[float]:
-    """Decodifica um GRIB em memoria e amostra todos os pontos de uma vez."""
+    """
+    Decodifica um GRIB em memoria e amostra todos os pontos de uma vez.
+    Usa codes_new_from_message (eccodes 2.x) que aceita bytes diretamente.
+
+    eccodes MEMFS nao e thread-safe; o chamador deve manter _ECCODES_LOCK.
+    """
     import eccodes
 
     n = len(lats)
     samples = [0.0] * n
-    buf = BytesIO(grib_bytes)
-    gid = eccodes.codes_grib_new_from_file(buf)
+    gid = eccodes.codes_new_from_message(grib_bytes)
     if gid is None:
         return samples
     try:
-        # Batch: 1 chamada nativa para N pontos
         try:
             nearest = eccodes.codes_grib_find_nearest_multiple(gid, False, lats, lons_360)
             for i, near in enumerate(nearest):
@@ -119,7 +129,6 @@ def _sample_grib_in_memory(grib_bytes: bytes,
         except Exception as e:
             log.debug("nearest_multiple falhou (%s); fallback ponto-a-ponto", e)
 
-        # Fallback ponto-a-ponto
         for i in range(n):
             try:
                 near = eccodes.codes_grib_find_nearest(gid, lats[i], lons_360[i])
@@ -135,17 +144,18 @@ def _sample_grib_in_memory(grib_bytes: bytes,
 def _process_hour(dt: datetime,
                   lats: List[float],
                   lons_360: List[float]) -> Tuple[datetime, Optional[List[float]]]:
+    """Download paralelo (rede) + decode serializado (eccodes nao e thread-safe)."""
     data = _fetch_grib_bytes(dt)
     if data is None:
         return dt, None
     try:
-        return dt, _sample_grib_in_memory(data, lats, lons_360)
+        with _ECCODES_LOCK:
+            return dt, _sample_grib_in_memory(data, lats, lons_360)
     except Exception as e:
         log.debug("erro decode %s: %s", dt, e)
         return dt, None
     finally:
-        # Solta a referencia explicitamente para o GC liberar a memoria
-        data = None  # noqa: F841
+        data = None  # noqa: F841 - solta a referencia para o GC
 
 
 def fetch_real_batch(points: list,
@@ -233,7 +243,9 @@ def fetch_real(lat: float, lon: float,
 
 
 # ---------------------------------------------------------------------------
-# MOCK: chuva sintetica para desenvolvimento sem eccodes
+# MOCK: chuva sintetica - APENAS para desenvolvimento/CI sem rede.
+# Nao e usado no caminho de producao; aggregator marca o snapshot como
+# "no_data" quando o MERGE real falha.
 # ---------------------------------------------------------------------------
 
 def fetch_mock(lat: float, lon: float,
@@ -249,14 +261,11 @@ def fetch_mock(lat: float, lon: float,
         ac24h_mm=round(base_24h, 1),
         ac96h_mm=round(base_96h, 1),
         timestamp_utc=now.replace(minute=0, second=0, microsecond=0).isoformat(),
-        source="MOCK (eccodes indisponivel)"
+        source="MOCK (desenvolvimento)"
     )
 
 
 def fetch(lat: float, lon: float,
-          now_utc: Optional[datetime] = None) -> RainSample:
-    """API legada: tenta MERGE real, fallback para mock."""
-    real = fetch_real(lat, lon, now_utc)
-    if real is not None:
-        return real
-    return fetch_mock(lat, lon, now_utc)
+          now_utc: Optional[datetime] = None) -> Optional[RainSample]:
+    """API legada: retorna apenas dado real do MERGE; None se indisponivel."""
+    return fetch_real(lat, lon, now_utc)

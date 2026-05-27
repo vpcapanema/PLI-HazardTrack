@@ -69,9 +69,11 @@ mesmo para 24+ pontos de monitoramento.
 | Polígonos das 4 regioes | Aproximacao retangular (gap R3/R4 fechado) | Substituir por shapefile oficial em `data/regioes_pli/` |
 | Pontos de monitoramento | 24 amostras geradas | Refinar com KMs reais do DER |
 | Risco Analisado (RA) | Default = 1 (RA=1 forcado) | `SAMAEG_USE_MANUAL_RA=1` reativa valores hard-coded |
-| Chuva MERGE/INPE | Streaming em memoria | Snapshot marca `degraded=true` se >6h faltarem em 24h |
+| Chuva MERGE/INPE | **Streaming real (eccodes 2.x)** | Snapshot vai a `data_status=no_data` se a rede falhar — sem mock no caminho operacional |
+| Validacao historica | Backtest 19/02/2023 (Sao Sebastiao) | Juquehy=RD4, Camburi=RD3, Maresias=RD1 |
 | Auto-refresh | 10 min server / 30 s client | Configuravel |
-| Testes unitarios | `tests/test_risk.py` | `python -m unittest discover tests` |
+| Testes unitarios | `tests/test_risk.py` (20 testes) | `python -m unittest discover tests` |
+| Smoke test real | `python test_merge.py` | Baixa 96 GRIB de uma data conhecida e mostra acumulados |
 
 ## Endpoints
 

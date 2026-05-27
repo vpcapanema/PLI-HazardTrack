@@ -3,6 +3,12 @@ Orquestrador: para cada ponto de monitoramento,
 busca chuva (MERGE) e calcula risco dinamico.
 
 Mantem cache em memoria do estado atual + historico.
+
+Politica de dados:
+- Sem dado real do MERGE/INPE -> snapshot fica em estado NO_DATA.
+- NUNCA usa mock no caminho operacional. Mock so e gerado por chamada
+  explicita de teste (test_merge.py) ou pela env SAMAEG_FORCE_MOCK=1
+  durante desenvolvimento local.
 """
 
 from datetime import datetime, timezone
@@ -13,14 +19,15 @@ from threading import Lock
 
 from .regions import load_regions, find_region_for_point, Region
 from .monitoring_points import MONITORING_POINTS
-from .merge_inpe import fetch as fetch_rain, fetch_real_batch, fetch_mock
+from .merge_inpe import fetch_real_batch, fetch_mock
 from .risk import evaluate_point, RiskResult
 
 log = logging.getLogger("aggregator")
 
-# Limite de horas faltando na janela de 24h para marcar o snapshot como "degraded"
-# (mais de N horas zeradas viesa o calculo Ac24h para baixo).
+# Limite de horas faltando na janela de 24h para marcar "degraded"
 DEGRADED_MISSING_24H_THRESHOLD = int(os.environ.get("SAMAEG_DEGRADED_24H", "6"))
+# Modo de desenvolvimento sem rede / sem eccodes
+FORCE_MOCK = os.environ.get("SAMAEG_FORCE_MOCK", "0") == "1"
 
 
 class State:
@@ -52,39 +59,45 @@ class State:
         now = datetime.now(timezone.utc)
         log.info(f"Atualizando snapshot @ {now.isoformat()}")
 
-        # Tentativa BATCH com MERGE real (1 download por hora, N pontos amostrados)
+        # Caminho de producao: SOMENTE MERGE/INPE real.
         coords = [(p["lat"], p["lon"]) for p in self.points]
         rain_batch = fetch_real_batch(coords, now)
-        using_real = rain_batch is not None
 
-        # Qualidade do batch MERGE: derivada do primeiro RainSample (igual para todos)
-        if using_real and rain_batch:
-            files_ok = rain_batch[0].files_ok
-            missing_24h = rain_batch[0].missing_24h
-            missing_96h = rain_batch[0].missing_96h
-            degraded = missing_24h >= DEGRADED_MISSING_24H_THRESHOLD
-            data_source = "MERGE/INPE"
-        else:
+        # Modo dev explicito: chuva sintetica reproduzivel
+        if rain_batch is None and FORCE_MOCK:
+            log.warning("SAMAEG_FORCE_MOCK=1 -> usando chuva sintetica (NAO USAR EM PRODUCAO)")
+            rain_batch = [fetch_mock(p["lat"], p["lon"], now) for p in self.points]
             files_ok = 0
             missing_24h = 24
             missing_96h = 96
-            # Mock nao e considerado "degraded" no sentido de dado real faltando,
-            # mas e claramente um modo nao-operacional.
+            data_source = "MOCK (dev)"
+            data_status = "mock"
             degraded = True
-            data_source = "MOCK"
+        elif rain_batch is None:
+            # Falha total: nao temos dado real e nao foi pedido mock
+            log.error(
+                "MERGE/INPE indisponivel: snapshot marcado como NO_DATA "
+                "(sem dado, sem RD calculado)"
+            )
+            self._publish_no_data(now)
+            return
+        else:
+            files_ok = rain_batch[0].files_ok
+            missing_24h = rain_batch[0].missing_24h
+            missing_96h = rain_batch[0].missing_96h
+            data_source = "MERGE/INPE"
+            data_status = "ok" if missing_24h < DEGRADED_MISSING_24H_THRESHOLD else "degraded"
+            degraded = data_status == "degraded"
 
         new_points = []
         by_level = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
-        max_rd = -1   # comeca em -1 para garantir que primeiro ponto sempre vence
+        max_rd = -1
         max_rd_point = None
 
         for idx, p in enumerate(self.points):
             try:
                 region = find_region_for_point(p["lat"], p["lon"], self.regions)
-                if using_real:
-                    rain = rain_batch[idx]
-                else:
-                    rain = fetch_mock(p["lat"], p["lon"], now)
+                rain = rain_batch[idx]
                 result = evaluate_point(
                     lat=p["lat"], lon=p["lon"],
                     region=region,
@@ -94,30 +107,20 @@ class State:
                     ra=p["ra"]
                 )
                 pt = {
-                    "id": p["id"],
-                    "nome": p["nome"],
-                    "rodovia": p["rodovia"],
-                    "km": p["km"],
-                    "lat": p["lat"],
-                    "lon": p["lon"],
-                    "region_id": result.region_id,
-                    "region_name": result.region_name,
-                    "ac96h_mm": result.ac96h_mm,
-                    "ac24h_mm": result.ac24h_mm,
+                    "id": p["id"], "nome": p["nome"], "rodovia": p["rodovia"], "km": p["km"],
+                    "lat": p["lat"], "lon": p["lon"],
+                    "region_id": result.region_id, "region_name": result.region_name,
+                    "ac96h_mm": result.ac96h_mm, "ac24h_mm": result.ac24h_mm,
                     "intensity_mmh": result.intensity_mmh,
                     "cpc": result.cpc,
-                    "icc_geo": result.icc_geo,
-                    "icc_hid": result.icc_hid,
+                    "icc_geo": result.icc_geo, "icc_hid": result.icc_hid,
                     "ra": result.ra,
-                    "rd_geo": result.rd_geo,
-                    "rd_hid": result.rd_hid,
-                    "rd": result.rd,
-                    "nivel": result.nivel,
+                    "rd_geo": result.rd_geo, "rd_hid": result.rd_hid,
+                    "rd": result.rd, "nivel": result.nivel,
                     "source": rain.source
                 }
                 new_points.append(pt)
                 by_level[result.rd] = by_level.get(result.rd, 0) + 1
-                # Pior trecho: maior RD; em empate, maior chuva acumulada 96h
                 if result.rd > max_rd or (
                     result.rd == max_rd
                     and max_rd_point is not None
@@ -138,6 +141,7 @@ class State:
                 "max_rd_point": max_rd_point["id"] if max_rd_point else None,
                 "max_rd_name": max_rd_point["nome"] if max_rd_point else None,
                 "data_source": data_source,
+                "data_status": data_status,
                 "degraded": degraded,
                 "files_ok": files_ok,
                 "missing_24h": missing_24h,
@@ -145,9 +149,34 @@ class State:
             }
 
         log.info(
-            "  ok: %d pontos, max RD=%d, niveis=%s, degraded=%s (24h faltando=%d, 96h faltando=%d)",
-            len(new_points), max(0, max_rd), by_level, degraded, missing_24h, missing_96h
+            "  ok: %d pontos, max RD=%d, niveis=%s, status=%s (24h faltando=%d)",
+            len(new_points), max(0, max_rd), by_level, data_status, missing_24h
         )
+
+    def _publish_no_data(self, now):
+        """Marca snapshot como NO_DATA quando o MERGE falha por completo."""
+        with self._lock:
+            self.snapshot["timestamp_utc"] = now.isoformat()
+            self.snapshot["points"] = []
+            self.snapshot["summary"] = {
+                "total": 0,
+                "by_level": {0: 0, 1: 0, 2: 0, 3: 0, 4: 0},
+                "max_rd": 0,
+                "max_rd_point": None,
+                "max_rd_name": None,
+                "data_source": "MERGE/INPE",
+                "data_status": "no_data",
+                "degraded": True,
+                "files_ok": 0,
+                "missing_24h": 24,
+                "missing_96h": 96,
+                "message": (
+                    "Sem dado real do MERGE/INPE neste ciclo. "
+                    "O servidor pode estar com latencia (>3h) ou indisponivel. "
+                    "Nenhum risco e calculado nesse estado: ausencia de leitura "
+                    "nao significa ausencia de risco."
+                ),
+            }
 
     def get_snapshot(self) -> Dict[str, Any]:
         with self._lock:

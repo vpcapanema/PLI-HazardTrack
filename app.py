@@ -4,6 +4,8 @@ Versao 0.1 - Backend Flask + scheduler
 """
 
 import logging
+import os
+import threading
 from flask import Flask, render_template, jsonify
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -23,10 +25,29 @@ CORS(app)
 # ============================================================================
 # INICIALIZACAO: rodar primeira atualizacao + agendar refresh
 # ============================================================================
+_initialized = False
+_init_lock = threading.Lock()
 
-def initialize():
+
+def _bootstrap():
+    """Primeiro ciclo + scheduler. Chamado uma unica vez por processo."""
+    global _initialized
+    with _init_lock:
+        if _initialized:
+            return
+        _initialized = True
+
     log.info("SAMAEG-PLI iniciando...")
-    state.update()  # primeiro ciclo
+
+    # Primeiro update em background para nao bloquear o boot do gunicorn
+    def _first_update():
+        try:
+            state.update()
+        except Exception as e:
+            log.exception("Falha no primeiro update: %s", e)
+
+    threading.Thread(target=_first_update, daemon=True).start()
+
     scheduler = BackgroundScheduler(daemon=True)
     # Atualizacao a cada 10 minutos (MERGE horario tem latencia ~3h, mas como pode ter
     # republicacao, atualizamos com mais frequencia para nao perder)
@@ -35,10 +56,20 @@ def initialize():
     log.info("Scheduler ativo (refresh a cada 10 min)")
 
 
+def initialize():
+    """Compatibilidade: usado pelo modo dev (python app.py)."""
+    _bootstrap()
+
+
+# Sob gunicorn o bloco __main__ nao roda; iniciamos no import do modulo.
+# Em ambiente de testes, definir SAMAEG_DISABLE_BOOTSTRAP=1 para pular.
+if os.environ.get("SAMAEG_DISABLE_BOOTSTRAP") != "1":
+    _bootstrap()
+
+
 # ============================================================================
 # ROTAS
 # ============================================================================
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -54,7 +85,6 @@ def api_snapshot():
 def api_road_network():
     """Serve a malha rodoviaria DER otimizada (GeoJSON)."""
     from flask import send_from_directory
-    import os
     static_data = os.path.join(os.path.dirname(__file__), "static", "data")
     return send_from_directory(static_data, "malha_der.geojson",
                                mimetype="application/geo+json")
@@ -64,7 +94,6 @@ def api_road_network():
 def api_road_stats():
     """Estatisticas e listas de filtros da malha."""
     from flask import send_from_directory
-    import os
     static_data = os.path.join(os.path.dirname(__file__), "static", "data")
     return send_from_directory(static_data, "malha_der_stats.json",
                                mimetype="application/json")
@@ -90,10 +119,9 @@ def api_health():
 
 
 # ============================================================================
-# MAIN
+# MAIN (modo desenvolvimento local)
 # ============================================================================
-
 if __name__ == "__main__":
-    initialize()
-    log.info("Servidor pronto em http://localhost:5050")
-    app.run(host="0.0.0.0", port=5050, debug=False, use_reloader=False)
+    port = int(os.environ.get("PORT", 5050))
+    log.info("Servidor pronto em http://localhost:%d", port)
+    app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)

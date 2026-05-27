@@ -8,6 +8,7 @@ Mantem cache em memoria do estado atual + historico.
 from datetime import datetime, timezone
 from typing import List, Dict, Any
 import logging
+import os
 from threading import Lock
 
 from .regions import load_regions, find_region_for_point, Region
@@ -16,6 +17,10 @@ from .merge_inpe import fetch as fetch_rain, fetch_real_batch, fetch_mock
 from .risk import evaluate_point, RiskResult
 
 log = logging.getLogger("aggregator")
+
+# Limite de horas faltando na janela de 24h para marcar o snapshot como "degraded"
+# (mais de N horas zeradas viesa o calculo Ac24h para baixo).
+DEGRADED_MISSING_24H_THRESHOLD = int(os.environ.get("SAMAEG_DEGRADED_24H", "6"))
 
 
 class State:
@@ -51,6 +56,22 @@ class State:
         coords = [(p["lat"], p["lon"]) for p in self.points]
         rain_batch = fetch_real_batch(coords, now)
         using_real = rain_batch is not None
+
+        # Qualidade do batch MERGE: derivada do primeiro RainSample (igual para todos)
+        if using_real and rain_batch:
+            files_ok = rain_batch[0].files_ok
+            missing_24h = rain_batch[0].missing_24h
+            missing_96h = rain_batch[0].missing_96h
+            degraded = missing_24h >= DEGRADED_MISSING_24H_THRESHOLD
+            data_source = "MERGE/INPE"
+        else:
+            files_ok = 0
+            missing_24h = 24
+            missing_96h = 96
+            # Mock nao e considerado "degraded" no sentido de dado real faltando,
+            # mas e claramente um modo nao-operacional.
+            degraded = True
+            data_source = "MOCK"
 
         new_points = []
         by_level = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
@@ -116,9 +137,17 @@ class State:
                 "max_rd": max(0, max_rd),
                 "max_rd_point": max_rd_point["id"] if max_rd_point else None,
                 "max_rd_name": max_rd_point["nome"] if max_rd_point else None,
+                "data_source": data_source,
+                "degraded": degraded,
+                "files_ok": files_ok,
+                "missing_24h": missing_24h,
+                "missing_96h": missing_96h,
             }
 
-        log.info(f"  ok: {len(new_points)} pontos, max RD={max(0, max_rd)}, niveis={by_level}")
+        log.info(
+            "  ok: %d pontos, max RD=%d, niveis=%s, degraded=%s (24h faltando=%d, 96h faltando=%d)",
+            len(new_points), max(0, max_rd), by_level, degraded, missing_24h, missing_96h
+        )
 
     def get_snapshot(self) -> Dict[str, Any]:
         with self._lock:

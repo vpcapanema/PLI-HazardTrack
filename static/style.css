@@ -78,10 +78,11 @@ body {
 
 .logo-mark {
   font-family: var(--font-display);
-  font-size: 1.85rem;
+  font-size: 1.45rem;
   font-weight: 700;
   letter-spacing: -0.5px;
   color: var(--pli-verde);
+  line-height: 1.1;
 }
 
 .logo-sub {

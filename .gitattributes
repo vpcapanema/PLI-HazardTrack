@@ -1,0 +1,41 @@
+# Normalize line endings: text files use LF in repo, Git converts on checkout per platform
+* text=auto eol=lf
+
+# Force LF for shell/python/web/config files
+*.py     text eol=lf
+*.sh     text eol=lf
+*.yaml   text eol=lf
+*.yml    text eol=lf
+*.toml   text eol=lf
+*.json   text eol=lf
+*.html   text eol=lf
+*.css    text eol=lf
+*.js     text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+Procfile text eol=lf
+Dockerfile text eol=lf
+
+# Force CRLF for Windows scripts
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+*.ps1    text eol=crlf
+
+# Binary files (no conversion)
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.pdf    binary
+*.zip    binary
+*.gz     binary
+*.parquet binary
+*.geojson binary
+*.shp    binary
+*.dbf    binary
+*.shx    binary
+*.prj    binary
+*.grib   binary
+*.grib2  binary
+*.nc     binary

@@ -66,11 +66,12 @@ mesmo para 24+ pontos de monitoramento.
 | Componente | Estado | Notas |
 |---|---|---|
 | Equacoes ICC/CPC/RD | Implementadas | Tabelas oficiais REGEA 2021 |
-| Polígonos das 4 regioes | Aproximacao retangular | Substituir por shapefile oficial |
+| Polígonos das 4 regioes | Aproximacao retangular (gap R3/R4 fechado) | Substituir por shapefile oficial em `data/regioes_pli/` |
 | Pontos de monitoramento | 24 amostras geradas | Refinar com KMs reais do DER |
-| Risco Analisado (RA) | Default = 1 (manual) | Substituir por shapefile RA do IG-SP |
-| Chuva MERGE/INPE | Streaming em memoria | Fallback MOCK se eccodes indisponivel |
+| Risco Analisado (RA) | Default = 1 (RA=1 forcado) | `SAMAEG_USE_MANUAL_RA=1` reativa valores hard-coded |
+| Chuva MERGE/INPE | Streaming em memoria | Snapshot marca `degraded=true` se >6h faltarem em 24h |
 | Auto-refresh | 10 min server / 30 s client | Configuravel |
+| Testes unitarios | `tests/test_risk.py` | `python -m unittest discover tests` |
 
 ## Endpoints
 

@@ -51,6 +51,10 @@ class RainSample:
     ac96h_mm: float
     timestamp_utc: str
     source: str = "MERGE/INPE"
+    # Metadados de qualidade do batch (opcionais, populados apenas no caminho real)
+    files_ok: int = 0
+    missing_24h: int = 0
+    missing_96h: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -151,6 +155,12 @@ def fetch_real_batch(points: list,
     """
     Stream paralelo de 96 GRIB2 horarios direto do INPE.
     Retorna lista de RainSample na mesma ordem de `points` (ou None se eccodes indisponivel).
+
+    Cada RainSample carrega tres metricas extras de qualidade do batch (iguais para
+    todos os pontos, replicadas por conveniencia da API):
+      - files_ok          numero total de horas lidas com sucesso (0..96)
+      - missing_24h       horas faltando na janela 0..23h
+      - missing_96h       horas faltando na janela 0..95h
     """
     if not _eccodes_available():
         log.warning("eccodes nao disponivel; chamador deve usar MOCK")
@@ -164,6 +174,7 @@ def fetch_real_batch(points: list,
     lons_360 = [float(p[1]) if p[1] >= 0 else float(p[1]) + 360 for p in points]
 
     series = [[0.0] * hours_back for _ in range(n)]
+    hour_ok = [False] * hours_back
     files_ok = 0
 
     hours = [(h, target_hour - timedelta(hours=h)) for h in range(hours_back)]
@@ -183,13 +194,19 @@ def fetch_real_batch(points: list,
                 v = samples[i]
                 if v > 0:
                     series[i][h] = v
+            hour_ok[h] = True
             files_ok += 1
 
     if files_ok == 0:
         log.warning("nenhum GRIB MERGE foi lido com sucesso")
         return None
 
-    log.info("MERGE streaming: %d/%d arquivos lidos para %d pontos", files_ok, hours_back, n)
+    missing_24h = sum(1 for ok in hour_ok[:24] if not ok)
+    missing_96h = sum(1 for ok in hour_ok[:96] if not ok)
+    log.info(
+        "MERGE streaming: %d/%d arquivos lidos para %d pontos (faltando 24h=%d, 96h=%d)",
+        files_ok, hours_back, n, missing_24h, missing_96h
+    )
 
     out = []
     ts = target_hour.isoformat()
@@ -201,7 +218,10 @@ def fetch_real_batch(points: list,
             ac24h_mm=round(sum(s[:24]), 2),
             ac96h_mm=round(sum(s[:96]), 2),
             timestamp_utc=ts,
-            source="MERGE/INPE (streaming)"
+            source="MERGE/INPE (streaming)",
+            files_ok=files_ok,
+            missing_24h=missing_24h,
+            missing_96h=missing_96h,
         ))
     return out
 

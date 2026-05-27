@@ -8,10 +8,25 @@ Cada ponto tem:
 
 Estes pontos sao amostrados a cada ciclo de atualizacao para producao do
 mapa de calor de risco em tempo real.
+
+Sobre o campo `ra`:
+- Os valores manuais (2..4) abaixo sao SOMENTE referencia preliminar.
+- Por padrao, o sistema FORCA ra=1 em todos os pontos enquanto nao existe
+  shapefile oficial RA do IG-SP. Isso evita combinacao RA alto x ICC baixo
+  produzir alertas inflados (ex.: RA=4 com chuva moderada -> RD=4 pela matriz).
+- Para usar os valores manuais (modo legado), exporte:
+      SAMAEG_USE_MANUAL_RA=1
 """
 
+import os
+
+# Default seguro: ignora os RAs manuais e zera para 1 em todos os pontos.
+# Mude para "1" via env var para reativar os valores hard-coded.
+USE_MANUAL_RA = os.environ.get("SAMAEG_USE_MANUAL_RA", "0") == "1"
+
+
 # Pontos amostrais ao longo das rodovias (lat, lon aprox, espacados ~5-10 km)
-MONITORING_POINTS = [
+_RAW_MONITORING_POINTS = [
     # SP-098 (Mogi-Bertioga) - Regiao 1
     {"id": "SP098-01", "rodovia": "SP-098", "km": 65, "lat": -23.510, "lon": -46.150, "ra": 2, "nome": "Mogi das Cruzes"},
     {"id": "SP098-02", "rodovia": "SP-098", "km": 72, "lat": -23.540, "lon": -46.080, "ra": 2, "nome": "Biritiba-Mirim N"},
@@ -44,3 +59,22 @@ MONITORING_POINTS = [
     {"id": "SP055-S04", "rodovia": "SP-055", "km": 235, "lat": -23.940, "lon": -46.220, "ra": 2, "nome": "Guaruja"},
     {"id": "SP055-S05", "rodovia": "SP-055", "km": 245, "lat": -23.985, "lon": -46.330, "ra": 2, "nome": "Santos"},
 ]
+
+
+def _normalize_ra(points):
+    """
+    Aplica a politica de RA do sistema:
+    - Por padrao: ra=1 em todos os pontos (RA neutro, ate haver shapefile RA oficial).
+    - Se SAMAEG_USE_MANUAL_RA=1: mantem os valores hard-coded (modo legado).
+    """
+    if USE_MANUAL_RA:
+        return [dict(p) for p in points]
+    out = []
+    for p in points:
+        q = dict(p)
+        q["ra"] = 1
+        out.append(q)
+    return out
+
+
+MONITORING_POINTS = _normalize_ra(_RAW_MONITORING_POINTS)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAMAEG-PLI — Sistema de Alerta de Risco Geodinâmico Rodoviário</title>
+    <title>PLI-HazardTrack · SIGMA — Sistema de Alerta de Risco Geodinâmico Rodoviário</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
@@ -13,8 +13,8 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="logo">
-                <div class="logo-mark">SAMAEG</div>
-                <div class="logo-sub">PLI · Resiliência Climática</div>
+                <div class="logo-mark">PLI-HazardTrack</div>
+                <div class="logo-sub">SIGMA · Resiliência Climática</div>
             </div>
         </div>
 
@@ -151,16 +151,17 @@
                 <a href="#" id="link-help">Como ler os dados?</a>
                 <a href="#" id="link-glossary">Glossário técnico</a>
             </div>
-            <div class="ver">SAMAEG-PLI v0.1 — protótipo operacional</div>
+            <div class="ver">PLI-HazardTrack · SIGMA v0.1 — protótipo operacional</div>
         </div>
     </aside>
 
     <main class="main">
         <header class="topbar">
             <div>
-                <h1 id="topbar-title">Monitoramento de Risco Geodinâmico — Rodovias do Estado de São Paulo</h1>
+                <h1 id="topbar-title">Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico</h1>
                 <p class="topbar-sub">
-                    Risco de escorregamentos, quedas de bloco e inundações associados a chuvas intensas e prolongadas
+                    Programa Litoral Integrado · DER-SP — risco de escorregamentos, quedas de bloco
+                    e inundações associados a chuvas intensas e prolongadas
                 </p>
             </div>
             <div class="topbar-actions">
@@ -265,8 +266,17 @@
             </header>
             <div class="modal-body">
                 <dl class="modal-glossary">
+                    <dt>PLI-HazardTrack</dt>
+                    <dd>Codebase deste sistema (este repositório). Implementação de referência do conceito SAMAEG/SIGMA aplicado às rodovias do Programa Litoral Integrado.</dd>
+
+                    <dt>SIGMA</dt>
+                    <dd>Sistema Integrado de Gestão e Monitoramento de Alertas. Marca operacional do PLI-HazardTrack para os usuários finais (DER-SP, UBA, Defesa Civil).</dd>
+
                     <dt>SAMAEG</dt>
-                    <dd>Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico. Conceito do Produto 06 do contrato DER-SP / REGEA-NIPPON (2021).</dd>
+                    <dd>Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico. Conceito do Produto 06 do contrato DER-SP / REGEA-NIPPON (2021), base metodológica deste sistema.</dd>
+
+                    <dt>PLI</dt>
+                    <dd>Programa Litoral Integrado — DER-SP. Conjunto de ações de resiliência climática para a malha rodoviária do litoral norte e baixada santista.</dd>
 
                     <dt>Risco Dinâmico (RD)</dt>
                     <dd>Risco que varia em tempo real conforme as chuvas. Cinco classes: <b>0 Monitoramento</b>, <b>1 Observação</b>, <b>2 Atenção</b>, <b>3 Alerta</b>, <b>4 Alerta Máximo</b>.</dd>

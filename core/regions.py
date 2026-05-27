@@ -4,7 +4,7 @@ Fonte: Relatorio REGEA-NIPPON 2053-R02-20 (Etapa 1, Tabela 3.1.1-1).
 
 Os polígonos abaixo sao APROXIMACOES preliminares baseadas nas descricoes
 do relatorio. Quando o shapefile oficial estiver disponivel em
-data/regioes_pli/regioes_pli_dersp.shp, ele tem precedencia.
+data/regioes_pli/regioes_pli_dersp.shp (ou .geojson), ele tem precedencia.
 
 Cada regiao tem:
 - K_geo: constante da envoltoria geologica (I = K x Ac96h^-0.9)
@@ -16,6 +16,17 @@ from dataclasses import dataclass, field
 from typing import List, Tuple, Optional
 from pathlib import Path
 import json
+import logging
+
+log = logging.getLogger("regions")
+
+# Caminhos padrao onde o shapefile/GeoJSON oficial e procurado automaticamente.
+_DEFAULT_SHAPE_CANDIDATES = [
+    "data/regioes_pli/regioes_pli_dersp.shp",
+    "data/regioes_pli/regioes_pli_dersp.geojson",
+    "data/regioes_pli/regioes.geojson",
+]
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # Polígonos aproximados das 4 regioes (lat, lon) em sentido horario
 # Calibrar com shapefile oficial quando disponivel.
@@ -55,11 +66,14 @@ APPROXIMATE_REGIONS = [
         "k_geo": 200,
         "cpc_breaks": [1, 8, 16, 24],
         "hid24h_breaks": [60, 85, 110, 126],
+        # Borda oeste estendida de -45.80 para -45.95 para fechar o gap com a
+        # Regiao 4 (Santos-Bertioga, borda leste em -45.95). Pontos como
+        # SP055-C07 (-23.815, -45.810) caiam em region=None antes do ajuste.
         "polygon": [
-            (-23.62, -45.80),
+            (-23.62, -45.95),
             (-23.62, -45.30),
             (-23.95, -45.30),
-            (-23.95, -45.80),
+            (-23.95, -45.95),
         ]
     },
     {
@@ -109,16 +123,37 @@ class Region:
 
 def load_regions(shapefile_path: Optional[Path] = None) -> List[Region]:
     """
-    Carrega regioes preferencialmente do shapefile oficial.
-    Fallback: poligonos aproximados embutidos.
+    Carrega regioes preferencialmente do shapefile/GeoJSON oficial.
+
+    Ordem de tentativas:
+      1. `shapefile_path` explicito (se passado e existir)
+      2. caminhos padrao em data/regioes_pli/* (relativos ao projeto)
+      3. fallback: poligonos retangulares aproximados embutidos
     """
-    if shapefile_path and shapefile_path.exists():
+    candidates: List[Path] = []
+    if shapefile_path is not None:
+        candidates.append(Path(shapefile_path))
+    for rel in _DEFAULT_SHAPE_CANDIDATES:
+        candidates.append(_PROJECT_ROOT / rel)
+
+    for path in candidates:
+        if not path.exists():
+            continue
         try:
             import geopandas as gpd
-            gdf = gpd.read_file(shapefile_path)
+            gdf = gpd.read_file(path)
+            # Garante WGS84 para consistencia com lat/lon dos pontos
+            try:
+                if gdf.crs is not None and gdf.crs.to_epsg() != 4326:
+                    gdf = gdf.to_crs("EPSG:4326")
+            except Exception:
+                pass
+
             regions = []
             for _, row in gdf.iterrows():
                 geom = row.geometry
+                if geom is None:
+                    continue
                 # Para Polygon ou MultiPolygon, pega o exterior
                 if geom.geom_type == "Polygon":
                     coords = [(y, x) for x, y in geom.exterior.coords]
@@ -129,14 +164,25 @@ def load_regions(shapefile_path: Optional[Path] = None) -> List[Region]:
                     nome=str(row.get("nome", "?")),
                     rodovia=str(row.get("rodovia", "?")),
                     k_geo=float(row.get("k_geo", 1000)),
-                    cpc_breaks=json.loads(row["cpc_breaks"]) if "cpc_breaks" in row else [1, 3, 6, 15],
-                    hid24h_breaks=json.loads(row["hid24h_breaks"]) if "hid24h_breaks" in row else [110, 160, 200, 280],
+                    cpc_breaks=(
+                        json.loads(row["cpc_breaks"])
+                        if "cpc_breaks" in row and isinstance(row["cpc_breaks"], str)
+                        else [1, 3, 6, 15]
+                    ),
+                    hid24h_breaks=(
+                        json.loads(row["hid24h_breaks"])
+                        if "hid24h_breaks" in row and isinstance(row["hid24h_breaks"], str)
+                        else [110, 160, 200, 280]
+                    ),
                     polygon=coords
                 ))
-            return regions
+            if regions:
+                log.info("Regioes carregadas de %s (%d feicoes)", path, len(regions))
+                return regions
         except Exception as e:
-            print(f"Falha ao ler shapefile, usando aproximacao: {e}")
+            log.warning("Falha ao ler %s, seguindo: %s", path, e)
 
+    log.info("Usando poligonos retangulares aproximados (sem shapefile oficial encontrado)")
     return [Region(**r) for r in APPROXIMATE_REGIONS]
 
 

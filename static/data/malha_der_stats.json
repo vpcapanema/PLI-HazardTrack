@@ -1,0 +1,49 @@
+{
+  "total_trechos": 4782,
+  "extensao_total_km": 21682.703,
+  "rodovias_unicas": 843,
+  "tipos_pista": [
+    "DUP",
+    "IMP",
+    "PAV",
+    "PLAN"
+  ],
+  "tipos_rodovia": [
+    "Acesso",
+    "Eixo",
+    "Interligação"
+  ],
+  "regionais": [
+    "DR 01",
+    "DR 02",
+    "DR 03",
+    "DR 04",
+    "DR 05",
+    "DR 06",
+    "DR 07",
+    "DR 08",
+    "DR 09",
+    "DR 10",
+    "DR 11",
+    "DR 12",
+    "DR 13",
+    "DR 14"
+  ],
+  "jurisdicoes": [
+    "Estadual",
+    "Federal",
+    "Municipal"
+  ],
+  "administra": [
+    "Concessionária",
+    "DER",
+    "DNIT",
+    "Prefeitura"
+  ],
+  "bbox": [
+    -53.05548756314513,
+    -25.059498313451225,
+    -44.166338020652184,
+    -19.84726508583349
+  ]
+}

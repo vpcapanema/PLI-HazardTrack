@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMAEG-PLI — Sistema de Alerta de Risco Geodinâmico Rodoviário</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-mark">SAMAEG</div>
+                <div class="logo-sub">PLI · Resiliência Climática</div>
+            </div>
+        </div>
+
+        <div class="status-bar" title="Maior nível operacional ativo na malha monitorada">
+            <div class="status-dot" id="status-dot"></div>
+            <div class="status-text">
+                <div id="status-line">Carregando...</div>
+                <div id="status-time" class="status-time">—</div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             DISTRIBUIÇÃO POR NÍVEL OPERACIONAL
+             ============================================================ -->
+        <div class="panel">
+            <h2 class="panel-title">Distribuição por Nível Operacional</h2>
+            <p class="panel-help">Quantidade de pontos de monitoramento em cada nível, conforme protocolo do Plano Preventivo da Defesa Civil (PPDC).</p>
+            <div class="alert-meter" id="alert-meter">
+                <div class="meter-cell" data-rd="0" title="Sem chuva relevante. Monitoramento de rotina.">
+                    <span class="meter-name">Monitoramento</span>
+                    <span class="meter-desc">Sem chuva relevante</span>
+                    <b id="count-0">0</b>
+                </div>
+                <div class="meter-cell" data-rd="1" title="Chuvas registradas, mas abaixo do limiar de deflagração.">
+                    <span class="meter-name">Observação</span>
+                    <span class="meter-desc">Chuva próxima do limiar</span>
+                    <b id="count-1">0</b>
+                </div>
+                <div class="meter-cell" data-rd="2" title="Chuvas significativas: equipe de plantão, vistorias preventivas.">
+                    <span class="meter-name">Atenção</span>
+                    <span class="meter-desc">Vistorias preventivas</span>
+                    <b id="count-2">0</b>
+                </div>
+                <div class="meter-cell" data-rd="3" title="Limiar deflagrador atingido: probabilidade alta de eventos.">
+                    <span class="meter-name">Alerta</span>
+                    <span class="meter-desc">Possíveis ocorrências</span>
+                    <b id="count-3">0</b>
+                </div>
+                <div class="meter-cell" data-rd="4" title="Chuvas extremas: alta probabilidade de múltiplos eventos. Considerar interdição.">
+                    <span class="meter-name">Alerta Máximo</span>
+                    <span class="meter-desc">Risco severo</span>
+                    <b id="count-4">0</b>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             TRECHO MAIS CRÍTICO
+             ============================================================ -->
+        <div class="panel">
+            <h2 class="panel-title">Trecho Mais Crítico</h2>
+            <p class="panel-help">Ponto com maior risco dinâmico no momento. Em caso de empate, prevalece a maior chuva acumulada em 96h.</p>
+            <div id="worst-card" class="worst-card empty">
+                <div class="worst-empty">Aguardando primeira leitura...</div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             REGIÕES METEOROLÓGICAS
+             ============================================================ -->
+        <div class="panel">
+            <h2 class="panel-title">Regiões Meteorológicas</h2>
+            <p class="panel-help">As quatro regiões oficiais do DER-SP, cada uma com limiares pluviométricos específicos calibrados a partir de eventos históricos.</p>
+            <div class="region-list" id="region-list"></div>
+            <p class="panel-note">
+                <b>Sensibilidade</b>: parâmetro K da envoltória crítica
+                <code>I = K · Ac96h<sup>−0,9</sup></code>.
+                Quanto menor o K, mais sensível a região (chuvas menores já disparam alertas).
+            </p>
+        </div>
+
+        <!-- ============================================================
+             CAMADAS DO MAPA
+             ============================================================ -->
+        <div class="panel">
+            <h2 class="panel-title">Camadas do Mapa</h2>
+            <label class="ck"><input type="checkbox" id="layer-points" checked> Pontos de monitoramento</label>
+            <label class="ck"><input type="checkbox" id="layer-regions" checked> Limites das regiões</label>
+            <label class="ck"><input type="checkbox" id="layer-heatmap"> Mapa de calor de risco</label>
+            <label class="ck"><input type="checkbox" id="layer-roads" checked> Malha rodoviária DER-SP</label>
+        </div>
+
+        <!-- ============================================================
+             FILTROS DA MALHA RODOVIÁRIA
+             ============================================================ -->
+        <div class="panel" id="road-filters-panel">
+            <h2 class="panel-title">Filtros da Malha Rodoviária</h2>
+            <div id="road-stats-summary" class="stats-summary">Carregando malha...</div>
+
+            <div class="filter-group">
+                <label for="filter-tipo-pista">Tipo de pista</label>
+                <select id="filter-tipo-pista">
+                    <option value="">Todos os tipos</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter-regional">Regional do DER</label>
+                <select id="filter-regional">
+                    <option value="">Todas as regionais</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter-jurisdicao">Jurisdição</label>
+                <select id="filter-jurisdicao">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter-rodovia">Buscar rodovia</label>
+                <input type="text" id="filter-rodovia" placeholder="ex: SP 055, SP 150">
+            </div>
+
+            <button id="btn-clear-filters" class="btn btn-secondary">Limpar filtros</button>
+        </div>
+
+        <!-- ============================================================
+             AÇÕES
+             ============================================================ -->
+        <div class="panel">
+            <h2 class="panel-title">Ações</h2>
+            <button id="btn-refresh" class="btn">Atualizar leitura agora</button>
+            <button id="btn-fit" class="btn btn-secondary">Centralizar no Estado de SP</button>
+            <button id="btn-fit-litoral" class="btn btn-secondary">Centralizar no Litoral Norte</button>
+        </div>
+
+        <div class="footer">
+            <div>Dados de chuva: <b>MERGE / CPTEC / INPE</b></div>
+            <div>Modelagem: <b>DER-SP / IPA / REGEA-NIPPON 2021</b></div>
+            <div>Malha rodoviária: <b>DER-SP — Sistema Rodoviário Estadual</b></div>
+            <div class="footer-links">
+                <a href="#" id="link-help">Como ler os dados?</a>
+                <a href="#" id="link-glossary">Glossário técnico</a>
+            </div>
+            <div class="ver">SAMAEG-PLI v0.1 — protótipo operacional</div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1 id="topbar-title">Monitoramento de Risco Geodinâmico — Rodovias do Estado de São Paulo</h1>
+                <p class="topbar-sub">
+                    Risco de escorregamentos, quedas de bloco e inundações associados a chuvas intensas e prolongadas
+                </p>
+            </div>
+            <div class="topbar-actions">
+                <span class="badge" id="badge-source" title="Origem dos dados pluviométricos">MERGE / INPE</span>
+                <span class="badge" id="badge-update" title="Última atualização (horário local)">—</span>
+            </div>
+        </header>
+
+        <div id="map"></div>
+
+        <!-- ============================================================
+             LEGENDAS DO MAPA (rodapé esquerdo)
+             ============================================================ -->
+        <div class="legend">
+            <div class="legend-block">
+                <div class="legend-title">Nível operacional dos pontos</div>
+                <div class="legend-rows">
+                    <div class="legend-item"><span class="dot rd-0"></span>0 — Monitoramento</div>
+                    <div class="legend-item"><span class="dot rd-1"></span>1 — Observação</div>
+                    <div class="legend-item"><span class="dot rd-2"></span>2 — Atenção</div>
+                    <div class="legend-item"><span class="dot rd-3"></span>3 — Alerta</div>
+                    <div class="legend-item"><span class="dot rd-4"></span>4 — Alerta Máximo</div>
+                </div>
+            </div>
+            <div class="legend-block">
+                <div class="legend-title">Malha rodoviária DER-SP</div>
+                <div class="legend-rows">
+                    <div class="legend-item"><span class="line line-dup"></span>Pista dupla</div>
+                    <div class="legend-item"><span class="line line-pav"></span>Pista simples pavimentada</div>
+                    <div class="legend-item"><span class="line line-imp"></span>Em implantação</div>
+                    <div class="legend-item"><span class="line line-plan"></span>Planejada</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============================================================
+         MODAL: Como ler os dados
+         ============================================================ -->
+    <div class="modal-backdrop" id="modal-help" hidden>
+        <div class="modal" role="dialog" aria-labelledby="modal-help-title">
+            <header class="modal-header">
+                <h2 id="modal-help-title">Como ler os dados de cada ponto</h2>
+                <button class="modal-close" data-close-modal aria-label="Fechar">×</button>
+            </header>
+            <div class="modal-body">
+                <p class="modal-intro">
+                    Cada ponto de monitoramento mostra três grupos de informação. Saber separar
+                    os três grupos é o que permite interpretar corretamente um alerta.
+                </p>
+
+                <h3>1. Chuva observada (gatilho meteorológico)</h3>
+                <p>Vem do produto MERGE/CPTEC/INPE, atualizado a cada hora.</p>
+                <table class="modal-table">
+                    <tr><th>Chuva 24h</th><td>Chuva acumulada nas últimas 24 horas. Gatilho de inundações e enxurradas.</td></tr>
+                    <tr><th>Acum. 96h</th><td>Chuva acumulada nas últimas 96 horas (4 dias). Gatilho de movimentos de massa.</td></tr>
+                    <tr><th>Intensidade</th><td>Quanto choveu na última hora medida (mm/h).</td></tr>
+                    <tr><th>CPC</th><td>Coeficiente de Precipitação Crítica. Razão entre chuva observada e a envoltória mínima da região. <b>CPC ≥ 1</b> significa que o limiar deflagrador foi atingido.</td></tr>
+                </table>
+
+                <h3>2. Vulnerabilidade do trecho (estática)</h3>
+                <p>Mapeada em campo pela equipe técnica, escala 1:1.000. Não muda com o tempo.</p>
+                <table class="modal-table">
+                    <tr><th>RA0</th><td>Risco analisado nulo a quase nulo</td></tr>
+                    <tr><th>RA1</th><td>Risco analisado baixo a muito baixo</td></tr>
+                    <tr><th>RA2</th><td>Risco analisado médio</td></tr>
+                    <tr><th>RA3</th><td>Risco analisado alto — encostas com evidências, drenagem precária</td></tr>
+                    <tr><th>RA4</th><td>Risco analisado muito alto — múltiplas evidências de instabilidade já instaladas</td></tr>
+                </table>
+
+                <h3>3. Risco Dinâmico (cálculo final)</h3>
+                <p>Combinação da vulnerabilidade com o gatilho meteorológico atual. <b>É o que dispara o nível operacional.</b></p>
+                <table class="modal-table">
+                    <tr><th>ICC geológico</th><td>Faixa atual do gatilho de movimentos de massa (escorregamento, queda de bloco).</td></tr>
+                    <tr><th>ICC hidrológico</th><td>Faixa atual do gatilho de eventos hidrológicos (inundação, enxurrada).</td></tr>
+                </table>
+                <p class="formula">RD = RA × ICC &nbsp;·&nbsp; RD final = max(RD<sub>geo</sub>, RD<sub>hid</sub>)</p>
+                <p class="modal-note">
+                    Pela matriz oficial DER-SP, qualquer ponto com ICC=0 produz RD=0, mesmo que
+                    o RA seja alto. Faz sentido: sem chuva, sem evento. Por isso é comum ver
+                    trechos com <b>RA3</b> (intrinsecamente perigosos) operando em
+                    <b>RD0 — Monitoramento</b> em dias secos.
+                </p>
+
+                <h3>Exemplo prático</h3>
+                <div class="modal-example">
+                    <p><b>Popup:</b> Chuva 24h = 0,1 mm · Acum. 96h = 11,3 mm · Intensidade = 0 mm/h · CPC = 0 · RA3 · ICC<sub>geo</sub>=0 · ICC<sub>hid</sub>=0</p>
+                    <p><b>Leitura:</b> trecho intrinsecamente perigoso (RA3 = alto), mas sem gatilho meteorológico ativo. Risco Dinâmico = 0 (Monitoramento de rotina). Não há ação necessária no momento, mas o trecho permanece em vigilância pelas equipes da UBA.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL: Glossário técnico
+         ============================================================ -->
+    <div class="modal-backdrop" id="modal-glossary" hidden>
+        <div class="modal" role="dialog" aria-labelledby="modal-glossary-title">
+            <header class="modal-header">
+                <h2 id="modal-glossary-title">Glossário técnico</h2>
+                <button class="modal-close" data-close-modal aria-label="Fechar">×</button>
+            </header>
+            <div class="modal-body">
+                <dl class="modal-glossary">
+                    <dt>SAMAEG</dt>
+                    <dd>Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico. Conceito do Produto 06 do contrato DER-SP / REGEA-NIPPON (2021).</dd>
+
+                    <dt>Risco Dinâmico (RD)</dt>
+                    <dd>Risco que varia em tempo real conforme as chuvas. Cinco classes: <b>0 Monitoramento</b>, <b>1 Observação</b>, <b>2 Atenção</b>, <b>3 Alerta</b>, <b>4 Alerta Máximo</b>.</dd>
+
+                    <dt>Risco Analisado (RA)</dt>
+                    <dd>Risco intrínseco do trecho, mapeado em campo (encostas, drenagem, evidências de instabilidade). Estático.</dd>
+
+                    <dt>ICC — Índice de Correlação com Chuvas</dt>
+                    <dd>Faixa (0 a 4) que mede quão próximo o evento chuvoso atual está do limiar histórico que disparou eventos passados.</dd>
+
+                    <dt>CPC — Coeficiente de Precipitação Crítica</dt>
+                    <dd>Razão entre a chuva observada e a envoltória crítica da região. CPC=1 significa que o limiar foi atingido. CPC=10 significa chuva 10× acima do limiar.</dd>
+
+                    <dt>Sensibilidade K</dt>
+                    <dd>Constante da envoltória crítica <code>I = K · Ac96h⁻⁰·⁹</code>. Cada região tem seu K próprio. <b>K=200</b> (São Sebastião) é mais sensível que <b>K=1000</b> (Mogi-Bertioga).</dd>
+
+                    <dt>MERGE / CPTEC / INPE</dt>
+                    <dd>Produto operacional do INPE que combina estimativas de satélite (GPM-IMERG) com pluviômetros de superfície brasileiros, gerando campo de chuva calibrado em grade de 0,1°. Atualização horária.</dd>
+
+                    <dt>Movimento de massa</dt>
+                    <dd>Conjunto de processos de instabilização de encostas: escorregamento, queda de bloco rochoso, corrida de lama, rastejo, solapamento de margem.</dd>
+
+                    <dt>Eventos hidrológicos</dt>
+                    <dd>Inundação fluvial, enxurrada (flash flood), alagamento urbano em pontos baixos da rodovia.</dd>
+
+                    <dt>UBA</dt>
+                    <dd>Unidade Básica de Atendimento do DER-SP. Responsável pela operação e manutenção rodoviária num trecho. Áreas-piloto deste sistema: Caraguatatuba, Mogi das Cruzes e São Vicente.</dd>
+
+                    <dt>PPDC</dt>
+                    <dd>Plano Preventivo de Defesa Civil. Os cinco níveis operacionais (Monitoramento → Alerta Máximo) seguem a nomenclatura do PPDC.</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>

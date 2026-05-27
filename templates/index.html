@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLI-HazardTrack · SIGMA — Sistema de Alerta de Risco Geodinâmico Rodoviário</title>
+    <title>PLI-HazardTrack — Adaptado do SAMAEG</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -157,11 +158,10 @@
 
     <main class="main">
         <header class="topbar">
-            <div>
-                <h1 id="topbar-title">Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico</h1>
+            <div class="topbar-title-block">
+                <h1 id="topbar-title">PLI-HazardTrack</h1>
                 <p class="topbar-sub">
-                    Programa Litoral Integrado · DER-SP — risco de escorregamentos, quedas de bloco
-                    e inundações associados a chuvas intensas e prolongadas
+                    Adaptado do Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico
                 </p>
             </div>
             <div class="topbar-actions">
@@ -312,8 +312,8 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="/static/vendor/leaflet/leaflet.js"></script>
+    <script src="/static/vendor/leaflet/leaflet-heat.js"></script>
     <script src="/static/app.js"></script>
 </body>
 </html>

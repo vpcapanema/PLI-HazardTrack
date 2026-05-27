@@ -1,30 +1,20 @@
-"""Teste de leitura real do MERGE/INPE."""
+"""Teste de leitura real do MERGE/INPE em streaming (sem disco)."""
 from datetime import datetime, timedelta, timezone
-from core.merge_inpe import download_hourly, _open_grib, _sample_at
+from core.merge_inpe import fetch_real_batch, fetch_mock
 
-# Pega arquivo de 6h atras (com folga para latencia de publicacao)
-target = (datetime.now(timezone.utc) - timedelta(hours=6)).replace(minute=0, second=0, microsecond=0)
-print(f"Baixando MERGE para {target.isoformat()}")
+# Pontos de exemplo (Sao Sebastiao e Caraguatatuba)
+points = [(-23.78, -45.51), (-23.62, -45.43)]
 
-path = download_hourly(target)
-if not path:
-    print("FALHOU: arquivo nao baixou. Tentando dia anterior...")
-    target = target - timedelta(days=1)
-    path = download_hourly(target)
+print("Buscando MERGE/INPE em streaming (96h, paralelo)...")
+res = fetch_real_batch(points)
 
-if path:
-    print(f"OK: baixado em {path} ({path.stat().st_size} bytes)")
-    print("Abrindo GRIB2 com cfgrib...")
-    ds = _open_grib(path)
-    print(f"Variaveis disponiveis: {list(ds.data_vars)}")
-    print(f"Coords: {list(ds.coords)}")
-    print(f"Lat range: {ds.latitude.min().values:.2f} -> {ds.latitude.max().values:.2f}")
-    print(f"Lon range: {ds.longitude.min().values:.2f} -> {ds.longitude.max().values:.2f}")
-
-    # Amostra em Sao Sebastiao (lat=-23.78, lon=-45.51)
-    lat, lon = -23.78, -45.51
-    val = _sample_at(ds, lat, lon)
-    print(f"\nChuva em Sao Sebastiao ({lat}, {lon}) na hora {target.hour}h UTC: {val:.2f} mm")
-    ds.close()
+if res:
+    for s in res:
+        print(f"  ({s.lat}, {s.lon}) -> 1h={s.intensity_mmh}mm, "
+              f"24h={s.ac24h_mm}mm, 96h={s.ac96h_mm}mm "
+              f"@ {s.timestamp_utc} [{s.source}]")
 else:
-    print("Sem dados disponiveis no INPE para este horario.")
+    print("eccodes indisponivel ou sem arquivos. Mock:")
+    for lat, lon in points:
+        m = fetch_mock(lat, lon)
+        print(f"  ({m.lat}, {m.lon}) -> {m.ac24h_mm}mm/24h, {m.ac96h_mm}mm/96h [{m.source}]")

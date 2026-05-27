@@ -2,11 +2,8 @@ flask==2.3.3
 flask-cors==4.0.0
 requests==2.31.0
 numpy==1.26.4
-xarray==2024.6.0
-cfgrib==0.9.10.4
 eccodes==1.7.0
 shapely==2.0.5
 apscheduler==3.10.4
 python-dotenv==1.0.0
 gunicorn==23.0.0
-pandas==2.3.3

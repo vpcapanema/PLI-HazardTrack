@@ -184,7 +184,26 @@ function renderSnapshot(snap) {
   const ts = snap.timestamp_utc ? new Date(snap.timestamp_utc) : null;
   const summary = snap.summary || {};
   const maxRd = summary.max_rd ?? 0;
-  const status = summary.data_status || "ok";   // ok | degraded | no_data | mock
+  const status = summary.data_status || "ok";   // ok | degraded | no_data | mock | loading
+
+  // ---- Primeiro ciclo ainda em andamento (servidor recem-bootado) ----
+  if (status === "loading") {
+    setStatus("Carregando primeira leitura do MERGE/INPE...", "warn");
+    document.getElementById("status-time").textContent =
+      "Pode levar até ~15 s no primeiro ciclo";
+    setBadge("badge-source", "MERGE / INPE", "loading");
+    setBadge("badge-update", "carregando", "loading");
+    renderPointsOnMap([]);
+    renderRegionsOnMap(snap.regions || []);
+    renderRegions(snap.regions || []);
+    renderWorstLoading();
+    document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
+    for (let i = 0; i <= 4; i++) {
+      const el = document.getElementById("count-" + i);
+      if (el) el.textContent = "—";
+    }
+    return;
+  }
 
   // ---- Estado de DADOS (precede o estado operacional) ----
   if (status === "no_data") {
@@ -260,11 +279,14 @@ function setBadge(id, text, kind) {
   const el = document.getElementById(id);
   if (!el) return;
   el.textContent = text;
-  el.classList.remove("badge-ok", "badge-degraded", "badge-no-data", "badge-mock");
+  el.classList.remove(
+    "badge-ok", "badge-degraded", "badge-no-data", "badge-mock", "badge-loading"
+  );
   if (kind === "ok") el.classList.add("badge-ok");
   else if (kind === "degraded") el.classList.add("badge-degraded");
   else if (kind === "no-data" || kind === "no_data") el.classList.add("badge-no-data");
   else if (kind === "mock") el.classList.add("badge-mock");
+  else if (kind === "loading") el.classList.add("badge-loading");
 }
 
 function renderWorstNoData(message) {
@@ -276,6 +298,21 @@ function renderWorstNoData(message) {
       <div class="no-data-msg">${escapeHtml(
         message || "MERGE/INPE indisponível neste ciclo. Tentando novamente em 10 min."
       )}</div>
+    </div>
+  `;
+}
+
+function renderWorstLoading() {
+  const card = document.getElementById("worst-card");
+  card.classList.add("empty");
+  card.innerHTML = `
+    <div class="worst-empty loading">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <div class="loading-title">Buscando dados do MERGE/INPE</div>
+      <div class="loading-msg">
+        Baixando 96 GRIBs horários do servidor INPE.
+        Isso costuma levar ~10–15 s no primeiro ciclo.
+      </div>
     </div>
   `;
 }

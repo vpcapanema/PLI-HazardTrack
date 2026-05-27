@@ -43,7 +43,16 @@ class State:
                 "total": len(self.points),
                 "by_level": {0: 0, 1: 0, 2: 0, 3: 0, 4: 0},
                 "max_rd": 0,
-                "max_rd_point": None
+                "max_rd_point": None,
+                # Estado inicial antes do primeiro update terminar.
+                # A UI usa isto para mostrar tela "Carregando" em vez
+                # de aparente snapshot vazio.
+                "data_status": "loading",
+                "data_source": "MERGE/INPE",
+                "degraded": False,
+                "files_ok": 0,
+                "missing_24h": 0,
+                "missing_96h": 0,
             },
             "regions": [
                 {

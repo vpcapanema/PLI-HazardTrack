@@ -588,10 +588,20 @@ body {
 .badge.badge-degraded  { background: #f39c12; color: #1c1207; }
 .badge.badge-no-data   { background: #b3261e; color: #fff; animation: pulse-bg 2s ease-in-out infinite; }
 .badge.badge-mock      { background: #475569; color: #cbd5e1; border: 1px dashed #94a3b8; }
+.badge.badge-loading   {
+  background: #1c3d59;
+  color: #cbd5e1;
+  animation: pulse-bg-blue 1.6s ease-in-out infinite;
+}
 
 @keyframes pulse-bg {
   0%, 100% { box-shadow: 0 0 0 0 rgba(179, 38, 30, 0.55); }
   50%      { box-shadow: 0 0 0 6px rgba(179, 38, 30, 0); }
+}
+
+@keyframes pulse-bg-blue {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(28, 61, 89, 0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(28, 61, 89, 0); }
 }
 
 /* Card "sem dado" no painel "Trecho Mais Crítico" */
@@ -616,6 +626,40 @@ body {
   color: var(--gray-500);
   font-size: 0.78rem;
   line-height: 1.45;
+}
+
+/* Card "carregando" - primeiro ciclo */
+.worst-empty.loading {
+  padding: 0.9rem 0.5rem 0.7rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.worst-empty.loading .loading-title {
+  color: var(--pli-navy);
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.worst-empty.loading .loading-msg {
+  color: var(--gray-500);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(28, 61, 89, 0.18);
+  border-top-color: var(--pli-verde);
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 #map {

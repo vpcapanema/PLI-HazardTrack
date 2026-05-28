@@ -30,6 +30,7 @@ const NIVEL_DESC = [
 const HAZARDS = {
   encosta: {
     label: "Instabilidade de encosta",
+    legendTitle: "Situação operacional dos trechos<br>rodoviários considerando: instabilidade de encosta",
     description: "Engloba escorregamento e queda de bloco. Pelo método em uso (REGEA-NIPPON 2021), são tratados na mesma envoltória crítica.",
     // Mesma escala dos pontos (niveis operacionais oficiais).
     palette: ["#2aa358", "#f1c40f", "#f39c12", "#e74c3c", "#8e44ad"],
@@ -39,6 +40,7 @@ const HAZARDS = {
   },
   inundacao: {
     label: "Inundação",
+    legendTitle: "Situação operacional dos trechos<br>rodoviários considerando: inundação",
     description: "Alagamento e enxurrada por chuva intensa de curto prazo (24h).",
     // Nivel 0 = mesmo verde dos pontos (Monitoramento). Niveis 1-3 sobem em azul,
     // nivel 4 vira magenta/violeta vivido para destaque maximo.
@@ -86,7 +88,7 @@ const state = {
   roadFilters: {
     tipo_pista: "",
     regional: "",
-    jurisdicao: "",
+    administra: "",
     rodovia: ""
   }
 };
@@ -109,10 +111,15 @@ function init() {
 
 function initMap() {
   state.map = L.map("map", {
-    zoomControl: true,
+    zoomControl: false,
     attributionControl: false,
   });
   state.map.fitBounds(SP_BOUNDS);
+
+  L.control.zoom({ position: "topright" }).addTo(state.map);
+
+  // Painel de camadas DENTRO do mapa (filho de .leaflet-control-container)
+  installMapLayerControl();
 
   L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
     attribution: "&copy; OpenStreetMap &copy; CARTO",
@@ -125,9 +132,65 @@ function initMap() {
     .addAttribution("OSM | CARTO | INPE/MERGE | DER-SP")
     .addTo(state.map);
 
-  state.layers.points = L.layerGroup().addTo(state.map);
-  state.layers.regions = L.layerGroup().addTo(state.map);
+  state.layers.points = L.layerGroup();   // criada vazia, ligada via toggle
+  state.layers.regions = L.layerGroup();  // criada vazia, ligada via toggle
   state.layers.roads = L.layerGroup().addTo(state.map);
+  // Camadas administrativas (criadas vazias; carregadas sob demanda no toggle)
+  state.layers.municipios = L.layerGroup();
+  state.layers.rc = L.layerGroup();
+  state.layers.uba = L.layerGroup();
+  state.layers.cgr = L.layerGroup();
+
+  // Mascara visual: tudo fora do estado de SP fica esmaecido. Carregamento
+  // assincrono - se falhar, o mapa funciona normal sem mascara.
+  loadSpMask();
+}
+
+/**
+ * Carrega o contorno do estado e desenha um poligono mundial com furo
+ * no formato de SP. Resultado: SP fica nitido, o restante levemente apagado.
+ */
+async function loadSpMask() {
+  try {
+    const gj = await (await fetch("/static/data/sp_state.geojson")).json();
+    const feat = (gj.features || [])[0];
+    if (!feat) return;
+
+    // Coleta o(s) anel(eis) externo(s) do estado em formato lat/lon Leaflet.
+    const collectRings = (geom) => {
+      if (geom.type === "Polygon") return [geom.coordinates[0]];
+      if (geom.type === "MultiPolygon") return geom.coordinates.map((p) => p[0]);
+      return [];
+    };
+    const sp_rings_lonlat = collectRings(feat.geometry);
+    const sp_rings_latlng = sp_rings_lonlat.map((ring) =>
+      ring.map(([lon, lat]) => [lat, lon])
+    );
+
+    // Anel externo "do mundo" (sentido horario) + aneis de SP como furos
+    const world = [[-90, -180], [-90, 180], [90, 180], [90, -180]];
+    const polys = [world, ...sp_rings_latlng];
+
+    const mask = L.polygon(polys, {
+      color: "transparent",
+      fillColor: "#0b1a2f",
+      fillOpacity: 0.25,
+      interactive: false,
+      smoothFactor: 1.5,
+    });
+    mask.addTo(state.map);
+
+    // Contorno fino do estado, ressaltando o limite
+    L.polygon(sp_rings_latlng, {
+      color: "#1f2937",
+      weight: 1.2,
+      opacity: 0.55,
+      fill: false,
+      interactive: false,
+    }).addTo(state.map);
+  } catch (e) {
+    console.warn("nao foi possivel carregar mascara de SP:", e);
+  }
 }
 
 // ============================================================================
@@ -174,8 +237,54 @@ function attachEvents() {
     else removeHeatmap();
   });
 
+  attachAdminLayerEvents();
   attachRoadFilterEvents();
   attachModalEvents();
+}
+
+/**
+ * Cria um L.Control com o painel "Camadas do mapa" - vira filho do
+ * .leaflet-control-container (dentro do conteiner do Leaflet, canto sup-esq).
+ */
+function installMapLayerControl() {
+  const Ctrl = L.Control.extend({
+    options: { position: "topleft" },
+    onAdd() {
+      const wrap = L.DomUtil.create("div", "map-layer-control leaflet-bar");
+      wrap.id = "map-layer-control";
+      wrap.innerHTML = `
+        <div class="map-layer-control-head">
+          <span class="map-layer-control-title">Camadas do mapa</span>
+          <button type="button" class="map-layer-control-toggle"
+                  id="map-layer-control-toggle" aria-label="Recolher/expandir">▾</button>
+        </div>
+        <div class="map-layer-control-body">
+          <label class="ck"><input type="checkbox" id="layer-points"> Pontos de monitoramento</label>
+          <label class="ck"><input type="checkbox" id="layer-regions"> Limites das regiões</label>
+          <label class="ck"><input type="checkbox" id="layer-heatmap"> Mapa de calor de risco</label>
+          <label class="ck"><input type="checkbox" id="layer-roads" checked> Malha rodoviária estadual</label>
+          <div id="hazard-toggles"></div>
+
+          <div class="ck-group-title">Limites administrativos</div>
+          <label class="ck"><input type="checkbox" id="layer-municipios"> Municípios (IGC 2021)</label>
+          <label class="ck"><input type="checkbox" id="layer-rc"> Residências de Conserva</label>
+          <label class="ck"><input type="checkbox" id="layer-uba"> Unidades Básicas de Atendimento</label>
+          <label class="ck"><input type="checkbox" id="layer-cgr"> Coordenadorias Gerais Regionais</label>
+        </div>
+      `;
+
+      // Bloqueia eventos de mapa (evita pan/zoom ao interagir com o painel)
+      L.DomEvent.disableClickPropagation(wrap);
+      L.DomEvent.disableScrollPropagation(wrap);
+
+      // Toggle recolher/expandir
+      const btn = wrap.querySelector("#map-layer-control-toggle");
+      btn.addEventListener("click", () => wrap.classList.toggle("collapsed"));
+
+      return wrap;
+    },
+  });
+  new Ctrl().addTo(state.map);
 }
 
 // ============================================================================
@@ -593,12 +702,14 @@ function removeHeatmap() {
 // MALHA RODOVIÁRIA DER-SP
 // ============================================================================
 
-// Cor neutra para trechos fora da cobertura ou monitorados sem dado
-const ROAD_UNMONITORED_STYLE = { color: "#9ca3af", weight: 1.6, opacity: 0.55 };
-const ROAD_NO_DATA_STYLE     = { color: "#94a3b8", weight: 2.0, opacity: 0.7, dashArray: "4,4" };
+// Cor neutra para trechos fora da cobertura ou monitorados sem dado.
+// Tom azul-acinzentado solido: aparece bem sobre o basemap claro mas nao
+// compete visualmente com as paletas das camadas classificadas.
+const ROAD_UNMONITORED_STYLE = { color: "#5b6b7d", weight: 1.8, opacity: 0.8 };
+const ROAD_NO_DATA_STYLE     = { color: "#5b6b7d", weight: 2.2, opacity: 0.9, dashArray: "5,4" };
 
-// Pesos por nivel - quanto mais grave, mais grossa a linha (alem da cor)
-const ROAD_WEIGHTS = [3.0, 3.5, 4.0, 4.5, 5.0];
+// Pesos por nivel - quanto mais grave, mais grossa a linha (escala aumentada)
+const ROAD_WEIGHTS = [4.0, 4.5, 5.0, 5.5, 6.0];
 
 // Para cada region_id, qual o RD maximo de cada hazard ativo no ciclo atual
 // roadRegionMaxRd: Map<region_id, { encosta: rd|null, inundacao: rd|null }>
@@ -682,6 +793,59 @@ async function loadRoadNetwork() {
   }
 }
 
+// ============================================================================
+// LIMITES ADMINISTRATIVOS (municipios, RC, UBA, CGR)
+// ============================================================================
+
+const ADMIN_LAYERS = {
+  municipios: {
+    file: "/static/data/municipios.geojson",
+    style: { color: "#475569", weight: 0.5, opacity: 0.45, fill: false, interactive: false },
+  },
+  rc: {
+    file: "/static/data/rc_poligonos.geojson",
+    style: { color: "#7c3aed", weight: 1.2, opacity: 0.7, fillColor: "#7c3aed", fillOpacity: 0.04, interactive: false },
+  },
+  uba: {
+    file: "/static/data/uba_poligonos.geojson",
+    style: { color: "#0d9488", weight: 1.4, opacity: 0.8, fill: false, interactive: false },
+  },
+  cgr: {
+    file: "/static/data/cgr_poligonos.geojson",
+    style: { color: "#b45309", weight: 1.8, opacity: 0.85, fill: false, interactive: false },
+  },
+};
+
+const adminLoaded = new Set();
+
+async function loadAdminLayer(key) {
+  if (adminLoaded.has(key)) return;
+  const cfg = ADMIN_LAYERS[key];
+  if (!cfg) return;
+  try {
+    const gj = await (await fetch(cfg.file)).json();
+    L.geoJSON(gj, { style: cfg.style }).addTo(state.layers[key]);
+    adminLoaded.add(key);
+  } catch (e) {
+    console.warn(`falha ao carregar camada ${key}:`, e);
+  }
+}
+
+function attachAdminLayerEvents() {
+  Object.keys(ADMIN_LAYERS).forEach((key) => {
+    const cb = document.getElementById(`layer-${key}`);
+    if (!cb) return;
+    cb.addEventListener("change", async (e) => {
+      if (e.target.checked) {
+        await loadAdminLayer(key);
+        state.map.addLayer(state.layers[key]);
+      } else {
+        state.map.removeLayer(state.layers[key]);
+      }
+    });
+  });
+}
+
 function populateFilterDropdowns(stats) {
   const fillSelect = (id, values) => {
     const sel = document.getElementById(id);
@@ -695,7 +859,7 @@ function populateFilterDropdowns(stats) {
   };
   fillSelect("filter-tipo-pista", stats.tipos_pista || []);
   fillSelect("filter-regional", stats.regionais || []);
-  fillSelect("filter-jurisdicao", stats.jurisdicoes || []);
+  fillSelect("filter-administra", stats.administra || []);
 }
 
 function updateStatsSummary(stats) {
@@ -719,7 +883,7 @@ function renderRoadsOnMap() {
       const p = feat.properties || {};
       if (f.tipo_pista && p.tipo_pista !== f.tipo_pista) return false;
       if (f.regional && p.regional !== f.regional) return false;
-      if (f.jurisdicao && p.jurisdicao !== f.jurisdicao) return false;
+      if (f.administra && p.administra !== f.administra) return false;
       if (f.rodovia) {
         const q = f.rodovia.toLowerCase();
         if (!(p.rodovia || "").toLowerCase().includes(q)) return false;
@@ -826,7 +990,6 @@ function buildRoadPopup(p) {
         <tr><td>Extensão</td><td>${p.extensao ? p.extensao.toFixed(2) + " km" : "—"}</td></tr>
         <tr><td>Tipo de via</td><td>${escapeHtml(p.tipo || "—")}</td></tr>
         <tr><td>Tipo de pista</td><td>${escapeHtml(p.tipo_pista || "—")}</td></tr>
-        <tr><td>Jurisdição</td><td>${escapeHtml(p.jurisdicao || "—")}</td></tr>
         <tr><td>Administração</td><td>${escapeHtml(p.administra || "—")}</td></tr>
         <tr><td>Residência DER</td><td>${escapeHtml(p.residencia || "—")}</td></tr>
       </table>
@@ -838,39 +1001,23 @@ function buildRoadPopup(p) {
 // PAINEL DE CAMADAS DE HAZARD + LEGENDA DINAMICA
 // ============================================================================
 
-/** Constroi a barrinha colorida (5 swatches) que ilustra a paleta de um hazard. */
-function buildPaletteBar(palette) {
-  return palette.map((c, i) =>
-    `<span class="haz-swatch" style="background:${c}" title="Nível ${i} · ${escapeHtml(NIVEL_LABEL[i])}"></span>`
-  ).join("");
-}
-
-/** Painel "Tipos de alerta na malha" na sidebar. */
+/** Toggles das camadas de hazard, no mesmo estilo das outras camadas do mapa. */
 function renderHazardPanel() {
-  const root = document.getElementById("hazard-panel");
+  const root = document.getElementById("hazard-toggles");
   if (!root) return;
   const items = Object.entries(HAZARDS)
     .filter(([, h]) => h.available)
     .map(([key, h]) => {
       const checked = HAZARD_STATE[key] ? "checked" : "";
       return `
-        <label class="haz-toggle">
+        <label class="ck">
           <input type="checkbox" data-hazard="${escapeHtml(key)}" ${checked}>
-          <div class="haz-info">
-            <div class="haz-line">
-              <span class="haz-label">${escapeHtml(h.label)}</span>
-              <span class="haz-source">${escapeHtml(h.source)}</span>
-            </div>
-            <div class="haz-palette" title="${escapeHtml(h.description)}">
-              ${buildPaletteBar(h.palette)}
-            </div>
-          </div>
+          ${escapeHtml(h.label)}
         </label>
       `;
     }).join("");
-  root.innerHTML = items || `<p class="empty">Nenhuma camada disponível.</p>`;
+  root.innerHTML = items;
 
-  // bind dos checkboxes (idempotente: sempre recria o HTML acima)
   root.querySelectorAll('input[type="checkbox"][data-hazard]').forEach((cb) => {
     cb.addEventListener("change", (e) => {
       const k = e.target.getAttribute("data-hazard");
@@ -886,33 +1033,32 @@ function renderHazardPanel() {
 function renderHazardLegend() {
   const root = document.getElementById("hazard-legend");
   if (!root) return;
-  const blocks = Object.entries(HAZARDS)
-    .filter(([k, h]) => h.available && HAZARD_STATE[k])
-    .map(([, h]) => `
-      <div class="legend-block">
-        <div class="legend-title">${escapeHtml(h.label)}</div>
-        <div class="legend-rows">
-          ${h.palette.map((c, i) => `
-            <div class="legend-item">
-              <span class="line" style="border-top:${ROAD_WEIGHTS[i]}px solid ${c}"></span>
-              ${i} — ${escapeHtml(NIVEL_LABEL[i])}
-            </div>
-          `).join("")}
-        </div>
-      </div>
-    `).join("");
 
-  const baseLine = `
+  const activeEntries = Object.entries(HAZARDS)
+    .filter(([k, h]) => h.available && HAZARD_STATE[k]);
+
+  if (activeEntries.length === 0) {
+    root.innerHTML = "";
+    return;
+  }
+
+  const blocks = activeEntries.map(([, h]) => `
     <div class="legend-block">
-      <div class="legend-title">Cobertura</div>
+      <div class="legend-title">${h.legendTitle || escapeHtml(h.label)}</div>
       <div class="legend-rows">
-        <div class="legend-item"><span class="line line-out"></span>Fora da cobertura</div>
+        ${h.palette.map((c, i) => `
+          <div class="legend-item">
+            <span class="line" style="border-top:${ROAD_WEIGHTS[i]}px solid ${c}"></span>
+            ${i} — ${escapeHtml(NIVEL_LABEL[i])}
+          </div>
+        `).join("")}
         <div class="legend-item"><span class="line line-rd-nd"></span>Monitorado · sem dado</div>
+        <div class="legend-item"><span class="line line-out"></span>Fora da área de monitoramento</div>
       </div>
     </div>
-  `;
+  `).join("");
 
-  root.innerHTML = (blocks || `<div class="legend-empty">Selecione uma camada de alerta no painel lateral.</div>`) + baseLine;
+  root.innerHTML = blocks;
 }
 
 function attachRoadFilterEvents() {
@@ -920,12 +1066,12 @@ function attachRoadFilterEvents() {
     state.roadFilters = {
       tipo_pista: document.getElementById("filter-tipo-pista").value,
       regional: document.getElementById("filter-regional").value,
-      jurisdicao: document.getElementById("filter-jurisdicao").value,
+      administra: document.getElementById("filter-administra").value,
       rodovia: document.getElementById("filter-rodovia").value.trim()
     };
     renderRoadsOnMap();
   };
-  ["filter-tipo-pista", "filter-regional", "filter-jurisdicao"].forEach((id) => {
+  ["filter-tipo-pista", "filter-regional", "filter-administra"].forEach((id) => {
     document.getElementById(id)?.addEventListener("change", handler);
   });
   let timer;
@@ -936,7 +1082,7 @@ function attachRoadFilterEvents() {
   document.getElementById("btn-clear-filters")?.addEventListener("click", () => {
     document.getElementById("filter-tipo-pista").value = "";
     document.getElementById("filter-regional").value = "";
-    document.getElementById("filter-jurisdicao").value = "";
+    document.getElementById("filter-administra").value = "";
     document.getElementById("filter-rodovia").value = "";
     handler();
   });

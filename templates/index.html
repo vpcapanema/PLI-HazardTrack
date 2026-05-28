@@ -31,7 +31,7 @@
              DISTRIBUIÇÃO POR NÍVEL OPERACIONAL
              ============================================================ -->
         <div class="panel">
-            <h2 class="panel-title">Distribuição por Nível Operacional</h2>
+            <h2 class="panel-title">Distribuição de trechos rodoviários por Nível Operacional</h2>
             <p class="panel-help">Quantidade de pontos de monitoramento em cada nível, conforme protocolo do Plano Preventivo da Defesa Civil (PPDC).</p>
             <div class="alert-meter" id="alert-meter">
                 <div class="meter-cell" data-rd="0" title="Sem chuva relevante. Monitoramento de rotina.">
@@ -90,26 +90,6 @@
         <!-- ============================================================
              CAMADAS DO MAPA
              ============================================================ -->
-        <div class="panel">
-            <h2 class="panel-title">Camadas do Mapa</h2>
-            <label class="ck"><input type="checkbox" id="layer-points" checked> Pontos de monitoramento</label>
-            <label class="ck"><input type="checkbox" id="layer-regions" checked> Limites das regiões</label>
-            <label class="ck"><input type="checkbox" id="layer-heatmap"> Mapa de calor de risco</label>
-            <label class="ck"><input type="checkbox" id="layer-roads" checked> Malha rodoviária DER-SP</label>
-        </div>
-
-        <!-- ============================================================
-             TIPOS DE ALERTA NA MALHA
-             ============================================================ -->
-        <div class="panel">
-            <h2 class="panel-title">Tipos de Alerta na Malha</h2>
-            <p class="panel-help">
-                Cada camada usa uma paleta própria. Trechos com mais de uma camada
-                ativa exibem a cor da camada com alerta mais grave.
-            </p>
-            <div id="hazard-panel" class="hazard-panel"></div>
-        </div>
-
         <!-- ============================================================
              FILTROS DA MALHA RODOVIÁRIA
              ============================================================ -->
@@ -132,8 +112,8 @@
             </div>
 
             <div class="filter-group">
-                <label for="filter-jurisdicao">Jurisdição</label>
-                <select id="filter-jurisdicao">
+                <label for="filter-administra">Administração</label>
+                <select id="filter-administra">
                     <option value="">Todas</option>
                 </select>
             </div>
@@ -189,17 +169,6 @@
              LEGENDAS DO MAPA (rodapé esquerdo)
              ============================================================ -->
         <div class="legend">
-            <div class="legend-block">
-                <div class="legend-title">Nível operacional dos pontos</div>
-                <div class="legend-rows">
-                    <div class="legend-item"><span class="dot rd-0"></span>0 — Monitoramento</div>
-                    <div class="legend-item"><span class="dot rd-1"></span>1 — Observação</div>
-                    <div class="legend-item"><span class="dot rd-2"></span>2 — Atenção</div>
-                    <div class="legend-item"><span class="dot rd-3"></span>3 — Alerta</div>
-                    <div class="legend-item"><span class="dot rd-4"></span>4 — Alerta Máximo</div>
-                    <div class="legend-item"><span class="dot rd-nd"></span>? — Sem dado</div>
-                </div>
-            </div>
             <div id="hazard-legend"></div>
         </div>
     </main>

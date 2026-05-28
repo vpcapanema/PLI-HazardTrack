@@ -411,6 +411,18 @@ body {
 .ck:hover { color: white; }
 .ck input { accent-color: var(--pli-verde); cursor: pointer; }
 
+.ck-group-title {
+  margin-top: 0.6rem;
+  margin-bottom: 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255, 255, 255, 0.55);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.5rem;
+}
+
 .btn {
   width: 100%;
   padding: 0.5rem 0.8rem;
@@ -763,8 +775,8 @@ body {
 .line-rd-2  { border-top: 4px solid #f7b73a; }
 .line-rd-3  { border-top: 4.5px solid #f37527; }
 .line-rd-4  { border-top: 5px solid #e02825; }
-.line-rd-nd { border-top: 2px dashed #94a3b8; }
-.line-out   { border-top: 1.6px solid #9ca3af; }
+.line-rd-nd { border-top: 2px dashed #5b6b7d; }
+.line-out   { border-top: 1.8px solid #5b6b7d; }
 
 /* ============================================================================
    POPUP DE TRECHO RODOVIARIO
@@ -826,64 +838,90 @@ body {
 .rd-pill.rd-4  { background: #e02825; }
 .rd-pill.rd-nd { background: #94a3b8; }
 
+/* Legenda dinamica do mapa: ocupa mesma area da legenda estatica */
+#hazard-legend { display: contents; }
+
 /* ============================================================================
-   PAINEL DE TIPOS DE ALERTA (sidebar)
+   PAINEL FLUTUANTE - CAMADAS DO MAPA (canto superior esquerdo do mapa)
    ============================================================================ */
 
-.hazard-panel {
+.map-layer-control {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-lg);
+  font-family: var(--font);
+  width: 250px;
+  max-height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  overflow: hidden;
+  /* sobrepoe o ::after default da .leaflet-bar (linha divisoria) */
+  --leaflet-bar-bg: #fff;
 }
+.map-layer-control.leaflet-bar { box-shadow: var(--shadow-lg); }
 
-.haz-toggle {
+.map-layer-control-head {
   display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
-  padding: 0.55rem 0.7rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  background: #fff;
-  transition: border-color 0.12s, background 0.12s;
-}
-.haz-toggle:hover { border-color: #cbd5e1; background: #f8fafc; }
-.haz-toggle input[type="checkbox"] { margin-top: 0.2rem; }
-
-.haz-info { flex: 1; min-width: 0; }
-.haz-line {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.3rem;
-}
-.haz-label {
-  font-weight: 600;
-  font-size: 0.84rem;
-  color: #1f2937;
-}
-.haz-source {
-  font-size: 0.68rem;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
+  justify-content: space-between;
+  padding: 0.55rem 0.7rem;
+  background: var(--pli-navy);
+  color: #fff;
+  cursor: default;
+  user-select: none;
 }
 
-.haz-palette { display: flex; gap: 2px; }
-.haz-swatch {
-  flex: 1;
-  height: 8px;
-  border-radius: 1px;
-}
-
-/* Legenda dinamica do mapa */
-#hazard-legend { display: contents; }
-.legend-empty {
+.map-layer-control-title {
+  font-family: var(--font-display);
   font-size: 0.74rem;
-  color: #94a3b8;
-  padding: 0.4rem 0;
-  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.map-layer-control-toggle {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.18s;
+}
+.map-layer-control-toggle:hover { background: rgba(255,255,255,.2); }
+
+.map-layer-control-body {
+  padding: 0.6rem 0.75rem 0.75rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* Override do estilo .ck (que era para sidebar escura) para fundo branco */
+.map-layer-control .ck {
+  color: var(--gray-700);
+  font-size: 0.78rem;
+  padding: 0.28rem 0;
+}
+.map-layer-control .ck:hover { color: var(--pli-navy); }
+
+.map-layer-control .ck-group-title {
+  color: var(--gray-500);
+  border-top: 1px solid var(--gray-200);
+}
+
+/* Estado recolhido: esconde o body, deixa só o cabeçalho */
+.map-layer-control.collapsed .map-layer-control-body { display: none; }
+.map-layer-control.collapsed .map-layer-control-toggle { transform: rotate(-90deg); }
+
+@media (max-width: 600px) {
+  .map-layer-control { width: calc(100% - 24px); }
 }
 
 /* ============================================================================

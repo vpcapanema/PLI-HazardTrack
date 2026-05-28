@@ -42,3 +42,15 @@ htmlcov/
 *.ppk
 *.pem
 .kiro/
+
+# Documentos de referencia (relatorios REGEA/IPA - nao versionar)
+data/Tema30_Resiliencia/
+
+# Zips originais dos shapefiles (versionamos so as pastas extraidas)
+data/*.zip
+
+# Shapefiles brutos sao insumo do build, nao runtime - versionamos so os
+# GeoJSONs gerados em static/data/. Mantem apenas data/malha_der/ (legado).
+data/RESIDENCIAS_CONSERVA_POLIGONOS/
+data/RESIDENCIAS_CONSERVA_SEDES/
+data/dradt_mvw_lml_municipio_a_2021/

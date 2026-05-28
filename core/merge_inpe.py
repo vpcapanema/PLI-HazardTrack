@@ -36,7 +36,10 @@ log = logging.getLogger("merge_inpe")
 INPE_BASE = "https://ftp.cptec.inpe.br/modelos/tempo/MERGE/GPM"
 PUBLISH_LAG_HOURS = 3
 HTTP_TIMEOUT = (10, 60)         # (connect, read)
-DEFAULT_WORKERS = 8
+# Em producao (Render free: 0.5 CPU / 512MB RAM) reduzimos os workers para
+# nao estourar memoria nem saturar CPU. Pode ser sobreposto via env.
+import os as _os
+DEFAULT_WORKERS = int(_os.environ.get("SAMAEG_WORKERS", "4"))
 
 # eccodes MEMFS nao e thread-safe: serializa o decode entre threads.
 _ECCODES_LOCK = Lock()
@@ -189,16 +192,27 @@ def fetch_real_batch(points: list,
 
     hours = [(h, target_hour - timedelta(hours=h)) for h in range(hours_back)]
 
+    log.info(
+        "MERGE batch: target=%s, %d horas, %d pontos, %d workers",
+        target_hour.isoformat(), hours_back, n, max(1, workers)
+    )
+
+    progress_every = max(1, hours_back // 6)  # ~6 marcos no log
+
     with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
         futures = {ex.submit(_process_hour, dt, lats, lons_360): h for h, dt in hours}
+        done = 0
         for fut in as_completed(futures):
             h = futures[fut]
             try:
                 _, samples = fut.result()
             except Exception as e:
                 log.debug("worker falhou em h=%d: %s", h, e)
-                continue
+                samples = None
+            done += 1
             if samples is None:
+                if done % progress_every == 0:
+                    log.info("MERGE progress %d/%d (ok=%d)", done, hours_back, files_ok)
                 continue
             for i in range(n):
                 v = samples[i]
@@ -206,6 +220,8 @@ def fetch_real_batch(points: list,
                     series[i][h] = v
             hour_ok[h] = True
             files_ok += 1
+            if done % progress_every == 0:
+                log.info("MERGE progress %d/%d (ok=%d)", done, hours_back, files_ok)
 
     if files_ok == 0:
         log.warning("nenhum GRIB MERGE foi lido com sucesso")

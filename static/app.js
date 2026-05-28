@@ -190,17 +190,19 @@ function renderSnapshot(snap) {
   if (status === "loading") {
     setStatus("Carregando primeira leitura do MERGE/INPE...", "warn");
     document.getElementById("status-time").textContent =
-      "Pode levar até ~15 s no primeiro ciclo";
+      "Pode levar até ~60 s no primeiro ciclo (Render free)";
     setBadge("badge-source", "MERGE / INPE", "loading");
     setBadge("badge-update", "carregando", "loading");
-    renderPointsOnMap([]);
+    // Mostra a malha em estilo "sem dado" para a interface nao ficar vazia
+    // enquanto o primeiro update do MERGE termina.
+    renderPointsOnMap(snap.points || []);
     renderRegionsOnMap(snap.regions || []);
     renderRegions(snap.regions || []);
     renderWorstLoading();
     document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
     for (let i = 0; i <= 4; i++) {
       const el = document.getElementById("count-" + i);
-      if (el) el.textContent = "—";
+      if (el) el.textContent = (i === 0 ? (snap.points || []).length : 0);
     }
     return;
   }

@@ -36,12 +36,31 @@ class State:
         self._lock = Lock()
         self.regions: List[Region] = load_regions()
         self.points = MONITORING_POINTS
+
+        # Seed inicial: pontos visiveis no mapa em "loading" (estilo sem dado).
+        # Importante para Render free, onde o primeiro ciclo MERGE pode levar
+        # 30-60 s e nao queremos tela vazia ate la.
+        seed_points = []
+        for p in self.points:
+            region = find_region_for_point(p["lat"], p["lon"], self.regions)
+            seed_points.append({
+                "id": p["id"], "nome": p["nome"], "rodovia": p["rodovia"], "km": p["km"],
+                "lat": p["lat"], "lon": p["lon"],
+                "region_id": region.id if region else None,
+                "region_name": region.nome if region else None,
+                "ac96h_mm": 0.0, "ac24h_mm": 0.0, "intensity_mmh": 0.0,
+                "cpc": None, "icc_geo": 0, "icc_hid": 0,
+                "ra": p.get("ra", 1),
+                "rd_geo": 0, "rd_hid": 0, "rd": 0, "nivel": "Aguardando",
+                "source": "NO_DATA",
+            })
+
         self.snapshot: Dict[str, Any] = {
             "timestamp_utc": None,
-            "points": [],
+            "points": seed_points,
             "summary": {
                 "total": len(self.points),
-                "by_level": {0: 0, 1: 0, 2: 0, 3: 0, 4: 0},
+                "by_level": {0: len(self.points), 1: 0, 2: 0, 3: 0, 4: 0},
                 "max_rd": 0,
                 "max_rd_point": None,
                 # Estado inicial antes do primeiro update terminar.

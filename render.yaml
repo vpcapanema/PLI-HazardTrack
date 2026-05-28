@@ -15,3 +15,6 @@ services:
       # Em producao NUNCA usar mock
       - key: SAMAEG_FORCE_MOCK
         value: "0"
+      # Free tier: 0.5 CPU / 512 MB. Mais workers do que isso satura.
+      - key: SAMAEG_WORKERS
+        value: "4"

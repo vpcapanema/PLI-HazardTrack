@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>PLI-HazardTrack · Operações</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/ops.css">
+</head>
+<body class="ops-login">
+    <main class="login-card">
+        <header>
+            <div class="login-logo">PLI-HazardTrack</div>
+            <h1>Painel de Operações</h1>
+            <p class="login-sub">Acesso restrito · diagnóstico do sistema</p>
+        </header>
+
+        {% if error %}
+        <div class="alert alert-error">
+            Usuário ou senha não conferem. Tente de novo.
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/ops/login" autocomplete="off">
+            <input type="hidden" name="next" value="{{ next_url }}">
+            <label>
+                <span>Usuário</span>
+                <input type="text" name="user" required autofocus autocomplete="username">
+            </label>
+            <label>
+                <span>Senha</span>
+                <input type="password" name="password" required autocomplete="current-password">
+            </label>
+            <button type="submit" class="btn-primary">Entrar</button>
+        </form>
+
+        <footer class="login-footer">
+            <a href="/">← Voltar para o monitoramento público</a>
+        </footer>
+    </main>
+</body>
+</html>

@@ -5,12 +5,16 @@ Versao 0.1 - Backend Flask + scheduler
 
 import logging
 import os
+import secrets
 import threading
+from datetime import timedelta
+
 from flask import Flask, render_template, jsonify
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from core.aggregator import state
+from core.ops import ops_bp
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,7 +32,18 @@ for _name in ("werkzeug", "gunicorn.access"):
     logging.getLogger(_name).addFilter(_HideHealthFilter())
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
+# Sessao Flask para a pagina /ops. Em prod, defina OPS_SECRET via env var.
+# Sem OPS_SECRET, geramos um random por processo (cookies caem ao reiniciar).
+app.config["SECRET_KEY"] = os.environ.get("OPS_SECRET") or secrets.token_hex(32)
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+# Em producao (Render = HTTPS) marca o cookie como secure
+if os.environ.get("RENDER") or os.environ.get("FORCE_HTTPS_COOKIES") == "1":
+    app.config["SESSION_COOKIE_SECURE"] = True
+app.permanent_session_lifetime = timedelta(hours=12)
+
 CORS(app)
+app.register_blueprint(ops_bp)
 
 
 # ============================================================================

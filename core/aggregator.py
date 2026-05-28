@@ -13,8 +13,10 @@ Politica de dados:
 
 from datetime import datetime, timezone
 from typing import List, Dict, Any
+from collections import deque
 import logging
 import os
+import time
 from threading import Lock
 
 from .regions import load_regions, find_region_for_point, Region
@@ -28,6 +30,8 @@ log = logging.getLogger("aggregator")
 DEGRADED_MISSING_24H_THRESHOLD = int(os.environ.get("SAMAEG_DEGRADED_24H", "6"))
 # Modo de desenvolvimento sem rede / sem eccodes
 FORCE_MOCK = os.environ.get("SAMAEG_FORCE_MOCK", "0") == "1"
+# Quantos ciclos manter no historico de runtime (para a pagina de ops)
+RUNTIME_HISTORY = 30
 
 
 class State:
@@ -36,6 +40,19 @@ class State:
         self._lock = Lock()
         self.regions: List[Region] = load_regions()
         self.points = MONITORING_POINTS
+
+        # Telemetria operacional
+        self.started_at = datetime.now(timezone.utc)
+        self.cycle_count = 0
+        self.cycle_success = 0
+        self.cycle_fail = 0
+        self.last_cycle_started_at = None
+        self.last_cycle_finished_at = None
+        self.last_cycle_duration_s = None
+        self.last_error = None
+        self.last_error_at = None
+        # Historico curto dos ultimos ciclos (para a pagina /ops)
+        self.cycle_history = deque(maxlen=RUNTIME_HISTORY)
 
         # Seed inicial: pontos visiveis no mapa em "loading" (estilo sem dado).
         # Importante para Render free, onde o primeiro ciclo MERGE pode levar
@@ -85,8 +102,47 @@ class State:
     def update(self):
         """Roda um ciclo completo de atualizacao."""
         now = datetime.now(timezone.utc)
+        t0 = time.monotonic()
+        self.cycle_count += 1
+        self.last_cycle_started_at = now
         log.info(f"Atualizando snapshot @ {now.isoformat()}")
 
+        try:
+            self._do_update(now)
+            self.cycle_success += 1
+            outcome = "ok"
+            err_msg = None
+        except Exception as e:  # noqa: BLE001
+            self.cycle_fail += 1
+            self.last_error = str(e)
+            self.last_error_at = datetime.now(timezone.utc)
+            outcome = "error"
+            err_msg = str(e)
+            log.exception("erro no ciclo de update: %s", e)
+            # Tambem publica um snapshot 'no_data' para a UI saber
+            try:
+                self._publish_no_data(now)
+            except Exception:
+                pass
+        finally:
+            duration = time.monotonic() - t0
+            self.last_cycle_finished_at = datetime.now(timezone.utc)
+            self.last_cycle_duration_s = round(duration, 2)
+            summary = self.snapshot.get("summary", {}) if hasattr(self, "snapshot") else {}
+            self.cycle_history.append({
+                "started_at": now.isoformat(),
+                "finished_at": self.last_cycle_finished_at.isoformat(),
+                "duration_s": round(duration, 2),
+                "outcome": outcome,
+                "data_status": summary.get("data_status"),
+                "files_ok": summary.get("files_ok"),
+                "missing_24h": summary.get("missing_24h"),
+                "max_rd": summary.get("max_rd", 0),
+                "error": err_msg,
+            })
+
+    def _do_update(self, now):
+        """Logica do ciclo, separada para captura de erro/timing em update()."""
         # Caminho de producao: SOMENTE MERGE/INPE real.
         coords = [(p["lat"], p["lon"]) for p in self.points]
         rain_batch = fetch_real_batch(coords, now)
@@ -237,6 +293,28 @@ class State:
     def get_snapshot(self) -> Dict[str, Any]:
         with self._lock:
             return dict(self.snapshot)
+
+    def get_runtime(self) -> Dict[str, Any]:
+        """Telemetria de execucao para a pagina de operacoes."""
+        with self._lock:
+            return {
+                "started_at": self.started_at.isoformat(),
+                "uptime_s": (datetime.now(timezone.utc) - self.started_at).total_seconds(),
+                "cycle_count": self.cycle_count,
+                "cycle_success": self.cycle_success,
+                "cycle_fail": self.cycle_fail,
+                "last_cycle_started_at": self.last_cycle_started_at.isoformat()
+                    if self.last_cycle_started_at else None,
+                "last_cycle_finished_at": self.last_cycle_finished_at.isoformat()
+                    if self.last_cycle_finished_at else None,
+                "last_cycle_duration_s": self.last_cycle_duration_s,
+                "last_error": self.last_error,
+                "last_error_at": self.last_error_at.isoformat()
+                    if self.last_error_at else None,
+                "history": list(self.cycle_history),
+                "force_mock": FORCE_MOCK,
+                "degraded_threshold": DEGRADED_MISSING_24H_THRESHOLD,
+            }
 
 
 # Singleton

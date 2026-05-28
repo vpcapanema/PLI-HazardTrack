@@ -18,3 +18,12 @@ services:
       # Free tier: 0.5 CPU / 512 MB. Mais workers do que isso satura.
       - key: SAMAEG_WORKERS
         value: "4"
+      # Pagina /ops - configure no painel do Render (Settings > Environment)
+      - key: OPS_USER
+        sync: false
+      - key: OPS_PASS
+        sync: false
+      - key: OPS_PASS_SHA256
+        sync: false
+      - key: OPS_SECRET
+        sync: false

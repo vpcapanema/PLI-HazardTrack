@@ -1,0 +1,80 @@
+# =============================================================================
+# PLI-HazardTrack - virtual host para o Nginx do HOST da VM
+#
+# Local final: /etc/nginx/sites-available/pli-hazardtrack
+# Symlink em:  /etc/nginx/sites-enabled/pli-hazardtrack
+#
+# IMPORTANTE: este arquivo e ADITIVO - o sigma-pli existente nao e tocado.
+# O Nginx roteia por server_name (Host header), entao requests pra
+# pli-hazardtrack.* vem pra ca, todo o resto continua indo pro Sigma/FAD.
+#
+# Hostname: pli-hazardtrack.56-125-163-194.sslip.io
+#   (sslip.io resolve qualquer subdominio do tipo *.<ip>.sslip.io para o IP,
+#    sem precisar de DNS proprio. Quando tiver dominio definitivo,
+#    so trocar o server_name aqui.)
+# =============================================================================
+
+upstream pli_hazardtrack_app {
+    server 127.0.0.1:5050;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name pli-hazardtrack.56-125-163-194.sslip.io;
+
+    # Limites e timeouts pensados no ciclo MERGE (96 GRIBs em flight)
+    client_max_body_size 4m;
+    proxy_connect_timeout  10s;
+    proxy_send_timeout     120s;
+    proxy_read_timeout     120s;
+    send_timeout           120s;
+
+    # Logs proprios (separados do sigma-pli)
+    access_log /var/log/nginx/pli-hazardtrack.access.log;
+    error_log  /var/log/nginx/pli-hazardtrack.error.log warn;
+
+    # Healthcheck publico (sem log de acesso)
+    location = /api/health {
+        proxy_pass http://pli_hazardtrack_app;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+        access_log off;
+    }
+
+    # Static assets: cache curto no navegador
+    location ~* ^/static/.+\.(?:css|js|svg|png|jpg|jpeg|ico|woff2?)$ {
+        proxy_pass http://pli_hazardtrack_app;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection "";
+        expires 1h;
+        add_header Cache-Control "public, max-age=3600";
+        access_log off;
+    }
+
+    # App (UI publica, /api/snapshot, /ops)
+    location / {
+        proxy_pass http://pli_hazardtrack_app;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+    }
+}
+
+# ----------------------------------------------------------------------------
+# Quando tiver dominio proprio (ex: hazardtrack.semil.sp.gov.br):
+#   1) Aponte o registro DNS A -> 56.125.163.194
+#   2) Troque o server_name acima
+#   3) sudo certbot --nginx -d hazardtrack.semil.sp.gov.br
+# O certbot reescreve o arquivo automaticamente para 443 + TLS.
+# ----------------------------------------------------------------------------

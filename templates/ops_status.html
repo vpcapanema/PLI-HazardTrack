@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>PLI-HazardTrack · Operações</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/ops.css">
+</head>
+<body class="ops-status">
+    <header class="ops-topbar">
+        <div class="ops-brand">
+            <strong>PLI-HazardTrack</strong>
+            <span>· Painel de Operações</span>
+        </div>
+        <div class="ops-actions">
+            <span id="updated-at" class="updated-at">—</span>
+            <button id="btn-refresh" type="button" class="btn-secondary">Atualizar</button>
+            <a href="/" class="btn-link">Mapa público</a>
+            <form method="POST" action="/ops/logout" class="logout-form">
+                <button type="submit" class="btn-link">Sair</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="ops-grid">
+        <!-- ===================================================
+             1. VISÃO GERAL — semáforos
+             =================================================== -->
+        <section class="card card-full">
+            <h2>Visão geral</h2>
+            <p class="card-help">
+                Cada bolinha resume um pedaço do sistema. Verde é tudo nos conformes,
+                amarelo é "está rolando mas merece atenção", vermelho pede ação.
+            </p>
+            <div class="lights" id="lights"></div>
+            <div class="kv-grid" id="overview-kv"></div>
+        </section>
+
+        <!-- ===================================================
+             2. FONTES EXTERNAS — INPE, basemap, fontes
+             =================================================== -->
+        <section class="card">
+            <h2>Fontes externas</h2>
+            <p class="card-help">
+                Serviços de terceiros dos quais o sistema depende. Se um deles cair,
+                a aplicação degrada de forma controlada e mostra "sem dado".
+            </p>
+            <div id="external-sources"></div>
+        </section>
+
+        <!-- ===================================================
+             3. PLATAFORMA / RUNTIME
+             =================================================== -->
+        <section class="card">
+            <h2>Plataforma e runtime</h2>
+            <p class="card-help">
+                Onde o servidor está rodando, qual a versão do Python, dependências
+                instaladas e variáveis de ambiente que controlam o comportamento.
+            </p>
+            <div id="platform"></div>
+        </section>
+
+        <!-- ===================================================
+             4. PIPELINE DE DADOS — scheduler, qualidade, histórico
+             =================================================== -->
+        <section class="card card-full">
+            <h2>Pipeline de dados</h2>
+            <p class="card-help">
+                Cada 10 minutos o sistema roda um ciclo: busca os GRIBs do INPE,
+                amostra os pontos, calcula RD e publica. Aqui você vê se o último
+                ciclo deu certo, quanto demorou e o histórico recente.
+            </p>
+            <div id="pipeline"></div>
+            <h3 class="subhead">Histórico recente</h3>
+            <div class="history-wrap">
+                <table class="history-table" id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Início (UTC)</th>
+                            <th>Duração</th>
+                            <th>Status</th>
+                            <th>Files OK</th>
+                            <th>Faltando 24h</th>
+                            <th>RD máx</th>
+                            <th>Erro</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===================================================
+             5. MODELO / METODOLOGIA
+             =================================================== -->
+        <section class="card">
+            <h2>Modelo e metodologia</h2>
+            <p class="card-help">
+                Parâmetros do modelo DER-SP / REGEA-NIPPON 2021. As regiões e o
+                Risco Analisado (RA) são a parte "estática" — só mudam quando há
+                novo levantamento de campo.
+            </p>
+            <div id="methodology"></div>
+        </section>
+
+        <!-- ===================================================
+             6. APLICAÇÃO WEB
+             =================================================== -->
+        <section class="card">
+            <h2>Aplicação web</h2>
+            <p class="card-help">
+                Rotas registradas no Flask, assets estáticos e identificação da sessão atual.
+            </p>
+            <div id="web-app"></div>
+        </section>
+
+        <!-- JSON cru para suporte/debug -->
+        <section class="card card-full">
+            <h2>JSON cru (para suporte)</h2>
+            <p class="card-help">
+                Resposta completa do <code>/ops/api/diagnostics</code>. Útil para colar
+                num chamado ou auditoria.
+            </p>
+            <details>
+                <summary>Mostrar JSON</summary>
+                <pre id="raw-json"></pre>
+            </details>
+        </section>
+    </main>
+
+    <script>
+        // Diagnóstico inicial vem do servidor; depois auto-refresh via fetch.
+        const BOOT_DIAG = {{ diag | tojson }};
+        renderAll(BOOT_DIAG);
+
+        document.getElementById("btn-refresh").addEventListener("click", refresh);
+        setInterval(refresh, 30_000);
+
+        async function refresh() {
+            try {
+                const r = await fetch("/ops/api/diagnostics", { credentials: "same-origin" });
+                if (r.status === 401) { window.location = "/ops/login"; return; }
+                const d = await r.json();
+                renderAll(d);
+            } catch (e) {
+                console.warn("falha ao atualizar diagnostics:", e);
+            }
+        }
+
+        function renderAll(d) {
+            document.getElementById("updated-at").textContent =
+                "Atualizado " + new Date(d.generated_at).toLocaleString("pt-BR");
+            renderLights(d.overview.lights);
+            renderOverview(d.overview);
+            renderExternal(d.external_sources);
+            renderPlatform(d.platform);
+            renderPipeline(d.pipeline);
+            renderMethodology(d.methodology);
+            renderWeb(d.web);
+            document.getElementById("raw-json").textContent = JSON.stringify(d, null, 2);
+        }
+
+        // ---- helpers ---------------------------------------------------
+        function el(tag, cls, html) {
+            const e = document.createElement(tag);
+            if (cls) e.className = cls;
+            if (html != null) e.innerHTML = html;
+            return e;
+        }
+        function fmtBool(v) { return v ? "✔" : "✘"; }
+        function fmtSec(s) {
+            if (s == null) return "—";
+            if (s < 60) return s.toFixed(1) + " s";
+            if (s < 3600) return (s/60).toFixed(1) + " min";
+            return (s/3600).toFixed(1) + " h";
+        }
+        function fmtTime(iso) {
+            return iso ? new Date(iso).toLocaleString("pt-BR") : "—";
+        }
+        function escapeHtml(s) {
+            const div = document.createElement("div");
+            div.textContent = (s == null ? "" : String(s));
+            return div.innerHTML;
+        }
+
+        // ---- 1. lights -------------------------------------------------
+        function renderLights(lights) {
+            const labels = {
+                data: ["Dados de chuva", "Estado do snapshot publicado"],
+                scheduler: ["Scheduler", "Ciclos rodando a cada 10 min"],
+                eccodes: ["libeccodes (C)", "Decodificador de GRIB do ECMWF"],
+                errors: ["Erros recentes", "Última exceção registrada"],
+            };
+            const root = document.getElementById("lights");
+            root.innerHTML = "";
+            for (const [k, v] of Object.entries(lights || {})) {
+                const lab = labels[k] || [k, ""];
+                const dot = el("span", "light-dot light-" + (v || "warn"));
+                const tile = el("div", "light-tile");
+                tile.appendChild(dot);
+                tile.appendChild(el("div", "light-label",
+                    `<b>${escapeHtml(lab[0])}</b><small>${escapeHtml(lab[1])}</small>`));
+                root.appendChild(tile);
+            }
+        }
+
+        function renderOverview(o) {
+            const kv = document.getElementById("overview-kv");
+            kv.innerHTML = "";
+            const rows = [
+                ["Status do dado", o.data_status || "—"],
+                ["Fonte", o.data_source || "—"],
+                ["Última publicação", fmtTime(o.last_update)],
+                ["Pontos publicados", `${o.points_loaded}`],
+                ["RD máximo", `${o.max_rd}${o.max_rd_name ? " — " + o.max_rd_name : ""}`],
+                ["Files OK no último ciclo", `${o.files_ok}`],
+                ["Faltando em 24h", `${o.missing_24h ?? "—"}`],
+                ["Faltando em 96h", `${o.missing_96h ?? "—"}`],
+                ["Uptime do processo", fmtSec(o.uptime_s)],
+                ["Ciclos (sucesso/total)", `${o.cycle_success} / ${o.cycle_count}`],
+                ["Ciclos com falha", `${o.cycle_fail}`],
+            ];
+            for (const [k, v] of rows) {
+                kv.appendChild(kvRow(k, v));
+            }
+        }
+
+        function kvRow(k, v) {
+            const row = el("div", "kv");
+            row.appendChild(el("span", "kv-k", escapeHtml(k)));
+            row.appendChild(el("span", "kv-v", escapeHtml(v)));
+            return row;
+        }
+
+        // ---- 2. external sources --------------------------------------
+        function renderExternal(ext) {
+            const root = document.getElementById("external-sources");
+            root.innerHTML = "";
+            for (const [key, src] of Object.entries(ext)) {
+                const r = src.reachability || {};
+                const card = el("div", "subcard");
+                const lightCls = r.ok ? "ok" : "fail";
+                card.appendChild(el("div", "subcard-head",
+                    `<span class="light-dot light-${lightCls}"></span>
+                     <b>${escapeHtml(src.name)}</b>
+                     <small>${escapeHtml(src.role || "")}</small>`));
+                const kv = el("div", "kv-grid");
+                kv.appendChild(kvRow("URL de teste", r.url || "—"));
+                kv.appendChild(kvRow("HTTP", r.status != null ? r.status : "sem resposta"));
+                kv.appendChild(kvRow("Latência", r.elapsed_ms != null ? r.elapsed_ms + " ms" : "—"));
+                if (r.error) kv.appendChild(kvRow("Erro", r.error));
+                if (src.publish_lag_hours != null) {
+                    kv.appendChild(kvRow("Latência de publicação", src.publish_lag_hours + " h"));
+                }
+                if (src.notes) kv.appendChild(kvRow("Observação", src.notes));
+                card.appendChild(kv);
+                root.appendChild(card);
+            }
+        }
+
+        // ---- 3. platform ----------------------------------------------
+        function renderPlatform(p) {
+            const root = document.getElementById("platform");
+            root.innerHTML = "";
+
+            const sec = (title, rows) => {
+                const card = el("div", "subcard");
+                card.appendChild(el("div", "subcard-head", `<b>${escapeHtml(title)}</b>`));
+                const kv = el("div", "kv-grid");
+                for (const [k, v] of rows) kv.appendChild(kvRow(k, v));
+                card.appendChild(kv);
+                return card;
+            };
+
+            root.appendChild(sec("Python", [
+                ["Versão", p.python.version],
+                ["Implementação", p.python.implementation],
+                ["Executável", p.python.executable],
+            ]));
+            root.appendChild(sec("Sistema", [
+                ["Plataforma", p.system.platform],
+                ["Arquitetura", p.system.machine],
+                ["Hostname", p.system.hostname],
+            ]));
+            root.appendChild(sec("Processo", [
+                ["PID", p.process.pid],
+                ["Memória RSS", p.process.memory_rss_mb != null ? p.process.memory_rss_mb + " MB" : "—"],
+                ["Iniciado em", fmtTime(p.process.started_at)],
+                ["Uptime", fmtSec(p.process.uptime_s)],
+                ["Disco", p.process.disk
+                    ? `${p.process.disk.used_mb} / ${p.process.disk.total_mb} MB usados (livre: ${p.process.disk.free_mb} MB)`
+                    : "—"],
+            ]));
+
+            const deps = Object.entries(p.dependencies).map(([k, v]) => {
+                if (typeof v === "boolean") return [k, fmtBool(v)];
+                return [k, v || "n/d"];
+            });
+            root.appendChild(sec("Dependências", deps));
+
+            const flags = Object.entries(p.env_flags).map(([k, v]) => [k, v || "(vazio)"]);
+            root.appendChild(sec("Variáveis de ambiente", flags));
+        }
+
+        // ---- 4. pipeline + history ------------------------------------
+        function renderPipeline(p) {
+            const root = document.getElementById("pipeline");
+            root.innerHTML = "";
+
+            const sched = el("div", "subcard");
+            sched.appendChild(el("div", "subcard-head", `<b>Scheduler</b>`));
+            const kv1 = el("div", "kv-grid");
+            const s = p.scheduler;
+            const rows1 = [
+                ["Intervalo", s.interval_min + " min"],
+                ["Total de ciclos", s.cycle_count],
+                ["Sucessos", s.cycle_success],
+                ["Falhas", s.cycle_fail],
+                ["Último início", fmtTime(s.last_started_at)],
+                ["Último fim", fmtTime(s.last_finished_at)],
+                ["Última duração", fmtSec(s.last_duration_s)],
+                ["Modo mock", s.force_mock ? "ATIVO (dev)" : "off"],
+                ["Limiar 'degradado' (h)", s.degraded_threshold_h],
+            ];
+            for (const [k, v] of rows1) kv1.appendChild(kvRow(k, v));
+            sched.appendChild(kv1);
+            if (s.last_error) {
+                const errBox = el("div", "alert alert-error",
+                    `<b>Último erro</b> (${fmtTime(s.last_error_at)}):<br><code>${escapeHtml(s.last_error)}</code>`);
+                sched.appendChild(errBox);
+            }
+            root.appendChild(sched);
+
+            const dq = el("div", "subcard");
+            dq.appendChild(el("div", "subcard-head", `<b>Qualidade do snapshot publicado</b>`));
+            const kv2 = el("div", "kv-grid");
+            const q = p.data_quality;
+            const rows2 = [
+                ["Status", q.data_status || "—"],
+                ["Files OK", q.files_ok],
+                ["Faltando 24h", q.missing_24h],
+                ["Faltando 96h", q.missing_96h],
+                ["RD máximo", q.max_rd],
+                ["Distribuição por nível", JSON.stringify(q.by_level || {})],
+            ];
+            for (const [k, v] of rows2) kv2.appendChild(kvRow(k, v));
+            dq.appendChild(kv2);
+            root.appendChild(dq);
+
+            // Histórico
+            const tbody = document.querySelector("#history-table tbody");
+            tbody.innerHTML = "";
+            const rows = (p.history || []).slice().reverse();
+            for (const h of rows) {
+                const tr = document.createElement("tr");
+                tr.className = h.outcome === "ok" ? "row-ok" : "row-fail";
+                tr.innerHTML = `
+                    <td>${escapeHtml(h.started_at)}</td>
+                    <td>${fmtSec(h.duration_s)}</td>
+                    <td>${escapeHtml(h.outcome)} · ${escapeHtml(h.data_status || "")}</td>
+                    <td>${h.files_ok ?? "—"}</td>
+                    <td>${h.missing_24h ?? "—"}</td>
+                    <td>${h.max_rd ?? "—"}</td>
+                    <td><code>${escapeHtml(h.error || "")}</code></td>
+                `;
+                tbody.appendChild(tr);
+            }
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="empty">Sem ciclos registrados ainda.</td></tr>`;
+            }
+        }
+
+        // ---- 5. methodology -------------------------------------------
+        function renderMethodology(m) {
+            const root = document.getElementById("methodology");
+            root.innerHTML = "";
+
+            const reg = el("div", "subcard");
+            reg.appendChild(el("div", "subcard-head", `<b>Regiões DER-SP</b>`));
+            const t = el("table", "small-table",
+                `<thead><tr>
+                    <th>ID</th><th>Nome</th><th>Rodovia</th><th>K (geo)</th>
+                </tr></thead><tbody></tbody>`);
+            const tb = t.querySelector("tbody");
+            for (const r of m.regions || []) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${r.id}</td>
+                    <td>${escapeHtml(r.nome)}</td>
+                    <td>${escapeHtml(r.rodovia || "")}</td>
+                    <td>${r.k_geo}</td>`;
+                tb.appendChild(tr);
+            }
+            reg.appendChild(t);
+            root.appendChild(reg);
+
+            const pts = el("div", "subcard");
+            pts.appendChild(el("div", "subcard-head", `<b>Pontos de monitoramento</b>`));
+            const kv = el("div", "kv-grid");
+            kv.appendChild(kvRow("Total", m.points_total));
+            for (const [k, v] of Object.entries(m.points_by_region || {})) {
+                kv.appendChild(kvRow("Por região: " + k, v));
+            }
+            kv.appendChild(kvRow("Modo do RA", m.ra_mode));
+            pts.appendChild(kv);
+            root.appendChild(pts);
+
+            const f = el("div", "subcard");
+            f.appendChild(el("div", "subcard-head", `<b>Fórmulas e níveis</b>`));
+            const kv2 = el("div", "kv-grid");
+            kv2.appendChild(kvRow("Envoltória crítica", m.formulas.envoltoria_critica));
+            kv2.appendChild(kvRow("CPC", m.formulas.cpc));
+            kv2.appendChild(kvRow("RD final", m.formulas.rd));
+            for (const [k, v] of Object.entries(m.niveis || {})) {
+                kv2.appendChild(kvRow("Nível " + k, v));
+            }
+            f.appendChild(kv2);
+            root.appendChild(f);
+        }
+
+        // ---- 6. web ----------------------------------------------------
+        function renderWeb(w) {
+            const root = document.getElementById("web-app");
+            root.innerHTML = "";
+
+            const r = el("div", "subcard");
+            r.appendChild(el("div", "subcard-head", `<b>Rotas registradas</b>`));
+            const t = el("table", "small-table",
+                `<thead><tr><th>Método</th><th>URL</th><th>Endpoint</th></tr></thead><tbody></tbody>`);
+            const tb = t.querySelector("tbody");
+            for (const route of w.routes || []) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><code>${escapeHtml(route.methods.join(","))}</code></td>
+                    <td><code>${escapeHtml(route.rule)}</code></td>
+                    <td><small>${escapeHtml(route.endpoint)}</small></td>`;
+                tb.appendChild(tr);
+            }
+            r.appendChild(t);
+            root.appendChild(r);
+
+            const a = el("div", "subcard");
+            a.appendChild(el("div", "subcard-head", `<b>Assets estáticos</b>`));
+            const kv = el("div", "kv-grid");
+            for (const [k, v] of Object.entries(w.static_assets || {})) {
+                kv.appendChild(kvRow(k, v));
+            }
+            a.appendChild(kv);
+            root.appendChild(a);
+
+            const s = el("div", "subcard");
+            s.appendChild(el("div", "subcard-head", `<b>Sessão</b>`));
+            const kv2 = el("div", "kv-grid");
+            kv2.appendChild(kvRow("Usuário", w.session?.user || "anônimo"));
+            kv2.appendChild(kvRow("IP remoto", w.session?.remote_addr || "—"));
+            kv2.appendChild(kvRow("User-Agent", w.session?.user_agent || "—"));
+            s.appendChild(kv2);
+            root.appendChild(s);
+        }
+    </script>
+</body>
+</html>

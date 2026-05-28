@@ -21,6 +21,58 @@ const NIVEL_DESC = [
   "Risco severo"
 ];
 
+// ============================================================================
+// REGISTRY DE CAMADAS DE HAZARD
+// Cada camada tem paleta propria de 5 niveis (escuro = mais grave) e funcao
+// que extrai o RD daquele hazard a partir de um ponto do snapshot.
+// Para adicionar uma camada nova: registrar entrada aqui + tornar `available`.
+// ============================================================================
+const HAZARDS = {
+  encosta: {
+    label: "Instabilidade de encosta",
+    description: "Engloba escorregamento e queda de bloco. Pelo método em uso (REGEA-NIPPON 2021), são tratados na mesma envoltória crítica.",
+    palette: ["#fde2cf", "#f9bb89", "#f08a4b", "#d4541a", "#8a2a04"],
+    source: "REGEA-NIPPON 2021",
+    available: true,
+    rdFrom: (point) => Number.isInteger(point?.rd_geo) ? point.rd_geo : null,
+  },
+  inundacao: {
+    label: "Inundação",
+    description: "Alagamento e enxurrada por chuva intensa de curto prazo (24h).",
+    palette: ["#cfe5ff", "#85b8e6", "#3d8acc", "#1c5ea8", "#0a3878"],
+    source: "REGEA-NIPPON 2021",
+    available: true,
+    rdFrom: (point) => Number.isInteger(point?.rd_hid) ? point.rd_hid : null,
+  },
+};
+
+// Estado das camadas, persistido em localStorage (controle do usuario).
+// Default: todas as disponiveis ligadas; o que o usuario alterar fica salvo.
+const HAZARD_STORAGE_KEY = "pli_hazardtrack.hazard_layers.v1";
+
+function _loadHazardState() {
+  const defaults = Object.fromEntries(
+    Object.entries(HAZARDS).filter(([, h]) => h.available).map(([k]) => [k, true])
+  );
+  try {
+    const raw = localStorage.getItem(HAZARD_STORAGE_KEY);
+    if (!raw) return defaults;
+    const saved = JSON.parse(raw);
+    // Mescla: chaves novas (versoes futuras) entram como default
+    return { ...defaults, ...saved };
+  } catch {
+    return defaults;
+  }
+}
+
+function saveHazardState() {
+  try {
+    localStorage.setItem(HAZARD_STORAGE_KEY, JSON.stringify(HAZARD_STATE));
+  } catch { /* storage cheio/bloqueado: ignora */ }
+}
+
+const HAZARD_STATE = _loadHazardState();
+
 const state = {
   map: null,
   layers: { points: null, regions: null, heat: null, roads: null },
@@ -41,6 +93,8 @@ document.addEventListener("DOMContentLoaded", init);
 function init() {
   initMap();
   attachEvents();
+  renderHazardPanel();
+  renderHazardLegend();
   loadRoadNetwork();
   refresh();
   setInterval(refresh, REFRESH_MS);
@@ -536,38 +590,71 @@ function removeHeatmap() {
 // MALHA RODOVIÁRIA DER-SP
 // ============================================================================
 
-// Cores por nível operacional (mesma escala dos pontos, contraste maior nas linhas)
-const ROAD_RD_STYLE = {
-  0: { color: "#3ec26e", weight: 3.0, opacity: 0.85 },   // Monitoramento
-  1: { color: "#a3d977", weight: 3.5, opacity: 0.9  },   // Observação
-  2: { color: "#f7b73a", weight: 4.0, opacity: 0.95 },   // Atenção
-  3: { color: "#f37527", weight: 4.5, opacity: 1.0  },   // Alerta
-  4: { color: "#e02825", weight: 5.0, opacity: 1.0  },   // Alerta Máximo
-};
-// Trechos fora da cobertura ou sem dado calculado
+// Cor neutra para trechos fora da cobertura ou monitorados sem dado
 const ROAD_UNMONITORED_STYLE = { color: "#9ca3af", weight: 1.6, opacity: 0.55 };
 const ROAD_NO_DATA_STYLE     = { color: "#94a3b8", weight: 2.0, opacity: 0.7, dashArray: "4,4" };
 
-// Mapa region_id -> max_rd no snapshot mais recente
+// Pesos por nivel - quanto mais grave, mais grossa a linha (alem da cor)
+const ROAD_WEIGHTS = [3.0, 3.5, 4.0, 4.5, 5.0];
+
+// Para cada region_id, qual o RD maximo de cada hazard ativo no ciclo atual
+// roadRegionMaxRd: Map<region_id, { encosta: rd|null, inundacao: rd|null }>
 let roadRegionMaxRd = new Map();
 
 function recomputeRoadRegionRd() {
   roadRegionMaxRd = new Map();
-  // pointData (Map<id, point>) ja contem region_id e rd em cada ponto
+  const activeKeys = Object.entries(HAZARD_STATE)
+    .filter(([k, on]) => on && HAZARDS[k]?.available)
+    .map(([k]) => k);
+  if (activeKeys.length === 0) return;
+
   for (const p of state.pointData.values()) {
     if (p.region_id == null) continue;
-    if (p.source === "NO_DATA") continue;          // sem dado -> nao influencia
-    const cur = roadRegionMaxRd.get(Number(p.region_id)) ?? -1;
-    const rd = Number.isInteger(p.rd) ? p.rd : 0;
-    if (rd > cur) roadRegionMaxRd.set(Number(p.region_id), rd);
+    if (p.source === "NO_DATA") continue;
+    const key = Number(p.region_id);
+    let bucket = roadRegionMaxRd.get(key);
+    if (!bucket) {
+      bucket = {};
+      for (const k of activeKeys) bucket[k] = null;
+      roadRegionMaxRd.set(key, bucket);
+    }
+    for (const k of activeKeys) {
+      const rd = HAZARDS[k].rdFrom(p);
+      if (rd == null) continue;
+      if (bucket[k] == null || rd > bucket[k]) bucket[k] = rd;
+    }
   }
 }
 
+/**
+ * Para um trecho da malha, decide cor/estilo:
+ *  - fora da cobertura  -> cinza
+ *  - sem hazard ativo   -> cinza (mostra que existe vigilancia mas nada selecionado)
+ *  - sem dado calculado -> cinza tracejado
+ *  - tem dado           -> paleta da camada com maior RD (alerta mais grave)
+ */
 function styleForRoadFeature(props) {
   if (!props?.monitored || props.region_id == null) return ROAD_UNMONITORED_STYLE;
-  const rd = roadRegionMaxRd.get(Number(props.region_id));
-  if (rd == null) return ROAD_NO_DATA_STYLE;       // monitorado mas sem dado ainda
-  return ROAD_RD_STYLE[rd] || ROAD_RD_STYLE[0];
+  const bucket = roadRegionMaxRd.get(Number(props.region_id));
+  if (!bucket) return ROAD_NO_DATA_STYLE;
+
+  // camada vencedora = maior RD entre as ativas
+  let bestKey = null;
+  let bestRd = -1;
+  for (const [k, rd] of Object.entries(bucket)) {
+    if (rd == null) continue;
+    if (rd > bestRd) { bestRd = rd; bestKey = k; }
+  }
+  if (bestKey == null) return ROAD_NO_DATA_STYLE;
+
+  const palette = HAZARDS[bestKey].palette;
+  return {
+    color: palette[bestRd] || palette[0],
+    weight: ROAD_WEIGHTS[bestRd] || 3,
+    opacity: 0.95,
+    _hazard: bestKey,   // metadata interna, ignorada pelo Leaflet
+    _rd: bestRd,
+  };
 }
 
 async function loadRoadNetwork() {
@@ -642,15 +729,19 @@ function renderRoadsOnMap() {
     style: (feat) => styleForRoadFeature(feat.properties || {}),
     onEachFeature: (feat, layer) => {
       const p = feat.properties || {};
-      const rd = p.monitored ? roadRegionMaxRd.get(Number(p.region_id)) : undefined;
+      const baseStyle = styleForRoadFeature(p);
+      const winnerKey = baseStyle._hazard || null;
+      const winnerRd  = baseStyle._rd ?? null;
       const tipTitle = p.monitored
         ? `<b>${escapeHtml(p.rodovia || "?")}</b> · ${escapeHtml(p.region_name || "")}<br>` +
-          `${rd != null ? NIVEL_LABEL[rd] : "Sem dado"} · km ${p.km_ini}–${p.km_fim}`
+          (winnerKey != null
+            ? `${escapeHtml(HAZARDS[winnerKey].label)}: <b>${escapeHtml(NIVEL_LABEL[winnerRd])}</b>`
+            : "Sem dado") +
+          ` · km ${p.km_ini}–${p.km_fim}`
         : `<b>${escapeHtml(p.rodovia || "?")}</b><br>` +
           `Fora da cobertura · km ${p.km_ini}–${p.km_fim}`;
       layer.bindTooltip(tipTitle, { sticky: true, direction: "top" });
-      layer.bindPopup(buildRoadPopup(p, rd));
-      const baseStyle = styleForRoadFeature(p);
+      layer.bindPopup(buildRoadPopup(p));
       layer.on("mouseover", () =>
         layer.setStyle({ ...baseStyle, weight: (baseStyle.weight || 2) + 2, opacity: 1 })
       );
@@ -679,34 +770,37 @@ function renderRoadsOnMap() {
   }
 }
 
-function buildRoadPopup(p, rd) {
+function buildRoadPopup(p) {
   const denom = p.denominacao ? `<small>${escapeHtml(p.denominacao)}</small>` : "";
-  const HAZ_LABEL = {
-    instabilidade_encosta: "Instabilidade de encosta (escorregamento + queda de bloco)",
-    inundacao: "Inundação / enxurrada",
-  };
   let monitoringBlock;
   if (p.monitored) {
-    const rdLabel = rd != null
-      ? `<span class="rd-pill rd-${rd}">${rd} · ${escapeHtml(NIVEL_LABEL[rd])}</span>`
-      : `<span class="rd-pill rd-nd">sem dado</span>`;
-    const haz = (p.hazards || []).map((h) =>
-      `<li>${escapeHtml(HAZ_LABEL[h] || h)}</li>`
-    ).join("");
+    const bucket = roadRegionMaxRd.get(Number(p.region_id));
+    const rows = Object.entries(HAZARDS)
+      .filter(([k, h]) => h.available && HAZARD_STATE[k])
+      .map(([k, h]) => {
+        const rd = bucket?.[k];
+        const palette = h.palette;
+        const swatch = rd != null ? palette[rd] : "#94a3b8";
+        const txt = rd != null ? `${rd} · ${escapeHtml(NIVEL_LABEL[rd])}` : "sem dado";
+        return `
+          <div class="popup-monitor-row">
+            <span class="popup-monitor-label">${escapeHtml(h.label)}</span>
+            <span class="rd-pill" style="background:${swatch};color:${rd >= 2 ? "#fff" : "#1f2937"}">${txt}</span>
+          </div>`;
+      }).join("");
+
+    const activeNote = rows.length === 0
+      ? `<div class="popup-monitor-off">Nenhuma camada ativa no painel.</div>`
+      : "";
+
     monitoringBlock = `
       <div class="popup-monitor">
-        <div class="popup-monitor-row">
-          <span class="popup-monitor-label">Nível atual da região</span>
-          ${rdLabel}
-        </div>
         <div class="popup-monitor-row">
           <span class="popup-monitor-label">Região</span>
           <b>${escapeHtml(p.region_name || "—")}</b>
         </div>
-        <div class="popup-monitor-row popup-monitor-haz">
-          <span class="popup-monitor-label">Desastres vigiados</span>
-          <ul>${haz}</ul>
-        </div>
+        ${rows}
+        ${activeNote}
       </div>
     `;
   } else {
@@ -735,6 +829,87 @@ function buildRoadPopup(p, rd) {
       </table>
     </div>
   `;
+}
+
+// ============================================================================
+// PAINEL DE CAMADAS DE HAZARD + LEGENDA DINAMICA
+// ============================================================================
+
+/** Constroi a barrinha colorida (5 swatches) que ilustra a paleta de um hazard. */
+function buildPaletteBar(palette) {
+  return palette.map((c, i) =>
+    `<span class="haz-swatch" style="background:${c}" title="Nível ${i} · ${escapeHtml(NIVEL_LABEL[i])}"></span>`
+  ).join("");
+}
+
+/** Painel "Tipos de alerta na malha" na sidebar. */
+function renderHazardPanel() {
+  const root = document.getElementById("hazard-panel");
+  if (!root) return;
+  const items = Object.entries(HAZARDS)
+    .filter(([, h]) => h.available)
+    .map(([key, h]) => {
+      const checked = HAZARD_STATE[key] ? "checked" : "";
+      return `
+        <label class="haz-toggle">
+          <input type="checkbox" data-hazard="${escapeHtml(key)}" ${checked}>
+          <div class="haz-info">
+            <div class="haz-line">
+              <span class="haz-label">${escapeHtml(h.label)}</span>
+              <span class="haz-source">${escapeHtml(h.source)}</span>
+            </div>
+            <div class="haz-palette" title="${escapeHtml(h.description)}">
+              ${buildPaletteBar(h.palette)}
+            </div>
+          </div>
+        </label>
+      `;
+    }).join("");
+  root.innerHTML = items || `<p class="empty">Nenhuma camada disponível.</p>`;
+
+  // bind dos checkboxes (idempotente: sempre recria o HTML acima)
+  root.querySelectorAll('input[type="checkbox"][data-hazard]').forEach((cb) => {
+    cb.addEventListener("change", (e) => {
+      const k = e.target.getAttribute("data-hazard");
+      HAZARD_STATE[k] = e.target.checked;
+      saveHazardState();
+      renderRoadsOnMap();
+      renderHazardLegend();
+    });
+  });
+}
+
+/** Legenda dinamica no canto do mapa: so mostra paletas das camadas ativas. */
+function renderHazardLegend() {
+  const root = document.getElementById("hazard-legend");
+  if (!root) return;
+  const blocks = Object.entries(HAZARDS)
+    .filter(([k, h]) => h.available && HAZARD_STATE[k])
+    .map(([, h]) => `
+      <div class="legend-block">
+        <div class="legend-title">${escapeHtml(h.label)}</div>
+        <div class="legend-rows">
+          ${h.palette.map((c, i) => `
+            <div class="legend-item">
+              <span class="line" style="border-top:${ROAD_WEIGHTS[i]}px solid ${c}"></span>
+              ${i} — ${escapeHtml(NIVEL_LABEL[i])}
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `).join("");
+
+  const baseLine = `
+    <div class="legend-block">
+      <div class="legend-title">Cobertura</div>
+      <div class="legend-rows">
+        <div class="legend-item"><span class="line line-out"></span>Fora da cobertura</div>
+        <div class="legend-item"><span class="line line-rd-nd"></span>Monitorado · sem dado</div>
+      </div>
+    </div>
+  `;
+
+  root.innerHTML = (blocks || `<div class="legend-empty">Selecione uma camada de alerta no painel lateral.</div>`) + baseLine;
 }
 
 function attachRoadFilterEvents() {

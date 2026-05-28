@@ -99,6 +99,18 @@
         </div>
 
         <!-- ============================================================
+             TIPOS DE ALERTA NA MALHA
+             ============================================================ -->
+        <div class="panel">
+            <h2 class="panel-title">Tipos de Alerta na Malha</h2>
+            <p class="panel-help">
+                Cada camada usa uma paleta própria. Trechos com mais de uma camada
+                ativa exibem a cor da camada com alerta mais grave.
+            </p>
+            <div id="hazard-panel" class="hazard-panel"></div>
+        </div>
+
+        <!-- ============================================================
              FILTROS DA MALHA RODOVIÁRIA
              ============================================================ -->
         <div class="panel" id="road-filters-panel">
@@ -188,18 +200,7 @@
                     <div class="legend-item"><span class="dot rd-nd"></span>? — Sem dado</div>
                 </div>
             </div>
-            <div class="legend-block">
-                <div class="legend-title">Malha rodoviária DER-SP</div>
-                <div class="legend-rows">
-                    <div class="legend-item"><span class="line line-rd-0"></span>0 — Monitoramento</div>
-                    <div class="legend-item"><span class="line line-rd-1"></span>1 — Observação</div>
-                    <div class="legend-item"><span class="line line-rd-2"></span>2 — Atenção</div>
-                    <div class="legend-item"><span class="line line-rd-3"></span>3 — Alerta</div>
-                    <div class="legend-item"><span class="line line-rd-4"></span>4 — Alerta Máximo</div>
-                    <div class="legend-item"><span class="line line-rd-nd"></span>Monitorado · sem dado</div>
-                    <div class="legend-item"><span class="line line-out"></span>Fora da cobertura</div>
-                </div>
-            </div>
+            <div id="hazard-legend"></div>
         </div>
     </main>
 

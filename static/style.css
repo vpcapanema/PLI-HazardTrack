@@ -827,6 +827,66 @@ body {
 .rd-pill.rd-nd { background: #94a3b8; }
 
 /* ============================================================================
+   PAINEL DE TIPOS DE ALERTA (sidebar)
+   ============================================================================ */
+
+.hazard-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.haz-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background: #fff;
+  transition: border-color 0.12s, background 0.12s;
+}
+.haz-toggle:hover { border-color: #cbd5e1; background: #f8fafc; }
+.haz-toggle input[type="checkbox"] { margin-top: 0.2rem; }
+
+.haz-info { flex: 1; min-width: 0; }
+.haz-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+.haz-label {
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: #1f2937;
+}
+.haz-source {
+  font-size: 0.68rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.haz-palette { display: flex; gap: 2px; }
+.haz-swatch {
+  flex: 1;
+  height: 8px;
+  border-radius: 1px;
+}
+
+/* Legenda dinamica do mapa */
+#hazard-legend { display: contents; }
+.legend-empty {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  padding: 0.4rem 0;
+  font-style: italic;
+}
+
+/* ============================================================================
    LEAFLET CUSTOM
    ============================================================================ */
 

@@ -212,15 +212,16 @@ function renderSnapshot(snap) {
       ts ? "Última tentativa às " + formatTime(ts) : "—";
     setBadge("badge-source", "Sem dado", "no-data");
     setBadge("badge-update", ts ? formatTime(ts) : "—", "no-data");
-    // Limpa pontos no mapa para nao mostrar leitura "fantasma"
-    renderPointsOnMap([]);
+    // Mostra os pontos da malha monitorada (estilo "sem dado") para deixar
+    // claro que o monitoramento existe; chuva e RD vao zerados.
+    renderPointsOnMap(snap.points || []);
     renderRegionsOnMap(snap.regions || []);
     renderRegions(snap.regions || []);
     renderWorstNoData(summary.message);
     document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
     for (let i = 0; i <= 4; i++) {
       const el = document.getElementById("count-" + i);
-      if (el) el.textContent = "—";
+      if (el) el.textContent = (i === 0 ? (snap.points || []).length : 0);
     }
     return;
   }
@@ -424,9 +425,12 @@ function renderPointsOnMap(points) {
   state.pointData.clear();
 
   points.forEach((p) => {
+    const isNoData = p.source === "NO_DATA";
+    const cls = isNoData ? "rd-nd" : "rd-" + p.rd;
+    const label = isNoData ? "?" : String(p.rd);
     const icon = L.divIcon({
       className: "",
-      html: `<div class="point-marker rd-${p.rd}">${p.rd}</div>`,
+      html: `<div class="point-marker ${cls}">${label}</div>`,
       iconSize: [28, 28],
       iconAnchor: [14, 14],
       popupAnchor: [0, -14],
@@ -439,6 +443,20 @@ function renderPointsOnMap(points) {
 }
 
 function buildPopup(p) {
+  const isNoData = p.source === "NO_DATA";
+  if (isNoData) {
+    return `
+      <div class="popup-content">
+        <h4>${escapeHtml(p.nome)}</h4>
+        <div class="popup-rod">${escapeHtml(p.rodovia)} · km ${p.km}</div>
+        <div class="popup-rod">Região: ${escapeHtml(p.region_name || "—")}</div>
+        <div class="popup-level" style="background:#64748b;color:#fff">
+          Sem dado disponível
+        </div>
+        <div class="popup-source">Fonte MERGE/INPE indisponível neste ciclo.</div>
+      </div>
+    `;
+  }
   const levelTextColor = p.rd === 1 ? "#0f172a" : "#ffffff";
   return `
     <div class="popup-content">

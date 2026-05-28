@@ -747,6 +747,7 @@ body {
 .dot.rd-2 { background: var(--rd-2); }
 .dot.rd-3 { background: var(--rd-3); }
 .dot.rd-4 { background: var(--rd-4); }
+.dot.rd-nd { background: #64748b; }
 
 .line {
   display: inline-block;
@@ -786,6 +787,7 @@ body {
 .point-marker.rd-2 { background: var(--rd-2); }
 .point-marker.rd-3 { background: var(--rd-3); animation: pulse-marker 1.5s infinite; }
 .point-marker.rd-4 { background: var(--rd-4); animation: pulse-marker 1.2s infinite; }
+.point-marker.rd-nd { background: #64748b; color: #f1f5f9; opacity: 0.9; }
 
 @keyframes pulse-marker {
   0%   { box-shadow: 0 2px 8px rgba(0,0,0,.3), 0 0 0 0 currentColor; }

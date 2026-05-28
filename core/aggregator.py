@@ -163,13 +163,40 @@ class State:
         )
 
     def _publish_no_data(self, now):
-        """Marca snapshot como NO_DATA quando o MERGE falha por completo."""
+        """
+        Marca snapshot como NO_DATA quando o MERGE falha por completo.
+        Mesmo sem dado real de chuva, publicamos os pontos de monitoramento
+        com chuva zerada e nivel "Monitoramento" para que a interface
+        continue mostrando a malha vigiada (importante para Render free,
+        onde o eccodes pode estar indisponivel ou o INPE com latencia).
+        Pontos aparecem com source="NO_DATA" para o frontend distinguir.
+        """
+        new_points = []
+        by_level = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
+        for p in self.points:
+            region = find_region_for_point(p["lat"], p["lon"], self.regions)
+            new_points.append({
+                "id": p["id"], "nome": p["nome"], "rodovia": p["rodovia"], "km": p["km"],
+                "lat": p["lat"], "lon": p["lon"],
+                "region_id": region.id if region else None,
+                "region_name": region.nome if region else None,
+                "ac96h_mm": 0.0, "ac24h_mm": 0.0,
+                "intensity_mmh": 0.0,
+                "cpc": None,
+                "icc_geo": 0, "icc_hid": 0,
+                "ra": p.get("ra", 1),
+                "rd_geo": 0, "rd_hid": 0,
+                "rd": 0, "nivel": "Sem dado",
+                "source": "NO_DATA",
+            })
+            by_level[0] += 1
+
         with self._lock:
             self.snapshot["timestamp_utc"] = now.isoformat()
-            self.snapshot["points"] = []
+            self.snapshot["points"] = new_points
             self.snapshot["summary"] = {
-                "total": 0,
-                "by_level": {0: 0, 1: 0, 2: 0, 3: 0, 4: 0},
+                "total": len(new_points),
+                "by_level": by_level,
                 "max_rd": 0,
                 "max_rd_point": None,
                 "max_rd_name": None,
@@ -181,9 +208,10 @@ class State:
                 "missing_96h": 96,
                 "message": (
                     "Sem dado real do MERGE/INPE neste ciclo. "
-                    "O servidor pode estar com latencia (>3h) ou indisponivel. "
-                    "Nenhum risco e calculado nesse estado: ausencia de leitura "
-                    "nao significa ausencia de risco."
+                    "O servidor pode estar com latencia (>3h) ou indisponivel, "
+                    "ou a biblioteca eccodes pode nao estar instalada no ambiente. "
+                    "Pontos exibidos no mapa para indicar a malha monitorada; "
+                    "ausencia de leitura nao significa ausencia de risco."
                 ),
             }
 

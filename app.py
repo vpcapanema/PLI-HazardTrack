@@ -18,6 +18,15 @@ logging.basicConfig(
 )
 log = logging.getLogger("samaeg")
 
+# Silencia o ruido do health check (keep-alive bate a cada 10 min).
+class _HideHealthFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        msg = record.getMessage()
+        return "/api/health" not in msg
+
+for _name in ("werkzeug", "gunicorn.access"):
+    logging.getLogger(_name).addFilter(_HideHealthFilter())
+
 app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app)
 
@@ -108,13 +117,30 @@ def api_refresh():
 
 @app.route("/api/health")
 def api_health():
+    """Diagnostico operacional. Inclui dependencias criticas para debug rapido em prod."""
+    try:
+        from core.merge_inpe import _eccodes_available
+        eccodes_ok = bool(_eccodes_available())
+    except Exception:
+        eccodes_ok = False
+
     snap = state.get_snapshot()
+    summary = snap.get("summary", {})
     return jsonify({
         "status": "ok",
-        "last_update": snap["timestamp_utc"],
-        "points_loaded": len(snap["points"]),
-        "regions": len(snap["regions"]),
-        "max_rd": snap["summary"]["max_rd"]
+        "last_update": snap.get("timestamp_utc"),
+        "points_loaded": len(snap.get("points", [])),
+        "regions": len(snap.get("regions", [])),
+        "max_rd": summary.get("max_rd", 0),
+        "data_status": summary.get("data_status"),
+        "data_source": summary.get("data_source"),
+        "degraded": summary.get("degraded", False),
+        "files_ok": summary.get("files_ok", 0),
+        "missing_24h": summary.get("missing_24h"),
+        "missing_96h": summary.get("missing_96h"),
+        "deps": {
+            "eccodes": eccodes_ok,
+        },
     })
 
 

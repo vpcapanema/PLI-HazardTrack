@@ -1,13 +1,17 @@
 services:
   - type: web
     name: pli-hazardtrack
-    runtime: python
+    runtime: docker
     plan: free
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
-      - key: WEB_CONCURRENCY
-        value: "1"
+      # Force RA manual em dev se quiser; em producao deixe desativado
+      - key: SAMAEG_USE_MANUAL_RA
+        value: "0"
+      # Numero de horas faltando aceitas antes de marcar "degraded"
+      - key: SAMAEG_DEGRADED_24H
+        value: "6"
+      # Em producao NUNCA usar mock
+      - key: SAMAEG_FORCE_MOCK
+        value: "0"

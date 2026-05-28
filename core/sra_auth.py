@@ -1,21 +1,26 @@
 """
-Backend de autenticacao da pagina /ops contra o banco do SRA.
+Backend de autenticacao da pagina /ops contra o BANCO DE DADOS do SRA.
+
+IMPORTANTE: este modulo NAO conversa com a aplicacao SRA. Ele abre conexao
+TCP direta com o Postgres (`sra-postgres`) e le a tabela `users` em modo
+SOMENTE LEITURA. A aplicacao SRA nao e chamada em nenhum momento - nem no
+login, nem no diagnostico, nem na recuperacao de senha (essa ultima
+redireciona o navegador do usuario para a tela de recuperacao do SRA, mas
+quem responde nao somos nos).
 
 Politica:
-- SOMENTE LEITURA. O PLI-HazardTrack nao escreve nem altera nada no banco do SRA.
-- Reusa o usuario que o proprio SRA ja usa para acessar o banco. NAO cria
-  nenhuma role/permissao nova no Postgres.
-- Login do /ops aceita SOMENTE role 'admin' do SRA.
-- Comparacao bcrypt acontece dentro do PLI (mesma lib que o SRA usa para criar
-  o hash, entao bate 100%).
-- Pool minimo (1-3 conexoes) - login e operacao rara.
-- Se a conexao com o banco do SRA cai, o /ops nao loga ninguem (fail-closed).
+- SOMENTE LEITURA. O PLI-HazardTrack nao escreve nem altera nada no banco.
+- Reusa o usuario do Postgres que o proprio SRA ja usa - NAO cria role nova.
+- Login do /ops aceita SOMENTE usuarios com `users.role = 'admin'`.
+- Comparacao bcrypt acontece dentro do PLI (mesma lib que gera o hash).
+- Pool minimo (1-3 conexoes); login e operacao rara.
+- Se a conexao com o banco cai, o /ops nao loga ninguem (fail-closed).
 
 Configuracao via env (todas obrigatorias para habilitar):
     SRA_DB_HOST       host do Postgres do SRA  (ex: sra-postgres)
     SRA_DB_PORT       5432
     SRA_DB_NAME       sra
-    SRA_DB_USER       usuario do SRA (o mesmo do .env do SRA)
+    SRA_DB_USER       usuario do Postgres (ex: sra_user)
     SRA_DB_PASSWORD   senha
 """
 from __future__ import annotations
@@ -107,7 +112,7 @@ class SraAuthBackend:
                         kwargs={"autocommit": True, "row_factory": psycopg.rows.dict_row},
                         open=True,
                     )
-                    log.info("pool de conexao SRA inicializado")
+                    log.info("pool de conexao com o Postgres do SRA inicializado")
         return self._pool
 
     def healthcheck(self) -> dict:
@@ -155,7 +160,7 @@ class SraAuthBackend:
                     cur.execute(_AUTH_QUERY, (email, OPS_ROLE))
                     row = cur.fetchone()
         except Exception as e:
-            log.error("ops auth: erro ao consultar SRA: %s", e)
+            log.error("ops auth: erro ao consultar Postgres: %s", e)
             return None
 
         if not row:

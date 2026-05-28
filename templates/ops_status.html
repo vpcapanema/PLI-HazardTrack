@@ -122,14 +122,15 @@
         </section>
 
         <!-- ===================================================
-             7. AUTENTICAÇÃO (SRA)
+             7. AUTENTICAÇÃO (Postgres do SRA)
              =================================================== -->
         <section class="card">
             <h2>Autenticação</h2>
             <p class="card-help">
-                O login do <code>/ops</code> usa as credenciais do SRA (somente leitura,
-                bcrypt validado aqui no PLI). Apenas usuários com perfil
-                <strong>admin</strong> no SRA conseguem entrar.
+                O login do <code>/ops</code> consulta diretamente o banco de dados
+                do SRA em modo somente leitura e valida o bcrypt aqui no PLI.
+                A aplicação SRA não é chamada. Apenas usuários com
+                <code>users.role = 'admin'</code> no banco conseguem entrar.
             </p>
             <div id="auth-backend"></div>
         </section>
@@ -497,7 +498,7 @@
                  <small>${a.configured ? "configurado" : "não configurado"}</small>`));
             const kv = el("div", "kv-grid");
             kv.appendChild(kvRow("Perfil exigido", a.role_required || "admin"));
-            kv.appendChild(kvRow("Conexão com SRA", health.ok ? "OK" : "indisponível"));
+            kv.appendChild(kvRow("Conexão com Postgres do SRA", health.ok ? "OK" : "indisponível"));
             if (health.error) kv.appendChild(kvRow("Erro", health.error));
             kv.appendChild(kvRow("Recuperação de senha", a.reset_password_url || "—"));
             head.appendChild(kv);

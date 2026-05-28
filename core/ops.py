@@ -322,9 +322,9 @@ def collect_diagnostics() -> Dict[str, Any]:
         },
     }
 
-    # ---- 7. Backend de autenticacao (SRA) ----
+    # ---- 7. Backend de autenticacao (Postgres do SRA) ----
     auth_backend = {
-        "provider": "SRA Postgres (read-only, bcrypt no PLI)",
+        "provider": "Postgres do SRA (read-only, bcrypt validado no PLI)",
         "configured": sra_auth.configured,
         "role_required": "admin",
         "reset_password_url": sra_auth.reset_password_url,

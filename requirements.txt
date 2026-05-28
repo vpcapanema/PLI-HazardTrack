@@ -11,3 +11,4 @@ gunicorn==23.0.0
 # Auth contra o banco do SRA (somente leitura)
 bcrypt==4.2.0
 psycopg[binary]==3.2.3
+psycopg-pool==3.2.4

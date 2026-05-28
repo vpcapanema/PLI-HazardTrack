@@ -4,16 +4,30 @@ Pre-processa o shapefile da malha rodoviaria DER-SP:
 - simplifica geometrias para reduzir payload web
 - mantem so atributos uteis para o mapa
 - divide em duas camadas: completa (download) e otimizada (mapa)
+- CLASSIFICA cada trecho quanto a cobertura do sistema:
+    monitored: bool
+    region_id: int|None  (1..4)
+    region_name: str|None
+    hazards: lista (encosta + inundacao para trechos cobertos)
 """
 
 from pathlib import Path
+import sys
 import geopandas as gpd
 import json
 
+# Permite importar core/regions.py (precisa rodar do projeto)
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+from core.regions import load_regions  # noqa: E402
+
 SHP_IN = ROOT / "data" / "malha_der" / "MALHA_RODOVIARIA.shp"
 OUT_DIR = ROOT / "static" / "data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Hazards cobertos pelo metodo REGEA-NIPPON 2021. Em todo trecho monitorado.
+# Quando vier shapefile RA por tipo, isto vira uma lista variavel por feature.
+DEFAULT_HAZARDS = ["instabilidade_encosta", "inundacao"]
 
 print(f"Lendo {SHP_IN}")
 gdf = gpd.read_file(SHP_IN)
@@ -65,6 +79,60 @@ def _drop_z(geom):
 
 gdf["geometry"] = gdf["geometry"].apply(_drop_z)
 
+# 4.5) CLASSIFICA cada trecho quanto a cobertura do sistema
+print("Classificando trechos por cobertura do sistema...")
+regions = load_regions()
+print(f"  {len(regions)} regioes carregadas")
+
+from shapely.geometry import shape  # noqa: E402
+
+def _polygon_to_shapely(coords_lat_lon):
+    """Converte lista [(lat, lon), ...] em Polygon shapely (lon, lat)."""
+    from shapely.geometry import Polygon
+    return Polygon([(lon, lat) for lat, lon in coords_lat_lon])
+
+region_polys = {r.id: (_polygon_to_shapely(r.polygon), r) for r in regions}
+
+def _classify(geom):
+    """Para um trecho (LineString/MultiLineString), retorna a primeira regiao
+    DER-SP que ele intersecta. Trecho que toca varias regioes pega a 1a."""
+    if geom is None or geom.is_empty:
+        return None, None
+    for rid, (poly, r) in region_polys.items():
+        try:
+            if geom.intersects(poly):
+                return rid, r.nome
+        except Exception:
+            continue
+    return None, None
+
+monitored_count = 0
+region_distribution = {}
+gdf["region_id"] = None
+gdf["region_name"] = None
+gdf["monitored"] = False
+gdf["hazards"] = None  # vira list por feature
+
+for idx, geom in gdf["geometry"].items():
+    rid, rname = _classify(geom)
+    if rid is not None:
+        gdf.at[idx, "region_id"] = int(rid)
+        gdf.at[idx, "region_name"] = rname
+        gdf.at[idx, "monitored"] = True
+        gdf.at[idx, "hazards"] = list(DEFAULT_HAZARDS)
+        monitored_count += 1
+        region_distribution[rname] = region_distribution.get(rname, 0) + 1
+    else:
+        gdf.at[idx, "hazards"] = []
+
+print(f"  {monitored_count}/{len(gdf)} trechos cobertos pelo sistema")
+for nome, qtd in sorted(region_distribution.items(), key=lambda kv: -kv[1]):
+    print(f"    {nome}: {qtd}")
+
+# Forca region_id como inteiro nativo (driver GeoJSON serializa tipo correto)
+gdf["region_id"] = gdf["region_id"].astype("Int32")
+gdf["monitored"] = gdf["monitored"].astype(bool)
+
 # 5) Versao OTIMIZADA para o mapa: simplifica geometria e drop alguns campos pesados
 # Tolerancia 0.0005 graus ~ 50m, perfeito para zoom estadual
 gdf_opt = gdf.copy()
@@ -73,7 +141,10 @@ gdf_opt["geometry"] = gdf_opt["geometry"].simplify(0.0005, preserve_topology=Tru
 # Para a versao do mapa, mantem so o essencial
 MAP_COLS = ["rodovia", "tipo", "municipio", "regional", "residencia",
             "km_ini", "km_fim", "extensao", "jurisdicao", "administra",
-            "tipo_pista", "denominacao", "geometry"]
+            "tipo_pista", "denominacao",
+            # CAMADA DE COBERTURA (novos):
+            "monitored", "region_id", "region_name", "hazards",
+            "geometry"]
 gdf_opt = gdf_opt[[c for c in MAP_COLS if c in gdf_opt.columns]]
 
 # 6) Salva GeoJSON
@@ -98,7 +169,13 @@ stats = {
     "regionais": sorted(gdf["regional"].dropna().unique().tolist()),
     "jurisdicoes": sorted(gdf["jurisdicao"].dropna().unique().tolist()),
     "administra": sorted(gdf["administra"].dropna().unique().tolist()),
-    "bbox": list(gdf.total_bounds)  # [minx, miny, maxx, maxy]
+    "bbox": list(gdf.total_bounds),
+    # Cobertura PLI-HazardTrack:
+    "monitored_count": int(gdf["monitored"].sum()),
+    "monitored_km": float(gdf.loc[gdf["monitored"], "extensao"].sum())
+                    if "extensao" in gdf else None,
+    "monitored_by_region": region_distribution,
+    "hazards_default": DEFAULT_HAZARDS,
 }
 (OUT_DIR / "malha_der_stats.json").write_text(
     json.dumps(stats, indent=2, ensure_ascii=False, default=str), encoding="utf-8"

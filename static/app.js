@@ -198,6 +198,7 @@ function renderSnapshot(snap) {
     renderPointsOnMap(snap.points || []);
     renderRegionsOnMap(snap.regions || []);
     renderRegions(snap.regions || []);
+    if (state.roadGeoJSON) renderRoadsOnMap();
     renderWorstLoading();
     document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
     for (let i = 0; i <= 4; i++) {
@@ -219,6 +220,7 @@ function renderSnapshot(snap) {
     renderPointsOnMap(snap.points || []);
     renderRegionsOnMap(snap.regions || []);
     renderRegions(snap.regions || []);
+    if (state.roadGeoJSON) renderRoadsOnMap();
     renderWorstNoData(summary.message);
     document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
     for (let i = 0; i <= 4; i++) {
@@ -270,6 +272,9 @@ function renderSnapshot(snap) {
   // Mapa
   renderRegionsOnMap(snap.regions || []);
   renderPointsOnMap(snap.points || []);
+
+  // Atualiza coloracao da malha conforme o snapshot
+  if (state.roadGeoJSON) renderRoadsOnMap();
 
   // Heatmap (se ativo, atualiza)
   if (document.getElementById("layer-heatmap").checked) {
@@ -531,13 +536,39 @@ function removeHeatmap() {
 // MALHA RODOVIÁRIA DER-SP
 // ============================================================================
 
-const ROAD_STYLE = {
-  DUP:  { color: "#1c3d59", weight: 2.5, opacity: 0.85 },                          // pista dupla — azul navy
-  PAV:  { color: "#3ec26e", weight: 1.8, opacity: 0.75 },                          // pavimentada simples — verde
-  IMP:  { color: "#94a3b8", weight: 1.5, opacity: 0.6, dashArray: "4,4" },         // em implantação
-  PLAN: { color: "#cbd5e1", weight: 1.2, opacity: 0.5, dashArray: "2,6" },         // planejada
-  default: { color: "#64748b", weight: 1.5, opacity: 0.7 }
+// Cores por nível operacional (mesma escala dos pontos, contraste maior nas linhas)
+const ROAD_RD_STYLE = {
+  0: { color: "#3ec26e", weight: 3.0, opacity: 0.85 },   // Monitoramento
+  1: { color: "#a3d977", weight: 3.5, opacity: 0.9  },   // Observação
+  2: { color: "#f7b73a", weight: 4.0, opacity: 0.95 },   // Atenção
+  3: { color: "#f37527", weight: 4.5, opacity: 1.0  },   // Alerta
+  4: { color: "#e02825", weight: 5.0, opacity: 1.0  },   // Alerta Máximo
 };
+// Trechos fora da cobertura ou sem dado calculado
+const ROAD_UNMONITORED_STYLE = { color: "#9ca3af", weight: 1.6, opacity: 0.55 };
+const ROAD_NO_DATA_STYLE     = { color: "#94a3b8", weight: 2.0, opacity: 0.7, dashArray: "4,4" };
+
+// Mapa region_id -> max_rd no snapshot mais recente
+let roadRegionMaxRd = new Map();
+
+function recomputeRoadRegionRd() {
+  roadRegionMaxRd = new Map();
+  // pointData (Map<id, point>) ja contem region_id e rd em cada ponto
+  for (const p of state.pointData.values()) {
+    if (p.region_id == null) continue;
+    if (p.source === "NO_DATA") continue;          // sem dado -> nao influencia
+    const cur = roadRegionMaxRd.get(Number(p.region_id)) ?? -1;
+    const rd = Number.isInteger(p.rd) ? p.rd : 0;
+    if (rd > cur) roadRegionMaxRd.set(Number(p.region_id), rd);
+  }
+}
+
+function styleForRoadFeature(props) {
+  if (!props?.monitored || props.region_id == null) return ROAD_UNMONITORED_STYLE;
+  const rd = roadRegionMaxRd.get(Number(props.region_id));
+  if (rd == null) return ROAD_NO_DATA_STYLE;       // monitorado mas sem dado ainda
+  return ROAD_RD_STYLE[rd] || ROAD_RD_STYLE[0];
+}
 
 async function loadRoadNetwork() {
   const setSummary = (msg) => {
@@ -589,6 +620,7 @@ function updateStatsSummary(stats) {
 function renderRoadsOnMap() {
   if (!state.roadGeoJSON) return;
   state.layers.roads.clearLayers();
+  recomputeRoadRegionRd();
 
   const f = state.roadFilters;
   const filtered = {
@@ -607,22 +639,22 @@ function renderRoadsOnMap() {
   };
 
   const gj = L.geoJSON(filtered, {
-    style: (feat) => {
-      const tp = feat.properties?.tipo_pista || "default";
-      return ROAD_STYLE[tp] || ROAD_STYLE.default;
-    },
+    style: (feat) => styleForRoadFeature(feat.properties || {}),
     onEachFeature: (feat, layer) => {
       const p = feat.properties || {};
-      layer.bindTooltip(
-        `<b>${escapeHtml(p.rodovia || "?")}</b> km ${p.km_ini}–${p.km_fim}<br>${escapeHtml(p.municipio || "")}`,
-        { sticky: true, direction: "top" }
+      const rd = p.monitored ? roadRegionMaxRd.get(Number(p.region_id)) : undefined;
+      const tipTitle = p.monitored
+        ? `<b>${escapeHtml(p.rodovia || "?")}</b> · ${escapeHtml(p.region_name || "")}<br>` +
+          `${rd != null ? NIVEL_LABEL[rd] : "Sem dado"} · km ${p.km_ini}–${p.km_fim}`
+        : `<b>${escapeHtml(p.rodovia || "?")}</b><br>` +
+          `Fora da cobertura · km ${p.km_ini}–${p.km_fim}`;
+      layer.bindTooltip(tipTitle, { sticky: true, direction: "top" });
+      layer.bindPopup(buildRoadPopup(p, rd));
+      const baseStyle = styleForRoadFeature(p);
+      layer.on("mouseover", () =>
+        layer.setStyle({ ...baseStyle, weight: (baseStyle.weight || 2) + 2, opacity: 1 })
       );
-      layer.bindPopup(buildRoadPopup(p));
-      layer.on("mouseover", () => layer.setStyle({ weight: 5, opacity: 1 }));
-      layer.on("mouseout", () => {
-        const tp = p.tipo_pista || "default";
-        layer.setStyle(ROAD_STYLE[tp] || ROAD_STYLE.default);
-      });
+      layer.on("mouseout", () => layer.setStyle(baseStyle));
     }
   });
   gj.addTo(state.layers.roads);
@@ -633,23 +665,64 @@ function renderRoadsOnMap() {
     const total = state.roadGeoJSON.features.length;
     const shown = filtered.features.length;
     const km = filtered.features.reduce((s, ft) => s + (ft.properties?.extensao || 0), 0);
+    const monitoredShown = filtered.features.filter((ft) => ft.properties?.monitored).length;
     if (shown === total) {
       el.innerHTML =
-        `<b>${total.toLocaleString("pt-BR")}</b> trechos · <b>${Math.round(km).toLocaleString("pt-BR")}</b> km`;
+        `<b>${total.toLocaleString("pt-BR")}</b> trechos · <b>${Math.round(km).toLocaleString("pt-BR")}</b> km<br>` +
+        `<b>${monitoredShown}</b> trechos cobertos pelo sistema`;
     } else {
       el.innerHTML =
         `Filtro ativo: <b>${shown.toLocaleString("pt-BR")}</b> de ${total.toLocaleString("pt-BR")} trechos<br>` +
-        `Extensão filtrada: <b>${Math.round(km).toLocaleString("pt-BR")}</b> km`;
+        `Extensão filtrada: <b>${Math.round(km).toLocaleString("pt-BR")}</b> km · ` +
+        `<b>${monitoredShown}</b> cobertos`;
     }
   }
 }
 
-function buildRoadPopup(p) {
+function buildRoadPopup(p, rd) {
   const denom = p.denominacao ? `<small>${escapeHtml(p.denominacao)}</small>` : "";
+  const HAZ_LABEL = {
+    instabilidade_encosta: "Instabilidade de encosta (escorregamento + queda de bloco)",
+    inundacao: "Inundação / enxurrada",
+  };
+  let monitoringBlock;
+  if (p.monitored) {
+    const rdLabel = rd != null
+      ? `<span class="rd-pill rd-${rd}">${rd} · ${escapeHtml(NIVEL_LABEL[rd])}</span>`
+      : `<span class="rd-pill rd-nd">sem dado</span>`;
+    const haz = (p.hazards || []).map((h) =>
+      `<li>${escapeHtml(HAZ_LABEL[h] || h)}</li>`
+    ).join("");
+    monitoringBlock = `
+      <div class="popup-monitor">
+        <div class="popup-monitor-row">
+          <span class="popup-monitor-label">Nível atual da região</span>
+          ${rdLabel}
+        </div>
+        <div class="popup-monitor-row">
+          <span class="popup-monitor-label">Região</span>
+          <b>${escapeHtml(p.region_name || "—")}</b>
+        </div>
+        <div class="popup-monitor-row popup-monitor-haz">
+          <span class="popup-monitor-label">Desastres vigiados</span>
+          <ul>${haz}</ul>
+        </div>
+      </div>
+    `;
+  } else {
+    monitoringBlock = `
+      <div class="popup-monitor popup-monitor-off">
+        <b>Trecho fora da cobertura atual.</b><br>
+        O método em uso (REGEA-NIPPON 2021) só calibra envoltórias críticas
+        para 4 regiões do litoral. Sem alertas calculados aqui.
+      </div>
+    `;
+  }
   return `
     <div class="popup-content">
       <h4>${escapeHtml(p.rodovia || "?")} ${denom}</h4>
       <div class="popup-rod">${escapeHtml(p.municipio || "")} · ${escapeHtml(p.regional || "")}</div>
+      ${monitoringBlock}
       <table>
         <tr><td>Quilômetro inicial</td><td>${p.km_ini ?? "—"}</td></tr>
         <tr><td>Quilômetro final</td><td>${p.km_fim ?? "—"}</td></tr>

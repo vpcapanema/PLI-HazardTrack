@@ -45,5 +45,17 @@
     -25.059498313451225,
     -44.166338020652184,
     -19.84726508583349
+  ],
+  "monitored_count": 101,
+  "monitored_km": 750.719,
+  "monitored_by_region": {
+    "São Sebastião": 30,
+    "Caraguatatuba-Ubatuba": 13,
+    "Santos-Bertioga": 9,
+    "Mogi-Bertioga": 49
+  },
+  "hazards_default": [
+    "instabilidade_encosta",
+    "inundacao"
   ]
 }

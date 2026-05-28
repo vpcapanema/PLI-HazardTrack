@@ -31,7 +31,8 @@ const HAZARDS = {
   encosta: {
     label: "Instabilidade de encosta",
     description: "Engloba escorregamento e queda de bloco. Pelo método em uso (REGEA-NIPPON 2021), são tratados na mesma envoltória crítica.",
-    palette: ["#fde2cf", "#f9bb89", "#f08a4b", "#d4541a", "#8a2a04"],
+    // Mesma escala dos pontos (niveis operacionais oficiais).
+    palette: ["#2aa358", "#f1c40f", "#f39c12", "#e74c3c", "#8e44ad"],
     source: "REGEA-NIPPON 2021",
     available: true,
     rdFrom: (point) => Number.isInteger(point?.rd_geo) ? point.rd_geo : null,
@@ -39,7 +40,9 @@ const HAZARDS = {
   inundacao: {
     label: "Inundação",
     description: "Alagamento e enxurrada por chuva intensa de curto prazo (24h).",
-    palette: ["#cfe5ff", "#85b8e6", "#3d8acc", "#1c5ea8", "#0a3878"],
+    // Nivel 0 = mesmo verde dos pontos (Monitoramento). Niveis 1-3 sobem em azul,
+    // nivel 4 vira magenta/violeta vivido para destaque maximo.
+    palette: ["#2aa358", "#5fa8d3", "#1d6fb8", "#0a3d7a", "#d61f8d"],
     source: "REGEA-NIPPON 2021",
     available: true,
     rdFrom: (point) => Number.isInteger(point?.rd_hid) ? point.rd_hid : null,

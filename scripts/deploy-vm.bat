@@ -7,6 +7,7 @@ REM   1) git status (mostra o que vai ser commitado)
 REM   2) git add -A + git commit (com a mensagem passada via %*)
 REM   3) git push origin main
 REM   4) ssh ubuntu@56.125.163.194 -> bash .deploy/update_vm.sh
+REM   5) abre a aplicacao no navegador padrao
 REM
 REM Para a primeira falha. Se nao houver mudancas para commitar, pula direto
 REM para o update da VM (util quando voce so quer reaplicar a imagem).
@@ -46,7 +47,7 @@ cd /d "%WORKSPACE%"
 
 echo.
 echo =====================================================================
-echo  ETAPA 1/4 - Status do repositorio
+echo  ETAPA 1/5 - Status do repositorio
 echo =====================================================================
 git status --short
 if errorlevel 1 goto :fail
@@ -61,7 +62,7 @@ if not errorlevel 1 (
 
 echo.
 echo =====================================================================
-echo  ETAPA 2/4 - Commit local
+echo  ETAPA 2/5 - Commit local
 echo =====================================================================
 echo Mensagem: %MSG%
 echo.
@@ -75,14 +76,14 @@ if errorlevel 1 goto :fail
 :step_push
 echo.
 echo =====================================================================
-echo  ETAPA 3/4 - Push para o GitHub (origin/main)
+echo  ETAPA 3/5 - Push para o GitHub (origin/main)
 echo =====================================================================
 git push origin main
 if errorlevel 1 goto :fail
 
 echo.
 echo =====================================================================
-echo  ETAPA 4/4 - Update da VM (pull + rebuild + restart)
+echo  ETAPA 4/5 - Update da VM (pull + rebuild + restart)
 echo =====================================================================
 echo Conectando em %VM% e rodando %REMOTE_CMD%
 echo.
@@ -92,10 +93,18 @@ if errorlevel 1 goto :fail
 
 echo.
 echo =====================================================================
+echo  ETAPA 5/5 - Abrindo aplicacao no navegador
+echo =====================================================================
+set "APP_URL=http://pli-hazardtrack.56-125-163-194.sslip.io"
+echo  %APP_URL%
+start "" "%APP_URL%"
+
+echo.
+echo =====================================================================
 echo  DEPLOY CONCLUIDO
 echo =====================================================================
-echo  URL publica: http://pli-hazardtrack.56-125-163-194.sslip.io
-echo  /ops:        http://pli-hazardtrack.56-125-163-194.sslip.io/ops/login
+echo  URL publica: %APP_URL%
+echo  /ops:        %APP_URL%/ops/login
 echo =====================================================================
 exit /b 0
 

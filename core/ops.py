@@ -1,13 +1,11 @@
 """
 Pagina de operacoes (/ops) com acesso restrito.
 
-Auth simples baseada em sessao Flask:
-    OPS_USER       usuario
-    OPS_PASS       senha (texto)  OR  OPS_PASS_SHA256 (hash hex)
-    OPS_SECRET     chave de sessao (se nao definida, usamos um random/processo)
-
-Nao e auth de classe enterprise; e o suficiente para esconder a tela de
-diagnostico operacional do publico geral. Para uso interno (engenharia/PLI).
+Autenticacao: contra o banco do SRA (somente leitura, bcrypt validado no
+proprio PLI). Configurar via env:
+    SRA_DB_HOST / SRA_DB_PORT / SRA_DB_NAME / SRA_DB_USER / SRA_DB_PASSWORD
+    OPS_ALLOWED_ROLES   (default: admin)
+    OPS_SECRET          chave de sessao Flask
 
 Tudo que importa para diagnosticar producao esta em uma unica resposta JSON
 em /ops/api/diagnostics, organizada por responsabilidade:
@@ -18,19 +16,18 @@ em /ops/api/diagnostics, organizada por responsabilidade:
     4. Pipeline de dados (scheduler, ciclos, qualidade)
     5. Modelo / metodologia (regioes, pontos, RA, limiares)
     6. Aplicacao web (rotas, assets versionados)
+    7. Backend de autenticacao (saude da conexao com o SRA)
 """
 from __future__ import annotations
 
-import hashlib
 import os
 import platform
-import secrets
 import socket
 import sys
 import time
 from datetime import datetime, timezone
 from functools import wraps
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import requests
 from flask import (
@@ -40,30 +37,14 @@ from flask import (
 
 from .aggregator import state
 from .merge_inpe import _eccodes_available, _hourly_url, INPE_BASE, PUBLISH_LAG_HOURS
+from .sra_auth import sra_auth
 
 ops_bp = Blueprint("ops", __name__, url_prefix="/ops")
 
 
 # ---------------------------------------------------------------------------
-# Auth helpers
+# Auth helpers (delegam ao sra_auth)
 # ---------------------------------------------------------------------------
-
-def _expected_user() -> str:
-    return os.environ.get("OPS_USER", "admin")
-
-
-def _password_matches(raw: str) -> bool:
-    """Aceita OPS_PASS (texto) ou OPS_PASS_SHA256 (hash hex). Tempo constante."""
-    h_env = os.environ.get("OPS_PASS_SHA256", "").strip().lower()
-    if h_env:
-        h_in = hashlib.sha256(raw.encode("utf-8")).hexdigest()
-        return secrets.compare_digest(h_env, h_in)
-    pw_env = os.environ.get("OPS_PASS", "")
-    if not pw_env:
-        # Sem senha definida: bloqueia tudo. Configurar OPS_PASS para liberar.
-        return False
-    return secrets.compare_digest(pw_env, raw)
-
 
 def _login_required(view):
     @wraps(view)
@@ -341,6 +322,20 @@ def collect_diagnostics() -> Dict[str, Any]:
         },
     }
 
+    # ---- 7. Backend de autenticacao (SRA) ----
+    auth_backend = {
+        "provider": "SRA Postgres (read-only, bcrypt no PLI)",
+        "configured": sra_auth.configured,
+        "role_required": "admin",
+        "reset_password_url": sra_auth.reset_password_url,
+        "health": sra_auth.healthcheck(),
+        "session": {
+            "user": session.get("ops_user"),
+            "remote_addr": request.remote_addr,
+            "user_agent": request.headers.get("User-Agent"),
+        },
+    }
+
     return {
         "generated_at": now.isoformat(),
         "overview": overview,
@@ -349,6 +344,7 @@ def collect_diagnostics() -> Dict[str, Any]:
         "pipeline": pipeline,
         "methodology": methodology,
         "web": web,
+        "auth_backend": auth_backend,
     }
 
 
@@ -376,17 +372,30 @@ def root():
 def login_page():
     next_url = request.args.get("next", "/ops/status")
     err = request.args.get("err")
-    return render_template("ops_login.html", next_url=next_url, error=err)
+    return render_template(
+        "ops_login.html",
+        next_url=next_url,
+        error=err,
+        backend_configured=sra_auth.configured,
+        reset_password_url=sra_auth.reset_password_url,
+    )
 
 
 @ops_bp.route("/login", methods=["POST"])
 def login_submit():
-    user = request.form.get("user", "").strip()
+    email = request.form.get("email", "").strip()
     pw = request.form.get("password", "")
     next_url = request.form.get("next", "/ops/status")
-    if user == _expected_user() and _password_matches(pw):
+
+    user = sra_auth.authenticate(email, pw)
+    if user:
         session.clear()
-        session["ops_user"] = user
+        session["ops_user"] = {
+            "id": user["id"],
+            "email": user["email"],
+            "nome": user["nome"],
+            "role": user["role"],
+        }
         session.permanent = True
         return redirect(next_url)
     return redirect(url_for("ops.login_page", next=next_url, err="1"))

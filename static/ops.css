@@ -111,6 +111,16 @@ body.ops-login {
     box-shadow: 0 0 0 3px rgba(62,194,110,.18);
 }
 
+.login-card label select {
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--line-2);
+    border-radius: 0.45rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fff;
+    color: var(--ink);
+}
+
 .btn-primary {
     margin-top: 0.4rem;
     background: var(--pli-verde-escuro);
@@ -125,11 +135,37 @@ body.ops-login {
 }
 .btn-primary:hover { background: #154f2c; }
 .btn-primary:active { transform: translateY(1px); }
+.btn-primary:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+}
 
 .login-footer {
     margin-top: 1rem;
     text-align: center;
     font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+.login-footer .forgot-link {
+    font-weight: 600;
+    color: var(--pli-verde-escuro);
+}
+.login-footer small {
+    color: var(--ink-2);
+    line-height: 1.4;
+}
+
+/* Nome do usuário autenticado no topbar do dashboard */
+.ops-actions .who {
+    color: rgba(255,255,255,.85);
+    font-size: 0.82rem;
+    padding: 0.25rem 0.55rem;
+    background: rgba(255,255,255,.08);
+    border-radius: 0.35rem;
+    border: 1px solid rgba(255,255,255,.15);
 }
 
 .alert {

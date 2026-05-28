@@ -13,29 +13,50 @@
         <header>
             <div class="login-logo">PLI-HazardTrack</div>
             <h1>Painel de Operações</h1>
-            <p class="login-sub">Acesso restrito · diagnóstico do sistema</p>
+            <p class="login-sub">
+                Acesso restrito · use suas credenciais de administrador do SRA
+            </p>
         </header>
+
+        {% if not backend_configured %}
+        <div class="alert alert-error">
+            <strong>Autenticação indisponível.</strong><br>
+            O servidor não está configurado para validar usuários.
+            Avise a equipe de operações.
+        </div>
+        {% endif %}
 
         {% if error %}
         <div class="alert alert-error">
-            Usuário ou senha não conferem. Tente de novo.
+            E-mail ou senha não conferem, ou o usuário não tem perfil de administrador.
         </div>
         {% endif %}
 
         <form method="POST" action="/ops/login" autocomplete="off">
             <input type="hidden" name="next" value="{{ next_url }}">
+
             <label>
-                <span>Usuário</span>
-                <input type="text" name="user" required autofocus autocomplete="username">
+                <span>E-mail</span>
+                <input type="email" name="email" required autofocus
+                       autocomplete="username" placeholder="seu.email@dominio.com">
             </label>
+
             <label>
                 <span>Senha</span>
-                <input type="password" name="password" required autocomplete="current-password">
+                <input type="password" name="password" required
+                       autocomplete="current-password">
             </label>
-            <button type="submit" class="btn-primary">Entrar</button>
+
+            <button type="submit" class="btn-primary"
+                    {% if not backend_configured %}disabled{% endif %}>
+                Entrar
+            </button>
         </form>
 
         <footer class="login-footer">
+            <a href="{{ reset_password_url }}" class="forgot-link">
+                Esqueci minha senha
+            </a>
             <a href="/">← Voltar para o monitoramento público</a>
         </footer>
     </main>

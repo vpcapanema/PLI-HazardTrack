@@ -7,3 +7,7 @@ shapely==2.0.5
 apscheduler==3.10.4
 python-dotenv==1.0.0
 gunicorn==23.0.0
+
+# Auth contra o banco do SRA (somente leitura)
+bcrypt==4.2.0
+psycopg[binary]==3.2.3

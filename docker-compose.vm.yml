@@ -44,9 +44,13 @@ services:
       GUNICORN_THREADS: "8"
       GUNICORN_TIMEOUT: "120"
 
-      OPS_USER: "${OPS_USER:-admin}"
-      OPS_PASS: "${OPS_PASS:-}"
-      OPS_PASS_SHA256: "${OPS_PASS_SHA256:-}"
+      # Auth /ops contra o Postgres do SRA (somente leitura)
+      SRA_DB_HOST: "${SRA_DB_HOST:-sra-postgres}"
+      SRA_DB_PORT: "${SRA_DB_PORT:-5432}"
+      SRA_DB_NAME: "${SRA_DB_NAME:-sra}"
+      SRA_DB_USER: "${SRA_DB_USER:-sra_user}"
+      SRA_DB_PASSWORD: "${SRA_DB_PASSWORD:-}"
+      SRA_RESET_URL: "${SRA_RESET_URL:-/recuperar-senha}"
       OPS_SECRET: "${OPS_SECRET:-}"
       DEPLOY_ENV: "vm-aws-sa-east-1"
 
@@ -83,11 +87,14 @@ services:
 
     networks:
       - pli_hazardtrack_net
+      - sra_net   # rede do Sigma/SRA - so para resolver sra-postgres (read-only)
 
 networks:
   pli_hazardtrack_net:
     name: pli_hazardtrack_net
     driver: bridge
+  sra_net:
+    external: true   # criada pelo stack do SRA; nao tocamos nela
 
 volumes:
   pli_hazardtrack_cache:

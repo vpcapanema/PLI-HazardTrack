@@ -15,6 +15,11 @@
             <span>· Painel de Operações</span>
         </div>
         <div class="ops-actions">
+            {% if session.ops_user %}
+            <span class="who" title="Autenticado via SRA">
+                {{ session.ops_user.nome or session.ops_user.email }}
+            </span>
+            {% endif %}
             <span id="updated-at" class="updated-at">—</span>
             <button id="btn-refresh" type="button" class="btn-secondary">Atualizar</button>
             <a href="/" class="btn-link">Mapa público</a>
@@ -116,6 +121,19 @@
             <div id="web-app"></div>
         </section>
 
+        <!-- ===================================================
+             7. AUTENTICAÇÃO (SRA)
+             =================================================== -->
+        <section class="card">
+            <h2>Autenticação</h2>
+            <p class="card-help">
+                O login do <code>/ops</code> usa as credenciais do SRA (somente leitura,
+                bcrypt validado aqui no PLI). Apenas usuários com perfil
+                <strong>admin</strong> no SRA conseguem entrar.
+            </p>
+            <div id="auth-backend"></div>
+        </section>
+
         <!-- JSON cru para suporte/debug -->
         <section class="card card-full">
             <h2>JSON cru (para suporte)</h2>
@@ -159,6 +177,7 @@
             renderPipeline(d.pipeline);
             renderMethodology(d.methodology);
             renderWeb(d.web);
+            renderAuthBackend(d.auth_backend);
             document.getElementById("raw-json").textContent = JSON.stringify(d, null, 2);
         }
 
@@ -451,13 +470,56 @@
             root.appendChild(a);
 
             const s = el("div", "subcard");
-            s.appendChild(el("div", "subcard-head", `<b>Sessão</b>`));
+            s.appendChild(el("div", "subcard-head", `<b>Conexão atual</b>`));
             const kv2 = el("div", "kv-grid");
-            kv2.appendChild(kvRow("Usuário", w.session?.user || "anônimo"));
             kv2.appendChild(kvRow("IP remoto", w.session?.remote_addr || "—"));
             kv2.appendChild(kvRow("User-Agent", w.session?.user_agent || "—"));
             s.appendChild(kv2);
             root.appendChild(s);
+        }
+
+        // ---- 7. auth backend (SRA) ------------------------------------
+        function renderAuthBackend(a) {
+            const root = document.getElementById("auth-backend");
+            root.innerHTML = "";
+            if (!a) {
+                root.innerHTML = `<p class="empty">Sem dados.</p>`;
+                return;
+            }
+
+            // Cabeçalho com semáforo
+            const health = a.health || {};
+            const lightCls = health.ok ? "ok" : (a.configured ? "fail" : "warn");
+            const head = el("div", "subcard");
+            head.appendChild(el("div", "subcard-head",
+                `<span class="light-dot light-${lightCls}"></span>
+                 <b>${escapeHtml(a.provider || "—")}</b>
+                 <small>${a.configured ? "configurado" : "não configurado"}</small>`));
+            const kv = el("div", "kv-grid");
+            kv.appendChild(kvRow("Perfil exigido", a.role_required || "admin"));
+            kv.appendChild(kvRow("Conexão com SRA", health.ok ? "OK" : "indisponível"));
+            if (health.error) kv.appendChild(kvRow("Erro", health.error));
+            kv.appendChild(kvRow("Recuperação de senha", a.reset_password_url || "—"));
+            head.appendChild(kv);
+            root.appendChild(head);
+
+            // Sessão atual
+            if (a.session) {
+                const s = el("div", "subcard");
+                s.appendChild(el("div", "subcard-head", `<b>Sessão atual</b>`));
+                const kv2 = el("div", "kv-grid");
+                const u = a.session.user;
+                if (u && typeof u === "object") {
+                    kv2.appendChild(kvRow("Nome", u.nome || "—"));
+                    kv2.appendChild(kvRow("E-mail", u.email || "—"));
+                    kv2.appendChild(kvRow("Perfil SRA", u.role || "—"));
+                    kv2.appendChild(kvRow("ID no SRA", u.id ?? "—"));
+                } else {
+                    kv2.appendChild(kvRow("Usuário", "anônimo"));
+                }
+                s.appendChild(kv2);
+                root.appendChild(s);
+            }
         }
     </script>
 </body>

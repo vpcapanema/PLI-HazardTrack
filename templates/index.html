@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLI-HazardTrack — Adaptado do SAMAEG</title>
 
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css" />
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <aside class="sidebar">
@@ -287,8 +287,13 @@
         </div>
     </div>
 
-    <script src="/static/vendor/leaflet/leaflet.js"></script>
-    <script src="/static/vendor/leaflet/leaflet-heat.js"></script>
-    <script src="/static/app.js"></script>
+    <script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/leaflet/leaflet-heat.js') }}"></script>
+    <script>
+        // Prefixo da app injetado pelo Flask. Quando atras de Nginx em path
+        // (ex: /hazardtrack/), vira "/hazardtrack". Caso contrario, "".
+        window.APP_BASE = "{{ request.script_root }}";
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

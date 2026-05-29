@@ -11,6 +11,7 @@ from datetime import timedelta
 
 from flask import Flask, render_template, jsonify
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from core.aggregator import state
@@ -43,6 +44,14 @@ if os.environ.get("RENDER") or os.environ.get("FORCE_HTTPS_COOKIES") == "1":
 app.permanent_session_lifetime = timedelta(hours=12)
 
 CORS(app)
+
+# Atras do Nginx do host (acesso via http://IP/hazardtrack/ ou subdominio).
+# X-Forwarded-Prefix faz Flask gerar URLs ja com o prefixo correto.
+app.wsgi_app = ProxyFix(
+    app.wsgi_app,
+    x_for=1, x_proto=1, x_host=1, x_prefix=1,
+)
+
 app.register_blueprint(ops_bp)
 
 

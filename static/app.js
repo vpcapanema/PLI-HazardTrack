@@ -11,6 +11,10 @@ const REFRESH_MS = 30_000;
 const SP_BOUNDS = [[-25.5, -53.2], [-19.7, -44.0]];        // Estado inteiro
 const LITORAL_BOUNDS = [[-25.0, -47.0], [-22.5, -44.3]];   // Litoral norte + Baixada Santista
 
+// Prefixo da app, injetado pelo template (vazio em raiz, "/hazardtrack" atras de Nginx em path)
+const APP_BASE = (typeof window !== "undefined" && window.APP_BASE) ? window.APP_BASE : "";
+const apiUrl = (path) => APP_BASE + path;
+
 const NIVEL_LABEL = ["Monitoramento", "Observação", "Atenção", "Alerta", "Alerta Máximo"];
 const NIVEL_COLOR = ["#2aa358", "#f1c40f", "#f39c12", "#e74c3c", "#8e44ad"];
 const NIVEL_DESC = [
@@ -152,7 +156,7 @@ function initMap() {
  */
 async function loadSpMask() {
   try {
-    const gj = await (await fetch("/static/data/sp_state.geojson")).json();
+    const gj = await (await fetch(apiUrl("/static/data/sp_state.geojson"))).json();
     const feat = (gj.features || [])[0];
     if (!feat) return;
 
@@ -204,7 +208,7 @@ function attachEvents() {
     const original = btn.textContent;
     btn.textContent = "Atualizando...";
     try {
-      await fetch("/api/refresh", { method: "POST" });
+      await fetch(apiUrl("/api/refresh"), { method: "POST" });
       await refresh();
     } catch (e) {
       console.error(e);
@@ -337,7 +341,7 @@ function attachModalEvents() {
 
 async function refresh() {
   try {
-    const res = await fetch("/api/snapshot");
+    const res = await fetch(apiUrl("/api/snapshot"));
     const snap = await res.json();
     renderSnapshot(snap);
   } catch (e) {
@@ -778,11 +782,11 @@ async function loadRoadNetwork() {
   };
 
   try {
-    const stats = await (await fetch("/api/road-stats")).json();
+    const stats = await (await fetch(apiUrl("/api/road-stats"))).json();
     populateFilterDropdowns(stats);
 
     setSummary("Carregando malha rodoviária...");
-    const gj = await (await fetch("/api/road-network")).json();
+    const gj = await (await fetch(apiUrl("/api/road-network"))).json();
     state.roadGeoJSON = gj;
     renderRoadsOnMap();
 
@@ -823,7 +827,7 @@ async function loadAdminLayer(key) {
   const cfg = ADMIN_LAYERS[key];
   if (!cfg) return;
   try {
-    const gj = await (await fetch(cfg.file)).json();
+    const gj = await (await fetch(apiUrl(cfg.file))).json();
     L.geoJSON(gj, { style: cfg.style }).addTo(state.layers[key]);
     adminLoaded.add(key);
   } catch (e) {

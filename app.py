@@ -1,5 +1,6 @@
 """
-SAMAEG-PLI - Sistema Automatizado de Monitoramento, Analise e Alerta Geodinamico
+SAMAEG-PLI - Sistema Automatizado de Monitoramento,
+Analise e Alerta Geodinamico
 Versao 0.1 - Backend Flask + scheduler
 """
 
@@ -16,6 +17,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from core.aggregator import state
 from core.ops import ops_bp
+from core.actions import get_summary_actions
 
 logging.basicConfig(
     level=logging.INFO,
@@ -24,10 +26,13 @@ logging.basicConfig(
 log = logging.getLogger("samaeg")
 
 # Silencia o ruido do health check (keep-alive bate a cada 10 min).
+
+
 class _HideHealthFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         msg = record.getMessage()
         return "/api/health" not in msg
+
 
 for _name in ("werkzeug", "gunicorn.access"):
     logging.getLogger(_name).addFilter(_HideHealthFilter())
@@ -35,7 +40,9 @@ for _name in ("werkzeug", "gunicorn.access"):
 app = Flask(__name__, template_folder="templates", static_folder="static")
 # Sessao Flask para a pagina /ops. Em prod, defina OPS_SECRET via env var.
 # Sem OPS_SECRET, geramos um random por processo (cookies caem ao reiniciar).
-app.config["SECRET_KEY"] = os.environ.get("OPS_SECRET") or secrets.token_hex(32)
+app.config["SECRET_KEY"] = (
+    os.environ.get("OPS_SECRET") or secrets.token_hex(32)
+)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 # Em producao (Render = HTTPS) marca o cookie como secure
@@ -79,10 +86,13 @@ def _bootstrap():
         except Exception as e:
             log.exception("Falha no primeiro update: %s", e)
 
-    threading.Thread(target=_first_update, daemon=True).start()
+    threading.Thread(
+        target=_first_update, daemon=True
+    ).start()
 
     scheduler = BackgroundScheduler(daemon=True)
-    # Atualizacao a cada 10 minutos (MERGE horario tem latencia ~3h, mas como pode ter
+    # Atualizacao a cada 10 minutos (MERGE horario tem latencia ~3h, mas como
+    # pode ter
     # republicacao, atualizamos com mais frequencia para nao perder)
     scheduler.add_job(state.update, "interval", minutes=10, id="merge_refresh")
     scheduler.start()
@@ -139,9 +149,49 @@ def api_refresh():
     return jsonify({"ok": True, "snapshot": state.get_snapshot()["summary"]})
 
 
+@app.route("/api/actions")
+def api_actions():
+    """Retorna acoes operacionais por nivel para o snapshot atual."""
+    snap = state.get_snapshot()
+    points = snap.get("points", [])
+    return jsonify(get_summary_actions(points))
+
+
+@app.route("/api/forecast")
+def api_forecast():
+    """Retorna previsao meteorologica para os pontos de monitoramento."""
+    from core.forecast_cptec import fetch_forecast_batch
+    points = state.get_snapshot().get("points", [])
+    coords = [(p["lat"], p["lon"]) for p in points]
+    forecast = fetch_forecast_batch(coords)
+    out = []
+    for p, f in zip(points, forecast):
+        entry = {
+            "id": p["id"],
+            "nome": p["nome"],
+            "lat": p["lat"],
+            "lon": p["lon"],
+        }
+        if f is not None:
+            entry.update({
+                "ac24h_forecast_mm": f.ac24h_forecast_mm,
+                "intensity_forecast_mmh": f.intensity_forecast_mmh,
+                "forecast_time": (
+                    f.forecast_time.isoformat() if f.forecast_time else None
+                ),
+                "cidade": f.cidade,
+                "source": f.source,
+            })
+        else:
+            entry["forecast"] = None
+        out.append(entry)
+    return jsonify({"forecast": out, "source": "CPTEC/INPE"})
+
+
 @app.route("/api/health")
 def api_health():
-    """Diagnostico operacional. Inclui dependencias criticas para debug rapido em prod."""
+    """Diagnostico operacional. Inclui dependencias criticas para debug rapido
+em prod."""
     try:
         from core.merge_inpe import _eccodes_available
         eccodes_ok = bool(_eccodes_available())

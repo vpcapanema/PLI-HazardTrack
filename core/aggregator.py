@@ -31,7 +31,7 @@ DEGRADED_MISSING_24H_THRESHOLD = int(os.environ.get("SAMAEG_DEGRADED_24H", "6"))
 # Modo de desenvolvimento sem rede / sem eccodes
 FORCE_MOCK = os.environ.get("SAMAEG_FORCE_MOCK", "0") == "1"
 # Quantos ciclos manter no historico de runtime (para a pagina de ops)
-RUNTIME_HISTORY = 30
+RUNTIME_HISTORY = 96
 
 
 class State:
@@ -53,6 +53,8 @@ class State:
         self.last_error_at = None
         # Historico curto dos ultimos ciclos (para a pagina /ops)
         self.cycle_history = deque(maxlen=RUNTIME_HISTORY)
+        # Historico de RD por ponto (ultimos 24 ciclos = 4h)
+        self.point_rd_history: Dict[str, deque] = {}
 
         # Seed inicial: pontos visiveis no mapa em "loading" (estilo sem dado).
         # Importante para Render free, onde o primeiro ciclo MERGE pode levar
@@ -188,7 +190,9 @@ class State:
                     ac96h=rain.ac96h_mm,
                     intensity=rain.intensity_mmh,
                     ac24h=rain.ac24h_mm,
-                    ra=p["ra"]
+                    ra=p["ra"],
+                    ra_geo=p.get("ra_geo"),
+                    ra_hid=p.get("ra_hid")
                 )
                 pt = {
                     "id": p["id"], "nome": p["nome"], "rodovia": p["rodovia"], "km": p["km"],
@@ -203,6 +207,19 @@ class State:
                     "rd": result.rd, "nivel": result.nivel,
                     "source": rain.source
                 }
+                # Historico de RD por ponto
+                hist = self.point_rd_history.setdefault(p["id"], deque(maxlen=24))
+                hist.append({
+                    "ts": now.isoformat(),
+                    "rd": result.rd,
+                    "rd_geo": result.rd_geo,
+                    "rd_hid": result.rd_hid,
+                    "ac96h": result.ac96h_mm,
+                    "ac24h": result.ac24h_mm,
+                    "cpc": result.cpc,
+                })
+                pt["history"] = list(hist)
+
                 new_points.append(pt)
                 by_level[result.rd] = by_level.get(result.rd, 0) + 1
                 if result.rd > max_rd or (

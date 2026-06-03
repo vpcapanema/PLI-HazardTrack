@@ -156,9 +156,9 @@ def load_regions(shapefile_path: Optional[Path] = None) -> List[Region]:
                     continue
                 # Para Polygon ou MultiPolygon, pega o exterior
                 if geom.geom_type == "Polygon":
-                    coords = [(y, x) for x, y in geom.exterior.coords]
+                    coords = [(x, y) for x, y in geom.exterior.coords]
                 else:
-                    coords = [(y, x) for x, y in list(geom.geoms)[0].exterior.coords]
+                    coords = [(x, y) for x, y in list(geom.geoms)[0].exterior.coords]
                 regions.append(Region(
                     id=int(row.get("regiao", row.get("id", 0))),
                     nome=str(row.get("nome", "?")),

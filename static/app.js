@@ -344,6 +344,8 @@ async function refresh() {
     const res = await fetch(apiUrl("/api/snapshot"));
     const snap = await res.json();
     renderSnapshot(snap);
+    loadActions();
+    loadForecast();
   } catch (e) {
     console.error("Erro ao atualizar snapshot:", e);
     setStatus("Erro de conexão com o servidor", "alert");
@@ -544,6 +546,7 @@ function renderWorst(snap) {
         <span>CPC</span><b>${worst.cpc !== null ? worst.cpc : "—"}</b>
       </div>
     </div>
+    ${renderWorstSparkline(worst.history || [])}
   `;
 }
 
@@ -645,7 +648,7 @@ function buildPopup(p) {
         <tr><td>Acum. 96h</td><td>${p.ac96h_mm} mm</td></tr>
         <tr><td>Intensidade</td><td>${p.intensity_mmh} mm/h</td></tr>
         <tr><td>CPC</td><td>${p.cpc !== null ? p.cpc : "—"}</td></tr>
-        <tr><td>Risco analisado</td><td>RA${p.ra}</td></tr>
+        <tr><td>Risco analisado</td><td>${p.ra !== null && p.ra !== undefined ? 'RA' + p.ra : 'SEM DADO'}</td></tr>
         <tr><td>ICC geológico</td><td>${p.icc_geo}</td></tr>
         <tr><td>ICC hidrológico</td><td>${p.icc_hid}</td></tr>
       </table>
@@ -1114,4 +1117,133 @@ function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = String(str);
   return div.innerHTML;
+}
+
+
+// ============================================================================
+// ACOES OPERACIONAIS (PPDC)
+// ============================================================================
+async function loadActions() {
+  try {
+    const res = await fetch(apiUrl("/api/actions"));
+    if (!res.ok) return;
+    const data = await res.json();
+    renderActions(data);
+  } catch (e) {
+    console.error("Erro ao carregar acoes:", e);
+  }
+}
+
+function renderActions(data) {
+  const container = document.getElementById("actions-content");
+  if (!container) return;
+
+  const nivel = data.max_nivel || "Monitoramento";
+  const cor = data.max_cor || "#22c55e";
+  const acoes = data.acoes_max || [];
+  const crit = data.pontos_criticos || [];
+
+  let html = `<div class="actions-header" style="border-left: 4px solid ${cor}; padding-left: 10px; margin-bottom: 10px;">
+    <strong style="color:${cor}; font-size: 1.1em;">${nivel}</strong>
+    <div style="font-size: .85em; color: #666;">${data.responsavel_max || ""}</div>
+  </div>`;
+
+  if (acoes.length > 0) {
+    html += `<ul class="actions-list" style="padding-left: 18px; margin: 0; font-size: .9em; line-height: 1.5;">`;
+    for (const acao of acoes) {
+      html += `<li>${acao}</li>`;
+    }
+    html += `</ul>`;
+  }
+
+  if (crit.length > 0) {
+    html += `<div style="margin-top: 10px; font-size: .85em; color: #b91c1c;">
+      <strong>Pontos criticos (${crit.length}):</strong> ${crit.map(p => p.nome).join(", ")}
+    </div>`;
+  }
+
+  if (data.vistoria_necessaria) {
+    html += `<div style="margin-top: 8px; font-size: .85em; color: #c2410c;">
+      <strong>Vistoria necessaria</strong>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ============================================================================
+// PREVISAO 24H
+// ============================================================================
+async function loadForecast() {
+  try {
+    const res = await fetch(apiUrl("/api/forecast"));
+    if (!res.ok) return;
+    const data = await res.json();
+    renderForecast(data.forecast || []);
+  } catch (e) {
+    console.error("Erro ao carregar previsao:", e);
+  }
+}
+
+function renderForecast(forecast) {
+  const container = document.getElementById("forecast-content");
+  if (!container) return;
+
+  const comDados = forecast.filter(f => f.ac24h_forecast_mm !== undefined);
+  if (comDados.length === 0) {
+    container.innerHTML = `<div class="forecast-empty">Previsao indisponivel</div>`;
+    return;
+  }
+
+  const maxChuva = Math.max(...comDados.map(f => f.ac24h_forecast_mm));
+  const maxPonto = comDados.find(f => f.ac24h_forecast_mm === maxChuva);
+
+  let html = `<div style="font-size: .9em; line-height: 1.4;">`;
+  html += `<div style="margin-bottom: 8px;"><strong>Maior acumulado previsto:</strong> ${maxChuva.toFixed(1)} mm</div>`;
+  html += `<div style="font-size: .85em; color: #666; margin-bottom: 8px;">${maxPonto?.nome || ""}</div>`;
+
+  html += `<div style="max-height: 120px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 6px;">`;
+  for (const f of comDados.slice(0, 5)) {
+    html += `<div style="display:flex; justify-content:space-between; font-size: .85em; padding: 2px 0;">
+      <span>${f.nome}</span>
+      <span><b>${f.ac24h_forecast_mm.toFixed(1)} mm</b></span>
+    </div>`;
+  }
+  if (comDados.length > 5) {
+    html += `<div style="font-size: .8em; color: #999; text-align: center;">+${comDados.length - 5} pontos</div>`;
+  }
+  html += `</div></div>`;
+
+  container.innerHTML = html;
+}
+
+function renderWorstSparkline(history) {
+  if (!history || history.length < 2) return "";
+  const vals = history.map(h => h.rd);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const range = max - min || 1;
+  const w = 200;
+  const h = 40;
+  const step = w / (vals.length - 1);
+  let path = "";
+  vals.forEach((v, i) => {
+    const x = i * step;
+    const y = h - ((v - min) / range) * h;
+    path += (i === 0 ? "M" : "L") + `${x},${y}`;
+  });
+  const color = NIVEL_COLOR[max] || "#999";
+  return `
+    <div style="margin-top:10px; padding-top:8px; border-top:1px solid #eee;">
+      <div style="font-size:.75em; color:#666; margin-bottom:4px;">Evolução do Risco (últimos ${vals.length} ciclos)</div>
+      <svg width="${w}" height="${h}" style="overflow:visible">
+        <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        ${vals.map((v, i) => {
+          const x = i * step;
+          const y = h - ((v - min) / range) * h;
+          return `<circle cx="${x}" cy="${y}" r="3" fill="${NIVEL_COLOR[v]}"/>`;
+        }).join("")}
+      </svg>
+    </div>
+  `;
 }

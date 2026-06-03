@@ -28,7 +28,7 @@ class RiskResult:
     cpc: Optional[float]
     icc_geo: int        # 0..4
     icc_hid: int        # 0..4
-    ra: int             # 0..4 (Risco Analisado, default 1 ate haver shapefile)
+    ra: Optional[int]   # 0..4 ou None (SEM_DADO)
     rd_geo: int         # 0..4
     rd_hid: int         # 0..4
     rd: int             # max(rd_geo, rd_hid)
@@ -55,7 +55,9 @@ RD_MATRIX = [
 ]
 
 
-def calculate_cpc(intensity_mmh: float, ac96h_mm: float, k_geo: float) -> Optional[float]:
+def calculate_cpc(
+    intensity_mmh: float, ac96h_mm: float, k_geo: float
+) -> Optional[float]:
     """
     CPC = I / I_envoltoria(Ac96h)
     onde I_envoltoria = K * Ac96h^(-0.9)
@@ -99,7 +101,8 @@ def combine_ra_icc(ra: int, icc: int) -> int:
 
 def evaluate_point(lat: float, lon: float, region: Optional[Region],
                    ac96h: float, intensity: float, ac24h: float,
-                   ra: int = 1) -> RiskResult:
+                   ra: Optional[int] = None, ra_geo: Optional[int] = None,
+                   ra_hid: Optional[int] = None) -> RiskResult:
     """
     Calcula risco dinamico para um ponto (lat, lon).
 
@@ -108,11 +111,17 @@ def evaluate_point(lat: float, lon: float, region: Optional[Region],
         ac96h: chuva acumulada nas ultimas 96 horas (mm)
         intensity: chuva na ultima hora (mm/h)
         ac24h: chuva acumulada nas ultimas 24 horas (mm)
-        ra: Risco Analisado (1..4). Default = 1 (baixo) ate ter shapefile RA real.
+        ra: Risco Analisado compativel (0..4) ou None (SEM_DADO).
+        ra_geo: Risco Analisado Geologico (0..4). Se None, usa `ra`.
+        ra_hid: Risco Analisado Hidrologico (0..4). Se None, usa `ra`.
 
     Returns:
         RiskResult com todas as variaveis calculadas
     """
+    # Normaliza RA geo/hid: fallback para ra compativel quando nao informado
+    _ra_geo = ra_geo if ra_geo is not None else ra
+    _ra_hid = ra_hid if ra_hid is not None else ra
+
     if region is None:
         # Fora de cobertura: retorna estado neutro
         return RiskResult(
@@ -120,16 +129,36 @@ def evaluate_point(lat: float, lon: float, region: Optional[Region],
             region_id=None, region_name=None, rodovia=None,
             ac96h_mm=ac96h, intensity_mmh=intensity, ac24h_mm=ac24h,
             cpc=None, icc_geo=0, icc_hid=0,
-            ra=ra, rd_geo=0, rd_hid=0, rd=0,
-            nivel=NIVEIS[0]
+            ra=None, rd_geo=0, rd_hid=0, rd=0,
+            nivel="Fora de cobertura"
         )
 
     cpc = calculate_cpc(intensity, ac96h, region.k_geo)
     icc_geo = classify_icc_geo(cpc, region.cpc_breaks)
     icc_hid = classify_icc_hid(ac24h, region.hid24h_breaks)
 
-    rd_geo = combine_ra_icc(ra, icc_geo)
-    rd_hid = combine_ra_icc(ra, icc_hid)
+    # Se nao houver RA oficial, nao calcula RD (retorna ICC mas RD=0 SEM_DADO)
+    if _ra_geo is None and _ra_hid is None:
+        return RiskResult(
+            lat=lat, lon=lon,
+            region_id=region.id, region_name=region.nome,
+            rodovia=region.rodovia,
+            ac96h_mm=round(ac96h, 1),
+            intensity_mmh=round(intensity, 1),
+            ac24h_mm=round(ac24h, 1),
+            cpc=round(cpc, 2) if cpc is not None else None,
+            icc_geo=icc_geo, icc_hid=icc_hid,
+            ra=None, rd_geo=0, rd_hid=0, rd=0,
+            nivel="SEM DADO - RA nao mapeado"
+        )
+
+    # Calcula RD com dados disponiveis
+    rd_geo = (
+        combine_ra_icc(_ra_geo or 0, icc_geo) if _ra_geo is not None else 0
+    )
+    rd_hid = (
+        combine_ra_icc(_ra_hid or 0, icc_hid) if _ra_hid is not None else 0
+    )
     rd = max(rd_geo, rd_hid)
 
     return RiskResult(

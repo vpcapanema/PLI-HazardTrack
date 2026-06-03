@@ -146,7 +146,7 @@ class TestEvaluatePoint(unittest.TestCase):
         )
         self.assertIsNone(r.region_id)
         self.assertEqual(r.rd, 0)
-        self.assertEqual(r.nivel, NIVEIS[0])
+        self.assertEqual(r.nivel, "Fora de cobertura")
 
     def test_chuva_zero_da_rd_zero(self):
         region = _region(0)  # Regiao 1

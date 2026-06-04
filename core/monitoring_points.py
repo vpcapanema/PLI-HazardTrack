@@ -24,6 +24,7 @@ import json
 import logging
 
 from .ra_official import get_ra_for_point
+from .ua_segments import get_ra_by_location
 
 log = logging.getLogger("monitoring_points")
 
@@ -47,14 +48,22 @@ def _load_points():
     out = []
     for p in data:
         # RA real dos relatorios REGEA-NIPPON 2021 (se disponivel)
+        # Prioridade: segmento da malha DER/SP (geometria real)
+        # Fallback: lookup por km nos trechos oficiais
         region_id = p.get("region_id_hint")
-        ra_geo, ra_hid, ra_source = get_ra_for_point(
-            rodovia=p.get("rodovia"),
-            km=p.get("km"),
+        ra_geo, ra_hid, ra_source = get_ra_by_location(
             lat=float(p["lat"]),
             lon=float(p["lon"]),
-            region_id=region_id,
+            rodovia=p.get("rodovia"),
         )
+        if ra_geo is None and ra_hid is None:
+            ra_geo, ra_hid, ra_source = get_ra_for_point(
+                rodovia=p.get("rodovia"),
+                km=p.get("km"),
+                lat=float(p["lat"]),
+                lon=float(p["lon"]),
+                region_id=region_id,
+            )
         out.append({
             "id": p["id"],
             "rodovia": p["rodovia"],

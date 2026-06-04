@@ -143,7 +143,7 @@ def get_ra_for_point(
     lat: float,
     lon: float,
     region_id: Optional[int],
-) -> Tuple[int, int, str]:
+) -> Tuple[Optional[int], Optional[int], str]:
     """
     Retorna (ra_geo, ra_hid, source) para um ponto de monitoramento.
 

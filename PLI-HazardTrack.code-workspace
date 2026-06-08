@@ -3,6 +3,9 @@
         {
             "name": "PLI-HazardTrack",
             "path": "."
+        },
+        {
+            "path": "../OCI"
         }
     ],
     "settings": {

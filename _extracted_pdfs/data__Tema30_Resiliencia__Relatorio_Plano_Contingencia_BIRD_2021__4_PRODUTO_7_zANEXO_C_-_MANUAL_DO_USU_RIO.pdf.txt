@@ -1,0 +1,1306 @@
+
+===== PAGE 1 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+MANUAL  
+DO  
+USUÁRIO 
+ 
+ 
+ 
+ 
+Data de Emissão: 
+15/03/2021 
+Versão / Data: 
+01 – 15/03/2021 
+  
+===== PAGE 2 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+Sumário 
+1. Objetivo ...................................................................................................................................................................... 4 
+2. Informações Gerais ................................................................................................................................................. 4 
+3. O Sistema ................................................................................................................................................................... 5 
+3.1. Login ................................................................................................................................................................. 5 
+3.1.1. Acessando o Sistema: ................................................................................................................................ 6 
+3.2. Ferramentas de Navegação ..................................................................................................................... 8 
+3.2.1. Ferramentas iniciais de navegação do mapa ............................................................................... 8 
+3.2.2. Ferramentas de navegação – Menu Navegação ......................................................................10 
+3.2.2.1. Camadas do Mapa .................................................................................... 11 
+3.2.2.2. Mover.......................................................................................................... 12 
+3.2.2.3. Aproximar e Afastar .................................................................................. 13 
+3.2.2.4. Identificar informações ............................................................................. 15 
+3.2.2.5. Tabela de Atributos .................................................................................. 17 
+3.3. Informações dos alertas – Clique no mapa .....................................................................................19 
+3.3.1. Acessando as informações dos alertas e as suas recomendações ....................................20 
+3.4. Dados ..............................................................................................................................................................22 
+3.4.1. Alertas ........................................................................................................................................................23 
+3.4.1.1. Filtro por intervalo de tempo .................................................................. 23 
+3.4.1.2. Filtro por intervalo de tempo .................................................................. 24 
+3.4.2. Alertas – Linha do Tempo ..................................................................................................................26 
+3.5. Controle e Manipulação do Mapa ......................................................................................................28 
+3.5.1. Adicionar Camada no Mapa .............................................................................................................28 
+3.5.2. Seus Favoritos: .......................................................................................................................................31 
+3.5.3. Mapa Base ...............................................................................................................................................33 
+3.5.4. Medir ..........................................................................................................................................................35 
+===== PAGE 3 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+3.5.4.1. Medições de locais: ................................................................................... 35 
+3.5.4.2. Medições de distância: ............................................................................. 37 
+3.5.4.3. Medições de área: ..................................................................................... 39 
+3.5.5. Legenda: ...................................................................................................................................................40 
+3.6. Pesquisa .........................................................................................................................................................41 
+3.6.1. Busca por Atributos..............................................................................................................................41 
+3.6.1.1. Busca por Atributos - Espacial ....................................................................................................42 
+3.6.1.2. Busca por Atributos - .....................................................................................................................46 
+3.6.2. Busca por Endereço .............................................................................................................................50 
+3.7. Barra de Favoritos ......................................................................................................................................51 
+3.8. ADMINISTRAÇÃO DE USUÁRIOS .........................................................................................................53 
+3.8.1. Cadastrando novo usuário: ...............................................................................................................53 
+4. Usuários e Serviços no TerraMA² ..............................................................................................................55 
+4.1. Serviços ..........................................................................................................................................................55 
+4.2. Status ..............................................................................................................................................................56 
+4.3. Criação de usuários no TerraMA² ........................................................................................................58 
+ 
+ 
+ 
+  
+===== PAGE 4 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+1. Objetivo 
+ 
+Esse documento tem como objetivo apresentar as funcionalidades do Sistema 
+Automatizado de Análise, Monitoramento e Alerta . Através deste, iremos 
+mostrar quais são as etapas para monitorar, consultar, filtrar, navegar e visualizar 
+os alertas, tanto de forma espacial como de forma tabular. 
+ 
+ 
+2. Informações Gerais 
+ 
+O Sistema de Análise, Monitoramento e Alerta é composto por um conjunto de 
+servidores internos, externos e aplicativos que periodicamente obtém dados de 
+índices pluviométricos  e previsão de chuva, analisa estes dados e gera as 
+recomendações necessárias para as ações do Departamento de Estrada de 
+Rodagem (DER) – SP. Na figura abaixo temos uma visão geral da arquitetura do 
+sistema. 
+ 
+===== PAGE 5 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+Figura 2-1: Arquitetura da solução. 
+ 
+ 
+3. O Sistema 
+ 
+É uma ferramenta de análise, monitoramento e alerta de riscos relacionados a 
+eventos geodinâmicos que relaciona dados estáticos (mapeamentos de risco) e 
+dinâmicos (variáveis meteorológicas). A plataforma tema TerraMA² -INPE é o 
+motor do módulo para realização das análises e emissão de alertas de risco.  
+ 
+ 
+3.1. Login 
+ 
+O acesso ao sistema é realizado através de login. O controle de usuários é 
+realizado pelo módulo Administração de Usuários e será apresentado em outra 
+etapa deste documento. 
+
+===== PAGE 6 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+3.1.1. Acessando o Sistema: 
+ 
+Para acessar o sistema, é necessário que você já possua um usuário cadastrado.  
+Se você já possui as informações de acesso, execute os seguintes passos: 
+ 
+o Abra um navegador web. 
+o Acesse o seguinte endereço: 
+ 
+o http://db.optimusgis.com.br:2180/SGI-Riscos-DER  
+ 
+o A tela de login será mostrada. Insira as informações de acesso. 
+o  
+ 
+ 
+ 
+Ao entrar no sistema, são inicialmente mostrados um mapa e as ferramentas 
+que o compõe. 
+ 
+
+===== PAGE 7 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+ O mapa é composto pelas seguintes camadas: 
+ 
+CAMADA DESCRIÇÃO 
+ÁREA DE ESTUDO Limite de todos os trechos monitorados, divididos 
+por área de estudo. 
+PONTOS DE INTERESSE Pontos de referência composto por hospitais, postos 
+policiais, escolas, corpo de bombeiros. 
+PLUVIOMETROS DAEE Indicação dos pluviômetros do DAEE utilizados nas 
+análises. 
+RISCO GEOLÓGICO 
+INPE 
+Locais de alertas gerados a partis das análises 
+utilizando os dados do WRF e Hidroestimador 
+fornecidos pelo INPE. 
+RISCO HIDROLOGICO 
+INPE 
+Locais de alertas gerados a partis das análises 
+utilizando os dados do WRF e Hidroestimador 
+fornecidos pelo INPE. 
+RISCO GEOLOGICO 
+DAEE 
+Locais de alertas gerados a partis das análises 
+utilizando os dados do WRF, fornecido pelo INPE e 
+dos pluviômetros fornecidos pelo DAEE. 
+
+===== PAGE 8 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+RISCO HIDROLOGICO 
+INPE 
+Locais de alertas gerados a partis das análises 
+utilizando os dados do WRF, fornecido pelo INPE e 
+dos pluviômetros fornecidos pelo DAEE. 
+ 
+ 
+3.2. Ferramentas de Navegação 
+ 
+A solução possui um conjunto de ferramentas que nos permite interagir com o 
+mapa e obter informações mais detalhadas dos componentes nele apresentados.  
+ 
+3.2.1. Ferramentas iniciais de navegação 
+do mapa 
+ 
+As ferramentas iniciais de navegação do mapa são mostra das assim que ele é 
+carregado. Ficam localizadas no canto superior esquerdo. 
+ 
+ 
+ 
+As ferramentas são as seguintes: 
+
+===== PAGE 9 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ÍCONE FERRAMENTA DES COMO USAR 
+ 
+Ampliar Aproxima o mapa, 
+aumentando a escala 
+Clique no ícone. 
+ 
+Reduzir Afasta o mapa, reduzindo a 
+escala 
+Clique no ícone. 
+ 
+Retornar 
+Visualização 
+Retorna à última 
+visualização do mapa 
+Clique no ícone. 
+ 
+Próxima 
+Visualização 
+Avança para a próxima 
+visualização do mapa 
+Clique no ícone. 
+ 
+Visualização Total Retorna para a visualização 
+total inicial do mapa. 
+Clique no ícone. 
+- Mover Permite arrastar o mapa 
+mudando a área de 
+visualização 
+a. Pressione e 
+mantenha 
+pressionado o 
+botão esquerdo do 
+mouse.  
+b. Arraste o mapa para 
+o local de 
+visualização 
+desejado. 
+c. Solte o botão 
+esquerdo do mouse. 
+- Ampliar e Reduzir 
+(scroll) 
+Amplia ou reduz a 
+visualização do mapa, 
+alterando a sua escala. 
+Rode o scroll do mouse 
+para a frente, se quiser 
+aumentar o zoom ou rode 
+
+===== PAGE 10 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+para trás, se quiser reduzir 
+o zoom 
+ 
+ 
+3.2.2. Ferramentas de navegação – Menu 
+Navegação 
+ 
+Além das ferramentas iniciais de navegação, o sistema possui um conjunto de 
+outras ferramentas, separadas em grupos, que permitem interagir e consultar 
+informações relacionadas aos alertas e outros dados. 
+Um destes menus é o de Navegação, que possui as seguintes ferramentas: 
+ 
+Nome da 
+Ferramenta 
+Ícone Descrição 
+Camadas do 
+Mapa  
+“Liga” ou “Desliga” a 
+visualização de cada 
+camada do respectivo 
+módulo. 
+Mover 
+ 
+Permite arrastar o 
+mapa mudando a área 
+de visualização 
+Aproximar 
+ 
+Aproxima o mapa, 
+aumentando a escala 
+Afastar 
+ 
+Afasta o mapa, 
+reduzindo a escala 
+
+===== PAGE 11 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+Nome da 
+Ferramenta 
+Ícone Descrição 
+Identificar 
+Informações  
+Abre uma janela de 
+pop-up com 
+informações 
+relacionadas às 
+camadas, a partir do 
+ponto de clique do 
+mouse no mapa. 
+O acesso a estas ferramentas é realizado através do ícone Navegação , 
+no painel esquerdo da solução. 
+ 
+ 
+3.2.2.1. Camadas do Mapa 
+ 
+Esta ferramenta permite aos usuários habilitar ou desabilitar a visualização de 
+cada camada do respectivo módulo. 
+o Clique no ícone Navegação . 
+o Clique no ícone Camadas do Mapa . 
+o Para desabilitar a visualização de alguma camada, desmarque a caixa de 
+seleção correspondente à camada. 
+ 
+
+===== PAGE 12 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+o  
+ 
+o Para visualizar a camada novamente, marque a caixa de seleção 
+correspondente à camada. 
+ 
+ 
+3.2.2.2. Mover 
+ 
+Permite arrastar o mapa mudando a área de visualização. 
+o Clique no ícone Navegação . 
+o Clique no ícone Mover . 
+o Clique com o botão esquerdo do mouse e mantenha-o pressionado. 
+o Mova o mapa para a sua área de visualização desejada. 
+ 
+
+===== PAGE 13 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+o Solte o botão do mouse. 
+ 
+ 
+3.2.2.3. Aproximar e Afastar 
+ 
+Estas ferramentas permitem a você aproximar ou afastar o mapa, aumentando 
+ou diminuindo a sua escala, respectivamente. 
+ 
+o Clique no ícone Navegação . 
+o Clique no ícone Aproximar .  
+o Clique com o botão direito do mapa em uma área do mapa e mantenha o 
+botão pressionado. 
+o Desenhe um retângulo na área em que deseja aproximar 
+ 
+
+===== PAGE 14 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+A escala do mapa é atualizada, centralizando na área em que você escolheu. 
+ 
+ 
+ 
+o Para realizar o processo inverso, clique na ferramenta Afastar . 
+o Desenhe um retângulo na área em que deseja afastar. 
+o A escala do mapa é atualizada, centralizando na área em que você 
+escolheu. 
+ 
+ 
+
+===== PAGE 15 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+3.2.2.4. Identificar informações 
+ 
+Esta ferramenta abre uma janela de pop-up com informações relacionadas às 
+camadas, a partir do ponto de clique do mouse no mapa. 
+o Clique no ícone Navegação . 
+o Clique no ícone Identificar Informações  .  
+ 
+A janela de pop-up Identificar Informações será mostrada.  Porém ela estará 
+vazia, pois ainda não escolhemos qual ponto e camadas queremos identificar. 
+ 
+ 
+ 
+o Clique em cima de um alerta. 
+As camadas identificadas são listadas na janela. 
+
+===== PAGE 16 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Clique numa das camadas para expandir os valores. 
+ 
+ 
+ 
+
+===== PAGE 17 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ A quantidade de itens listados relacionados a uma camada, está diretamente 
+relacionado com a escala. Ou seja, se você tiver uma escala muito pequena, ele irá 
+entender que existem mais itens interseccionados com o local do clique do mouse. Se 
+estiver visualizando muitos elementos, aumente a escala e clique novamente no mesmo 
+local. 
+ 
+o Clique em um dos valores para visualizar as informações. 
+ 
+ 
+ 
+ 
+3.2.2.5. Tabela de Atributos 
+ 
+Através da tabela de atributos você pode acessar o conjunto de atributos 
+relacionados aos eventos e às camadas do mapa. 
+
+===== PAGE 18 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+Para visualizar a tabela de atributos, é necessário clicar na seta presente no canto 
+inferior do mapa. 
+ 
+ 
+ 
+Clicando neste ícone, a tabela de atributos será expandida na tela. 
+Clicando em uma linha da tabela, você pode selecionar elementos. 
+São 4 as ferramentas disponíveis na tabela: 
+ 
+Nome da 
+Ferramenta 
+Ícone Descrição 
+Todos 
+ 
+Mostra todos os 
+registros da tabela. 
+Selecionados 
+ 
+Mostra somente os 
+registros selecionados 
+Zoom na 
+seleção  
+Aproxima o mapa, 
+mostrando os 
+registros selecionados 
+
+===== PAGE 19 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+Nome da 
+Ferramenta 
+Ícone Descrição 
+Limpar 
+Seleção  
+Limpa a seleção 
+ 
+ 
+3.3. Informações dos alertas – Clique 
+no mapa 
+ 
+Os alertas gerados são mostrados no mapa de acordo com o seu Nível de 
+Operação. 
+ 
+ 
+Cada um destes alertar possuem um conjunto de informações associadas a ele e 
+possuem as suas respectivas recomendações. 
+ 
+ 
+
+===== PAGE 20 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+3.3.1. Acessando as informações dos 
+alertas e as suas recomendações 
+ 
+Para acessar as informações dos alertas e as suas recomendações, é necessário 
+realizar os seguintes passos: 
+ 
+o Utilizando as ferramentas de navegação que foram apresentadas 
+anteriormente, navegue até um dos alertas desejados. 
+ 
+ 
+ 
+o Clique com o mouse no alerta. 
+ 
+Ao clicar com o mouse, será aberta uma pop-up com as informações relacionadas 
+a ele.  
+ Pode ser que o mesmo local possua mais de um alerta. A indicação de que 
+possui mais de um alerta é a seta no canto superior esquerdo da janela de pop -
+up estar habilitada!!! 
+
+===== PAGE 21 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+ 
+o Clique no link Recomendações 
+ 
+A janela de recomendações é apresentada de acordo com o Nível Operacional 
+do alerta e tem um conjunto de ações propostas a serem executadas. 
+ 
+
+===== PAGE 22 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Clique no canto superior esquerdo da janela de Pop -up para acessar 
+informações de outros alertas . 
+ 
+ 
+3.4. Dados 
+ 
+O conjunto de ferramenta de dados tem como objetivo fornecer ao usuário o 
+acesso à lista de alertas gerados, através de um filtro e ao serviço de animação, 
+onde é possível visualizar de forma animada a ocorrência dos alertas em 
+
+===== PAGE 23 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+intervalos de tempo. Ele é c omposto por duas ferramentas: Alertas e Alertas – 
+Linha do Tempo. 
+ 
+ 
+3.4.1. Alertas 
+ 
+A ferramenta Alertas permite a visualização dos alertas filtrando de acordo com 
+as seguintes opções:  
+o Última 1 horas 
+o Últimas 2 horas 
+o Últimas 6 horas 
+o Último dia 
+o Últimos 7 dias 
+o Últimos 15 dias 
+o Últimos 30 dias 
+Permite também o filtro por Municípios ou por Nível de Alerta. 
+ 
+ 
+3.4.1.1. Filtro por intervalo de tempo 
+ 
+Para realizar o filtro por intervalo de tempo, realize os seguintes passos: 
+ 
+o Clique no ícone Dados  . 
+
+===== PAGE 24 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+o Clique no ícone Alertas . 
+ 
+ 
+ 
+o Para filtrar por um intervalo definido de tempo, escolha o intervalo e o tipo 
+de alerta que a janela é atualizada automaticamente. 
+ 
+ 
+3.4.1.2. Filtro por intervalo de tempo 
+ 
+Para realizar o filtro por Nível de Alerta e Município: 
+ 
+o Clique no ícone Dados  . 
+o Clique no ícone Alertas . 
+o Clique em (sem filtros selecionado). 
+
+===== PAGE 25 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Clique na lista Nível de Alerta, para escolher o nível de alerta desejado. 
+o Clique na lista Município para escolher o município desejado. 
+ 
+ 
+ 
+A ferramenta fornece duas opções para aplicar os filtros: 
+
+===== PAGE 26 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+➢ Filtrar e aplicar zoom: Esta opção irá filtrar e ampliar a visualização 
+numa escala em que todos os registros possam ser visualizados. 
+➢ Filtrar: Esta opção irá apenas filtrar, sem alterar a visualização do 
+mapa. 
+ 
+o Clique em Filtrar e aplicar zoom 
+ 
+ 
+3.4.2. Alertas – Linha do Tempo 
+ 
+O serviço de animação consiste em permitir que os usuários, a partir dos alertas 
+gerados, consigam visualizar a gerar uma animação das últimas 96 h, de hora em 
+hora, dos polígonos  de alerta. Estes polígonos serão acessados através de 
+serviços que permitam a visualização  das informações de forma temporal. A 
+ferramenta possui uma barra de controle que permite aos usuários avançarem ou 
+voltarem na linha do tempo, assim como o acesso à  ferramenta de controle de 
+visualização temporal. 
+A barra de controle de visualização temporal permite aos usuários escolherem o 
+intervalo de  horas e o período que será acumulado, além de executar, 
+automaticamente, a animação. 
+ 
+===== PAGE 27 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+Para utilizar a ferramenta de Alerta – Linha do Tempo , execute os seguintes 
+passos: 
+ 
+o Clique no ícone Dados  . 
+o Clique no ícone Alertas – Linha do Tempo . 
+o Ajuste o intervalo de tempo de acordo com o “pulo temporal” desejado. Ou 
+seja, se você quer que o tempo vá evoluindo de hora em hora, a cada duas 
+horas, e assim sucessivamente. 
+ 
+ 
+ 
+o Pressione o botão Reproduzir/Pausar para iniciar a reprodução. 
+ 
+
+===== PAGE 28 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+] 
+Observe que os alertas vão sendo apresentados de acordo com a evolução da 
+linha do tempo. 
+Desta forma a reprodução é de forma automática. Mas você também pode ir 
+avançado ou retrocedendo de forma manual, através dos botõ es Anterior e 
+Próximo . 
+o Pressione o botão Reproduzir/Pausar para pausar a reprodução. 
+o Avance e retroceda na linha temporal através dos botões anterior e próximo. 
+ 
+ 
+3.5. Controle e Manipulação do Mapa 
+ 
+O grupo de ferramentas Controle a Manipulação de Mapas permite ao usuário 
+adicionar novas camadas, realizar medições, alterar o mapa base, realizar 
+medições, visualizar a legenda do mapa e criar um conjunto de favoritos. 
+ 
+ 
+3.5.1. Adicionar Camada no Mapa 
+ 
+
+===== PAGE 29 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+Faz parte do conjunto de ferramentas de controle e visualização do mapa, com 
+ela é possível importar para o mapa alguma camada  específica que esteja no 
+formato shapefile, kml ou CSV. 
+ 
+Como adicionar uma nova camada: 
+o Clique no botão Controle a Manipulação de Mapas . 
+o Clique na ferramenta Adicionar Camada no Mapa . 
+o Escolha o formato de arquivo desejado na opção Formato. 
+ 
+ 
+ 
+ Se você for inserir arquivos no formato shapefile, o conjunto de arquivos 
+que compõe este formato tem que estar compactado no formato ZIP em um 
+único arquivo. 
+ 
+o Clique em Escolher Arquivo e então selecione o arquivo desejado. 
+ 
+
+===== PAGE 30 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+O carregamento do arquivo é iniciado de forma automática. 
+ 
+Após carregar o arquivo, ele será mostrado como uma camada mapa e será 
+adicionado na lista de camadas e de legenda. 
+ 
+ 
+ 
+A camada é também desenhada no mapa com uma simbologia padrão. 
+
+===== PAGE 31 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+ 
+ 
+3.5.2. Seus Favoritos: 
+ 
+Possibilita adicionar, editar e excluir uma marcação de locais, podendo  ser 
+acessado posteriormente. 
+ 
+Como criar uma marcação de local favorito: 
+ 
+o Navegue até o seu local de interesse. 
+o Clique no botão Controle a Manipulação de Mapas . 
+o Clique na ferramenta Seus Favoritos . 
+ 
+
+===== PAGE 32 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Clique no botão Adicionar Marcações. 
+o Insira o nome para o seu favorito. 
+ 
+ 
+ 
+o Clique em Ok. 
+Após criar um favorito, ele ficará salvo mesmo que você saída do sistema. Ao efetuar 
+novo login, a lista de favoritos permanecerá. 
+
+===== PAGE 33 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+o Para visualizar novamente o local favorito, abra a ferramenta e clique no 
+favorito criado. 
+ 
+ 
+ 
+ 
+3.5.3. Mapa Base 
+ 
+Conjunto de mapas base disponíveis para visualização. Clique em um dos mapas base 
+disponíveis para alterar o mapa atual. 
+  
+Para alterar um mapa base: 
+o Clicar no botão Controle a Manipulação de Mapas . 
+
+===== PAGE 34 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+o Clicar no botão Mapa Base . 
+Uma galeria de mapa base é mostrada com todas as opções disponíveis.  
+ 
+ 
+ 
+o Clique na opção de sua escolha. 
+ 
+
+===== PAGE 35 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+O mapa base da sua aplicação é alterado. Você pode alterar o mapa base sempre que 
+achar necessário. 
+ 
+ 
+3.5.4. Medir 
+ 
+Ferramenta que possibilita fazer medidas no mapa. A medição pode ser  feita de três 
+formas: por área, distância ou local. 
+ 
+3.5.4.1. Medições de locais: 
+ 
+Para realizar as medições de locais: 
+o Clicar no botão Controle a Manipulação de Mapas . 
+o Clicar na ferramenta Medir . 
+
+===== PAGE 36 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+o Clique no botão Local   e clique em um local no mapa. 
+ 
+ 
+ 
+Um ponto é adicionado ao mapa, mostrando o local da medição. As informações da 
+medição são mostradas na janela. 
+ 
+ 
+ 
+o A ferramenta de Medição exibe as coordenadas do ponto em graus (decimal). 
+Para alterar o formato de exibição de coordenadas para 
+graus/minutos/segundos, altere a seleção no menu suspenso Graus para 
+DMS. 
+
+===== PAGE 37 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+ 
+o Clique no botão Local   novamente para finalizar as medições 
+e limpar os resultados. 
+ 
+ 
+3.5.4.2. Medições de distância: 
+ 
+o Clicar no botão Controle a Manipulação de Mapas . 
+o Clique no botão Distância . 
+o A ferramenta de Medição exibe o comprimento total da linha, utilizando 
+a Unidade de Comprimento Padrão  definida. Para alterar a unidade de 
+comprimento, selecione a unidade de medida aplicável no menu suspenso. 
+
+===== PAGE 38 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Desenhe uma linha no mapa clicando em dois ou mais pontos. 
+o Clique duas vezes para finalizar o desenho da linha. 
+ 
+ 
+
+===== PAGE 39 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+o Clique no botão  Distância  novamente para finalizar as medições e limpar 
+os resultados. 
+ 
+ 
+3.5.4.3. Medições de área: 
+ 
+o Clicar no botão Controle a Manipulação de Mapas  
+o Clique no botão Área . 
+o Desenhe um polígono no mapa clicando em três ou mais pontos. 
+o Clique duas vezes para finalizar o desenho do polígono. 
+ 
+ 
+
+===== PAGE 40 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+o A ferramenta de Medição exibe a área total do polígono, utilizando a Unidade 
+de Área Padrão definida. Para alterar a unidade de área, selecione a u nidade 
+de medida aplicável do menu suspenso. 
+ 
+ 
+ 
+o Clique no botão Área  novamente para finalizar as medições e limpar os 
+resultados. 
+ 
+ 
+3.5.5. Legenda: 
+ 
+Mostra a legenda de acordo com as camadas disponíveis no mapa. 
+ 
+
+===== PAGE 41 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+ 
+3.6. Pesquisa 
+3.6.1. Busca por Atributos 
+ 
+Ferramenta que pertence ao conjunto de ferramentas disponíveis em pesquisa. 
+com ela é possível selecionar a camada de interesse e informações tabulares para 
+realizar a busca. Itens identificados podem ser vistos ao selecionar a opção de 
+“zoom após clicar”. 
+Como realizar uma busca por atributos: 
+o Clique no botão Pesquisa . 
+o Clique na ferramenta Buscar por Atributos . 
+ 
+A ferramenta possui duas formas de realizar buscas. Uma é criando uma consulta 
+através de uma combinação lógica de atributos e operadores. A o utra é uma 
+
+===== PAGE 42 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+busca espacial , onde você desenha uma geometria e a ferramenta busca as 
+informações da camada selecionada que intersecionam com esta geometria. 
+ 
+3.6.1.1. Busca por Atributos - Espacial 
+A busca espacial consiste em 4 passos: 
+• Definir a camada de consulta; 
+• Definir um raio máximo de busca; 
+• Definir a geometria. 
+• Realizar a consulta. 
+A partir da definição da definição da geometria, é realizada uma intersecção com a 
+camada escolhida. 
+Para realizar uma busca espacial: 
+o Na janela Busca por Atributos , na op ção Camada, selecione a camada 
+desejada. 
+===== PAGE 43 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Na opção Raio, defina um raio de busca. 
+o Escolha um tipo de desenho de geometria. 
+
+===== PAGE 44 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Clique uma vez no mapa para adici onar a sua geometria, se for ponto, ou o 
+primeiro vértice, se for linha ou polígono. 
+o Continue a dicionando os vértices até finalizar o seu desenho. Clique duas 
+vezes para finalizá-lo. 
+o Marque as opções Zoom após aplicar e Exibir dados na tabela de atributos. 
+o Clique em Aplicar 
+
+===== PAGE 45 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Um aviso informando que a busca foi realizada com sucesso é mostrada na 
+tela. 
+ 
+ 
+ 
+O conjunto de feições que interseccionam com a geometria desenha é selecionado. 
+Você também pode visualizar os dados selecionados através da tabela de atributos. 
+o Abra a tabela de atributos. 
+o Clique no ícone Selecionados . 
+A tabela de atributos irá filtrar os dados mostrando somente os arquivos selecionados. 
+É possível também exportar os arquivos selecionados, para os formatos CSV, Excel e 
+Shapefile. 
+
+===== PAGE 46 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+o Clique no ícone CSV  
+ 
+ 
+Um arquivo CSV é exportado. 
+ 
+ 
+ 
+3.6.1.2. Busca por Atributos -  
+ 
+A busca espacial consiste em 3 passos: 
+• Definir a camada de consulta; 
+• Definir a lógica da consulta; 
+
+===== PAGE 47 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+• Realizar a consulta. 
+ 
+ 
+ 
+Como realizar uma consulta por atributos: 
+ 
+o Na janela Busca por Atributos , na opção Camada, selecione a camada 
+desejada. 
+o Clique duas ve zes no campo desejado para adicioná -lo na caixa de 
+consulta. 
+
+===== PAGE 48 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Clique no operador desejado. 
+
+===== PAGE 49 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Digite o valor desejado. Se a informação que deseja inserir for um texto, 
+insira entra aspas simples. Se preferir, clique em Exibir valores únicos para 
+visualizar todas as opções. 
+
+===== PAGE 50 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+o Clique em Aplicar. 
+ 
+3.6.2. Busca por Endereço 
+ 
+Permite a localização de lugares ou endereços. Para realizar uma busca por 
+endereço: 
+o Clique no botão Pesquisa . 
+
+===== PAGE 51 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+o Clique na ferramenta Busca por Endereço . 
+o Digite o local ou o endereço desejado. 
+ 
+ 
+o Clique na opção desejada a na lista suspensa ou pressione a tecla Enter. 
+o O local encontrado é destacado no mapa. 
+ 
+ 
+ 
+3.7. Barra de Favoritos 
+ 
+
+===== PAGE 52 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+Localizada no menu superior, nela é possível encontrar ferramentas de acesso 
+rápido e prontas para uso, de acordo com preferência de cada usuário. 
+Para adicionar ferramentas: 
+o Selecione a ferramenta desejada, mantendo o botão do mouse 
+pressionado. 
+o Arraste-a até que um quadrado seja desenhado na Barra de Favoritos.  
+ 
+ 
+o Solte a ferramenta neste local. 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 53 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+3.8. ADMINISTRAÇÃO DE USUÁRIOS 
+Possibilita inserir, alterar ou excluir usuários do sistema. Na primeira página é 
+apresentado um painel de todos os usuários cadastrados. A partir dele temos 
+acesso aos dados cadastrais de cada usuário e ao gerenciamento dos módulos 
+aos quais cada um pode ter acesso e o nível de permissão para os módulos. 
+ 
+ 
+3.8.1. Cadastrando novo usuário: 
+ 
+Para cadastrar um novo usuário, é necessário acessar o módulo Administração de 
+usuários. 
+ 
+ 
+ 
+ 
+O cadastro de novos usuários possui 3 grupos separados de informações: 
+ 
+1. Cadastro: Local onde serão inseridas as informações gerais como nome, 
+cargo, data do cadastro, usuário senha etc. 
+
+===== PAGE 54 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+2. Permissões por Módulo: Define a quais módulos o usuário terá acesso e 
+a as ações permitidas a estes que são Incluir, Excluir e Alterar. 
+ 
+ 
+3. Permissões Administrativas:  Fornece ou restringe as funcionalidades 
+administrativas do sistema ao usuário. Um exemplo de atividade 
+administrativa é o próprio gerenciamento dos usuários. 
+ 
+o Para cadastrar um novo usuário, cliuqe no ícone Novo usuário. 
+ 
+ 
+ 
+o Insira as informações cadastrais, defina as permissões e clique em Salvar. 
+ 
+ 
+ 
+
+===== PAGE 55 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+4. Usuários e Serviços no TerraMA² 
+ 
+O TerraMA² é responsável pela análise dos dados e geração dos alertas 
+apresentados nas ferramentas anteriores. Por isto, é importante verificar se os 
+serviços estão em execução. 
+ 
+4.1. Serviços 
+ 
+Os serviços devem estar executando, isto é, com a bola verde, caso algum deles 
+esteja parado ou todos parados, bola vermelha, clique em iniciar ou iniciar 
+todos. Pode demorar um pouco para o sistema re iniciar um serviço, aguarde e 
+atualize a página. Caso, ainda, não consiga inicializar o serviço, reinicialize a 
+máquina. 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 56 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+4.2. Status 
+ Esta página apresenta a situação atual do sistema: 
+ Cinza intermitente: em execução pela primeira vez; 
+ Vermelho: acusou erro na execução; 
+ Vermelho intermitente: em execução, com erro na rodada 
+anterior; 
+ Verde: acusou sucesso na execução; 
+ Verde intermitente: em execução, com sucesso na rodada 
+anterior; 
+ Amarelo: acusou alerta na execução; 
+ Amarelo intermitente: em execução, com alerta na rodada 
+anterior; 
+ Relógio: execução na fila de espera. 
+ 
+Algumas informações, apesar de serem informadas como erros, fazem part e da 
+operação normal do sistema: 
+ 
+AVISOS QUE FAZEM PARTE DA OPERAÇÃO NORMAL DO SISTEMA 
+AVISO DESCRIÇÃO 
+“No data in the remote server” não há dados a serem baixados 
+“Empty result” o resultado da análise foi nulo, isto é, 
+não há precipitação de chuvas 
+tampouco previsão para as áreas 
+analisadas, mas verifique se os dados 
+estão sendo coletados corretamente 
+===== PAGE 57 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+AVISOS QUE FAZEM PARTE DA OPERAÇÃO NORMAL DO SISTEMA 
+“No data available” Não há dados a serem processados, 
+isto é, o agendamento disparou a 
+análise, porém, não há dados novos a 
+serem processados; 
+“No data in dataseries: XXX” Este erro ocorre quando o alerta é 
+disparado após uma análise cujo 
+resultado foi vazio. 
+ 
+ 
+Outros erros precisam ser tratados para que o sistema funcione corretamente. 
+ 
+AVISOS QUE PRECISAM SER TRATADOS 
+AVISO DESCRIÇÃO 
+“Error during download” ou “Error 
+during download of file XXXX” 
+Verifique o espaço em disco ou a 
+conexão de rede 
+“FTP address  is invalid!” Verifique a configuração do dado 
+dinâmico. No item Servidores de 
+Dados e Dados Dinâmicos há a 
+definição dos parâmetros corretos 
+“Invalid script”, “Could not store 
+the result of the analysis: ...”, “No 
+data in dataseries: XXX" 
+Verifique a configuração da an álise. 
+No item Análises há a definição dos 
+parâmetros corretos 
+“Invalid value of band index” Verifique se a coleta dos dados 
+dinâmicos está executando e se estes 
+foram baixados corretamente 
+===== PAGE 58 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+AVISOS QUE PRECISAM SER TRATADOS 
+“Operation time out” o processo demorou muito para 
+executar e o sistema o abortou. 
+Execute novamente o processo ou 
+aguarde o agendamento disparar a 
+próxima execução 
+“Internal error” Verifique a configuração do alerta. No 
+item Alertas há a definição dos 
+parâmetros corretos 
+ 
+Mesmo que os parâmetros dos processos estejam corretos, salve-os caso algum 
+erro tenha ocorrido, para garantirmos que os dados estão atualizados no banco 
+de dados. 
+ 
+Maiores detalhes dos parâmetros dos serviços podem ser obtidos no ‘ help’ do 
+TerraMA². 
+ 
+ 
+ 
+ 
+4.3. Criação de usuários no TerraMA² 
+
+===== PAGE 59 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+Para que os colaboradores possam acessar as informações acima descritas, é 
+necessário que possuam um usuário com o devido perfil. 
+ 
+Para criar um usuário, é necessário seguir os seguintes passos: 
+ 
+o Na lista de Módulos, clique em Alerta web – Administração. 
+ 
+ 
+ 
+o Realize o login no TerraMA² com um usuário administrativo. 
+o Clique em Administration -> Users 
+ 
+ 
+ 
+o Clique no botão Add New 
+
+===== PAGE 60 =====
+ 
+ 
+Rua Moacir Miguel da Silva, 633 Jd. Bonfiglioli CEP 05595-000 São Paulo SP Brasil 
++55 11 3735-5172 www.regea.com.br 
+ 
+ 
+ 
+o Insira as informações de acordo com os dados do usuário. 
+o Caso deseje dar privilégios de administrador ao novo usuário, marque a opção 
+Administrator. 
+ 
+ 
+ 
+o Clique em Save. 

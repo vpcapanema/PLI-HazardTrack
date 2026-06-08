@@ -233,7 +233,7 @@ def collect_diagnostics() -> Dict[str, Any]:
             "gunicorn": _safe_version("gunicorn"),
         },
         "env_flags": {
-            "SAMAEG_FORCE_MOCK": os.environ.get("SAMAEG_FORCE_MOCK", "0"),
+
             "SAMAEG_DEGRADED_24H": os.environ.get("SAMAEG_DEGRADED_24H", "6"),
             "SAMAEG_USE_MANUAL_RA": os.environ.get("SAMAEG_USE_MANUAL_RA", "0"),
             "SAMAEG_WORKERS": os.environ.get("SAMAEG_WORKERS", "4"),
@@ -256,7 +256,7 @@ def collect_diagnostics() -> Dict[str, Any]:
             "last_duration_s": runtime["last_cycle_duration_s"],
             "last_error": runtime["last_error"],
             "last_error_at": runtime["last_error_at"],
-            "force_mock": runtime["force_mock"],
+
             "degraded_threshold_h": runtime["degraded_threshold"],
         },
         "data_quality": {

@@ -1,0 +1,604 @@
+
+--- PAGE 1 ---
+“Elaboração de Planos de Contingência frente a riscos 
+de eventos geodinâmicos em trechos rodoviários das 
+Unidades Básicas de Atendimento (UBA) do 
+Departamento de Estradas de Rodagem do Estado de 
+São Paulo (DER/SP) de Caraguatatuba, Mogi das Cruzes 
+e São Vicente”
+Programa de Transporte, Logística e Meio Ambiente –
+Projeto Transporte Sustentável de São Paulo
+--- PAGE 2 ---
+Etapa Produtos Previstos
+Preparatória* Produto 01-Elaboração do Plano de Trabalho
+1Produto 02-Cadastro de Ocorrências de Eventos Geodinâmicos e Desastres
+Produto 03-Modelo de Correlação entre Eventos e Chuvas
+Produto 04-Análise de Risco
+Produto 05-Análise do Contexto Institucional
+2 Produto 06-Sistema Automatizado de Análise, Monitoramento e Alerta de Risco
+3 Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+*Etapa Preparatória foiconcluída em13/08/2020 ,conforme previsto noscronogramas apresentados junto aoPlano deTrabalho .ETAPAS & PRODUTOS PREVISTOS
+Acesso aos relatórios
+--- PAGE 3 ---
+ÁREA DE ESTUDO
+Rodovia Município RegionalResidência de 
+ConservaçãoConservação Inicial (km) Final (km)Extensão 
+(km)Jurisdição
+SP-055Ubatuba
+Taubaté
+DR.06Caraguatatuba
+UBA 06.04Caraguatatuba
+UBA 06.0453,600 81,970 28,370 Estadual
+Caraguatatuba81,970 87,240 5,270 Estadual
+87,240 89,100 1,860 Federal
+89,100 99,630 10,530 Estadual
+Prefeitura Municipal 
+de Caraguatatuba99,630 102,300 2,670 Estadual
+Caraguatatuba
+UBA 06.04102,300 112,550 10,250 Estadual
+São Sebastião112,550 120,200 7,650 Estadual
+Prefeitura Municipal 
+de São Sebastião120,200 127,800 7,600 Estadual
+São Vicente
+UBA 05.04127,800 165,910 38,110 Estadual
+165,910 174,600 8,690 Federal
+174,600 176,200 1,600 Estadual
+176,200 185,900 9,700 Federal
+185,900 191,400 5,500 Estadual
+Bertioga Cubatão
+DR.05São Vicente
+UBA 05.04191,400 220,450 29,050 Estadual
+220,450 233,400 12,950 Federal
+Santos 233,400 248,100 14,700 Federal
+Extensão total daárea deestudo daRodovia SP-055 194,500
+SP-098Mogi dasCruzes São Paulo
+DR.10Mogi das Cruzes
+UBA 10.04 Mogi das Cruzes
+UBA 10.0462,900 75,000 12,100 Estadual
+Biritiba -Mirim 75,000 82,400 7,400 Estadual
+BertiogaCubatão
+DR.05São Vicente
+UBA 05.0482,400 98,100 15,700 Estadual
+Extensão total daárea deestudo daRodovia SP-098 35,200
+Extensão total daárea deestudo doprojeto 229,700
+A intersecção entre as rodovias ocorre nos Km 214,650 da rodovia SP -055 e no KM 98,100 da rodovia SP -098
+--- PAGE 4 ---
+ÁREA DE ESTUDO
+
+--- PAGE 5 ---
+ETAPA 1
+
+--- PAGE 6 ---
+Produto 02-Cadastro de Ocorrências de Eventos Geodinâmicos e Desastres
+Resultados obtidos na elaboração do Produto 02, relacionados por processos, UBAs , municípios e rodovias de ocorrência
+Processos GeodinâmicosUBA TOTAL
+Caraguatatuba
+(UBA 06.04)São Vicente
+(UBA 05.04)Mogi das Cruzes
+(UBA 10.04)
+MunicípiosRodovias
+Total 
+eventosMunicípios
+Rodovia
+Municípios
+Rodovia
+Municípios
+Rodovia
+SP-055
+SP-098
+Geológicos 841 182 1.017 258 224 146 2.082 440 146 2.668
+Corridas de massa 0 2 12 4 0 0 12 6 0 18
+Erosão 34 21 36 57 53 17 123 78 17 218
+Escorregamentos 790 136 763 191 169 123 1.722 327 123 2.172
+Quedas, tombamentos ou 
+rolamentos de rochas15 19 205 6 1 6 221 25 6 252
+Solapamentos 2 4 1 0 1 0 4 4 0 8
+Hidrológicos 664 32 573 25 1.760 24 2.997 57 24 3.078
+Alagamentos 387 24 358 16 643 4 1.388 40 4 1.432
+Enxurradas 23 2 13 2 115 1 151 4 1 156
+Inundações 254 6 202 7 1.002 19 1.458 13 19 1.490
+Meteorológicos 681 115 1.084 119 1.482 58 3.247 234 58 3.539
+Chuvas Intensas 577 106 878 116 1.193 56 2.648 222 56 2.926
+Demais eventos 
+meteorológicos (vendaval, 
+raios, granizo, etc.)104 9 206 3 289 2 599 12 2 613
+Total geral 2.186 329 2.674 402 3.466 228 8.326 731 228 9.285
+--- PAGE 7 ---
+Produto 02-Cadastro de Ocorrências de Eventos Geodinâmicos e Desastres
+
+--- PAGE 8 ---
+Produto 03-Modelo de Correlação entre Eventos e Chuvas
+OModelo deCorrelação entre Eventos Geodinâmicos eChuvas foielaborado com base nosdados
+históricos, oriundos doProduto 02,eaanálise dacorrelação desuas ocorrências com osregistros
+históricos dechuvas .Aanálise eelaboração domodelo decorrelação foielaborada com base em:
+•Dados dos 9.285 eventos geodinâmicos registrados noProduto 02,sendo 2.668 eventos
+geológicos ,3.078eventos hidrológicos e3.539eventos meteorológicos ;
+•Dados históricos oriundos das 161 estações pluviométricas (pluviômetros epluviógrafos) que
+recobrem aárea deestudo, localizados nosmunicípios erodovias deinteresse eemseuentorno .
+Osdados obtidos permitiram estabelecer ascorrelações entre aocorrência ouausência deeventos
+geodinâmicos emdecorrência dosvolumes dechuvas acumulados atéomomento desuas respectivas
+deflagrações .Osdados relativos aoperíodo entre janeiro de1993 esetembro 2020 permitiram o
+estabelecimento dasseguintes correlações :
+•349 eventos chuvosos com ocorrências deeventos geodinâmicos ,sendo 281 eventos
+geológicos e68eventos hidrológicos ;
+•2.073eventos chuvosos sem ocorrências deeventos geodinâmicos .
+--- PAGE 9 ---
+Produto 03-Modelo de Correlação entre Eventos e Chuvas
+Regiões separadas em decorrência dos Índices de Correlação com Chuvas analisados e definidos
+Região Trecho Rodovia Trecho (km) Municípios
+1 Trecho Mogi -BertiogaRod. Mogi -Bertioga 
+(SP-098)62+900 a 98+100Bertioga, Biritiba -Mirim e 
+Mogi das Cruzes
+2Trecho Caraguatatuba -
+UbatubaRod. Rio -Santos 
+(SP-055)53+600 a 112+550 Caraguatatuba e Ubatuba
+3 Trecho São SebastiãoRod. Rio -Santos 
+(SP-055)112+550 a 191+400 São Sebastião
+4 Trecho Santos -BertiogaRod. Rio -Santos 
+(SP-055)191+400 a 248+100 Bertioga e Santos
+--- PAGE 10 ---
+Produto 03-Modelo de Correlação entre Eventos e Chuvas
+Resumo das equações que definem os limites das quatro faixas usadas para adoção de Índice de Correção de Chuvas (ICC). 
+Onde I =Intensidade de chuva em mm /h, e Ac96h =Acumulado de chuva nas 96 h anteriores ao evento
+Região Equação 1 CPC Equação 2 CPC Equação 3 CPC Equação 4 CPC
+1 I = 1.000 x Ac96h-0,9 1 I = 3.000 x Ac96h-0,9 3 I = 6.000 x Ac96h-0,9 6 I = 15.000 Ac96h-0,9 15
+2 I = 400 x Ac96h-0,9 1 I = 2.400 x Ac96h-0,9 6 I = 6.400 x Ac96h-0,9 12 I = 9.600 x Ac96h-0,9 24
+3 I =200 Ac96h-0,9 1 I = 1.600 x Ac96h-0,9 8 I = 3.200 x Ac96h-0,9 16 I = 4.800 x Ac96h-0,9 24
+4 I = 1.000 x Ac96h-0,9 1 I = 4.000 x Ac96h-0,9 4 I = 8.000 x Ac96h-0,9 8 I = 16.000 x Ac96h-0,9 16
+Faixas de Índice de Correlação com Chuvas (ICC) para os eventos Geológicos.
+RegiãoCoeficiente de Precipitação Crítica da Região (CPC)
+Faixa 0 (ICCGEO0) Faixa 1 (ICCGEO1) Faixa 2 (ICCGEO2) Faixa 3 (ICCGEO3)Faixa 4 (ICCGEO4)
+De Até De Até De Até De Até A partir de
+1SP-098 -Mogi -Bertioga 0 < 1 1 3 > 3 6 > 6 15 > 15
+2SP-055 -Caraguatatuba -Ubatuba 0 < 1 1 6 > 6 12 > 12 24 > 24
+3SP-055 -São Sebastião 0 < 1 1 8 > 8 16 > 16 24 > 24
+4SP-055 -Santos -Bertioga 0 < 1 1 4 > 4 8 > 8 16 > 16Eventos Geológicos
+--- PAGE 11 ---
+Produto 03-Modelo de Correlação entre Eventos e Chuvas
+Eventos Geológicos
+
+--- PAGE 12 ---
+Produto 03-Modelo de Correlação entre Eventos e Chuvas
+Eventos Hidrológicos
+Faixas de Índice de Correlação com Chuvas (ICC) para os eventos Hidrológicos.
+RegiãoProbabilidade de Ocorrência de Eventos Hidrológicos
+Faixa 0 (ICCHID0) Faixa 1 (ICCHID1) Faixa 2 (ICCHID2) Faixa 3 (ICCHID3) Faixa 4 (ICCHID4)
+0% a 10% > 10% a 25% > 25% a 50% > 50% a 75% > 75% a 100%
+Intensidade Pluviométrica (24h)
+De Até De Até De Até De Até A partir de
+1SP-098 -Mogi -Bertioga 0 110 > 110 160 > 160 200 > 200 280 > 280
+2SP-055 -Caraguatatuba -Ubatuba 0 70 > 70 80 > 80 120 > 120 143 > 143
+3SP-055 -São Sebastião 0 60 > 60 85 > 85 110 > 110 126 > 126
+4SP-055 -Santos -Bertioga 0 150 > 150 200 > 200 230 > 230 300 > 300
+--- PAGE 13 ---
+Produto 03-Modelo de Correlação entre Eventos e Chuvas
+Eventos Hidrológicos
+
+--- PAGE 14 ---
+Produto 04-Análise de Risco
+AAnálise deRisco para asrodovias daárea deestudo foirealizada utilizando os
+Planos deInformações deRisco, Perigo, Vulnerabilidade eDano Potencial para
+asUnidades deAnálise (UTBs–Unidades Territoriais Básicas, eSR–Setores
+deRisco) mapeadas naescala demaior detalhe disponível para cada trecho
+avaliado, resultando em809 Unidades deAnálise utilizadas para análise ao
+longo dos229,700kmderodovias naárea deestudo .
+Acorrelação entre oRisco, para cada tipodeprocesso geodinâmico, intrínseco
+emcada Unidade deAnálise edenominado Risco Analisado (RAGEO/HID ),eo
+Índice deCorrelação com Chuvas (ICC),resultou emuma variável denominada
+Risco Dinâmico (RDGEO/HID ),variável emdecorrência daincidência dechuvas
+(acumulada eprevista) .
+--- PAGE 15 ---
+Produto 04-Análise de Risco
+Classes de Risco Dinâmico resultantes da correlação entre a classe de Risco Analisado (RA) e a Faixa de Índice de 
+Correlação com Chuvas (ICC) para os eventos Geológicos.
+RegiãoCoeficiente de Precipitação Crítica da Região (CPC)
+Faixa 0 (ICCGEO0) Faixa 1 (ICCGEO1) Faixa 2 (ICCGEO2) Faixa 3 (ICCGEO3) Faixa 4 (ICCGEO4)
+De Até De Até De Até De Até A partir de
+1SP-098-Mogi -Bertioga 0 < 1 1 3 > 3 6 > 6 15 > 15
+2SP-055-Caraguatatuba -Ubatuba 0 < 1 1 6 > 6 12 > 12 24 > 24
+3SP-055-SãoSebastião 0 < 1 1 8 > 8 16 > 16 24 > 24
+4SP-055-Santos -Bertioga 0 < 1 1 4 > 4 8 > 8 16 > 16
+Risco Analisado Risco Dinâmico
+RAGEO0 RDGEO0 RDGEO0 RDGEO0 RDGEO0 RDGEO0
+RAGEO1 RDGEO0 RDGEO1 RDGEO2 RDGEO3 RDGEO4
+RAGEO2 RDGEO0 RDGEO2 RDGEO3 RDGEO4 RDGEO4
+RAGEO3 RDGEO0 RDGEO3 RDGEO4 RDGEO4 RDGEO4
+RAGEO4 RDGEO0 RDGEO4 RDGEO4 RDGEO4 RDGEO4
+Aanálise derisco daárea deestudo, bem como acorrelação entre aschuvas eoseventos geodinâmicos nasrodovias, definição doCoeficiente dePrecipitação Crítica (CPC) eFaixa
+deÍndice deCorrelação com Chuvas (ICC), estão pormenorizadas norelatório doConsórcio NIPPON KOEI LAC /NIPPON KOEI LAC DOBRASIL /REGEA /GEOTEC /OPTIMUS GIS
+(Consórcio 4X044)nº2053 -R02-20,referente àEtapa 1–Histórico deEventos eDesastres, Índices Meteorológicos Críticos, Análise deRisco eCapacidade Institucional .Correlação entre Eventos Geológicos e Chuvas
+--- PAGE 16 ---
+Produto 04-Análise de Risco
+RegiãoCoeficiente de Precipitação Crítica da Região (CPC)
+Faixa 0 (ICCGEO0) Faixa 1 (ICCGEO1) Faixa 2 (ICCGEO2) Faixa 3 (ICCGEO3) Faixa 4 (ICCGEO4)
+De Até De Até De Até De Até A partir de
+1SP-098-Mogi -Bertioga 0 < 1 1 3 > 3 6 > 6 15 > 15
+2SP-055-Caraguatatuba -Ubatuba 0 < 1 1 6 > 6 12 > 12 24 > 24
+3SP-055-SãoSebastião 0 < 1 1 8 > 8 16 > 16 24 > 24
+4SP-055-Santos -Bertioga 0 < 1 1 4 > 4 8 > 8 16 > 16
+Risco Analisado Risco Dinâmico
+RAGEO0 RDGEO0 RDGEO0 RDGEO0 RDGEO0 RDGEO0
+RAGEO1 RDGEO0 RDGEO1 RDGEO2 RDGEO3 RDGEO4
+RAGEO2 RDGEO0 RDGEO2 RDGEO3 RDGEO4 RDGEO4
+RAGEO3 RDGEO0 RDGEO3 RDGEO4 RDGEO4 RDGEO4
+RAGEO4 RDGEO0 RDGEO4 RDGEO4 RDGEO4 RDGEO4Exemplo 1
+Cenário Proposto -Eventos Geológicos e Chuvas de intensidade de 50 mm / h e 
+pluviosidade acumulada de 150 mm / 96 h
+--- PAGE 17 ---
+Produto 04-Análise de Risco
+Exemplo 1
+Cenário Proposto -Eventos Geológicos e Chuvas de intensidade de 50 mm / h e 
+pluviosidade acumulada de 150 mm / 96 h
+RISCO ANALISADO CENÁRIO PROPOSTO
+--- PAGE 18 ---
+Produto 04-Análise de Risco
+Correlação entre Eventos Hidrológicos e Chuvas
+Classes de Risco Dinâmico resultantes da correlação entre a classe de Risco Analisado (RA) e a Faixa de Índice de 
+Correlação com Chuvas (ICC) para os eventos Hidrológicos.
+RegiãoProbabilidade de Ocorrência de Eventos Hidrológicos
+Faixa 0 (ICCHID0) Faixa 1 (ICCHID1) Faixa 2 (ICCHID2) Faixa 3 (ICCHID3) Faixa 4 (ICCHID4)
+0% a 10% > 10% a 25% > 25% a 50% > 50% a 75% > 75% a 100%
+Intensidade Pluviométrica (24h)
+De Até De Até De Até De Até A partir de
+1SP-098-Mogi -Bertioga 0 110 > 110 160 > 160 200 > 200 280 > 280
+2SP-055-Caraguatatuba -Ubatuba 0 70 > 70 80 > 80 120 > 120 143 > 143
+3SP-055-SãoSebastião 0 60 > 60 85 >85 110 > 110 126 > 126
+4SP-055-Santos -Bertioga 0 150 > 450 200 > 200 230 > 230 300 > 300
+Risco Analisado Risco Dinâmico
+RAHID0 RDHID0 RDHID0 RDHID0 RDHID0 RDHID0
+RAHID1 RDHID0 RDHID1 RDHID2 RDHID3 RDHID4
+RAHID2 RDHID0 RDHID2 RDHID3 RDHID4 RDHID4
+RAHID3 RDHID0 RDHID3 RDHID4 RDHID4 RDHID4
+RAHID4 RDHID0 RDHID4 RDHID4 RDHID4 RDHID4
+Aanálise derisco daárea deestudo, bem como acorrelação entre aschuvas eoseventos geodinâmicos nas rodovias, definição daProbabilidade deOcorrência deEventos
+Hidrológicos eFaixa deÍndice deCorrelação com Chuvas (ICC) estão pormenorizadas norelatório doConsórcio NIPPON KOEI LAC /NIPPON KOEI LAC DOBRASIL /REGEA /
+GEOTEC /OPTIMUS GIS(Consórcio 4X044)nº2053 -R02-20,referente àEtapa 1–Histórico deEventos eDesastres, Índices Meteorológicos Críticos, Análise deRisco eCapacidade
+Institucional .
+--- PAGE 19 ---
+Produto 04-Análise de Risco
+RegiãoProbabilidade de Ocorrência de Eventos Hidrológicos
+Faixa 0 (ICCHID0) Faixa 1 (ICCHID1) Faixa 2 (ICCHID2) Faixa 3 (ICCHID3) Faixa 4 (ICCHID4)
+0% a 10% > 10% a 25% > 25% a 50% > 50% a 75% > 75% a 100%
+Intensidade Pluviométrica (24h)
+De Até De Até De Até De Até A partir de
+1SP-098-Mogi -Bertioga 0 110 > 110 160 > 160 200 > 200 280 > 280
+2SP-055-Caraguatatuba -Ubatuba 0 70 > 70 80 > 80 120 > 120 143 > 143
+3SP-055-SãoSebastião 0 60 > 60 85 >85 110 > 110 126 > 126
+4SP-055-Santos -Bertioga 0 150 > 450 200 > 200 230 > 230 300 > 300
+Risco Analisado Risco Dinâmico
+RAHID0 RDHID0 RDHID0 RDHID0 RDHID0 RDHID0
+RAHID1 RDHID0 RDHID1 RDHID2 RDHID3 RDHID4
+RAHID2 RDHID0 RDHID2 RDHID3 RDHID4 RDHID4
+RAHID3 RDHID0 RDHID3 RDHID4 RDHID4 RDHID4
+RAHID4 RDHID0 RDHID4 RDHID4 RDHID4 RDHID4Exemplo 2
+Cenário Proposto -Eventos Geológicos e pluviosidade acumulada de 100 mm / 24 h
+--- PAGE 20 ---
+Produto 04-Análise de Risco
+Exemplo 2
+Cenário Proposto -Eventos Geológicos e pluviosidade acumulada de 100 mm / 24 h
+RISCO ANALISADO CENÁRIO PROPOSTO
+--- PAGE 21 ---
+Produto 05-Análise do Contexto Institucional
+Este Produto foiconstituído pelos resultados obtidos nolevantamento daestrutura
+organizacional edosrecursos humanos emateriais disponíveis emcada uma dasUBAs
+analisadas .Seu resultado foioDiagnóstico daCapacidade Institucional dasUBAs frente à
+ocorrência deEventos Geodinâmicos .Este diagnóstico considerou ascapacidades de
+implantação, operação, avaliação edeatualização/revisão dePlanos deContingência
+relacionados aprocessos geológico -geotécnicos ehidrológicos .
+Após avaliação detodos osdados fornecidos, observou -seque apenas aUBA deSão
+Vicente (05.04-SVC) apresenta capacidade institucional para realizar aAtualização /
+Revisão doPlano deContingência para eventos geológico -geotécnicos ehidrológicos,
+enquanto aUBA deCaraguatatuba (06.04-CGT) eaUBA deMogi das Cruzes (10.04-
+MCZ) precisam deaumento nacapacidade desuporte técnico para implantação,
+operação, avaliação edeatualização/revisão dePlanos deContingência .
+--- PAGE 22 ---
+Produto 05-Análise do Contexto Institucional
+Entre asprincipais fragilidades quesedestacam naavaliação dasUBAs emrelação asuacapacidade
+demanejar Planos deContingência, épossível elencar :
+•Quadro defuncionários limitado e,desse quadro, amaioria dopessoal emoperação nasUBAs
+requer capacitação técnica para atividades dagestão deriscos dedesastres ;
+•Reduzido estoque derecursos materiais (veículos, equipamentos desinalização, etc.);
+•Número deequipamentos para monitoramento remoto (câmeras, analisadores etelefones de
+emergência) insuficiente para toda aextensão dostrechos administrados ouconservados .
+Quanto aosaspectos positivos avaliados, destacam -se:
+•AsUBAs contam com importantes informações técnicas sobre suaárea deatuação, assim como :
+áreas mais suscetíveis adesastre naturais, pluviometria eíndices críticos, etc.,como diagnosticado
+nos resultados dos Produtos desta Etapa, atualizando ecomplementando asinformações da
+publicação DER/SP (2017 ).
+•AsUBAs contam com uma detalhada relação decontatos eórgãos aserem acionados, envolvendo
+entidades privadas epúblicas dastrês esferas degoverno .Essa relação representa umnotável
+instrumento para oPlano deContingência .
+--- PAGE 23 ---
+ETAPA 2
+
+--- PAGE 24 ---
+Produto 06-Sistema Automatizado de Análise, Monitoramento e Alerta de Risco
+OSistema Automatizado deAnálise,
+Monitoramento eAlerta de Risco
+(SAMAEG) écomposto por um
+conjunto de Servidores Internos,
+Externos eAplicativos que obtém
+dados deíndices pluviométricos ede
+previsão de chuva, que são
+analisados, em conjunto, com os
+dados da Análise de Risco,
+subsidiando omonitoramento das
+condições dasrodovias emtempo real,
+visando aGestão doRisco pelo
+DER/SP, bem como aemissão de
+alertas em decorrência das chuvas
+acumuladas e/ou daschuvas previstas .
+
+--- PAGE 25 ---
+Produto 06-Sistema Automatizado de Análise, Monitoramento e Alerta de Risco
+Estrutura geral da arquitetura do Sistema
+Módulo Descrição
+Serviço de Coleta de DadosResponsável pela aquisição dosdados hidro meteorológicos disponibilizados porservidores remotos, buscando periodicamente
+arquivos, dentre osquais sedistinguem :a)previsões :como porexemplo, valores deprecipitação, umidade relativa doar,
+direção emagnitude dovento ;eb)observações :como porexemplo, precipitação estimada porsatélite eradares, descargas
+elétricas, focos dequeimadas ;
+Módulo de AlertaResponsável pela apresentação dealertas quando uma situação derisco édetectada pelo módulo deanálise .Deve serprevisto
+oalerta, tanto pore-mail como pormensagem nos sistemas degerenciamento doInstituto Geológico eDepartamento de
+Estradas deRodagem .
+Módulo de AdministraçãoResponsável porpermitir aconfiguração decada serviço dosistema .Estas configurações devem incluir oendereço eaporta de
+cada serviço, olocal emqueasimagens com oresultado dasanálises serão armazenadas, definição dobanco dedados, local
+dearmazenamento dos dados coletados, configuração doservidor dee-mail, definição dos arquivos delogeoutras
+informações .
+Módulo de ConfiguraçãoResponsável porpermitir aconfiguração dosistema .Estas configurações devem incluir aforma como osdados sãoobtidos dos
+servidores externos, definições dosplanos derisco eadicionais, adefinição dostipos deanálise seus modelos, definição dos
+usuários eanálises para estes, edefinição deboletins queserão enviados ;
+Serviços de Gerência de PlanosExecuta serviços para manipulação deplanos deinformação nabase dedados geográficos, como exemplo ainclusão denovos
+planos elistagem deplanos existentes
+Serviço de AnimaçãoResponsável pela geração deumconjunto deimagens que, agrupadas, formam uma animação defontes dedados dePrevisão
+eObservação
+Serviço de NotificaçãoResponsável pelo envio demensagens erelatórios contendo informações arespeito das alterações nos níveis derisco
+detectados pelo módulo deanálise .Deve permitir ocadastramento deusuários para receberem osrelatórios dealteração,
+enviados através decorreio eletrônico eboletins
+Serviço de AnáliseResponsável pelo cruzamento entre asinformações hidro meteorológicas, planos derisco eplanos adicionais para
+determinação daocorrência dezonas dealerta
+--- PAGE 26 ---
+Produto 06-Sistema Automatizado de Análise, Monitoramento e Alerta de Risco
+Acesso: http://db.optimusgis.com.br:2180/SGI -Riscos -DER/
+--- PAGE 27 ---
+ETAPA 3
+
+--- PAGE 28 ---
+Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+Revisão Bibliográfica / Análise Comparativa
+OsPlanos deContingência correspondem aoplanejamento utilizado para preparar asinstituições, osprofissionais ea
+população para uma resposta eficaz diante daocorrência dedesastres .Aelaboração dosPlanos deContingência deve
+serfeita nanormalidade e,quando operante, oPlano deContingência deve seradaptado àsituação realdedeterminado
+desastre, demodo queapopulação seja protegida eosdanos eprejuízos sejam reduzidos .Dentre oselementos básicos
+deumPlano deContingência, destacamos :
+•Indicação das responsabilidades decada órgão nagestão dedesastres, especialmente quanto àsações de
+preparação, resposta erecuperação ;
+•Definição dossistemas dealerta adesastres, emarticulação com osistema demonitoramento ;
+•Definição dasações deatendimento médico -hospitalar epsicológico aosatingidos pordesastre ;
+•Cadastramento dasequipes técnicas edevoluntários para atuarem emcircunstâncias dedesastres
+•Organização dos exercícios simulados, aserem realizados com aparticipação dapopulação ouatores
+envolvidos .
+Outros elementos quedevem serconsiderados incluem :estudo decenários derisco, sistemas demonitoramento, alerta
+ealarme, evacuação eações desocorro eassistência àsvítimas, bem como derestabelecimento dos serviços
+essenciais .
+OPlano deContingência, demaneira geral, pode serentendido como oPlano voltado para oatendimento de
+situações deemergência, como aocorrência dedesastres naturais .
+--- PAGE 29 ---
+Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+Órgãos e instituições envolvidos
+Asinstituições envolvidas naoperação deste Plano deContingência, tanto para ações degestão emonitoramento de
+Risco quanto para ações demanejo dosdesastres naturais, emsíntese, são:
+•Departamentos doDER/SP :
+oCentral deOperações eInformações –COI;
+oCentro deControle Operacional –CCO ;
+oUnidades Básicas deAtendimento –UBAs .
+•Instituições ligadas àDefesa Civil :
+oCoordenadoria Estadual deProteção eDefesa Civil–
+CEPDEC, com apoio técnico do:
+▪Instituto Geológico daSecretaria deInfraestrutura e
+Meio Ambiente doEstado deSãoPaulo–IG;
+▪Instituto dePesquisas Tecnológicas doEstado deSão
+Paulo–IPT.
+oCoordenadorias Regionais deProteção eDefesa Civil–
+REPDECs
+▪Coordenadoria deProteção eDefesa Civil daRegião
+Administrativa deSantos (REPDEC/I -2);
+▪Coordenadoria Estadual deProteção eDefesa Civil da
+Região Administrativa deSão José dos Campos(REPDEC/I -3);
+▪Coordenadorias Estaduais deProteção eDefesa Civil
+daRegião Metropolitana deSão Paulo (REPDEC/M -
+3).
+oCoordenadorias Municipais de Defesa Civil–
+COMPDECs
+▪Bertioga ;
+▪Biritiba -Mirim ;
+▪Caraguatatuba ;
+▪Mogi dasCruzes ;
+▪Santos ;
+▪SãoSebastião ;
+▪Ubatuba .
+•Prefeituras Municipais ;
+•Polícia Militar Rodoviária ;
+•Corpo deBombeiros ;e
+•Serviço deAtendimento Móvel deUrgência –SAMU .
+--- PAGE 30 ---
+Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+Operação do Plano de Contingência
+Para operação doPlano deContingência, emfunção das informações oriundas doSAMAEG, optou -seporuma
+adaptação damesma nomenclatura eestruturação deníveis utilizada noPPDC–Plano Preventivo deDefesa Civil,
+operado pela CEPDEC, REPDEC eCOMPDECs durante operíodo chuvoso .Estes Níveis deOperação sãodecorrentes
+daanálise doÍndice deCorrelação com Chuvas (ICC) calculado, queimpacta diretamente navariação doRisco Dinâmico
+nostrechos dasrodovias, tanto para processos geológicos quanto para processos hidrológicos .
+Níveis de Operação resultantes da Faixa de Índice de Correlação com Chuvas (ICC) calculada para 
+os eventos geológicos e hidrológicos analisados na área de estudo
+ICCGEO/HID Nível de Operação
+Faixa 0 (ICCGEO/HID 0) Monitoramento
+Faixa 1 (ICCGEO/HID 1) Observação
+Faixa 2 (ICCGEO/HID 2) Atenção
+Faixa 3 (ICCGEO/HID 3) Alerta
+Faixa 4 (ICCGEO/HID 4) Alerta Máximo
+--- PAGE 31 ---
+Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+
+--- PAGE 32 ---
+Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+
+--- PAGE 33 ---
+Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+Ações, responsabilidade e procedimentos dos órgãos e entidades envolvidos na operação do SAMAEG e do Plano de Contingência na s UBAs da área de estudo
+NÍVEL DE 
+OPERAÇÃOAÇÃO INSTITUIÇÃO RESPONSABILIDADE PROCEDIMENTO
+MonitoramentoMonitoramento 
+pelo Sistema 
+AutomatizadoCOI -DER/SP Responsável / Executora•Monitoramento dascondições dechuvas esubsequentes mudanças deNível deOperação, em
+função doICCpara osprocessos geológicos ehidrológicos
+•Recebimento das solicitações deatendimento emergencial pelos usuários das rodovias e,em
+caso dedesastres naturais, para acionamento daCCO eUBA edeterminação doNível de
+Operação
+CCO -DER/SP
+UBA -DER/SP
+CEPDECParticipante•Monitoramento complementar dascondições dechuvas esubsequentes mudanças deNível de
+Operação, emfunção doICCpara osprocessos geológicos ehidrológicos
+ObservaçãoInício do Nível 
+de Operação em 
+ObservaçãoCOI -DER/SP Responsável•Comunicar aoCCO oinício doNível deOperação emObservação
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+CCO -DER/SP Executor•Iniciar oNível deOperação emObservação naregião daUBA
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+UBA -DER/SP Participante•Atender aoNível deOperação emObservação naregião daUBA, permanecendo àdisposição do
+CCO eaguardando acomunicação demudança deNível deOperação
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+CEPDEC Participante •Continuidade domonitoramento dascondições dechuvas nasrodovias
+AtençãoInício do Nível 
+de Operação em 
+AtençãoCOI -DER/SP Responsável•Comunicar aoCCO oinício doNível deOperação emAtenção
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+CCO -DER/SP Executor•Iniciar oNível deOperação emAtenção, solicitando adisposição das equipes daUBA para
+prontidão aosacionamentos deemergência
+•Permanecer àdisposição daCOIeaguardar comunicação demudança deNível deOperação
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+UBA -DER/SP Participante•Atender aoNível deOperação emAtenção naregião daUBA, posicionando asequipes daUBA
+para prontidão aosacionamentos deemergência
+•Iniciar vistorias expeditas aolongo dasrodovias, priorizando ostrechos críticos especificados
+•Permanecer àdisposição doCCO eaguardar comunicação demudança deNível deOperação
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+CEPDEC Participante •Continuidade domonitoramento dascondições dechuvas nasrodovias
+--- PAGE 34 ---
+Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+Ações, responsabilidade e procedimentos dos órgãos e entidades envolvidos na operação do SAMAEG e do Plano de Contingência na s UBAs da área de estudo
+NÍVEL DE 
+OPERAÇÃOAÇÃO INSTITUIÇÃO RESPONSABILIDADE PROCEDIMENTO
+AlertaAlerta 
+MáximoInício do Nível 
+de Operação em 
+AlertaCOI -DER/SP Responsável•Comunicar aoCCO oinício doNível deOperação emAlerta
+•Aguardar verificação deocorrência deeventos geodinâmicos pelo CCO
+•Encerrar oNível deOperação emAlerta, caso nãohaja ocorrência dedesastre natural confirmado
+pelo CCO eascondições dechuvas permitam aredução doNível deOperação doSistema
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+CCO -DER/SP Executor•Iniciar oNível deOperação emAlerta, solicitando adisposição dasequipes daUBA para vistorias
+aolongo dasrodovias, priorizando ostrechos críticos especificados
+•Aguardar verificação deocorrência deeventos geodinâmicos nasrodovias pela UBA ecomunicar
+resultados àCOI
+•Permanecer àdisposição daCOIeaguardar comunicação demudança deNível deOperação
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+UBA -DER/SP Executor•Atender aoNível deOperação emAlerta naregião daUBA, dispondo asequipes daUBA para
+vistorias aolongo dasrodovias, priorizando ostrechos críticos especificados
+•Comunicar aoCCO aocorrência ouausência deeventos geodinâmicos nasrodovias
+•Acionar oPlano deContingência ecomunicar oCCO, caso haja ocorrência deeventos
+geodinâmicos nasrodovias
+•Permanecer àdisposição doCCO eaguardar comunicação demudança deNível deOperação
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+CEPDEC Participante•Continuidade domonitoramento dascondições dechuvas nasrodovias
+•Aguardar comunicação daCOIsobre condições dasrodovias
+--- PAGE 35 ---
+Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+Ações, responsabilidade e procedimentos dos órgãos e entidades envolvidos na operação do SAMAEG e do Plano de Contingência na s UBAs da área de estudo
+NÍVEL DE 
+OPERAÇÃOAÇÃO INSTITUIÇÃO RESPONSABILIDADE PROCEDIMENTO
+Plano de 
+ContingênciaInício do Nível 
+de Operação do 
+Plano de 
+ContingênciaCOI -DER/SP Executor•Comunicar osoutros órgãos/instituições envolvidos naoperação doPlano deContingência,
+confirmando aocorrência dedesastres naturais eacionamento doPlano, repassando as
+informações essenciais enviadas pela UBA, como condições deacesso aoslocais deocorrência
+dosdesastres naturais eaexistência devítimas oudeveículos atingidos, esolicitando apoio no
+atendimento emergencial eàsoperações dasequipes daUBA
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+CCO -DER/SP Executor•Comunicar àCOI oacionamento doPlano deContingência, repassando asinformações
+essenciais enviadas pela UBA, como condições deacesso aoslocais deocorrência dosdesastres
+naturais eaexistência devítimas oudeveículos atingidos
+•Disponibilizar equipes deConservação erespectivos equipamentos àUBA, para auxílio no
+atendimento emergencial eàsequipes daUBA
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+UBA -DER/SP Responsável•Acionar oPlano deContingência ecomunicar oCCO
+•Comunicar aoCCO ascondições deacesso aoslocais deocorrência dosdesastres naturais
+•Comunicar aoCCO aexistência devítimas, fatais ounão, edeveículos atingidos
+•Iniciar osprocedimentos para garantir segurança dotráfego nostrechos atingidos, providenciando
+sinalização, desvios oufechamento davia,eremoção deveículos atingidos
+•Iniciar osprocedimentos demanejo dedesastres pelas equipes deConservação, sobsupervisão
+deequipe técnica especializada, para garantir acontinuidade dotráfego nostrechos atingidos
+•Definir quais órgãos einstituições participantes doPlano deContingência deverão seracionados
+para apoio aoatendimento emergencial
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+CEPDEC Participante•Receber daCOI aconfirmação doacionamento doPlano deContingência eavaliar anecessidade
+deacionamento deREPDECs ,COMPDECs noatendimento àocorrência dedesastre natural
+•Verificar necessidade doacionamento deEquipes Técnicas doIGouIPT para vistorias
+emergenciais eorientação dasequipes técnicas daUBA nasações deemergência
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+--- PAGE 36 ---
+Produto 07-Plano de Contingência frente a Riscos de Eventos Geodinâmicos
+Ações, responsabilidade e procedimentos dos órgãos e entidades envolvidos na operação do SAMAEG e do Plano de Contingência na s UBAs da área de estudo
+NÍVEL DE 
+OPERAÇÃOAÇÃO INSTITUIÇÃO RESPONSABILIDADE PROCEDIMENTO
+Plano de 
+ContingênciaInício do Nível 
+de Operação do 
+Plano de 
+ContingênciaREPDEC Participante•Receber daCEPDEC aconfirmação doacionamento doPlano deContingência edisponibilizar
+equipe para vistorias deemergência
+•Acionamento esupervisão dasCOMPDECs dosmunicípios próximos aoslocais deocorrência dos
+desastres naturais esupervisão dostrabalhos daDefesa Civil noatendimento emergencial
+•Confirmar anecessidade doacionamento deEquipes Técnicas doIGouIPT para vistorias
+emergenciais eorientação dasequipes técnicas daUBA nasações deemergência
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+COMPDEC Participante•Receber daREPDEC aconfirmação doacionamento doPlano deContingência edisponibilizar
+equipes eequipamentos para auxílio àUBA noatendimento emergencial
+•Confirmar anecessidade doacionamento deequipes eequipamentos dasPrefeituras Municipais
+eintermediar assolicitações àPrefeitura Municipal
+•Continuidade domonitoramento dascondições dechuvas nasrodovias
+Prefeituras 
+MunicipaisParticipante•Receber daCOI aconfirmação doacionamento doPlano deContingência edisponibilizar equipes
+eequipamentos daCOMPDEC edemais secretarias eórgãos municipais, caso solicitado, para
+auxílio àUBA noatendimento emergencial
+Polícia Militar 
+RodoviáriaParticipante•Receber daCOI aconfirmação doacionamento doPlano deContingência edisponibilizar equipes
+para auxílio àUBA noatendimento emergencial, com destaque para asegurança dasequipes de
+emergência etécnicas, garantia defluidez notráfego eauxílio nasinalização deemergência
+Corpo de 
+BombeirosParticipante•Receber daCOI aconfirmação doacionamento doPlano deContingência edisponibilizar equipes
+eequipamentos para auxílio àUBA noatendimento emergencial, com destaque para assituações
+com vítimas e/ou veículos atingidos
+SAMU Participante•Receber daCOI aconfirmação doacionamento doPlano deContingência edisponibilizar equipes
+para auxílio àUBA noatendimento emergencial àssituações com vítimas, fatais ounão
+--- PAGE 37 ---
+PRINCIPAIS RESULTADOS OBTIDOS
+•Análise dehistórico de27anos deregistros pluviométricos edeeventos
+geológicos ehidrológicos associados aRodovia Mogi -Bertioga (SP-098)eRodovia
+Rio-Santos (SP-055);
+•Avaliação daprobabilidade acumulada deocorrência deeventos geológicos e
+hidrológicos ;
+•Determinação dos Índices deCorrelação com Chuvas (ICC) para cada região
+delimitada, deacordo com otipo deprocesso geodinâmico ;
+•Definição davariação doRisco emdecorrência das chuvas através darelação
+RDGEO/HID =RAGEO /HIDxICC;
+•Definição deparâmetros críticos para atomada dedecisão eemissão dealertas ;
+•Proposição deações, procedimentos eatores envolvidos nacondução do
+monitoramento doSEMAEG eoperação doPlano deContingência para as
+rodovias daárea deestudo .
+--- PAGE 38 ---
+Obrigado!
+Geólogo Pedro Machado Simões
+REGEA –Geologia, Engenharia e Estudos Ambientais
+Contato: pedro.simoes@regea.com.br
+11-99356 -6233

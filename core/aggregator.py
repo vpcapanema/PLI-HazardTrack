@@ -6,9 +6,7 @@ Mantem cache em memoria do estado atual + historico.
 
 Politica de dados:
 - Sem dado real do MERGE/INPE -> snapshot fica em estado NO_DATA.
-- NUNCA usa mock no caminho operacional. Mock so e gerado por chamada
-  explicita de teste (test_merge.py) ou pela env SAMAEG_FORCE_MOCK=1
-  durante desenvolvimento local.
+- NUNCA usa mock no caminho operacional. Sem dado real = NO_DATA.
 """
 
 from datetime import datetime, timezone
@@ -21,15 +19,15 @@ from threading import Lock
 
 from .regions import load_regions, find_region_for_point, Region
 from .monitoring_points import MONITORING_POINTS
-from .merge_inpe import fetch_real_batch, fetch_mock
-from .risk import evaluate_point, RiskResult
+from .merge_inpe import fetch_real_batch
+from .risk import evaluate_point
 
 log = logging.getLogger("aggregator")
 
 # Limite de horas faltando na janela de 24h para marcar "degraded"
-DEGRADED_MISSING_24H_THRESHOLD = int(os.environ.get("SAMAEG_DEGRADED_24H", "6"))
-# Modo de desenvolvimento sem rede / sem eccodes
-FORCE_MOCK = os.environ.get("SAMAEG_FORCE_MOCK", "0") == "1"
+DEGRADED_MISSING_24H_THRESHOLD = int(
+    os.environ.get("SAMAEG_DEGRADED_24H", "6")
+)
 # Quantos ciclos manter no historico de runtime (para a pagina de ops)
 RUNTIME_HISTORY = 96
 
@@ -63,7 +61,8 @@ class State:
         for p in self.points:
             region = find_region_for_point(p["lat"], p["lon"], self.regions)
             seed_points.append({
-                "id": p["id"], "nome": p["nome"], "rodovia": p["rodovia"], "km": p["km"],
+                "id": p["id"], "nome": p["nome"],
+                "rodovia": p["rodovia"], "km": p["km"],
                 "lat": p["lat"], "lon": p["lon"],
                 "region_id": region.id if region else None,
                 "region_name": region.nome if region else None,
@@ -130,7 +129,10 @@ class State:
             duration = time.monotonic() - t0
             self.last_cycle_finished_at = datetime.now(timezone.utc)
             self.last_cycle_duration_s = round(duration, 2)
-            summary = self.snapshot.get("summary", {}) if hasattr(self, "snapshot") else {}
+            summary = (
+                self.snapshot.get("summary", {})
+                if hasattr(self, "snapshot") else {}
+            )
             self.cycle_history.append({
                 "started_at": now.isoformat(),
                 "finished_at": self.last_cycle_finished_at.isoformat(),
@@ -144,23 +146,16 @@ class State:
             })
 
     def _do_update(self, now):
-        """Logica do ciclo, separada para captura de erro/timing em update()."""
+        """
+        Logica do ciclo, separada para captura de
+        erro/timing em update().
+        """
         # Caminho de producao: SOMENTE MERGE/INPE real.
         coords = [(p["lat"], p["lon"]) for p in self.points]
         rain_batch = fetch_real_batch(coords, now)
 
-        # Modo dev explicito: chuva sintetica reproduzivel
-        if rain_batch is None and FORCE_MOCK:
-            log.warning("SAMAEG_FORCE_MOCK=1 -> usando chuva sintetica (NAO USAR EM PRODUCAO)")
-            rain_batch = [fetch_mock(p["lat"], p["lon"], now) for p in self.points]
-            files_ok = 0
-            missing_24h = 24
-            missing_96h = 96
-            data_source = "MOCK (dev)"
-            data_status = "mock"
-            degraded = True
-        elif rain_batch is None:
-            # Falha total: nao temos dado real e nao foi pedido mock
+        if rain_batch is None:
+            # Falha total: sem dado real do MERGE/INPE
             log.error(
                 "MERGE/INPE indisponivel: snapshot marcado como NO_DATA "
                 "(sem dado, sem RD calculado)"
@@ -172,7 +167,11 @@ class State:
             missing_24h = rain_batch[0].missing_24h
             missing_96h = rain_batch[0].missing_96h
             data_source = "MERGE/INPE"
-            data_status = "ok" if missing_24h < DEGRADED_MISSING_24H_THRESHOLD else "degraded"
+            data_status = (
+                "ok"
+                if missing_24h < DEGRADED_MISSING_24H_THRESHOLD
+                else "degraded"
+            )
             degraded = data_status == "degraded"
 
         new_points = []
@@ -182,7 +181,9 @@ class State:
 
         for idx, p in enumerate(self.points):
             try:
-                region = find_region_for_point(p["lat"], p["lon"], self.regions)
+                region = find_region_for_point(
+                    p["lat"], p["lon"], self.regions
+                )
                 rain = rain_batch[idx]
                 result = evaluate_point(
                     lat=p["lat"], lon=p["lon"],
@@ -195,9 +196,11 @@ class State:
                     ra_hid=p.get("ra_hid")
                 )
                 pt = {
-                    "id": p["id"], "nome": p["nome"], "rodovia": p["rodovia"], "km": p["km"],
+                    "id": p["id"], "nome": p["nome"],
+                "rodovia": p["rodovia"], "km": p["km"],
                     "lat": p["lat"], "lon": p["lon"],
-                    "region_id": result.region_id, "region_name": result.region_name,
+                    "region_id": result.region_id,
+                    "region_name": result.region_name,
                     "ac96h_mm": result.ac96h_mm, "ac24h_mm": result.ac24h_mm,
                     "intensity_mmh": result.intensity_mmh,
                     "cpc": result.cpc,
@@ -208,7 +211,9 @@ class State:
                     "source": rain.source
                 }
                 # Historico de RD por ponto
-                hist = self.point_rd_history.setdefault(p["id"], deque(maxlen=24))
+                hist = self.point_rd_history.setdefault(
+                    p["id"], deque(maxlen=24)
+                )
                 hist.append({
                     "ts": now.isoformat(),
                     "rd": result.rd,
@@ -250,7 +255,10 @@ class State:
             }
 
         log.info(
-            "  ok: %d pontos, max RD=%d, niveis=%s, status=%s (24h faltando=%d)",
+            (
+                "  ok: %d pontos, max RD=%d, "
+                "niveis=%s, status=%s (24h faltando=%d)"
+            ),
             len(new_points), max(0, max_rd), by_level, data_status, missing_24h
         )
 
@@ -268,7 +276,8 @@ class State:
         for p in self.points:
             region = find_region_for_point(p["lat"], p["lon"], self.regions)
             new_points.append({
-                "id": p["id"], "nome": p["nome"], "rodovia": p["rodovia"], "km": p["km"],
+                "id": p["id"], "nome": p["nome"],
+                "rodovia": p["rodovia"], "km": p["km"],
                 "lat": p["lat"], "lon": p["lon"],
                 "region_id": region.id if region else None,
                 "region_name": region.nome if region else None,
@@ -299,11 +308,7 @@ class State:
                 "missing_24h": 24,
                 "missing_96h": 96,
                 "message": (
-                    "Sem dado real do MERGE/INPE neste ciclo. "
-                    "O servidor pode estar com latencia (>3h) ou indisponivel, "
-                    "ou a biblioteca eccodes pode nao estar instalada no ambiente. "
-                    "Pontos exibidos no mapa para indicar a malha monitorada; "
-                    "ausencia de leitura nao significa ausencia de risco."
+                    "Sem dado real do MERGE/INPE."
                 ),
             }
 
@@ -316,20 +321,24 @@ class State:
         with self._lock:
             return {
                 "started_at": self.started_at.isoformat(),
-                "uptime_s": (datetime.now(timezone.utc) - self.started_at).total_seconds(),
+                "uptime_s": (
+                    datetime.now(timezone.utc) - self.started_at
+                ).total_seconds(),
                 "cycle_count": self.cycle_count,
                 "cycle_success": self.cycle_success,
                 "cycle_fail": self.cycle_fail,
                 "last_cycle_started_at": self.last_cycle_started_at.isoformat()
                     if self.last_cycle_started_at else None,
-                "last_cycle_finished_at": self.last_cycle_finished_at.isoformat()
+                "last_cycle_finished_at": (
+                    self.last_cycle_finished_at.isoformat()
+                )
                     if self.last_cycle_finished_at else None,
                 "last_cycle_duration_s": self.last_cycle_duration_s,
                 "last_error": self.last_error,
                 "last_error_at": self.last_error_at.isoformat()
                     if self.last_error_at else None,
                 "history": list(self.cycle_history),
-                "force_mock": FORCE_MOCK,
+
                 "degraded_threshold": DEGRADED_MISSING_24H_THRESHOLD,
             }
 

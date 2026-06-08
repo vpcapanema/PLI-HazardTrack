@@ -15,7 +15,6 @@ Estrutura no servidor INPE:
 
 Resolucao: 0.1 graus (~10 km). Cobertura: America do Sul. Sem auth.
 
-NAO HA FALLBACK MOCK NO CAMINHO DE PRODUCAO. Se nao houver eccodes ou
 nenhum GRIB chegar, fetch_real_batch retorna None e o aggregator marca o
 snapshot como degraded; a UI mostra "Dado indisponivel" em vez de fingir
 chuva sintetica.
@@ -257,28 +256,6 @@ def fetch_real(lat: float, lon: float,
     res = fetch_real_batch([(lat, lon)], now_utc)
     return res[0] if res else None
 
-
-# ---------------------------------------------------------------------------
-# MOCK: chuva sintetica - APENAS para desenvolvimento/CI sem rede.
-# Nao e usado no caminho de producao; aggregator marca o snapshot como
-# "no_data" quando o MERGE real falha.
-# ---------------------------------------------------------------------------
-
-def fetch_mock(lat: float, lon: float,
-               now_utc: Optional[datetime] = None) -> RainSample:
-    now = now_utc or datetime.now(timezone.utc)
-    seed = (abs(hash((round(lat, 1), round(lon, 1), now.day))) % 1000) / 1000.0
-    base_24h = 8 + 90 * seed
-    base_96h = base_24h * (2.0 + seed * 1.2)
-    intensity = base_24h * (0.05 + 0.2 * seed)
-    return RainSample(
-        lat=lat, lon=lon,
-        intensity_mmh=round(intensity, 1),
-        ac24h_mm=round(base_24h, 1),
-        ac96h_mm=round(base_96h, 1),
-        timestamp_utc=now.replace(minute=0, second=0, microsecond=0).isoformat(),
-        source="MOCK (desenvolvimento)"
-    )
 
 
 def fetch(lat: float, lon: float,

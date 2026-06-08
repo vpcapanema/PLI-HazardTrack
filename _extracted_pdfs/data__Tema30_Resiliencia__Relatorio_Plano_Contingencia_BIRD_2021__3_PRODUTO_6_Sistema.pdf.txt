@@ -1,0 +1,1036 @@
+
+===== PAGE 1 =====
+RELATÓRIO TÉCNICO E DE ATIVIDADES
+ETAPA 2
+NATUREZA DO TRABALHO
+Elaboração de Planos de Contingência frente a riscosde eventos geodinâmicos emtrechos rodoviários selecionados das Unidades Básicasde Atendimento (UBA) doDepartamento de Estradas de Rodagem do Estado de SãoPaulo (DER/SP) deCaraguatatuba, Mogi das Cruzes e São Vicente
+INTERESSADO
+Departamento de Estradas de Rodagem do Estado de SãoPaulo – DER/SP
+PROGRAMA
+Transporte, Logística e Meio Ambiente
+PROJETO
+Transporte Sustentável de São Paulo
+CONTRATO CÓDIGO REGEA REVISÃO LOCAL E DATA20.595-3Protocolo DER/2087634//2019
+2053-R03-20 1
+São Paulo23.Fevereiro.2021
+Rua Moacir Miguel da Silva, 633   Jd. Bonfiglioli CEP 05595-000   São Paulo   SP   Brasil+55 11 3735-5172   www.regea.com.br
+
+===== PAGE 2 =====
+1
+SUMÁRIO
+Introdução 1Objetivo 1Área de estudo 2Divisão administrativa e de conservação das UBAs 3Divisão das regiões por CPC – coeficiente de precipitaçãocrítica 4Resultados obtidos na etapa 1 5Produto 03 – modelo de correlação entre eventos echuvas 5Correlação para eventos geológicos 5Correlação para eventos hidrológicos 5Produto 04 – análise de risco 7Correlação entre o risco aos eventos geológicos analisadoe as chuvas 13Correlação entre o risco aos eventos hidrológicosanalisado e as chuvas 14Etapa 2 – implantação de sistema automatizado de análise,monitoramento e alerta 19Plataforma computacional TerraMA² 20Serviços e fontes de dados para as análises 22Plataforma computacional arcgis 22Módulo de alerta 23Funcionalidades 23Ferramenta de alerta 23Modelo previsional 28O Modelo Hidroestimador 28O Modelo WRF 28Eventos geológicos 29Modelo para o script 29Eventos hidrológicos 33Modelo para o script 34Módulo de administração 36Módulo de configuração 37Serviços de gerência de planos 38Serviços de animação 38Serviço de notificação 39Serviço de análise 395. Cronograma de atividades e próximas etapas 416. Referências bibliográficas 447. Equipe técnica 56Anexos 57Anexo A 58Anexo B 66
+
+===== PAGE 3 =====
+1
+1. INTRODUÇÃO
+O Consórcio NIPPON KOEI LAC / NIPPON KOEI LAC DO BRASIL / REGEA / GEOTEC/OPTIMUSGIS(Consórcio 4X044) elaboroueapresentaesteRelatórioTécnicoedeAtividadesem cumprimento às exigências do Edital SDP nº 064/2019, para execução do Contratonº 20.595-3, relativo à “Prestação de Serviços Técnicos para Elaboração de Planos deContingênciafrenteariscosdeeventosgeodinâmicosemtrechosrodoviáriosselecionadosdasUnidades Básicas de Atendimento (UBA) do Departamento de Estradas de Rodagem doEstado de São Paulo (DER/SP) de Caraguatatuba, Mogi das Cruzes e São Vicente”,pertencente ao Programa Transporte, Logística e Meio Ambiente do Projeto TransporteSustentável de São Paulo, implementado pelo Departamento de Estradas de Rodagem doEstado de São Paulo – DER/SP.
+Conforme estabelecido no item 5 do Termo de Referência (TDR) da SDP nº 064/2019, osserviços contratados devem ser desenvolvidos emuma etapa preparatória e três etapas deelaboraçãodeprodutos(Tabela 1-1). ORelatórioTécnicoedeAtividadesoraapresentadoserefere aorelatóriorelativoàconclusãodaEtapa 2–ImplantaçãodeSistemaAutomatizadode Análise, Monitoramento eAlerta, compostapeloProduto 07, definidonositens 5.4e6.6do Termo de Referência (TDR) da SDP nº 064/2019.
+Tabela 1-1. Etapas de desenvolvimento dos serviços.Etapa Produtos PrevistosPreparatória*
+Produto 01 - Elaboração do Plano de Trabalho
+1
+Produto 02 - Cadastro de Ocorrências de Eventos Geodinâmicose DesastresProduto 03 - Modelo de Correlação entre Eventos eChuvasProduto 04 - Análise de RiscoProduto 05 - Análise do Contexto Institucional2 Produto 06 - Sistema Automatizado de Análise, Monitoramentoe Alerta de Risco3 Produto 07 - Plano de Contingência frente a Riscosde Eventos Geodinâmicos* Etapa Preparatória foi concluída em 13/08/2020,conforme previsto nos cronogramas apresentados juntoao Plano de Trabalho.Fonte: Elaborado pelo Consórcio REGEA-PANGEA-NIPPON(4X044) a partir do Termo de Referência do Edital SDP nº 064/2019.
+Os documentos referentes à “Anotação de Responsabilidade Técnica - ART”, paraexecuçãodos serviços contratados, são apresentados noANEXO A.
+2. OBJETIVO
+O objetivo do serviço é a elaboração de planos de contingência frente a riscos de eventosgeodinâmicos em trechos rodoviários selecionados das Unidades Básicas de Atendimento(UBAs) deCaraguatatuba, Mogi dasCruzeseSãoVicente, emapoioaosplanosestratégicos,gerenciais e operacionais do Setor deTransporteseàimplementaçãodoProgramaEstadualdePrevençãodeDesastresNaturaiseReduçãodeRiscosGeológicosdoEstadodeSãoPaulo- PDN (Decreto Estadual nº 57.512/2011), quanto ao gerenciamento de risco na gestãorodoviária.
+2.1. ÁREADEESTUDO
+A área deestudocompreende, parcialmente, asrodoviasSP-055eSP-098, emumafaixade1 km de largura a partir do eixo das rodovias. A relação de UBAs e respectivas divisões
+
+===== PAGE 4 =====
+2
+administrativaedeconservaçãoestãoapresentadasnaTabela 2-1. Asrodoviaserespectivosmunicípios interceptados que definem a área de estudoestão apresentados naFigura 2-1.Tabela 2-1. Área de estudodoprojeto, comespecificaçãodadivisãoadministrativaedeconservaçãodas rodovias em relação às UBAs.Rodovia Município Regional
+Residência daConservação
+Conservação
+Inicial(km)
+Final(km)
+Extensão(km)
+Jurisdição
+SP-055
+Ubatuba
+TaubatéDR.06
+CaraguatatubaUBA 06.04
+CaraguatatubaUBA 06.04
+53,600 81,970 28,370 Estadual
+Caraguatatuba
+81,970 87,240 5,270 Estadual87,240 89,100 1,860 Federal89,100 99,630 10,530 EstadualPrefeituraMunicipal deCaraguatatuba
+99,630 102,300 2,670 Estadual
+CaraguatatubaUBA 06.04
+102,300 112,550 10,250 Estadual
+São Sebastião
+112,550 120,200 7,650 EstadualPrefeituraMunicipal deSão Sebastião
+120,200 127,800 7,600 Estadual
+São VicenteUBA 05.04
+127,800 165,910 38,110 Estadual165,910 174,600 8,690 Federal174,600 176,200 1,600 Estadual176,200 185,900 9,700 Federal185,900 191,400 5,500 EstadualBertioga CubatãoDR.05
+São VicenteUBA 05.04
+191,400 220,450 29,050 Estadual220,450 233,400 12,950 FederalSantos 233,400 248,100 14,700 FederalExtensão total da área de estudo da rodovia SP-055 194,500
+SP-098
+Mogi dasCruzes
+São PauloDR.10
+Mogi das CruzesUBA 10.04
+Mogi dasCruzesUBA 10.04
+62,900 75,000 12,100 EstadualBiritiba-Mirim 75,000 82,400 7,400 EstadualBertioga
+CubatãoDR.05
+São VicenteUBA 05.04
+82,400 98,100 15,700 EstadualExtensão total da área de estudo da rodovia SP-098 35,200Extensão total da área de estudo do projeto 229,700A intersecção entre as rodovias ocorre nos Km 214,650da rodovia SP-055 e no KM 98,100 da rodovia SP-098.
+Figura 2-1. Área de estudo do projeto. Fonte: Elaboradopelo Consórcio 4X044 no âmbito dodesenvolvimento dos serviços contratados.
+
+===== PAGE 5 =====
+3
+2.1.1. DIVISÃOADMINISTRATIVAEDECONSERVAÇÃODAS
+UBAS
+Desta forma, embora alguns trechos das rodovias estejam geograficamente situados nosmunicípios de abrangência de uma determinada UBA, sua conservação, manutenção eatendimentos de emergência são realizados pela UBA vizinha ou, ainda, pela Prefeitura domunicípio em que o trecho está inserido, conformeapresentado na relação a seguir:
+● Caraguatatuba – UBA 06.04 – Rodovia SP-055, do km 53,600 ao km 99,630, e dokm 102,300 ao km 112,550, totalizando 63,930 quilômetros de extensão, sendo46,030 quilômetros no primeiro intervalo, e 17,900 quilômetrosno segundo intervalo;
+● Mogi das Cruzes – UBA 10.04–RodoviaSP-098, dokm 62,900aokm 98,100, totalizando35,200 quilômetros;
+● São Vicente – UBA 05.04 – Rodovia SP-055, do km 127,800 ao km 248,100, totalizando120,300 quilômetros;
+● Prefeitura Municipal de Caraguatatuba – Rodovia SP-055, do km 99,630 ao km 102,300,totalizando 2,670 quilômetros. O trecho tem os limites Norte e Sul coincidentes com osintervalos conservados pela UBA 06.04;
+● Prefeitura Municipal de São Sebastião – Rodovia SP-055, do km 120,200 ao km 127,800,totalizando 7,600 quilômetros. O trecho tem olimite Norte coincidente com o segundointervaloconservadopelaUBA 06.04, eolimiteSul coincidentecomointervaloconservadopela UBA 05.04.
+Para simplificar a análise dos dados e apresentação de resultados, a divisãodostrechosdeabrangência e atuação das UBAs foi considerada conformeapresentado na relação a seguir:
+● UBA 05.04 – São Vicente – Rodovia SP-055, do km 127,800 ao km 248,100, totalizando120,300 quilômetros;
+● UBA 06.04 – Caraguatatuba – Rodovia SP-055, do km 53,600 ao km 127,800, totalizando74,200 quilômetroseabrangendoostrechossobconservaçãodasPrefeiturasMunicipaisdeCaraguatatuba e de São Sebastião;
+● UBA 10.04 – Mogi das Cruzes – Rodovia SP-098, dokm 62,900aokm 98,100, totalizando35,200 quilômetros.
+2.1.2. DIVISÃODASREGIÕESPOR
+CPC – COEFICIENTEDEPRECIPITAÇÃOCRÍTICA
+A correlação entre os processosgeodinâmicos, suasrespectivaslocalizaçõeseascondiçõesdechuvasnecessáriasparasuadeflagraçãoforamanalisadasnaelaboraçãodoProduto 03daEtapa 1 deste projeto. Aoobservar ascorrelaçõespossíveis, notou-seresultadossimilaresaolongode4trechosdistintos,denominadosRegiões,queestãorepresentadosnaTabela 2.1.2-1enaFigura 2.1.2-1e, paracadaumadelas, foramcalculadososCoeficientesdePrecipitaçãoCrítica (CPC) que deflagram os processos de escorregamentose de inundações.
+Tabela 2.1.2-1. Regiões separadasemdecorrênciadosCoeficientesdePrecipitaçãoCríticaanalisadose definidos.Região Rodovia Municípios1 Rod. Mogi-Bertioga (SP-098) Bertioga, Biritiba-Mirim, Mogi das Cruzes2 Rod. Rio-Santos (SP-055) Caraguatatuba e Ubatuba3 Rod. Rio-Santos (SP-055) São Sebastião4 Rod. Rio-Santos (SP-055) Bertioga e Santos
+
+===== PAGE 6 =====
+4
+Figura 2.1.2-1. Localização das quatro Regiões separadasem decorrência dos Coeficientes dePrecipitação Crítica analisados e definidos.
+3. RESULTADOSOBTIDOSNAETAPA
+ 1
+Após a elaboração da Etapa 1, os Produtos 03 e 04, relacionados ao Modelo de Correlaçãoentre Eventos e Chuvas eàAnálisedeRisco, respectivamente, subsidiaramaelaboraçãodoProduto 06, resultante desta Etapa 2.
+Os resultados obtidos na elaboração dos Produtos 03e 04 estão resumidos a seguir.
+3.1. PRODUTO
+ 03 – MODELODECORRELAÇÃOENTREEVENTOSECHUVAS
+3.1.1. CORRELAÇÃOPARAEVENTOSGEOLÓGICOS
+Cada região apresenta uma equação envoltória correspondente, a partir da qual é possívelcalcular o CoeficientedePrecipitaçãoCrítica(CPC) dequalquer eventodechuvautilizandoovalor de intensidade instantânea de chuva (mm / h) e de chuva acumulada em 96 h (mm).Desta maneira, foramdelimitadas faixas de Índice de Correlação comChuvas (ICC) paraoseventos geológicos,  sendo estas faixas projetadasa partir das equações de cada região.
+OsvaloresdeCPCinferioresa1,0indicamchuvasquenãotendemagerareventosgeológicosnas rodovias. A probabilidade de deflagração de eventos aumenta à medida que se avançadentro das quatro faixas estabelecidas para cada Região analisada. As Tabelas 3.1.1-1 e
+
+===== PAGE 7 =====
+5
+3.1.1-2 resumem a equação que traça o limite de cada faixa de Índice de Correlação comChuvas (ICC), e apresentam as faixas de ICC determinadas.
+3.1.2. CORRELAÇÃOPARAEVENTOSHIDROLÓGICOS
+Para os processos hidrológicos, as faixas de ICC foram estabelecidas de acordo com aprobabilidade de ocorrência de eventos hidrológicos, com base no histórico de eventosavaliados emlimiares de chuva. Desta forma, as faixas de índice de correlaçãocomchuvas(ICC) foram traçadas a partir destas probabilidades. A relação entre a probabilidade e amudança de faixas está sintetizada naTabela 3.1.2-1.
+
+===== PAGE 8 =====
+6
+Tabela 3.1.1-1. Resumo das equações que definem os limites das quatro faixas usadas para adoção de Índice de Correção de Chuvas (ICC). OndeI = Intensidade de chuva em mm / h, e Ac96h = Acumuladode chuva nas 96 h anteriores ao evento.Região Equação 1 CPC Equação 2 CPC Equação 3 CPC Equação 4 CPC1 I = 1.000 x Ac96h
+-0,9 
+1 I = 3.000 x Ac96h
+-0,9 
+3 I = 6.000 x Ac96h
+-0,9 
+6 I = 15.000 Ac96h
+-0,9 
+152 I = 400 x Ac96h
+-0,9 
+1 I = 2.400 x Ac96h
+-0,9 
+6 I = 6.400 x Ac96h
+-0,9 
+12 I = 9.600 x Ac96h
+-0,9 
+243 I =200 Ac96h
+-0,9 
+1 I = 1.600 x Ac96h
+-0,9 
+8 I = 3.200 x Ac96h
+-0,9 
+16 I = 4.800 x Ac96h
+-0,9 
+244 I = 1.000 x Ac96h
+-0,9 
+1 I = 4.000 x Ac96h
+-0,9 
+4 I = 8.000 x Ac96h
+-0,9 
+8 I = 16.000 x Ac96h
+-0,9 
+16
+Tabela 3.1.1-2.  Faixas de Índice de Correlação comChuvas (ICC) para os eventos Geológicos.
+Região
+Coeficiente de Precipitação Crítica da Região (CPC)Faixa 0 (ICCGEO
+0) Faixa 1 (ICCGEO
+1) Faixa 2 (ICCGEO
+2) Faixa 3 (ICCGEO
+3) Faixa 4 (ICCGEO
+4)De Até De Até De Até De Até A partir de1 SP-098 - Mogi-Bertioga 0 < 1 1 3 > 3 6 > 6 15 > 152 SP-055 - Caraguatatuba-Ubatuba 0 < 1 1 6 > 6 12 > 12 24 > 243 SP-055 - São Sebastião 0 < 1 1 8 > 8 16 > 16 24 > 244 SP-055 - Santos-Bertioga 0 < 1 1 4 > 4 8 > 8 16 > 16
+Tabela 3.1.2-1.  Faixas de Índice de Correlação comChuvas (ICC) para os eventos Hidrológicos.
+Região
+Probabilidade de Ocorrência de Eventos HidrológicosFaixa 0 (ICCHID
+0) Faixa 1 (ICCHID
+1) Faixa 2 (ICCHID
+2) Faixa 3 (ICCHID
+3) Faixa 4 (ICCHID
+4)0% a 10% > 10% a 25% > 25% a 50% > 50% a 75% > 75% a 100%Intensidade Pluviométrica (24h)De Até De Até De Até De Até A partir de1 SP-098 - Mogi-Bertioga 0 110 > 110 160 > 160 200 > 200 280 > 2802 SP-055 - Caraguatatuba-Ubatuba 0 70 > 70 80 > 80 120 > 120 143 > 1433 SP-055 - São Sebastião 0 60 > 60 85 >85 110 > 110 126 > 1264 SP-055 - Santos-Bertioga 0 150 > 450 200 > 200 230 > 230 300 > 300
+
+===== PAGE 9 =====
+7
+3.2. PRODUTO
+ 04 – ANÁLISEDERISCO
+A Análise de Risco para as rodovias da área de estudo foi realizadautilizandoosPlanosdeInformações de Risco, Perigo, VulnerabilidadeeDanoPotencial paraasUnidadesdeAnálisemapeadas na escala de maior detalhe disponível para cada trecho avaliado. Desta forma,embora as escalas de mapeamento e Unidades de Análise resultantes variementre 1:1.000(Setores de Risco) e 1:10.000 e 1:25.000 (UTB – Unidades Territoriais Básicas), cada umadestas Unidades de Análise têm a dimensão apropriada para a Gestão do Risco naqueletrecho, adequadas para análise do Perigo ao processo para o qual este trecho ésuscetível,bem como à sua Vulnerabilidade e Dano Potencial.
+As 809 Unidades de Análise utilizadas, discriminadas para cada Região, e respectivos tipos,escalas de elaboração, quantidade de unidades e extensão de trecho rodoviário estãoapresentadas naTabela 3.2-1e nasFiguras 3.2-1a3.2-5.
+Tabela 3.2-1. Relaçãodas Unidades deAnáliseutilizadas, por Região, erespectivos tipos,escalasdeelaboração, quantidade de unidades e extensão de trechorodoviário.Rodovia Região Município
+Unidades de Análise Extensão (km)Quantidade Escala Tipo
+SP-098 1
+RodoviaMogi-Bertioga
+Bertioga
+0 25K UTB* 0,0011 10K UTB* 5,6832 1K SR** 5,54Subtotal Município 43 - - 11,21
+Biritiba-Mirim
+22 25K UTB* 8,510 10K UTB* 0,005 1K SR** 0,66Subtotal Município 27 - - 9,16
+Mogi das Cruzes
+41 25K UTB* 14,280 10K UTB* 0,000 1K SR** 0,00Subtotal Município 41 - - 14,28Subtotal Região 1 111 - - 34,66
+SP-055
+2
+Caraguatatuba-Ubatuba
+Caraguatatuba
+0 25K UTB* 0,0068 10K UTB* 22,3230 1K SR** 7,19Subtotal Município 98 - - 29,51
+Ubatuba
+0 25K UTB* 0,0030 10K UTB* 16,4060 1K SR** 12,85Subtotal Município 90 - - 29,24Subtotal Região 2 188 - - 58,76
+3 São Sebastião
+São Sebastião
+0 25K UTB* 0,00103 10K UTB* 34,60252 1K SR** 43,56Subtotal Município 355 - - 78,17Subtotal Região 3 355 - - 78,17
+4 Santos-Bertioga
+Bertioga
+0 25K UTB* 0,0087 10K UTB* 36,5916 1K SR** 5,92Subtotal Município 103 - - 42,51
+Santos
+0 25K UTB* 0,0036 10K UTB* 11,5616 1K SR** 3,21Subtotal Município 52 - - 14,77Subtotal Região 4 155 - - 57,29UTB* - Unidade Territorial BásicaSR** - Setor de Risco
+
+===== PAGE 10 =====
+8
+Figura 3.2-1. Unidades de Análise para classificaçãodo Risco, separadas por escala de origem dodado e Região analisada. Fonte: Elaborado pelo Consórcio 4X044no âmbito do desenvolvimento dosserviços contratados.
+Figura 3.2-2. Unidades de Análise para classificaçãodo Risco em detalhe da Região 1 – RodoviaMogi-Bertioga, separadas por escala de origem do dado.Fonte: Elaborado pelo Consórcio 4X044 noâmbito do desenvolvimento dos serviços contratados.
+
+===== PAGE 11 =====
+9
+Figura 3.2-3. Unidades de Análise para classificaçãodo Risco em detalhe daRegião 2 – Caraguatatuba-Ubatuba, separadas por escalade origem do dado. Fonte: Elaborado peloConsórcio 4X044 no âmbito do desenvolvimento dos serviçoscontratados.
+Figura 3.2-4. Unidades de Análise para classificaçãodo Risco em detalhe da Região 3 – SãoSebastião, separadas por escala de origem do dado.Fonte: Elaborado pelo Consórcio 4X044 noâmbito do desenvolvimento dos serviços contratados.
+
+===== PAGE 12 =====
+10
+Figura 3.2-5. Unidades de Análise para classificaçãodo Risco em detalhe daRegião 4 – Santos-Bertioga, separadas por escala deorigem do dado. Fonte: Elaborado peloConsórcio 4X044 no âmbito do desenvolvimento dos serviçoscontratados.
+CadaumadestasUnidadesdeAnálisetêmumaclassedeRiscointrínsecaàsuscetibilidadeevulnerabilidade aos processosgeológicosehidrológicosnaqueletrechoerelativaàescalademapeamento ao qual este trecho foi submetido. Para viabilizar a correlação entre osfenômenos analisados e as chuvas, as classes de Risco tiveram, então, sua classificaçãohomogeneizada.Neste processo, a variável resultante passou a ser denominada RiscoAnalisado (RA). Por sua vez, este Risco Analisado, para cada umdos grupos de eventosgeodinâmicos (geológicos ou hidrológicos), foi divididoem 5 níveis, relacionados a seguir:
+● Risco Analisado Geológico (RAGEO
+):
+o
+RAGEO
+0 – Risco Analisado Geológico Nulo a Quase Nuloo
+RAGEO
+1 – Risco Analisado Geológico Muito Baixo a Baixoo
+RAGEO
+2 – Risco Analisado Geológico Médioo
+RAGEO
+3 – Risco Analisado Geológico Altoo
+RAGEO
+4 – Risco Analisado Geológico Muito Alto● Risco Analisado Hidrológico (RAHID
+):
+o
+RAHID
+0 – Risco Analisado Hidrológico Nulo a QuaseNuloo
+RAHID
+1 – Risco Analisado Hidrológico Muito Baixo aBaixoo
+RAHID
+2 – Risco Analisado Hidrológico Médioo
+RAHID
+3 – Risco Analisado Hidrológico Altoo
+RAHID
+4 – Risco Analisado Hidrológico Muito Alto
+Cada classe de Risco Analisado para os processos geológicos e hidrológicos pode sercaracterizada de acordo comas características e critérios apresentados nas Tabelas 3.2-2e3.2-3.
+
+===== PAGE 13 =====
+11
+Tabela 3.2-2. Classes de Risco de escorregamento, erosão e solapamento de margens fluviais,correspondendo o Risco ao Risco Analisado (Adaptadode IG, 2014a).RISCOANALISADO
+CRITÉRIOS BÁSICOS E DESCRIÇÃO
+RAGEO
+0NULO AQUASE NULO
+● Oscondicionantesgeológico-geotécnicospredisponentes(declividade,tipodeterreno,etc.)eoníveldeintervençãonosetornãotêmpotencialidadeparaodesenvolvimentodeprocessosde escorregamentos, erosão ou solapamento;● É a condição menos crítica;● O Perigo é nulo a quase nulo para eventos geológicos.Mantidasascondiçõesexistentes,nãoseesperaaocorrênciadeeventosdestrutivosnoperíodocompreendido por uma estação chuvosa normal (no períodode 1 ano).RAGEO
+1BAIXO EMUITO BAIXO
+● Oscondicionantesgeológico-geotécnicospredisponentes(declividade,tipodeterreno,etc.)eo níveldeintervençãonosetorsãodebaixapotencialidadeparao desenvolvimentodeprocessos de escorregamentos, erosão ou solapamento;● Nãohá evidência(s)de instabilidadede encostasou indíciosde desenvolvimentodeprocessos erosivos ou de solapamento de margens dedrenagens;● É a condição de baixa a muito baixa criticidade;● O Perigo é baixo e a Vulnerabilidade varia de baixaa média;Mantidasascondiçõesexistentes,nãoseesperaaocorrênciadeeventosdestrutivosnoperíodocompreendido por uma estação chuvosa normal (no períodode 1 ano).RAGEO
+2MÉDIO
+● Oscondicionantesgeológico-geotécnicospredisponentes(declividade,tipodeterreno,etc.)eo níveldeintervençãonosetorsãodemédiapotencialidadeparao desenvolvimentodeprocessos de escorregamentos, erosão ou solapamento;● Observa-seincipientepresençadealguma(s)evidência(s)deinstabilidadedeencostase/ouvertentese demargensdedrenagens.Osprocessosdeinstabilizaçãoestãoemestágioinicial de desenvolvimento;● É a condição de mediana criticidade;● OPerigoébaixoeaVulnerabilidadevariadealtaamuitoaltaOUoPerigoémédiocomaVulnerabilidade variando de média a baixa OU o Perigoé alto com Vulnerabilidade baixa;Mantidasas condiçõesexistentes,é reduzidaa possibilidadede ocorrênciade eventosdestrutivosduranteepisódiosdechuvasintensaseprolongadas,noperíodocompreendidoporuma estação chuvosa normal (período de 1 ano).RAGEO
+3ALTO
+● Oscondicionantesgeológico-geotécnicospredisponentes(declividade,tipodeterreno,etc.)eo nívelde intervençãono setorsãodealtapotencialidadeparao desenvolvimentodeprocessos de escorregamentos, erosão ou solapamento;● Observa-sea presençade significativa(s)evidência(s)deinstabilidade(trincasnosolo,degrausdeabatimentoemtaludes,pequenascicatrizesdeescorregamentos,erosãolaminar,sulcos em taludes e/ou vertentes, etc.);● Osprocessosdeinstabilizaçãoestãoemplenodesenvolvimento,sendonecessáriomonitorara sua evolução;● O Perigoé médioe a VulnerabilidadevariadealtaamuitoaltaOUoPerigoéaltocomaVulnerabilidademédiaOUoPerigoémuitoaltocomaVulnerabilidadevariandodemédiaabaixa;Mantidasascondiçõesexistentes,éperfeitamentepossívelaocorrênciadeeventosdestrutivosduranteepisódiosdechuvasintensaseprolongadas,noperíodocompreendidoporumaestaçãochuvosa (período de 1 ano).RAGEO
+4MUITO ALTO
+● Oscondicionantesgeológico-geotécnicospredisponentes(declividade,tipodeterreno,etc.)eo níveldeintervençãonolocalsãodemuitoaltapotencialidadeparaodesenvolvimentodeprocessos de escorregamentos, erosão ou solapamento;● Asevidênciasdeinstabilidade(comotrincasnosoloe/ouemmoradiasouemestruturasdecontenção;degrausdeabatimentoemtaludesouterreno;trincasemmoradiasouemmurosdecontenção;árvoresoupostesinclinados;cicatrizesdeescorregamento;feiçõesdeerosãolaminar, sulcosemtaludese/ouvertentes;afloramentodolençolfreático,comapresençadeboçoroca;proximidadeda(s)moradia(s)emrelaçãoaosprocessose/ouemrelaçãoàmargemde córregos,etc.)sãoexpressivase estãopresentesemgrandenúmerooumagnitude;● Os processos de instabilização encontram-se em avançadoestágio de desenvolvimento;● É a condiçãomaiscrítica,emmuitoscasossendoimpossívelmonitorara evoluçãodoprocesso, dado o seu elevado estágio de desenvolvimento;● O Perigo é muito alto a alto e a Vulnerabilidade variaentre muito alta a alta;Mantidasascondiçõesexistentes,émuitoprovávelaocorrênciadeeventosdestrutivosduranteepisódiosde chuvasintensase prolongadas,no períodocompreendidoporumaestaçãochuvosa (período de 1 ano).
+
+===== PAGE 14 =====
+12
+Tabela 3.2-3. Classes de Risco Analisado de inundações e processos correlatos (adaptado deANDRADE et al, 2012.RISCOANALISADO
+CRITÉRIOS BÁSICOS E DESCRIÇÃO
+RAHID
+0NULO AQUASE NULO
+● Osetornãoapresentacondiçõespotenciaisparaodesenvolvimentoinundaçõeseprocessoscorrelatos;● Nãoháregistrodaocorrênciadepelomenos1 (um)eventodeinundaçõesouprocessoscorrelatos nos últimos 10 anos.RAHID
+1BAIXO EMUITO BAIXO
+● O setorpodeapresentarcondiçõespotenciaisparao desenvolvimentodeinundaçõeseprocessos correlatos;● Oseventosdeinundaçõesouprocessoscorrelatossãomuitopoucofrequentes,emgeral,não tendo sido registrada a ocorrência de pelo menos1 (um) evento nos últimos 10 anos.RAHID
+2MÉDIO
+● Osetorapresentacondiçõespotenciaisparaodesenvolvimentodeinundaçõeseprocessoscorrelatos:localizaçãoemáreasdevalee debaixada(várzeas),proximidadedasviasemrelação aos cursos de água;● Oseventosdeinundaçõesouprocessoscorrelatossãomoderadamentefrequentes,emgeral, tendo sido registrada a ocorrência de 1 (um)ou mais eventos nos últimos 10 anos.RAHID
+3ALTO
+● As condiçõesverificadasno setorsãofavoráveisaodesenvolvimentodeinundaçõeseprocessoscorrelatos:localizaçãoemáreasdevaleedebaixada(várzeas),proximidadedasvias em relação aos cursos de água;● Ocorrência dos processos verificada em mapeamentode detalhe para Setorização de Risco;● Oseventosdeinundaçõesouprocessoscorrelatossãofrequentes,tendosidoregistradaaocorrência de 1 (um) ou mais eventos significativosnos últimos 10 anos.RAHID
+4MUITO ALTO
+● Ascondiçõesverificadasnosetorsãomuitofavoráveisaodesenvolvimentodeinundaçõeseprocessoscorrelatos:localizaçãoem áreasde valee de baixada(várzeas),grandeproximidade das vias em relação aos cursos de água;● OcorrênciadosprocessosverificadaemmapeamentodedetalheparaSetorizaçãodeRisco,tendo sido observada destruição do pavimento de infraestruturada via;● A frequênciadoseventosdeinundaçõesouprocessoscorrelatosé elevada,tendosidoregistrada a ocorrência de diversos eventos significativosnos últimos 10 anos.
+Após o estabelecimento das classes de Risco Analisado, foi avaliada a correlação entre aschuvas e a deflagração dos eventos geodinâmicos e do respectivo Risco atribuído a cadaUnidade de Análise. A variável de Risco resultante desta correlação foi denominada RiscoDinâmico (RD), buscando traduzir a alternância entre classes resultantes da variação dosíndicesdeintensidadeedeacumulaçãodechuvas,deformaaauxiliar agestãodosníveisdealerta e de medidas de gestão ou de intervenção dasUBAs nas rodovias.
+Acorrelaçãoentreaschuvaseoseventosgeodinâmicos, apresentadanoProduto 03,permiteque as ocorrências de chuvas deflagradoras sejamavaliadasemtemporeal, possibilitandoaadequação da classe de Risco Analisado (RA) de cada Unidade de Análise às chuvasincidentes ou previstas, elevando ou rebaixando a classe com base em patamarespré-estabelecidos para estas correlações, como, por exemplo, a acumulaçãoeaintensidadedas chuvas, cuja combinação compõemo CPC. ORisco variável resultantedestaavaliação,denominado Risco Dinâmico (RD), é resultante daEquação 3.2-1:
+Equação 3.2-1
+RD = RA x ICC,
+da qual formam-se:
+RDGEO
+ = RAGEO
+ x ICCGEO
+RDHID
+ = RAHID
+ x ICCHID
+
+===== PAGE 15 =====
+13
+Onde:
+● RD = Risco Dinâmico, sendo RDGEO
+para os eventos geológicos e RDHID
+para os eventoshidrológicos;
+● RA = Risco Analisado, sendo RAGEO
+para os eventos geológicos e RAHID
+para os eventoshidrológicos;
+● ICC = Índicedecorrelaçãocomchuvas, sendoICCGEO
+paraoseventosgeológicoseICCHID
+para os eventos hidrológicos, onde:
+o
+Para oICCGEO
+, corresponde à Faixa de CPC específicada região sob análise;
+o
+Para o ICCHID
+, corresponde à Faixa de Probabilidade de ocorrência de eventoshidrológicos na região sob análise.
+Tal como ocorre para o Risco Analisado (RA), o Risco Dinâmico é classificado conformedestacado  a seguir:
+● RDGEO/HID
+0 – Risco Dinâmico Nulo a Quase Nulo;
+● RDGEO/HID
+1 – Risco Dinâmico Muito Baixo a Baixo;
+● RDGEO/HID
+2 – Risco Dinâmico Médio;
+● RDGEO/HID
+3 – Risco Dinâmico Alto;
+● RDGEO/HID
+4 – Risco Dinâmico Muito Alto;
+3.2.1. CORRELAÇÃOENTREORISCOAOSEVENTOSGEOLÓGICOSANALISADOEASCHUVAS
+A Tabela 3.2.1-1 apresenta uma matriz de correlação para atribuir oRiscoDinâmico(RDGEO
+)para cada Unidade de Análise avaliada, correspondendo o RAGEO
+analisado à uma faixa deICCGEO
+, definidaparacadaRegiãodeabrangênciaavaliada.Cadaumadestasfaixasédefinidapor umintervalo deCPC(CoeficientedePrecipitaçãoCrítica), obtidoapartir daequaçãoquedefine a curva de correlação para uma pluviometria acumulada de 96 h e de intensidade dechuvas registrada por hora.
+Assim, quandoaintensidadedaschuvaseapluviometriaacumuladacaracterizamumICCGEO
+0(Faixa 0, quecompreendevaloresde0a< 1), entende-sequeoRAGEO
+deveserconsideradoNulo ou Quase Nulo (RDGEO
+0), uma vez que não há expectativa de que índices de chuvasalcancem os limiares necessários para a deflagração de eventos geológicos. Da mesmaforma, quando as condições de chuvas em uma Região alcançam a Faixa 1 (ICCGEO
+1), oRDGEO
+iguala-se ao RAGEO
+, indicando que aschuvasregistradassãosuficientesparainiciar adeflagração de eventos geológicos isolados naquela região. Situaçõesondeaintensidadedechuvas e pluviometrias acumuladas são extremas, em que são excedidos os limiaressuperioresdomodelo(ICCGEO
+4), entende-sequeháapossibilidadedeocorrênciademúltiploseventos geológicos.
+Os resultados obtidos para a reclassificação do Risco aos processos geológicos estãosintetizados na Tabela 3.2.1-2. A maior parte das Unidades de Análise foram classificadascomo RAGEO
+1 (48,95%), seguidas pelas Unidades de Análise de Risco RAGEO
+4 (17,43%),RAGEO
+3 (15,70%), RAGEO
+2 (13,10%), eRAGEO
+0(4,82%), respectivamente. ARegiãoquetema
+
+===== PAGE 16 =====
+14
+maior quantidade de Unidade de Análise comRisco classificado como RAGEO
+4 foi a de SãoSebastião, com cerca de 10% do total.
+3.2.2. CORRELAÇÃOENTREORISCOAOSEVENTOSHIDROLÓGICOSANALISADOEASCHUVAS
+Para o Risco aos eventos hidrológicos, amelhor correlaçãoobtidafoi quantoàprobabilidadedeocorrência(deflagração)deeventosemfunçãodosíndicesdechuvasacumuladasem24 h.A Tabela 3.2.2-1 apresenta a matriz de correlação para obtenção do RiscoDinâmico(RDHID
+)para cada Unidade de Análise avaliada, correspondendo o RAHID
+analisado à uma faixa deICCHID
+, definida para cada Região de abrangência avaliada. Enquanto o Risco DinâmicoGeológico é decorrente da Faixa em que o CPC calculado se encontra, o Risco DinâmicoHidrológico (RDHID
+) é estabelecido pelos intervalos de probabilidade de ocorrência.Observando-se os dados disponíveis, foi definido que as chuvas acumuladas em24 h, cujaprobabilidade de deflagração é inferior a 10%, podemser admitidas como chuvas emque aexpectativa para a ocorrência de eventos é suficientemente pequena para que o RiscoDinâmico seja considerado Nulo ou Quase Nulo (RDHID
+0). Emcondições emque as chuvasalcançam limiares em que a probabilidade de ocorrência de eventos é superior a 10%,entende-se que a expectativa de ocorrência de eventos é suficiente para que o RDHID
+sejadiferente de RDHID
+0,  variando até seus limites superiores.
+Para os processos hidrológicos, os resultados obtidos para a reclassificação do Risco estãosintetizadosnaTabela 3.2.2-2. AsUnidadesdeAnálisedeRiscoAnalisadoRAHID
+0(54,51%)eRAHID
+1 (41,41%) representammais de 95%dasunidadesdaáreadeestudo, sendooscercade 4%restantes classificados como RAHID
+2 e RAHID
+3, respectivamente. A Região que temamaior quantidade de Unidade de Análise com Risco classificado como RAHID
+3 é a deCaraguatatuba-Ubatuba, com menos de 1% do total. No entanto, a Região com o maiornúmero de Unidades de Análise sujeitasaalgumaclassedeRiscoAnalisadoHidrológicoéade Santos-Bertioga, com127 Unidades deAnálise(15,70%dototal deUnidadesdeAnálise),seguidapor SãoSebastião, com107(13,23%), Caraguatatuba-Ubatuba, com104(12,86%)e,por fim, Mogi-Bertioga, com30(3,71%). Comoesperado, observa-sequeasregiõesemqueaSP-055 está inserida estão mais sujeitas à ocorrência de eventos hidrológicos que a regiãoabrangida pela SP-098.
+
+===== PAGE 17 =====
+15
+Tabela 3.2.1-1. Classes de Risco Dinâmico resultantes da correlação entre a classe de Risco Analisado (RA) e a Faixa de Índice de Correlação comChuvas (ICC) para os eventos Geológicos.
+Região
+Coeficiente de Precipitação Crítica da Região (CPC)Faixa 0 (ICCGEO
+0) Faixa 1 (ICCGEO
+1) Faixa 2 (ICCGEO
+2) Faixa 3 (ICCGEO
+3) Faixa 4 (ICCGEO
+4)De Até De Até De Até De Até A partir de1 SP-098 - Mogi-Bertioga 0 < 1 1 3 > 3 6 > 6 15 > 152
+SP-055 -Caraguatatuba-Ubatuba
+0 < 1 1 6 > 6 12 > 12 24 > 243 SP-055 - São Sebastião 0 < 1 1 8 > 8 16 > 16 24 > 244 SP-055 - Santos-Bertioga 0 < 1 1 4 > 4 8 > 8 16 > 16
+Risco Analisado Risco DinâmicoRAGEO
+0 RDGEO
+0 RDGEO
+0 RDGEO
+0 RDGEO
+0 RDGEO
+0RAGEO
+1 RDGEO
+0 RDGEO
+1 RDGEO
+2 RDGEO
+3 RDGEO
+4RAGEO
+2 RDGEO
+0 RDGEO
+2 RDGEO
+3 RDGEO
+4 RDGEO
+4RAGEO
+3 RDGEO
+0 RDGEO
+3 RDGEO
+4 RDGEO
+4 RDGEO
+4RAGEO
+4 RDGEO
+0 RDGEO
+4 RDGEO
+4 RDGEO
+4 RDGEO
+4
+
+===== PAGE 18 =====
+16
+Tabela 3.2.1-2. Síntese dos resultados obtidos paraa reclassificação do Risco para Risco Analisado aosprocessos geológicos.Escala e Unidadede Análise
+Região Classe do Risco Analisado Unidades de Análise
+1:25.000(UTB)
+1 Rodovia Mogi-Bertioga
+RAGEO
+0 - Nulo ou Quase Nulo 19 2,35%RAGEO
+1 - Muito Baixo e Baixo 11 1,36%RAGEO
+2 - Médio 10 1,24%RAGEO
+3 - Alto 4 0,49%RAGEO
+4 - Muito Alto 19 2,35%Subtotal escala 1:25.000 63 7,79%
+1:10.000(UTB)
+1 Rodovia Mogi-Bertioga RAGEO
+1 - Muito Baixo e Baixo 11 1,36%
+2 Caraguatatuba-Ubatuba
+RAGEO
+1 - Muito Baixo e Baixo 97 11,99%RAGEO
+2 - Médio 1 0,12%3 São Sebastião RAGEO
+1 - Muito Baixo e Baixo 103 12,73%4 Santos-Bertioga RAGEO
+1 - Muito Baixo e Baixo 123 15,20%Subtotal escala 1:10.000 335 41,41%
+1:1.000(SR)
+1 Rodovia Mogi-Bertioga
+RAGEO
+2 - Médio 16 1,98%RAGEO
+3 - Alto 14 1,73%RAGEO
+4 - Muito Alto 7 0,87%
+2 Caraguatatuba-Ubatuba
+RAGEO
+0 - Nulo ou Quase Nulo 8 0,99%RAGEO
+1 - Muito Baixo e Baixo 10 1,24%RAGEO
+2 - Médio 11 1,36%RAGEO
+3 - Alto 28 3,46%RAGEO
+4 - Muito Alto 33 4,08%
+3 São Sebastião
+RAGEO
+0 - Nulo ou Quase Nulo 7 0,87%RAGEO
+1 - Muito Baixo e Baixo 33 4,08%RAGEO
+2 - Médio 63 7,79%RAGEO
+3 - Alto 69 8,53%RAGEO
+4 - Muito Alto 80 9,89%
+4 Santos-Bertioga
+RAGEO
+0 - Nulo ou Quase Nulo 5 0,62%RAGEO
+1 - Muito Baixo e Baixo 8 0,99%RAGEO
+2 - Médio 5 0,62%RAGEO
+3 - Alto 12 1,48%RAGEO
+4 - Muito Alto 2 0,25%Subtotal escala 1:1.000 411 50,80%Total 809 100,00%
+
+===== PAGE 19 =====
+17
+Tabela 3.2.2-1. Classes de Risco Dinâmico resultantes da correlação entre a classe de Risco Analisado (RA) e a Faixa de Índice de Correlação comChuvas (ICC) para os eventos Hidrológicos.
+Região
+Probabilidade de Ocorrência de Eventos HidrológicosFaixa 0 (ICCHID
+0) Faixa 1 (ICCHID
+1) Faixa 2 (ICCHID
+2) Faixa 3 (ICCHID
+3) Faixa 4 (ICCHID
+4)0% a 10% > 10% a 25% > 25% a 50% > 50% a 75% > 75% a 100%Intensidade Pluviométrica (24h)De Até De Até De Até De Até A partir de1 SP-098 - Mogi-Bertioga 0 110 > 110 160 > 160 200 > 200 280 > 2802 SP-055 - Caraguatatuba-Ubatuba 0 70 > 70 80 > 80 120 > 120 143 > 1433 SP-055 - São Sebastião 0 60 > 60 85 >85 110 > 110 126 > 1264 SP-055 - Santos-Bertioga 0 150 > 450 200 > 200 230 > 230 300 > 300
+Risco Analisado Risco DinâmicoRAHID
+0 RDHID
+0 RDHID
+0 RDHID
+0 RDHID
+0 RDHID
+0RAHID
+1 RDHID
+0 RDHID
+1 RDHID
+2 RDHID
+3 RDHID
+4RAHID
+2 RDHID
+0 RDHID
+2 RDHID
+3 RDHID
+4 RDHID
+4RAHID
+3 RDHID
+0 RDHID
+3 RDHID
+4 RDHID
+4 RDHID
+4RAHID
+4 RDHID
+0 RDHID
+4 RDHID
+4 RDHID
+4 RDHID
+4
+
+===== PAGE 20 =====
+18
+Tabela 3.2.2-2. Síntese dos resultados obtidos paraa reclassificação do Risco para Risco Analisado aosprocessos hidrológicos.Escala eUnidade deAnálise
+Região Classe do Risco Analisado Quantidade de Unidades de Análise
+1:25.000(UTB)
+1 Rodovia Mogi-Bertioga
+RAHID
+0 - Nulo ou Quase Nulo 44 5,44%RAHID
+1 - Muito Baixo e Baixo 19 2,35%Subtotal escala 1:25.000 63 7,79%
+1:10.000(UTB)
+1 Rodovia Mogi-Bertioga RAHID
+1 - Muito Baixo e Baixo 11 1,36%2 Caraguatatuba-Ubatuba
+RAHID
+1 - Muito Baixo e Baixo 89 11,00%RAHID
+2 - Médio 9 1,11%3 São Sebastião
+RAHID
+1 - Muito Baixo e Baixo 99 12,24%RAHID
+2 - Médio 4 0,49%4 Santos-Bertioga
+RAHID
+1 - Muito Baixo e Baixo 117 14,46%RAHID
+2 - Médio 6 0,74%Subtotal escala 1:10.000 335 41,41%
+1:1.000(SR)
+1 Rodovia Mogi-Bertioga RAHID
+0 - Nulo ou Quase Nulo 37 4,57%2 Caraguatatuba-Ubatuba
+RAHID
+0 - Nulo ou Quase Nulo 84 10,38%RAHID
+3 - Alto 6 0,74%3 São Sebastião
+RAHID
+0 - Nulo ou Quase Nulo 248 30,66%RAHID
+3 - Alto 4 0,49%4 Santos-Bertioga
+RAHID
+0 - Nulo ou Quase Nulo 28 3,46%RAHID
+3 - Alto 4 0,49%Subtotal escala 1:1.000 411 50,80%Total 809 100,00%
+
+===== PAGE 21 =====
+19
+4. ETAPA
+ 2 –IMPLANTAÇÃODESISTEMAAUTOMATIZADODEANÁLISE
+, MONITORAMENTOEALERTA
+AEtapa 2, deacordocomositens 5.2e6.6doTDRdaSDP nº 064/2019, prevêaelaboraçãodoProduto 6–SistemaAutomatizadodeAnálise,MonitoramentoeAlertadeRiscodeEventosGeodinâmicos.
+O Sistema Automatizado referente ao Produto 6 é composto por umconjunto de ServidoresInternos, Externos e Aplicativos que obtémdadosdeíndicespluviométricosedeprevisãodechuva, que são analisados, emconjunto, comos dados da Análise de Risco, subsidiando omonitoramento das condições das rodovias emtempo real, visando a Gestão do Risco peloDER/SP, bem como a emissão de alertas emdecorrência das chuvas acumuladas e/ou daschuvas previstas.
+A Figura 4-1 e a Tabela 4-1 apresentam a estrutura geral da arquitetura proposta para oSistema.
+Figura 4-1. Estrutura geral da arquitetura propostapara o Sistema. Fonte: Elaborado peloConsórcio 4X044 no âmbito do desenvolvimento dos serviçoscontratados
+Tabela 4-1. Estrutura geral da arquitetura propostapara o SistemaMódulo DescriçãoServiço de Coletade Dados
+Responsável pela aquisição dos dados hidrometeorológicos disponibilizados porservidores remotos, buscando periodicamente arquivos, dentre os quais sedistinguem: a) previsões: como por exemplo, valores de precipitação, umidaderelativadoar,direçãoemagnitudedovento;eb)observações,comoporexemplo,precipitação estimada por satélite e radares, descargas elétricas, focos dequeimadas;Módulo de Alerta Responsável pela apresentação de alertas quando uma situação de risco édetectada pelo módulo de análise. Deve ser previsto o alerta tanto por e-mailcomo por mensagem nos sistemas de gerenciamento do Instituto Geológico eDepartamento de Estradas de Rodagem.Módulo deAdministração
+Responsável por permitir a configuração de cada serviço do sistema. Estasconfigurações devemincluir oendereçoeaportadecadaserviço,olocal emqueas imagens comoresultadodasanálisesserãoarmazenadas,definiçãodobanco
+
+===== PAGE 22 =====
+20
+dedados, local dearmazenamentodosdadoscoletados,configuraçãodoservidorde e-mail, definição dos arquivos de log e outrasinformações.Módulo deConfiguração
+Responsável por permitir aconfiguraçãodosistema. Estas configurações devemincluir aformacomoosdadossãoobtidosdosservidoresexternos,definiçõesdosplanos de risco e adicionais, a definição dos tipos de análise seus modelos,definição dos usuários e análises para estes, e definição de boletins que serãoenviados;Serviços deGerência dePlanos
+Executa serviços para manipulação de planos de informação na base dedadosgeográficos, como exemplo a inclusão de novos planos e listagem de planosexistentesServiço deAnimação
+Responsável pela geração de umconjunto deimagens que, agrupadas, formamuma animação de fontes de dados de Previsão e ObservaçãoServiço deNotificação
+Responsável pelo envio de mensagens e relatórios contendo informações arespeito das alterações nos níveis de risco detectados pelo módulo de análise.Deve permitir o cadastramento de usuários para receberem os relatórios dealteração, enviados através de correio eletrônicoe boletinsServiço deAnálise
+Responsável pelocruzamentoentreas informações hidrometeorológicas, planosde risco e planos adicionais para determinação daocorrência de zonas de alerta
+Osistema utiliza as plataformas TerraMA², para a análise dos dados, serviços e geração dealertas, conformedescritonoitem4.1, eaplataformaArcGIS,paraainteraçãocomousuário,navegação e ferramentas de interatividade com o mapa e alertas e serviço de animação,conforme descrito noitem 4.2.
+4.1. PLATAFORMACOMPUTACIONAL
+TERRA
+MA²
+O Sistema foi elaborado utilizando a Plataforma Computacional TerraMA², desenvolvida peloINPE – Instituto Nacional de Pesquisas Espaciais. As informações sobre a plataforma foramobtidas na página da internet. A plataforma computacional TerraMA² foi planejada dentro dalinha de produtos de base tecnológica inovadora, no domínio de softwares abertos, comextensivo uso de nossa biblioteca geográfica TerraLib, além de atender uma demandacrescente de aplicações de monitoramento, análise ealertaemáreascomo: qualidadedoar,qualidadedaágua,gasodutos,barragensderejeitoemáreademineração,incêndiosflorestais,movimentos de massa do tipo escorregamentos e corridasde lama, enchentes e estiagens.
+Estas aplicações necessitam de plataformas que possam integrar serviços geográficos emodelagem, com base de acesso a dados geoambientais disponíveis emqualquer servidorconectadoàinternetemtemporeal,equepodemserlidos,processadoseaplicadosadiversosusos. Portanto, a plataforma TerraMA² é um sistema computacional, baseado em umaarquitetura de serviços, aberta, que provê a infraestrutura tecnológica necessária aodesenvolvimentodesistemasoperacionaisparamonitoramentodealertasderiscosambientais(Figura 4.1-1).
+
+===== PAGE 23 =====
+21
+Figura 4.1-1. Exemplo de tela do TerraMA². Fonte: INPE (2018).
+As relações dos serviços(SOA) eaplataformaestãoapresentadasnofluxogramadomodeloconceitual do TerraMA², apresentado naFigura 4.1-2.
+Figura 4.1-2. Fluxograma do modelo conceitual do TerraMA². Fonte: INPE (2018).
+Por suavez, osserviçosdescritos(coleta, análises, visualizaçãoealerta) interageme, assim,apresentam lógicas de relacionamentos com: i) as bases de acesso emtempo real a dadosgeoambientais da plataforma (meteorológicos, climáticos, atmosféricos, hidrológicos,geotécnicos, sociodemográficos, etc.); ii) Servidores das instituições parceiras do projeto;iii) servidores de mapas; iv) Interações com e-mails, SMS, e outras plataformas decomunicação.
+
+===== PAGE 24 =====
+22
+4.2. SERVIÇOSEFONTESDEDADOSPARAASANÁLISES
+Paraquesejamgeradososalertasdasáreasdeinteresse,énecessárioqueosistemaobtenhadadosdechuvadasáreasdeinteressedoprojeto.Estesdadossãoobtidosatravésdeserviçosdisponibilizados pelos órgãos competentes.
+O TerraMA² já possui um conjunto de serviços próprios, utilizados para os cálculos doHidroestimador.
+Alémdos dados dos serviços padrão do TerraMA², o sistema deverá contar tambémcomosdadosdospluviômetros. Oacessoàestesdadossedaránaformadeserviços,apartirdolinkabaixo:
+http://sibh.daee.sp.gov.br/api/eventos_ultimas_horas
+Os dadosdechuvafornecidospor esteserviçodeverãoser coletadosearmazenadosemumbanco de dados espacial.
+Figura 4.2-1. Exemplo de dados fornecidos pelo DAEEe importados para um banco de dadosespacial. Fonte: Elaborado pelo Consórcio 4X044 noâmbito do desenvolvimento dos serviçoscontratados.
+4.3. PLATAFORMACOMPUTACIONAL ARCGIS
+Além das mensagens enviadas, é necessário possuir uma plataforma para a consulta dosregistros gerados, navegação, medições, e todas as funcionalidades descritas noQuadro 4.3.1.1-1. Ferramentas do Sistema.Para estas funcionalidades, foi realizado o desenvolvimento utilizando da plataformaArcGIS,utilizandoaslinguagensprogramação,JavaScript,HTML5,DojoePython,acessadaatravésdoservidor de aplicações do IIS (Internet InformationServices).A plataforma é composta por um sistema de banco de dados e serviços de publicação dedados, acessados através de aplicações web. A arquitetura da plataforma ArcGIS érepresentada naFigura 4.3-1:
+
+===== PAGE 25 =====
+23
+Figura 4.3-1. Exemplo de arquitetura da plataformaArcgis em configuração de instalação em servidorúnico. Fonte: Elaborado pelo Consórcio 4X044 no âmbitodo desenvolvimento dos serviços contratados
+4.4. MÓDULODEALERTA
+O Módulo de Alerta é uma ferramenta de análise, monitoramento e alerta de riscosrelacionados à ocorrência de eventos geodinâmicos e hidrodinâmicos que relaciona dadosestáticos (mapeamentos de risco) e dinâmicos (variáveis meteorológicas). A plataformaTerraMA²-INPE é o motor para realização das análisese emissão de alertas de risco.
+4.4.1. FUNCIONALIDADES
+4.4.1.1. Ferramenta de alerta
+Ferramenta que emite estados de alerta para os eventos,cujas definições são as seguintes:
+● O conteúdo disposto é atualizado em um intervalo de10 minutos;
+● As informações são mostradas no painel de alertas, cuja cor de representação érelativaaorespectivonível dealertaparaaUnidadedeAnálise.Ascoreserespectivasclasses dos níveis de alerta estão apresentadas naTabela 4.4.1.1-1;
+Tabela 4.4.1.1-1. Parâmetros definidos para a apresentação, emtela, dos níveis de classificação doSistema de Alerta.COR CLASSIFICAÇÃODO ALERTA
+PIXELS DASIMBOLOGIA
+TRANSPARÊNCIA
+Observação 20 50Atenção 20 50Alerta 20 50Alerta Máximo 20 50
+
+===== PAGE 26 =====
+24
+● É possível dar umzoompara localizar a geometria. NaFigura 4.4.1.1-1abaixo, podemosver a representação de um tipo de alerta com a suasimbologia aplicada;
+Figura 4.4.1.1-1. Exemplo de área com alerta de risco.Fonte: Elaborado pelo Consórcio 4X044 noâmbito do desenvolvimento dos serviços contratados.
+● Para a geração dos alertas são utilizadas as classes de Risco Dinâmico, definidas noProduto 04;
+● As mensagens de alerta só sãoenviadasquandoaclassificaçãofor de“Atenção”, “Alerta”ou “Alerta Máximo”;
+● Alerta com classificação do tipo “Observação” nãoemitem mensagens;
+● A janela de pop-up é apresentada para todas as classificações;
+● O sistema contém as ferramentas para navegação e consulta dos dados de alertasapresentadas noQuadro 4.3.1.1-1:
+Quadro 4.4.1.1-1. Ferramentas do Sistema.Nome da ferramenta Ícone DescriçãoMapa Base Permiteaousuárioalterar omapabase(mapade“planodefundo”).
+Legenda Legenda com as camadas do mapa.
+Busca por atributos Muda a área de visualização do mapa.
+Camadas do Mapa “Liga” ou “Desliga” a visualização de cada camada dorespectivo módulo.Ferramenta de exportação Exportar para os formatos CSV e Shapefile as consultasfiltradas de acordo com o tempo (1 hora, 2 horas,etc.)
+● Osistema apresenta, emjanelas de Pop-ups, os dados relacionadosàquelealerta, assimcomo permite a visualização dos dados de maneira tabular.
+
+===== PAGE 27 =====
+25
+Figura 4.4.1.1-2. Exemplo de Janela de Pop-up comas informações relacionadas ao alerta gerado.Janela com informações geradas a partir de valoressimulados. Fonte: Elaborado peloConsórcio 4X044 no âmbito do desenvolvimento dos serviçoscontratados
+Na figura anterior Figura 4.4.1.1-2, o valor de Soma (24h) é composto pela somatória dosvalores dePrevisão de chuva (6h)eAcumulado (18h).
+● O sistema permite também, a partir da janela de pop-up, navegar até o evento que estásendo apresentado;
+Figura 4.4.1.1-3. Exemplo de Janela de Pop-up comas informações relacionadas ao alerta gerado e olink para navegar para o evento. Janela com informaçõesgeradas a partir de valores simulados. Fonte:Elaborado pelo Consórcio 4X044 no âmbito do desenvolvimentodos serviços contratados
+● Para os eventos gerados é possível ter acesso às recomendações. A janela derecomendaçõesécoloridadeacordocomonível dealertaeéacessadaatravésdolinknajanela de pop-up do alerta.
+
+===== PAGE 28 =====
+26
+Figura 4.4.1.1-4. Exemplo de Janela de recomendaçõescom Nível do Plano de Contingência: Alerta.Fonte: Elaborado pelo Consórcio 4X044 no âmbito dodesenvolvimento dos serviços contratados
+● Permite a visualização dos alertas, filtrados de acordo com as seguintes opções: última1 hora, últimas2horas, últimas6horas,último1dia,últimos7dias,últimos15dias,últimos30 dias.
+Figura 4.4.1.1-5.Janela de filtro dos alertas. Fonte:Elaborado pelo Consórcio 4X044 no âmbito dodesenvolvimento dos serviços contratados
+● O acesso ao sistema é realizado através de usuárioscadastrados e login;
+
+===== PAGE 29 =====
+27
+Figura 4.4.1.1-6. Janela de login do sistema. Fonte:Elaborado pelo Consórcio 4X044 no âmbito dodesenvolvimento dos serviços contratados
+● O sistema contém uma ferramenta que permite o gerenciamentodos usuários;
+Figura 4.4.1.1-7. Janela de administração de usuáriose permissões. Fonte: Elaborado peloConsórcio 4X044 no âmbito do desenvolvimento dos serviçoscontratados
+● Osistemapossui umacamadacomasinformaçõesdepontodeinteresseparaquepossamser consultados.
+
+===== PAGE 30 =====
+28
+Figura 4.4.1.1-8. Mapa apresentando os POI’s (Pointsof Interest – Pontos de Interesse) de um PostoPolicial. Fonte: Elaborado pelo Consórcio 4X044 noâmbito do desenvolvimento dos serviçoscontratados
+OspontosdeinteresserepresentadossãoosHospitais,CorpodeBombeiros,PostosPoliciaise Escolas. As fontes de dados dos pontos de interesses são o OpenStreetMap(https://download.geofabrik.de/south-america/brazil.html), com os dados disponíveis emjaneirode2021,eosdadoslevantadospeloConsórcio4X044,noâmbitododesenvolvimentodos serviços contratados, através de pesquisas e informaçõesdos dados do Censo 2010.
+4.5. MODELOPREVISIONAL
+4.5.1. O MODELO
+HIDROESTIMADOR
+AdefiniçãodeHidroestimador, segundoScofield, 2001, “éummétodointeiramenteautomáticoque utiliza uma relação empírica exponencial entre a precipitação (estimada por radar) e atemperatura de brilho do topo das nuvens (extraídas do canal infravermelho do satéliteGOES-12), gerandotaxasdeprecipitaçãoemtemporeal.Atravésdatendênciadetemperaturada nuvem(e informações de textura) éutilizadoumajustedaáreacobertapelaprecipitação.Variáveiscomo: águaprecipitável, umidaderelativa, orografia, paralaxeumajustedonível deequilíbrio convectivo para eventos de topos quentes, são utilizadas para ajustarautomaticamente a taxa de precipitação”.
+Sendo um dos serviços possíveis de serem acessados diretamente através da plataformaTerraMA², e pelo fato de permitir uma quantificação da precipitação emumintervalo de 10minutos, optou-se por utilizar o modelo hidroestimador para as análises de risco de eventosgeológicos e hidrológicos.
+4.5.2. O MODELO
+WRF
+Conforme a descrição presenteno endereçohttps://www.mmm.ucar.edu/weather-research-and-forecasting-model, “o WRFéumsistemadeprevisão numérica de mesoescala, projetado para aplicações de pesquisa atmosférica eprevisão operacional. Possui um sistema de assimilação de dados e uma arquitetura desoftware que suporta computação paralela. O modelo serve para uma ampla gama deaplicações meteorológicas em escalas de dezenas de metros a milhares de quilômetros. Oesforço para desenvolver o WRF começou no final dos anos 1990 e foi uma parceria
+
+===== PAGE 31 =====
+29
+colaborativadoCentroNacional paraPesquisaAtmosférica(NCAR),aAdministraçãoNacionalOceânicaeAtmosférica(representadapelosCentrosNacionaisdePrevisãoAmbiental (NCEP)e pelo Laboratório de PesquisadoSistemaTerrestre), aForçaAéreadosEUA, oLaboratóriode Pesquisa Naval, a Universidade de Oklahoma e aAdministração Federal de Aviação (FAA).”
+As informações provenientes do WRF fornecido pelo INPE (INSTITUTO NACIONAL DEPESQUISAS ESPACIAIS) sãoacessadas, diretamente, atravésdoTerraMA², permitindo umaprevisão de até 72 horas, com  resolução espacial de 5 quilômetros.
+4.5.3. EVENTOSGEOLÓGICOS
+Paraavaliar eventosgeológicossãoconsideradasduasvariáveis:intensidadehoráriadechuvae chuva acumulada em 96 h. De acordo com o mecanismo de deflagração de eventosgeológicos, considera-se sempre o valor máximo de intensidade de chuva prevista para aspróximas 24h.
+A intensidade horária da chuva é normalmente expressa emmm / h. As retroanálises foramrealizadas considerando os dados coletadosacada10 minutos(mm / 10 min, oumm / 1/6dehora). Para que as medidas fossemexpressas emmm / h, os dados de chuva, coletadosacada 10 minutos, foram multiplicados por 6, projetandoo seu valor no formato mm / h.
+A segunda variável corresponde a chuva acumulada em um período de 96 h. Este períodopoderá ser composto pela soma da chuva acumulada em72 h somada à previsãodechuvadas 24 h futuras, totalizando período de análise de96 h.     .
+AFigura 4.5.3-1exemplificaacombinaçãode72 hdedadoscoletadosaseremsomadoscomos dados previstos de chuva para as 24 h seguintes.
+Figura 4.5.3-1. Modelo de combinação entre dados dechuva coletados e previstos. Intervalo de 96hpara análise. Fonte: Elaborado pelo Consórcio 4X044no âmbito do desenvolvimento dos serviçoscontratados.
+4.5.3.1. Modelo para o script
+Foramcriadosdoismodelosdeanálise: umutilizandoosdadosdepluviômetrosdoDAEE,eooutro  os dados do Hidroestimador.
+4.5.3.1.1. Modelos HidroestimadorPara o modelo de análise utilizando Hidroestimador,seguiu-se o seguinte processo:
+
+===== PAGE 32 =====
+30
+●
+Em umintervalo de 10 minutos, o sistema analisa o acumulado de chuva nas últimas 72horas e a previsão de chuva para as próximas 24 horas e, então, realiza a soma destesvalores.●
+Tendo estes valores somados é, então, realizado ocálculo do CPC.●
+A partir do cálculo do CPCécruzadaainformaçãocomosvaloresdeRiscoAnalisadodecadatrechodescritonaTabela 3.2.1-1.Apartirdestecruzamento,sãorealizadososcálculosdo Risco Dinâmico.
+Figura 4.5.3.1.1-1. Código fonte criado no TerraMa²para a obtenção da precipitação através dohidroestimador. Fonte: Elaborado pelo Consórcio 4X044no âmbito do desenvolvimento dos serviçoscontratados.
+●
+A partir da definição do Risco Dinâmico, é então definidoo nível de alerta.
+4.5.3.1.2. Modelo a partir dos dados do DAEE
+Para o modelo de análise utilizando os dados de pluviômetros do DAEE, foi realizado oseguinte processo:
+●
+Foram definidos quais pluviômetros seriamutilizados no processo. Esta definição ocorreuatravés da criação de uma área de buffer de 30 quilômetros da área de estudo e dainterseção com os pluviômetros existentes.
+
+===== PAGE 33 =====
+31
+Figura 4.5.3.1.2-1. Determinação dos pluviômetrosa serem utilizados no processo. Área de interessegerada a partir do buffer de 30 quilômetros. Fonte:Elaborado pelo Consórcio 4X044 no âmbito dodesenvolvimento dos serviços contratados
+●
+Acadaintervalode1hora,aaplicaçãorealizaodownloaddosdadosfornecidospeloDAEE,através da API (Application Programming Interface) acessada através do endereço:http://sibh.daee.sp.gov.br/api/eventos_ultimas_horas?horas=1●
+Após realizar o download dos dados, os mesmos são armazenados emuma camada dobanco de dados.●
+São, então, analisados os registros de pluviômetros que não possueminformação. Paraestes pluviômetros, são inseridos o valor 0 (zero).●
+É realizada a sumarização dos dados de chuva das últimas72 horas.●
+A próxima etapa do processo foi realizar a interpolação com o método Vizinho Natural,utilizando-se um valor de célula de 0,027 graus.
+
+===== PAGE 34 =====
+32
+Figura 4.5.3.1.2-2Resultado de processo de VizinhoNatural, a partir dos pluviômetrospré-selecionados. Fonte: Elaborado pelo Consórcio 4X044no âmbito do desenvolvimento dos serviçoscontratados
+●
+Apartir doraster geradonoprocessoanterior é, então,somadoovalordaprevisãoparaaspróximas 24 horas.●
+TendoestesvaloressomadosérealizadoocálculodoCPC.Definidaafaixaemqual oCPCse encaixa. Os cálculos do CPC são realizados de acordocom a tabelaTabela 4.5.3.1.2-1.
+Tabela 4.5.3.1.2-1. Equações de CPC para eventos geológicos para cada uma das quatro regiõesanalisadas.Região Trecho Equação de CPC
+Região 01 Rodovia Mogi-Bertioga CPC = I / (1.000 x Ac96h
+-0,9
+)
+Região 02 Caraguatatuba-Ubatuba CPC = I / (400 x Ac96h
+-0,9
+)
+Região 03 São Sebastião CPC = I / (200 x Ac96h
+-0,9
+)
+Região 04 Santos-Bertioga CPC = I / (1.000 x Ac96h
+-0,9
+)
+●
+A partir do cálculo do CPCécruzadaainformaçãocomosvaloresdeRiscoAnalisadodecada trecho descritos na Tabela 3.2.1-1. A partir deste cruzamento, são realizados oscálculos do Risco Dinâmico.●
+A partir da definição do Risco Dinâmico é definidoo nível de alerta.
+
+===== PAGE 35 =====
+33
+Figura 4.5.3.1.2-3. Fluxo de processamento para ageração dos alertas através dos dados do DAEE.Fonte: Elaborado pelo Consórcio 4X044 no âmbito dodesenvolvimento dos serviços contratados
+4.5.4. EVENTOSHIDROLÓGICOS
+Para eventos hidrológicos foi considerada apenas umavariável - achuvaacumuladade24h.Assim, a mudança de nível do Risco Dinâmico ocorre em cada uma das 04 regiõesexclusivamente a partir desta variável , conformemostra aTabela 2.1.2-1.
+Ointervalodeanáliseseráfixoem24 h, porémresultadeumacomposiçãoentreumperíodode18horasparaosdadosjácoletados, eumperíodode6horasparaosdadosdeprevisão,ondeasomaé24 horas, conformeesquemaapresentadonaFigura 4.5.4-1. Assim, devemosconsiderar amaior somatóriadechuvapossível,numintervalofixode24 h,porémcominícioefimvariável. No exemplodaFigura 4.5.4-1, ointervaloécompostopelachuvaregistradanasúltimas 18 horas, somada à previsão das próximas 6 horas. O tamanho dos intervalospossíveis será definido de acordo com o nível de detalhamento dos dados coletados eprevistos.
+Figura 4.5.4-1 Modelo de combinação entre dados dechuva coletados e previstos. Intervalo de 24hpara análise móvel. Fonte: Elaborado pelo Consórcio 4X044no âmbito do desenvolvimento dosserviços contratados.
+
+===== PAGE 36 =====
+34
+ATabela 4.5.4apresentaumexemploprático, paraumdiaehoráriohipotético.Nesseexemploo maior somatório de chuva em 24h possível corresponde aos dados obtidos nas 18 h queantecedemo momento atual, somadosaosvaloresprevistosdechuvaparaas6 hseguintes,totalizando 100 mm.
+Tabela 4.5.4-1. Exemplo de aplicação para eventoshidrológicos.Atual Dia: 10 Hora: 06:00
+ Dados Coletados Dados de PrevisãoDia 9 9 9 10 10 10 10 11 11 11Hora 06:00 12:00 18:00 00:00 06:00 12:00 18:00 00:00 06:00 12:00Chuva (mm) 0 5,5 5,8 40,2 29,8 10 20 60 5 0
+4.5.4.1. Modelo para o script
+Foramcriadosdoismodelosdeanálise: umutilizandoosdadosdepluviômetrosdoDAEEeooutro  os dados do Hidroestimador.
+4.5.4.1.1. Modelos HidroestimadorPara aplicar o modelo de análise utilizando Hidroestimador,foi realizado o seguinte processo:
+●
+Em umintervalo de 10 minutos, o sistema analisa o acumulado de chuva nas últimas 18horas e a previsão de chuva para as próximas 6horase, posteriormente, realizaasomadestes valores.
+Figura 4.5.4.1.1-1 Código fonte criado no TerraMa²para a obtenção da precipitação através dohidroestimador. Fonte: Elaborado pelo Consórcio 4X044no âmbito do desenvolvimento dos serviçoscontratados.
+●
+Após somar estes valores é, então, realizada a soma para obter o valor do Índice deCorrelação com Chuvas – Hidrológico.●
+A partir do cálculo do ICC ainformaçãoécruzadacomosvaloresdeRiscoAnalisadodecadatrechodescritonaTabela3.2.2-1.Apartirdestecruzamentosãorealizadososcálculosdo Risco Dinâmico.●
+A partir da definição do Risco Dinâmico é definidoo nível de alerta.
+
+===== PAGE 37 =====
+35
+4.5.4.1.3. Modelo a partir dos dados do DAEE
+Para o modelo de análise utilizando os dados de pluviômetros do DAEE, foi realizado oseguinte processo:
+●
+Foram inicialmente definidos os pluviômetros a seremutilizados no processo. A definiçãodestes se deu através da criação de uma área de buffer de 30 quilômetros da área deestudo e da interseção com os pluviômetros existentes.●
+Acadaintervalode1hora,aaplicaçãorealizaodownloaddosdadosfornecidospeloDAEEatravés da API (Application Programming Interface), acessada através do endereço:http://sibh.daee.sp.gov.br/api/eventos_ultimas_horas?horas=1
+Figura 4.5.4.1.2-1 Trecho do código fonte para a realizaçãodo download dos dados do DAEE. Fonte:Elaborado pelo Consórcio 4X044 no âmbito do desenvolvimentodos serviços contratados.
+● Após realizar o download, os dados são armazenadosem uma camada do banco de dados.● São, então, analisados os registros de pluviômetros que não possueminformação. Paraestes pluviômetros é  atribuído o valor 0 (zero).● Segue-se a sumarização dos dados de chuva das últimas18 horas.● A próximaetapadoprocessoéainterpolaçãocomométodoVizinhoNatural, utilizando-seum valor de célula de 0,027 graus.● Apartir doraster geradonoprocessoanterior é, então,somadoovalordaprevisãoparaaspróximas 6 horas.● A partir deste passo,é realizada a soma para obter o valor do Índice de Correlação comChuvas – Hidrológico.● Após o cálculo do ICCé realizado o cruzamento dainformaçãocomosvaloresdeRiscoAnalisado de cada trecho, descrito na Tabela 3.2.2-1. A partir deste cruzamento, sãorealizados os cálculos do Risco Dinâmico.● A partir da obtenção do Risco Dinâmico, é definidoo nível de alerta.
+OfluxodeprocessoéomesmodefinidonaFigura 4.5.3.1.2-3, apenascomosvaloresdasanálises realizadas no TerraMA² , ajustados conformedescrito acima.
+
+===== PAGE 38 =====
+36
+4.6. MÓDULODEADMINISTRAÇÃO
+No módulo de Administração do TerraMA² são definidos os servidores de dados, os dadosestáticos e dinâmicos, as análises e os alertas derisco.
+● Osistema possui umlink para o acesso aosistemadeadministraçãodoTerraMA², sendonecessária a informação de usuário e senha para o acesso, como apresentado naFigura 4.6-1.
+Figura 4.6-1. Tela delogindo Sistema. Fonte: Elaboradopelo Consórcio 4X044 no âmbito dodesenvolvimento dos serviços contratados.
+● Ao validar o login, osistemaédirecionadoparaoambientedeadministraçãodoTerraMA²onde é fornecido o acesso às configurações dos seguintesambientes (Figura 4.5-2):
+o Projetos;o Servidores de Dados;o Dados Dinâmicos;o Dados Estáticos;o Views;o Status;o Ferramentas;
+
+===== PAGE 39 =====
+37
+Figura 4.6-2. Tela do ambiente de administração doSistema. Fonte: Elaborado pelo Consórcio 4X044no âmbito do desenvolvimento dos serviços contratados.
+4.7. MÓDULODECONFIGURAÇÃO
+AplataformaTerraMA2permiteodesenvolvimentodeanálisesintegrandoosdadosdinâmicosambientais comos dados estáticos vetoriais oumatriciais. Umaanáliseenvolveaescolhadotipo, dados de entrada, saídas e um programa (“script”) para definir como será feita aintegraçãodosdados. OsmodelosdeanálisesãoescritosnalinguagemPythoneumconjuntode operadores espaciais criados especialmente paraa plataforma.
+OsistemapermiteoacessoaoambientedeconfiguraçãodasanálisesdoTerraMA².Oacessoépermitido somente através de login (Figura 4.5-1). A Figura 4.6-1 representa a tela deconfiguração da análise.
+Figura 4.7-1. Tela do módulo de configuração do Sistema.Fonte: Elaborado pelo Consórcio 4X044 noâmbito do desenvolvimento dos serviços contratados.
+
+===== PAGE 40 =====
+38
+4.8. SERVIÇOSDEGERÊNCIADEPLANOS
+Paraoserviçodegerênciadeplano,asinformaçõesdosplanosdeaçãosãoarmazenadasemum arquivo .JSON. Este arquivo é lido diretamente pelo sistema e, caso seja necessária aalteração do plano, deve-se abrir o arquivo e alterar a devida informação. A Figura 4.8-1apresenta um exemplo do arquivo .JSON.
+Figura 4.8-1. Arquivo JSON de recomendações. Fonte:Elaborado pelo Consórcio 4X044 no âmbito dodesenvolvimento dos serviços contratados.
+O arquivoconfig.JSONestá armazenado no seguinteendereço:
+● C:\inetpub\wwwroot\SGI-Riscos-DER\Content\webgis\config\pt\alertasPara a visualização dosalertas, nãohádiferenciaçãodeacordocomologinrealizado. Todosos logins terão acesso a todos os alertas gerados.
+Ao gerar umalerta, as informaçõesdoplanosãoapresentadassomenteparaopolígonoquegerouoalerta. Osalertassãoemitidosparatodososusuáriosregistradosparaorecebimentodo alerta, independente das regionais.
+4.9. SERVIÇOSDEANIMAÇÃO
+O serviço de animação consiste em permitir que os usuários, a partir dos alertas gerados,consigamvisualizar a gerar uma animaçãodasúltimas96 h, dehoraemhora, dospolígonosde alerta. Estes polígonos serão acessados através deserviçosquepermitamavisualizaçãodas informações de forma temporal. A ferramenta possui uma barra de controlequepermiteaosusuáriosavançaremouvoltaremnalinhadotempo(Figura 4.8-1),assimcomooacessoàferramenta de controle de visualização temporal.
+
+===== PAGE 41 =====
+39
+Figura 4.9-1. Exemplo do serviço de animação do Sistema.Fonte: Elaborado pelo Consórcio 4X044 noâmbito do desenvolvimento dos serviços contratados.
+A barra de controledevisualizaçãotemporal permiteaosusuários escolheremointervalodehoras e o período que será acumulado, além de executar,automaticamente, a animação.
+4.10. SERVIÇODENOTIFICAÇÃO
+A partir da análisegeradapeloTerraMA², casosejamidentificadasáreasderiscos, osistemaexecuta as seguintes ações:● Envia, por e-mail, uma mensagem  aos os devidos responsáveispreviamente cadastrados;● As notificações enviadas possuem as seguintes informações:o Data e Horário da notificação;o Nível de Alerta;o Recomendações;o Inserir o local do alerta a partir do quilômetro de ocorrência do evento, informado natabela de Área de Estudo;o Inserir o link do sistema;● O sistema contém uma tela de cadastros dos usuáriosa serem notificados.
+4.11. SERVIÇODEANÁLISE
+Os serviços de análise são responsáveis pelo cruzamento entre dados ambientais(hidrometeorológicos) e dados estáticos. Uma análise configurada produzirá novos dados
+
+===== PAGE 42 =====
+40
+dinâmicos, sejamgeográficosoutabulares. Osmodelosdeanálisessãodesenvolvidoscomalinguagem de programaçãoPython. Um serviço de análiseserá executado localmente.
+O Serviço de Análise utiliza os critérios estabelecidosnos Produtos 03 e 04.
+Figura 4.11-1. Tela de gerenciamento dos serviçosde análise configurados no TerraMA². Fonte:Elaborado pelo Consórcio 4X044 no âmbito do desenvolvimentodos serviços contratados.
+Os serviços de análiseutilizamosdadosdosmodelosHidroestimador, WRFedosprocessosdeinterpolaçãodosdadosdoDAEEpararealizar asanálisesegeraçãodealertas. Omodeloutilizado para cada umadasanálisesfoi descritonoitem4.5. Foramcriadososserviçosparacada região, separadamente.
+Figura 4.11-2. Exemplo de serviços de alerta separadospor região configurados no TerraMA². Fonte:Elaborado pelo Consórcio 4X044 no âmbito do desenvolvimentodos serviços contratados.
+Estaseparaçãodeve-seaofatodequeostiposdealertas,tantoparaosProcessosGeológicosquanto para os Processos Hidrológicos, são analisados individualmente para cada uma dasregiões. Esta separação visa garantir um melhor desempenho do sistema, bem como aaplicação das simbologias adequadas aos respectivosprocessos e níveis de alerta.
+Ocódigo utilizado para a implantação domodelofoi escritoeconfiguradodiretamentedentroda plataforma TerraMA². AFigura 4.11.3apresentaum trecho do código utilizado.
+
+===== PAGE 43 =====
+41
+Figura 4.11-3. Trecho de código utilizado para a implantaçãodos modelos de análise no TerraMA².Fonte: Elaborado pelo Consórcio 4X044 no âmbito dodesenvolvimento dos serviços contratados.
+5. CRONOGRAMADEATIVIDADESEPRÓXIMASETAPAS
+Ocronograma comas atividades previstas é apresentado na Figura 5-1. Observa-sequeasentregas dos relatórios de cada uma das três Etapas seguem, como previsto no Contratonº 20.595-3,comdatascontadasapartirdaassinaturadaNotadeServiço,em03deagostode2020, conforme relação a seguir:
+● Etapa 1 – 4 meses após a emissão da Ordem de Serviço;
+● Etapa 2 – 6 meses após a emissão da Ordem de Serviço;
+● Etapa 3 – 8 meses após a emissão da Ordem de Serviço;
+
+===== PAGE 44 =====
+42
+
+===== PAGE 45 =====
+43
+A Etapa seguintecorrespondeàEtapa 3, constituídapelaelaboraçãodoProduto 07–Planode ContingênciadeRiscosdeEventosGeodinâmicos, queconstitui aetapa conclusivadoprojeto. O Plano de Contingência deverá contemplar, minimamente, os processos deescorregamentos de encostas e os processos de inundações e alagamentos. A metodologiapara elaboração o Plano de Contingência, como exposto no Plano de Trabalho, deverácontemplar as seguintes fases:
+● Revisão bibliográfica / Análise comparativa;
+● Definição de um modelo geológico;
+● Definição dos cenários de Risco;
+● Definição das instituições envolvidas;
+● Sistema de monitoramento, alerta e alarme;
+● Sistema de comunicação;
+● Definição de ações e procedimentos;
+● Definição de funções e atribuição de responsabilidades;
+● Articulação do Plano de Contingência com outros planosexistentes;
+● Evento-teste e revisão do Plano;
+● Redação final do documento;
+● Procedimentos formais de aprovação, validação e divulgaçãodo Plano de Contingência.
+
+===== PAGE 46 =====
+44
+6. REFERÊNCIASBIBLIOGRÁFICAS
+AB'SABER, A.N. Os domíniosmorfoclimáticosnaAméricadoSul. Geomorfologia, SãoPaulo,n. 52, p. 1-22, 1977.
+ABNT- ASSOCIAÇÃOBRASILEIRADENORMASTÉCNICAS.ISO31000Gestãoderiscos—Princípios e diretrizes (Risk management – Principlesand guidelines). 2009.
+ACSELRAD, H. VulnerabilidadeAmbiental, processoserelações. ComunicaçãoaoIIEncontroNacional deProdutoreseUsuáriosdeInformaçõesSociais, EconômicaseTerritoriais, FIBGE,Rio de Janeiro, 2006.
+ALESP–ASSEMBLEIALEGISLATIVADOESTADODESÃOPAULO.Decretonº30860,de04dedezembrode1989.DispõesobreaaprovaçãoeimplantaçãodoPlanoPreventivodeDefesaCivil EspecíficoparaEscorregamentosnasEncostasdoMar. SãoPaulo. 1989. Disponível em<https://www.al.sp.gov.br/repositorio/legislacao/decreto/1989/decreto-30860-04.12.1989.html>.Acesso em outubro de 2020.
+ALESP–ASSEMBLEIALEGISLATIVADOESTADODESÃOPAULO.Decretonº42565,de01de dezembro de 1997. Redefine o Plano Preventivo de Defesa Civil - PPDCespecíficoparaEscorregamentos nas Encostas da Serra do Mar, edáoutrasprovidências. SãoPaulo. 1997.Disponível em<https://www.al.sp.gov.br/repositorio/legislacao/decreto/1997/decreto-42565-01.12.1997.html>.Acesso em outubro de 2020.
+ALHEIROS, M.M.; SOUZA, M.A.A.; BITOUN, J.; MEDEIROS, S.M.G.M.; AMORIM JÚNIOR,W.M. Manual deocupaçãodemorrosdaRegiãoMetropolitanadeRecife.Recife:FundaçãodeDesenvolvimento Municipal, 2003. 384p.
+ÁLVARES, C.A.; STAPE, J. L.; SENTELHAS, P.C.; GONÇALVES, J.L. deM.; SPAROVEK, G.Köppen's climate classification map for Brazil. Meteorologische Zeitschrift, v. 22, n. 6, p.711-728(18), dezembro de 2013. E. Schweizerbart'sche Verlagsbuchhandlung. DOI:https://doi.org/10.1127/0941-2948/2013/0507.
+ALVES, F.M., FLORES, M., IWASA, O.Y., ALVES, C.F.C., FERNANDES, G.N., SILVA, L.H.,GOTOdePAULA, C.M.M, MAGRO, S.A., BONGIOVANNI, L.A. Planomunicipal dereduçãoderiscos do Município de Diadema. In: Congresso Brasileiro de Geologia de Engenharia eAmbiental, 13, Rio de Janeiro - RJ, Anais..., SãoPaulo: ABGE, 2013, CD-ROM.
+ANA - AGÊNCIA NACIONAL DE ÁGUAS. Base Hidrográfica Ottocodificada da Bacia do RioTietê [Brasília], 2015.1: 50.000.
+ANA- AGÊNCIANACIONALDEÁGUAS. BaseHidrográficaOttocodificadadoRioParaíbadoSul. [Brasília], 2017 1:50.000.
+ANA- AGÊNCIANACIONALDEÁGUAS. BaseHidrográficaOttocodificadaLitorâneasSP-RJ.[Brasília], 2017 1:50.000.
+ANDRADE, E.; DANNA, L.C.; FERNANDES DASILVA, P.C. Mapeamentodeperigoseriscosde inundação no Município de Aparecida (São Paulo). Anuário do Instituto de Geociências -UFRJ. ISSN 0101-9759 e-ISSN 1982-3908 - Vol. 35 -2 / 2012 p.28-42. 2012.
+ANDRADE, E.; DANNA, L.C.; SANTOS, M.L.; FERNANDES DA SILVA, P.C. 2010.Levantamento de ocorrências de inundação em registros de jornais como subsídio aoplanejamentoregional eaomapeamentoderisco.In:ABGE,SimpósioBrasileirodeCartografiaGeotécnica, 7, Maringá-PR, 8 a 11 de agosto de 2010,Anais..., CD-ROOM.
+
+===== PAGE 47 =====
+45
+ANTT - Agência Nacional de Transportes Terrestres. AGEST - Assessoria de GestãoEstratégica e Inovação. Metodologia de Avaliação e Tratamento de Riscos. Brasília, 2018.Disponível em<http://anexosportal.datalegis.inf.br/arquivos/1310858.pdf>. Acesso emoutubrode 2020.
+ARMANI, G.; TAVARES, R.; BRIGATTI, N. Climatologia. In: FERREIRAC.J. [coord]. Diretrizespara a regeneração socioambiental de áreas degradadaspor mineraçãodesaibro(caixasdeempréstimo), Ubatuba, SP. Relatório Técnico 3, FAPESP (processo FAPESP 03/07182-5)inédito, p. 119-142, 2007.
+BIRKMANN, J. Measuring vulnerability to promote disaster-resilient societies: Conceptualframeworksanddefinitions. In: BIRKMANN, J.(ed):MeasuringvulnerabilitytoNatural Hazards.TowardsDisaster Resilient Societies. NewDelhi: TERI Press, UnitedNationsUniversityPress,2006. p. 9-56.
+BONGIOVANNI, L.A.; FREITAS, J.O.; ALVES, F.M. Desenvolvimento sustentável egestãoderiscodedesastresnaturais.IIICongressodaSociedadedeAnálisedeRiscoLatinoAmericana,São Paulo, 2016.
+BRAND, E.W. Relationshipbetweenrainfall andlandslidesinHongKong.In:INTERNATIONALSYMPOSIUM ON LANDSLIDES, 4., 1984. Toronto: [s.n.], 1984. v.1, p.377-84.
+BRASIL(DEPARTAMENTONACIONALDEINFRAESTRUTURADETRANSPORTES).Manualpara implementação de planos de ação de emergência para atendimento a sinistrosenvolvendo o transporte rodoviário de produtos perigosos. 2005. 142p. (IPR. Publ., 716).Disponível em: <https://goo.gl/sFGxPg>.
+BRASIL (MCIDADES – MINISTÉRIO DAS CIDADES, IPT – INSTITUTO DE PESQUISASTECNOLÓGICAS DO ESTADO DE SÃO PAULO). Mapeamento de Riscos em Encostas eMargem de Rios. CARVALHO, C.S.; MACEDO, E.S; OGURA,A.T. (orgs.), Brasília, 2007.
+BRASIL (MI – MINISTÉRIO DA INTEGRAÇÃO NACIONAL, SEDEC – SECRETARIANACIONAL DE DEFESA CIVIL). Glossário de Defesa Civil, estudos de riscos e medicinadedesastres. 3. ed. Brasília, DF: MI 2009.
+BRASIL(MINISTÉRIODAINTEGRAÇÃONACIONAL).Manual deorientaçõesparaaproduçãodoplanomunicipal decontingência- PLAMCON. SecretariaNacional deDefesaCivil.Brasília,DF: MI, 2012. Disponível em: <https://goo.gl/Eu8acH>.
+BRASIL (MI – MINISTÉRIODA INTEGRAÇÃONACIONAL). InstruçãoNormativan 02, de02dedezembrode2016. EstabeleceprocedimentosecritériosparaadecretaçãodesituaçãodeemergênciaouestadodecalamidadepúblicapelosMunicípios,EstadosepeloDistritoFederal,e para o reconhecimento federal das situações de anormalidade decretadas pelos entesfederativos e dá outras providências. Brasília, DF: MI, 2016. Disponível em:<https://www.in.gov.br/materia/-/asset_publisher/Kujrw0TZC2Mb/content/id/24789597/do1-2016-12-22-instrucao-normativa-n-2-de-20-de-dezembro-de-2016--24789506>.
+BRASIL (MINISTÉRIO DA SAÚDE). Secretaria Executiva. Sistema Único de Saúde (SUS):instrumentos de gestão em saúde / Ministério da Saúde, Secretaria Executiva. Brasília,Ministério da Saúde, 2002.
+BRASIL (MINISTÉRIO DA INTEGRAÇÃO NACIONAL). Secretaria Nacional de Proteção eDefesa Civil. PROJETO GIDES: Manual de Planos de Contingência para Desastres deMovimento de Massa. Brasília, MI/SEDEC, 2018.
+
+===== PAGE 48 =====
+46
+BRITO, M.M.; EVERS, M.; ALMORADIE, A.D.S. 2018. Participatory flood vulnerabilityassessment: a multi-criteria approach. Hydrology and Earth System Sciences. 22:373-390,2018.
+CANIL, K.; MACEDO, E.S.; GRAMANI, M.F.; ALMEIDA FILHO, G.S.; YOSHIKAWA, N.K.;MIRANDOLA, F.A.; VIEIRA, B.C.; BAIDA, L.M.A.; AUGUSTO FILHO, O.; SHINOHARA, E.J.Mapeamento de risco em assentamentos precários nas zonas sul e parte do oeste nomunicípio de São Paulo (SP). In: Simpósio Brasileiro de Cartografia Geotécnica eGeoambiental, 5, 2004, São Carlos. Anais... São Paulo: ABGE, 2004, p.193-204.
+CARDONA, O.D. La necesidad de repensar de manera holistica los conceptos devulnerabilidad y riesgo: uma crítica y una revisión necessaria para la gestión. In:INTERNATIONAL WORK-CONFERENCE ONVULNERABILITYINDISASTERTHEORYANDPRACTICE, 2001, Disaster Studies of Wageningen University and Research Centre,Wageninger, Holanda. 18 p. 2001.
+CARDOSO, D.; RIEDEL, P.S.; VEDOVELLO, R.; BROLLO, M.J.; TOMINAGA, L.K.CompartimentaçãofisiográficadomunicípiodePeruíbe, litoral deSãoPaulo-umaabordagemmetodológica como subsídio à avaliação geotécnica de terrenos. PesquisasemGeociências,v.36, n.3, p.251-262, 2009. Disponível em: http://www.ufrgs.br/igeo/pesquisas/3603/02-3603.pdf
+CARMO, H.M.G. & NERI, A.S.C. Capacidades Institucionais: Do conceito à aplicação. In: VISINGEP - SIMPOSIO INTERNACIONAL de GESTÃO de PROJETOS, INOVAÇÃO eSUSTENTABILIDADE. São Paulo, Anais do VI SINGEP, 2017.
+CASA MILITAR DO ESTADO DE SÃO PAULO. Resolução CMIL 17-610 - Cedec, de 28 denovembrode2016. EditaoPlanoPreventivodeDefesaCivil paraerosãocosteira,inundaçõescosteiras e enchentes / alagamentos causados por eventos meteorológicos-oceanográficosextremos como ressacas do mar e marés altas. São Paulo. 2016. Disponível em<http://dobuscadireta.imprensaoficial.com.br/default.aspx?DataPublicacao=20161129&Caderno=DOE-I&NumeroPagina=3>. Acesso em outubro de 2020.
+CASTRO, J.M. Pluviosidade e movimentos de massa nas encostas de Ouro Preto. 2006.Dissertação (Mestrado) – Universidade Federal de OuroPreto, Ouro Preto, 2006.
+CEDEC/MG- CoordenadoriaEstadual deDefesaCivil doEstadodeMinasGerais.PropostadePlano de Contingência. Minas Gerais, 2019. Disponível em<http://www.defesacivil.mg.gov.br/images/defesacivil/PLANO_DE_CONTINGENCIA.pdf>.Acesso em outubro de 2020.
+CERRI, L.E.S. 1993. Riscos geológicos associadosaescorregamentos: umapropostaparaaprevençãodeacidentes. Tesededoutorado, UniversidadeEstadual PaulistaJúliodeMesquitaFilho, UNESP.
+CERRI, L.E.S.; MACEDO, E.S.; OGURA, A.T.; NUNES, C.M.; CARNEIRO, S.R.; MODESTO,R.P. 1990. Plano preventivo de defesa Civil para a minimização das consequências deescorregamentos emmunicípiosdaBaixadaSantistaeLitoral NortedoEstadodeSãoPaulo.In: SIMPÓSIO LATINOAMERICANO SOBRE RISCO GEOLÓGICOURBANO, 1, São Paulo.Anais... São Paulo: Associação Brasileira de Geologiade Engenharia, 1: 396-408.
+CHOW, V.T.; MAIDMENT, D.R.; MAYS, L.W. AppliedHydrology. McGrawHill,NewYork.572p.1988.
+CPRM - SERVIÇO GEOLÓGICO DO BRASIL. PROJETO INTEGRAÇÃOGEOLÓGICO-METALOGENÉTICA. Carta Geológica do Estado de São Paulo, FolhaSF.23-Y-C. 1:250.000. 1999.
+
+===== PAGE 49 =====
+47
+CPRM - SERVIÇO GEOLÓGICO DO BRASIL e IPT - Instituto de Pesquisas Tecnológicas.Cartas de Suscetibilidade a Movimentos Gravitacionais de Massa e Inundações, 1:25.000.2015.
+CARDOZA, C. Spreading Scrum through the enterprise. Disponível em:<https://sdtimes.com/agile/spreading-scrum-enterprise/>.Acesso em 23 de julho de 2020.
+CROSTA, A.P. Processamento Digital de Imagens de Sensoriamento Remoto. Instituto degeociências. Departamento de Metalogênese e Geoquímica.IG/UNICAMP. Campinas. 1992.
+DAEE – DEPARTAMENTO DE ÁGUAS E ENERGIA ELÉTRICA. CTH – CENTROTECNOLÓGICO DE HIDRÁULICA E RECURSOS HÍDRICOS. Precipitações intensas noEstado de São Paulo. MARTINEZ Jr., F. DAEE/CTH. (Org).2018.
+DAEE – DEPARTAMENTO DE ÁGUAS E ENERGIA ELÉTRICA. CTH – CENTROTECNOLÓGICO DE HIDRÁULICA E RECURSOS HÍDRICOS. Rede Hidrológica Básica doEstado de São Paulo. Disponível em: <http://www.daee.sp.gov.br/index.php?option=com_content&view=article&id=72%3Ahidrometeorologia&catid=43%3Ahidrometeorologia&Itemid=30>. Acessoem outubro de 2020.
+DAEE – DEPARTAMENTO DE ÁGUAS E ENERGIA ELÉTRICA. CTH – CENTROTECNOLÓGICODE HIDRÁULICA E RECURSOS HÍDRICOS. SériesHistóricasdeEstações.Disponível em: < http://www.snirh.gov.br/hidroweb/serieshistoricas>. Acesso em outubro de2020.
+DER/SP - DEPARTAMENTODE ESTRADAS DE RODAGEMDOESTADODESÃOPAULO.Atuação das UBA’s emEventos de Desastres Naturais. São Paulo, emitidoemnovembrode2017. Disponível em<http://www.der.sp.gov.br/WebSite/Arquivos/BancoMundial/Plano_Contingencia/PlanoContingncia.pdf>. Acesso em outubro de 2020.
+DER/SP - DEPARTAMENTODE ESTRADAS DE RODAGEMDOESTADODESÃOPAULO.Classificação e Codificação das Rodovias do Estado de São Paulo. Disponível em<http://www.der.sp.gov.br/WebSite/Arquivos/MalhaRodoviaria/codificacao.pdf>. Acesso emoutubro de 2020.
+DER/SP - DEPARTAMENTODE ESTRADAS DE RODAGEMDOESTADODESÃOPAULO.Edital deSolicitaçãodePropostasSDPnº 064/2019. SeleçãodeServiçosdeConsultoriaparaPrestaçãodeServiçosTécnicosparaElaboraçãodePlanosdeContingênciafrenteariscosdeeventos geodinâmicos em trechos rodoviários selecionados das Unidades Básicas deAtendimento (UBA) do Departamento de Estradas de Rodagem do Estado de São Paulo(DER/SP) de Caraguatatuba, Mogi das Cruzes e São Vicente. São Paulo, emitido em17 dedezembro de 2019.
+DER/SP - DEPARTAMENTODE ESTRADAS DE RODAGEMDOESTADODESÃOPAULO.Volume Diário Médio das Rodovias (VDM). Disponível em<http://www.der.sp.gov.br/WebSite/MalhaRodoviaria/VolumeDiario.aspx>. Acesso em outubrode 2020.
+DER/SP - DEPARTAMENTODE ESTRADAS DE RODAGEMDOESTADODESÃOPAULO.WEBROTAS. Disponível em<http://www.der.sp.gov.br/WebSite/Servicos/ServicosOnline/WebRotas.aspx#>. Acesso emoutubro de 2020.
+DNIT - DEPARTAMENTO NACIONAL DE INFRAESTRUTURA DE TRANSPORTES. CustoMédio Gerencial. Brasília: DNIT, 2017.
+
+===== PAGE 50 =====
+48
+D’ORSI, R.;D’ÁVILA,C.;ORTIGÃO,J.A.R.;DIAS,A.;MORAES,L.;SANTOS,M.D.Rio-Watch:The Rio de Janeiro landslide watch system. In: CONFERÊNCIA BRASILEIRA SOBREESTABILIDADE DE ENCOSTAS, 2., 1997. Rio de Janeiro.1997. v.1, p. 21- 30.
+DRM – Serviço Geológico do Estado do Rio de Janeiro. 2015. Correlação chuvas xescorregamentos no Estado do Rio de Janeironomêsdemarçode2015. RelatórioTécnico.Disponível em: https://goo.gl/vyDp8U.
+ELBACHÁ, A.T.; CAMPOS, L.E.P.; BAHIA, R.F.C. Tentativadecorrelaçãoentreprecipitaçãoedeslizamentos na cidade de Salvador. In: CONFERÊNCIA BRASILEIRA SOBREESTABILIDADE DE ENCOSTAS, 1.,1992. Rio de Janeiro,1992.
+EMPLASA - EMPRESA PAULISTA DE PLANEJAMENTO METROPOLITANO S.A. CartaGeológica da Região Metropolitana da Grande São Paulo.São Paulo. 1:50.000. 1980.
+EMPLASA- EMPRESAPAULISTADEPLANEJAMENTOMETROPOLITANOS.A.OrtofotosdoEstado de São Paulo (Projeto Mapeia São Paulo). SãoPaulo. 1:25.000. 2010/2011.
+ESRI. About geocoding a table of addresses. Disponível em:<https://desktop.arcgis.com/en/arcmap/10.3/guide-books/geocoding/geocoding-a-table-of-addresses-about.htm>. Acesso em 23 de julho de 2020.
+FERNANDESDASILVA,P.C.;ANDRADE,E.;DANNA,L.C.Mapeamentoderiscoàinundação/em municípios do Vale do Paraíba (SP): abordagem metodológica para delimitação ecaracterização de setores de perigo. In: Congresso Brasileiro de Geologia de Engenharia eAmbiental, 13, São Paulo-SP, 2 a 6 de novembrode2011, Anais..., SãoPaulo: ABGE, 2011,CD-ROM.
+FERNANDES DA SILVA, P.C.; ANDRADE, E.; ROSSINI-PENTEADO, D. Mapeamento deperigos e riscos de inundação: uma abordagem semiquantitativa. Revista do InstitutoGeológico, São Paulo, 35 (2), 13-38, 2014.
+FERNANDES DA SILVA, P.C.; VEDOVELLO, R.; FERREIRA, C.J.; BROLLO, M.J.;FERNANDES, A.J.; CRIPPS, J.C. Geo-environmental mapping using physiographic analysis:constraints on the evaluation of land instability and groundwater pollution hazards in theMetropolitan District of Campinas, Brazil. Environmental Earth Sciences, v. 59, p. 124, 2010.Disponível em: http://link.springer.com/article/10.1007%2Fs12665-010-0480-z
+FERNANDESDASILVA, P.C.; ANDRADE, E.;DANNA,L.C.Mapeamentoderiscoàinundaçãoem municípios do Vale do Paraíba (SP): abordagem metodológica para delimitação ecaracterização de setores de perigo. In: Congresso Brasileiro de Geologia de Engenharia eAmbiental, 13, SãoPaulo- SP, 2a6denovembrode2011, Anais..., SãoPaulo:ABGE,2011,CD-ROM. Disponível em:https://www.researchgate.net/publication/271133102_MAPEAMENTO_DE_RISCO__INUNDAO_EM_MUNICPIOS_DO_VALE_DO_PARABA_(SP)_ABORDAGEM_METODOLGICA_PARA_DELIMITAO_E_CARATERIZAO_DE_SETORES_DE_PERIGO
+FERNANDEZ, G.N. Determinação de limiarescríticosdechuvadeflagradoresdemovimentosgravitacionaisdemassa, municípiodeSãoBernardodoCampo,SP.DissertaçãodeMestrado,Instituto de Geociências, Universidade de São Paulo,São Paulo, 2018.
+FERNANDEZ, G.N.; ALVES, F.M.; MODESTO, A.A.L., PISSATO, E. Análise espacial etemporal de escorregamentos emSão Bernardo doCampo, SP(1993–2016). In: 18º CBGECongresso Brasileiro de Geologia de Engenharia e Ambiental, 2018, São Paulo, SP.
+
+===== PAGE 51 =====
+49
+FERREIRA, C.J. ROSSINI-PENTEADO, D.; SOUZA, C.R.G.; ROCHA, G.A. SOUZA, L.,GUEDES, A.C.M. 2015. Integração de mapeamento de risco e índices pluviométricos nomonitoramento e alerta de risco de escorregamentos planares no Litoral Norte doEstadodeSão Paulo. Revista Brasileira de Geologia de Engenharia e Ambiental, v.5 (1): 37-53.Disponível em: https://goo.gl/mqv6QG. Acesso em julhode 2020.
+FERREIRA, C.J.; ROSSINI-PENTEADO, D. Mapeamento de risco a escorregamento einundação por meio da abordagem quantitativa da paisagem em escala regional. In:CONGRESSOBRASILEIRODEGEOLOGIADEENGENHARIAEAMBIENTAL,11,2011,SãoPaulo. Anais...SãoPaulo:AssociaçãoBrasileiradeGeologiadeEngenhariaeAmbiental,2011.CD-ROM.
+FERREIRA, C.J.; ROSSINI-PENTEADO, D.; GUEDES, A.C.M. O uso de sistemas deinformações geográficas na análise e mapeamento de risco a eventos geodinâmicos. In:FREITAS, M.I.C& LOMBARDO, M.A.: RiscoseVulnerabilidades: TeoriaepráticanocontextoLuso-Brasileiro. São Paulo: Cultura Acadêmica, 2013.
+FERREIRA,C.J.;ALVES,F.M.;RAFFAELLI,C..S.;SOUSA,C.A.CausasdaReduçãodoRiscode Escorregamentos e de Inundações emNúcleosResidenciaisdoMunicípiodePoá, SP, noPeríodo 2006-2015. In: III Congresso da Sociedade de Análise de Risco Latino Americana,2016, SãoPaulo. AnaisdoIII CongressodaSociedadedeAnálisedeRiscoLatinoAmericana,2016.
+GARIANO, S.L.; BRUNETTI, M.T.; IOVINE, G.; MELILLO, M.; PERUCCACCI, S.;TERRANOVA, O.; VENNARI, C.; GUZZETTI, F. Calibrationandvalidationof rainfall thresholdsfor shallowlandslide forecasting in Sicily, southernItaly. In: Geomorphology, 228, p. 653–665,2015.
+GRAMANI, M.F. 2001 Caracterização geológico-geotécnica das corridas de detritos (“debrisflows”) no Brasil e comparação com os casos internacionais. Dissertação de Mestrado,DepartamentodeEstruturaseFundações,EscolaPolitécnica,UniversidadedeSãoPaulo,SãoPaulo, 385 p.
+GRAMANI, M.F. & AUGUSTO FILHO, O. 2004. Analysis of the triggering of debris flowpotentialityandtherun-out reachestimative:anapplicationessayintheSerradoMarmountainrange. In: International Symposiumon Landslides, 9, Rio deJaneiro. Proceedings... Londres:Balkema, v. 2. p. 1477-1483.
+GRAMANI, M.F. &KANJI M.A. 2001. InventárioeanálisedascorridasdedetritosnoBrasil.In:III ConferênciaBrasileiradeEstabilidadedeEncostas- COBRAE, 3,RiodeJaneiro,Anais,Riode Janeiro: ABMS - NRRJ.
+GOMES, J.V.P. &SILVAdeBARROS, R. (2011). AimportânciadasOttobaciasparagestãoderecursoshídricos. In: XVSimpósioBrasileirodeSensoriamentoRemoto- SBSR, Curitiba,PR,Brasil, Anais, Curitiba pp.: 1287-1294.
+GUIDICINI, G., IWASA, O.Y. Ensaio de Correlação entre Pluviometria e Deslizamentos emMeio Tropical Úmido. São Paulo: IPT, 1976.
+HOEK, E. & BRAY, J. 1974. Rock Slope Engineering. Londres, Institution of Mining andMetallurgy, 309 p.
+HORTON, R.E. The role of infiltration in the hydrologic cycle. Transactions, AmericanGeophysical Union, V. 14, ed. 1, p. 446-460. 1933.
+
+===== PAGE 52 =====
+50
+IDE, F.S. Escorregamento, meteorologia e precipitação: uma proposta de método deinvestigação para prevenção e monitoramento de riscos, aplicado em Campinas/SP.Dissertação (Mestrado) - Instituto de Pesquisas Tecnológicas, IPT, São Paulo, 2005.
+IG- INSTITUTOGEOLÓGICODASECRETARIADEINFRAESTRUTURAEMEIOAMBIENTEDO ESTADO DE SÃO PAULO. Mapeamento de riscos associados a escorregamentos,inundações, erosão, solapamento, colapso e subsidência - Município deAparecida- SP. SãoPaulo: Instituto Geológico. Relatório Técnico, 3 volumes. 2011. Disponível em:<http://www.defesacivil.sp.gov.br/instrumentos-de-identificacao-de-riscos/>. Acesso em agostode 2020.
+IG- INSTITUTOGEOLÓGICODASECRETARIADEINFRAESTRUTURAEMEIOAMBIENTEDO ESTADO DE SÃO PAULO. Mapeamento de riscos associados a escorregamentos,inundações, erosão e solapamento de margens de drenagens - Município de Campos doJordão - SP. São Paulo: Instituto Geológico. Relatório Técnico, 4 volumes. 2014a.<http://www.defesacivil.sp.gov.br/instrumentos-de-identificacao-de-riscos/>. Acesso em agostode 2020.
+IG- INSTITUTOGEOLÓGICODASECRETARIADEINFRAESTRUTURAEMEIOAMBIENTEDOESTADODESÃOPAULO. Unidadesbásicasdecompartimentaçãodomeiofísico(UBC).São Paulo, 2014b. Disponível em:<https://www.infraestruturameioambiente.sp.gov.br/wp-content/uploads/sites/233/2017/02/Ficha_Tecnica_Unidades_Basicas_Compartimentacao_Meio_Fisico_UBC.pdf>. Acesso em agostode 2020.
+IG- INSTITUTOGEOLÓGICODASECRETARIADEINFRAESTRUTURAEMEIOAMBIENTEDO ESTADO DE SÃO PAULO. Mapeamento de riscos associados a escorregamentos,inundações e corridas de massa - Município de Itaóca, SP. São Paulo: Instituto Geológico,Secretaria do Meio Ambiente do Estado de São Paulo. Relatório Técnico, 2015. 3 volumes.Boletim do Instituto Geológico nº 64. ISSN 0100-431X. Disponível em:<http://www.defesacivil.sp.gov.br/instrumentos-de-identificacao-de-riscos/>. Acesso em agostode 2020.
+IG- INSTITUTOGEOLÓGICODASECRETARIADEINFRAESTRUTURAEMEIOAMBIENTEDO ESTADO DE SÃO PAULO. Unidades homogêneas de uso e ocupação do solo urbano(UHCT). São Paulo, 2016. Disponível em:<http://s.ambiente.sp.gov.br/cpla/Ficha_Tecnica_UHCT.pdf>.Acesso em agosto de 2020.
+IG- INSTITUTOGEOLÓGICODASECRETARIADEINFRAESTRUTURAEMEIOAMBIENTEDO ESTADO DE SÃO PAULO. Cadastro Georreferenciado de Eventos Geodinâmicos:50 MunicípiosdaRegiãoMetropolitanadeSãoPaulo, BaixadaSantistaeLitoral Norte.ProjetoTransporte Sustentável de São Paulo (P127723). São Paulo, 2017a. Disponível em: <https://www.infraestruturameioambiente.sp.gov.br/institutogeologico/2017/12/instituto-geologico-lanca-sistema-de-classificacao-unidades-territoriais-basicas-mapas-de-perigo-vulnerabilidade-e-risco-do-estado-de-sao-paulo-e-cadastro-de-eventos-geodinamicos-acidentes-e-desast/ >.Acesso em agosto de 2020.
+IG- INSTITUTOGEOLÓGICODASECRETARIADEINFRAESTRUTURAEMEIOAMBIENTEDOESTADODESÃOPAULO. Sistemadeclassificação“UnidadesTerritoriaisBásicas” (UTB)e mapeamento de risco de áreas urbanas de uso residencial/comercial/serviços à eventosgeodinâmicos do Estado de São Paulo. São Paulo, 2017b. Disponível em:<https://www.infraestruturameioambiente.sp.gov.br/institutogeologico/wp-content/uploads/sites/233/2017/12/Ficha_Tecnica_UTB_SP_IG.pdf>. Acesso emagosto de 2020.
+IG- INSTITUTOGEOLÓGICODASECRETARIADEINFRAESTRUTURAEMEIOAMBIENTEDO ESTADO DE SÃO PAULO. Relatório da Operação dos Planos Preventivos de Defesa
+
+===== PAGE 53 =====
+51
+Civil-PPDC-Operação Verão 2016-2017. São Paulo. 2017c. Disponível em<https://www.infraestruturameioambiente.sp.gov.br/wp-content/uploads/sites/233/2017/11/RELAT_PPDC_2016-2017_FINAL.pdf>. Acesso em outubro de2020.
+INPE - INSTITUTO NACIONAL DE PESQUISAS ESPACIAIS. TerraMA² - Monitoramento,Análise e Alerta – Manual do Usuário. 2018. 191 p. Disponível em: <http://www.terrama2.dpi.inpe.br/manuais>. Acesso em23 de julho de 2020.
+IPT- INSTITUTODEPESQUISASTECNOLÓGICASDOESTADODESÃOPAULO; CPRM–SERVIÇOGEOLÓGICODOBRASIL.Cartasdesuscetibilidadeamovimentosgravitacionaisdemassaeinundações: 1:25.000:notatécnicaexplicativa.CoordenaçãoOmarYazbekBittar.SãoPaulo, SP / Brasília, DF. 2014
+IPT - INSTITUTO DE PESQUISAS TECNOLÓGICAS DO ESTADO DE SÃO PAULO.Diagnóstico da situação dos recursos hídricos da bacia hidrográfica do Litoral Norte –UGRHI-03. São Paulo: IPT, 2001.
+ISO 31.000 - ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS - Gestão de riscos:NBR/ISO 31000, 2009: Rio de Janeiro: ABNT, 2009.
+IWASA, O.Y.; ASSANO, V. Y.; ALVES, F.M.; ALVES, C.F.C.; MAGRO, S.A.;FAGUNDES,M.G.;BONGIOVANNI, L.A.; MOREIRA, M.R.; PEIXOTO FILHO, G.E.C.; SCHADECK, R.Vulnerabilidade da ocupação em setores de risco a movimentos gravitacionais de massa einundação no município de Luiz Alves, Santa Catarina. In: CONGRESSOBRASILEIRODEGEOLOGIA DE ENGENHARIA E AMBIENTAL, Rio de Janeiro - RJ. Anais... São Paulo:Associação Brasileira de Geologia de Engenharia eAmbiental, 2013. CD-ROM.
+JICA - JAPANESEINTERNATIONALCOOPERATIONAGENCY. Guidetolandslideinspectionformrecords. In: Project of StrengtheningtheNational Strategyabout theRiskManagementofthe Natural Disaster(GIDES). 2015.
+JICA - JAPANESE INTERNATIONAL COOPERATION AGENCY. Projeto GIDES –FortalecimentodaEstratégiaNacional daGestãoIntegradadeRiscosdeDesastres.Manual dePlanos de Contingência para Desastres de Movimentos de Massa, v.3. 2018. Brasília, DF.Disponível em<https://www.jica.go.jp/brazil/portuguese/office/publications/c8h0vm000001w9k8-att/volume3.pdf>. Acesso em outubro de 2020.
+KAY, J.N.; CHEN, T. Rainfall-landslide relationship for Hong Kong. In: ICE. GEOTECHNICALENGINEERING. Bangkok: 1995. v. 113. p. 117-118.
+LOMBARDO, M.A. & FREITAS, M.I.C. Riscos e vulnerabilidades [recursoeletrônico]: teoriaeprática no contexto luso-brasileiro. 1. ed. – SãoPaulo: Cultura Acadêmica, 2013
+LUMB, P. SlopefailuresinHongKong. QuarterlyJournal ofEngineeringGeology,London,v.8,p. 31-35. 1975.
+MACEDO, E.S.; OGURA, A.T.; CANIL, K.; ALMEIDA FILHO, G.S.; GRAMANI, M.F.; SILVA,F.C.; CORSI, A.C.; MIRANDOLA, F.A. Modelos de fichas descritivas para áreas de risco deescorregamento, inundação e erosão. In: SimpósioBrasileirodeDesastresNaturais, 1, 2004,Florianópolis. Anais... Florianópolis: GEDN/UFSC, 2004b, p. 892-907, CD-ROM. 2004.
+MACEDO, E.S.; OGURA, A.T., SANTORO J. Defesa Civil e escorregamentos: o planopreventivodolitoral paulista.In:CONGRESSOBRASILEIRODEGEOLOGIAEENGENHARIA,9, São Pedro. Anais... São Paulo: Associação Brasileira de Geologia de Engenharia eAmbiental. 1999.
+
+===== PAGE 54 =====
+52
+MACEDO, E.S.; SANTORO, J., ARAÚJO, R.E. PlanoPreventivodeDefesaCivil (PPDC) paraDeslizamentos, Estado de São Paulo, Brasil. In: SIMPÓSIOBRASILEIRODE DESASTRESNATURAIS, 1., 2004, Florianópolis. Anais... Florianópolis: GEDN/UFSC, 2004. p. 908-919.(CD-ROM). Disponível em<http://www.sidec.sp.gov.br/defesacivil/media/OSDownloads/1398369924_Artigo%20PPDC.pdf>. Acesso em outubro de 2020.
+MANSO, A.P.; BARROS, M.S.S.; OLIVEIRA, M.L.N. Determinação de zonas homogêneasatravés de sensoriamento remoto. São José dos Campos,INPE. 1978.
+MARTINS, A.M., PIMENTA, C.O., FERNANDES, F.S., NOVAES, G.T.F., LOPES, V.V.Acapacidade institucional de municípios paulistas: uma análise de políticas educacionais emregiões metropolitanas. Cadernos de Pesquisa (Fundação Carlos Chagas.), 2013. Disponívelem: http://www.scielo.br/pdf/cp/v43n150/05.pdf. Acessoem outubro de 2020.
+MENDES, R.M., VALÉRIO FILHO, M., BERTOLDO, M.A., SILVA, M.F. Estudos de limiarescríticos de chuva deflagradores de deslizamentos no município de São José dos Campos(Brasil). In: Territorium. ed. 22, 2015, p. 119-129.
+NATIONAL CENTER FOR ATMOSFERIC RESEARCH. Weather Research And ForecastingModel,https://www.mmm.ucar.edu/weather-research-and-forecasting-model, acessador em 30de janeiro de 2021
+OLIVEIRA, T.A.; RIEDEL, P.S.; VEDOVELLO,R.;SOUZA,C.R.G.;BROLLO,M.J.UtilizaçãodetécnicasdefotointerpretaçãonacompartimentaçãofisiográficadomunicípiodeCananéia, SP:apoio ao planejamento territorial e urbano. Geociências (São Paulo), v. 26, p. 55-65, 2007.Disponível em: http://www.revistageociencias.com.br/26_1/Art%206%20Thomaz.pdf
+ONU-ISDR. Terminology in disaster risk reduction. 2017. Disponível em:<https://goo.gl/a2CMDE>.
+PARIZZI, M.G.; SEBASTIÃO, C.S.; VIANA, C.S.; PFLUEGER, M.C.; CAMPOS, L.C.;CAJAZEIRO, J. M. D.; TOMICH, R.S.; GUIMARÃES, R.N.; ABREU, M.L.; SOBREIRA, F.G.;REIS, R. 2010. Correlações entre chuvas e movimentos de massa no município de BeloHorizonte, MG. Geografias (UFMG), 6(2): 49- 68.
+PIERSON, L.A. The Rockfall Hazard Rating System. Report FHWA-OR-GT-92-05. OregonDepartment of Transportation. 1991.
+PFAFSTETTER, O. Classificação de Bacias Hidrográficas – Metodologia de Codificação. Riode Janeiro, RJ: DNOS, 1989.
+PINTO, H.S.; ORTOLANI, A.A.; ALFONSI, R.R. Estimativadastemperaturasmédiasmensaisdo Estado de São Paulo em função da altitude e latitude.São Paulo: USP, 1972. 20p.
+PORTO, M.F.A.; PORTO, R.L.L. Gestão debaciashidrográficas. Estud. av., SãoPaulo, v. 22,n. 63, p. 43-60, 2008. Disponível em:<http://www.scielo.br/scielo.php?script=sci_arttext&pid=S0103-40142008000200004&lng=en&nrm=iso>. Acesso em 15 de junho de 2020.http://dx.doi.org/10.1590/S0103-40142008000200004.
+PNUD - PROGRAMA DAS NAÇÕES UNIDAS PARA O DESENVOLVIMENTO. Atlas dodesenvolvimento humano no Brasil, 2014. Disponível em:<http://www.atlasbrasil.org.br/2013/pt/>. Acesso em: 03 de junho de 2020.
+
+===== PAGE 55 =====
+53
+PRESENTATION PROCESS. Create stunning circular flow diagram easily. 2020. Disponívelem: <https://www.presentation-process.com/circular-flow-diagram.html>. Acessoem23dejulhode 2020
+RENNÓ, C.D.; NOBRE, A.D.; CUARTAS, L.A.; SOARES,J.V.;HODNETT,M.G.;TOMASELLA,J; WATERLOO, M.J. HAND, a newterrain descriptor using SRTM-DEM: Mapping terra-firmerainforest environments, in Amazonia. Remote Sensing of Environment. NewYork, v.112, n.9,p.3469-3481, 2008.
+ROLIM,GLAUCODESOUZA,etal.ClassificaçãoclimáticadeKöppenedeThornthwaiteesuaaplicabilidade na determinação de zonas agroclimáticas para o Estado de São Paulo.Bragantia, Campinas, v. 66, n. 4, p. 711-720, 2007. Disponível em:<http://www.scielo.br/scielo.php?script=sci_arttext&pid=S0006-87052007000400022&lng=en&nrm=iso>. Acesso em 19 de outubro de 2020. DOI:https://doi.org/10.1590/S0006-87052007000400022.
+ROSS, J.LS.EcogeografiadoBrasil:subsídiosparaplanejamentoambiental.OficinadeTextos.São Paulo, 2006.
+ROSS, J.L.S; MOROZ, I.C. Mapa Geomorfológico do Estado de São Paulo. São Paulo,DG-FFLCH-USP, IPT, FAPESP, 1997.
+ROSSI, M. Mapa Pedológico do Estado de São Paulo: revisado e ampliado. São Paulo:Instituto Florestal, 2017. Disponível em:https://www.infraestruturameioambiente.sp.gov.br/institutoflorestal/2017/09/mapa-pedologico-do-estado-de-sao-paulo-revisado-e-ampliado/
+ROSSINI-PENTEADO, D.; FERREIRA, C.J.; GIBERTI, P.P.C. Quantificaçãodavulnerabilidadee dano aplicados ao mapeamento e análise de risco, escala 1:10.000, Ubatuba-SP. In:SIMPÓSIOBRASILEIRODE DESASTRES NATURAIS E TECNOLÓGICOS, 2, 2007, SantosSP. Anais... São Paulo: Associação Brasileira de Geologia deEngenhariaeAmbiental, 2007.CD-ROM.
+SALAROLI, I.S. MovimentosdeMassanoMunicípiodeVitória-ES:Inventário,caracterizaçãoe indicativos de um modelo comportamental. 2003. Dissertação (Mestrado) - UniversidadeFederal do Espírito Santo, Vitória, 2003.
+SÃO PAULO (Estado). Plano Preventivo de Defesa Civil - PPDC específico paraEscorregamentosnasEncostasdaSerradoMar. DECRETON.42.565,DE1DEDEZEMBRODE 1997. Disponível em: <https://goo.gl/Ypkdgl>.
+SENTELHAS, P.C.; SANTOS, D.L. dos; MACHADO, R.E.Waterdeficitandwatersurplusmapsfor Brazil, based on FAO Penman-Monteith potential evapotranspiration. Revista Ambiente eÁgua, v.3, p.28-42, 2008.
+SCS–SOILCONSERVATIONSERVICE. AMethodfor EstimatingVolumeandRateofRunoffin Small Watersheds. Washington, D.C.: U.S. Departmentof Agriculture, 1973.
+SCS – SOIL CONSERVATION SERVICE. National engineering handbook. Washington D.C.:U.S. Department of Agriculture, sec. 4. 1972.
+SCOFIELD, R. A. Comments on “A quantitative assessment of the NESDISAutoEstimator”.Weather and Forecasting. - v. 16, n.2, pp. 277-278, 2001.
+SILVA, A.M. & ALVARES, C.A. LevantamentodeinformaçõeseestruturaçãodeumbancodedadossobreaerodibilidadedeclassesdesolosnoEstadodeSãoPaulo.RevistaGeociências,UNESP, São Paulo, v. 24, n. 1, p. 33-41, 2005.
+
+===== PAGE 56 =====
+54
+SINDUSCON–SINDICATODAINDÚSTRIADACONSTRUÇÃOCIVILDOESTADODESÃOPAULO. Custo Unitário Básico da Construção Civil. 2018. Consultado emoutubro de 2018.Disponível em: https://www.sindusconsp.com.br/cub/ ehttps://www.sindusconsp.com.br/wp-content/uploads/2018/11/10-Outubro-2018-Desonerado.pdf.
+SOARES E.P. 2006. Caracterização da precipitação na região de Angra dos Reis e a suarelação com a ocorrência de deslizamentos de encostas. Dissertação de Mestrado.Universidade Federal do Rio de Janeiro. 145p.
+SOARESE.P.&MARTONE.2006.Relaçãoentreprecipitaçãoedeslizamentosdeencostasnaregião de Angra dos Reis. In: CONGRESSO BRASILEIRO DE METEOROLOGIA, 14,Florianópolis. Anais... Rio de Janeiro: Sociedade Brasileira de Meteorologia. Disponível em:https://goo.gl/BHHFnk. Acessado em: 29 jun. 2015.
+TATIZANAC.,OGURAA.T.,CERRIL.E.S.,ROCHAM.C.M.1987a.AnálisedeCorrelaçãoentreChuvas e Deslizamentos – Serra do Mar – Município de Cubatão. In: CONGRESSOBRASILEIRODEGEOLOGIAEENGENHARIA, 5, SãoPaulo. Anais... SãoPaulo:AssociaçãoBrasileira de Geologia de Engenharia e Ambiental, 2: 225-236.
+TATIZANA, C., OGURA, A.T., CERRI, L.E.S., ROCHA, M.C.M. 1987b. ModelamentoNuméricodaAnálisedeCorrelaçãoentreChuvaseDeslizamentosaplicadosàEncostadaSerradoMar.In: CONGRESSO BRASILEIRO DE GEOLOGIA E ENGENHARIA,5, São Paulo.Anais…SãoPaulo: Associação Brasileira de Geologia de Engenhariae Ambiental, 2: 237-248.
+THORNTHWAITE, C.W.; MATHER, J.R. The water balance. New Jersey: Centerton, 1955.104p. (Publications in Climatology, v.8, n.1).
+TOMINAGA, L.K.; FERREIRA, C.J.; VEDOVELLO, R.; TAVARES,R.;SANTORO,J.&SOUZA,C.R. deG.CartasdeperigoaescorregamentosederiscoapessoasebensdoLitoral NortedeSão Paulo: conceitos e técnicas. In: PEJON, O.; ZUQUETTE, L. (eds.): SIMPÓSIOBRASILEIRO DE CARTOGRAFIA GEOTÉCNICA E GEOAMBIENTAL, 5, 2004, São Carlos.Anais... São Paulo: Associação Brasileira de Geologia de Engenharia e Ambiental, 2004.CD-ROM, p. 205-216.
+TOMINAGA, L; ROSSINI-PENTEADO, D; FERREIRA, C.J; VEDOVELLO, R. MapeamentodeRiscoaEscorregamentosnaEscala1:10.000:AbordagemMetodológicaAplicadaemUbatuba,SP. In: Simpósio Nacional de Geomorfologia, VII, e Encontro Latino-Americano deGeomorfologia, 2, Belo Horizonte, 01 a 08 de agosto de 2008. Anais..., Instituto deGeociências, Universidade Federal de Minas Gerais,2008.
+TURCOTTE, R.; FORTIN, J.P.; ROUSSEAU, A.N.; MASSICOTTE, S.; VILLENEUVE, J.P.Determination of the drainage structure of a watershed using a digital elevation model andadigital river and lake network. Journal of Hydrology,Amsterdam, v.240, n.3, p.225-242, 2001.
+TURNER, B.L.; NIELSEN, T.H. Influence of rainfall and ancient landslides deposits onrecentlandslides. Geological Survey Bulletin, Washington,n.1388, 18p, 1975.
+UNDRO-UNITEDNATIONSDISASTERRELIEFORGANIZATION.Mitigationnatural disasters:phenomena, effectsandoptions. Amanual for policymakersandplanners.OfficeoftheUnitedNations Disaster Relief Coordinator, Geneva. 1991.
+UNESCO - INSTITUTOINTERNACIONAL DE PLANEJAMENTODA EDUCAÇÃO. Avaliaçãoda capacidade institucional para a melhoria da qualidade educativa: materiais de apoio àformação em competências de inspetores da educação em Angola. IIPE-UNESO, BuenosAires, 2012.
+
+===== PAGE 57 =====
+55
+UN-ISDR– UNITEDNATIONS INTERNATIONAL STRATEGYFORDISASTERREDUCTION.International Strategy for Disaster Reduction. 2009. Terminology on Disaster Risk Reduction.Disponível em<http://www.unisdr.org/we/inform/terminology>.Acesso em julho de 2020.
+UN-ISDR– UNITEDNATIONS INTERNATIONAL STRATEGYFORDISASTERREDUCTION.Sendai Framework for Disaster Risk Reduction - 2015- 2030. Geneva. 2015.
+UN-SPIDER – SPACE-BASED INFORMATION FOR DISASTER MANAGEMENT ANDEMERGENCY RESPONSE. Disaster Risk Management. Disponível emhttp://www.un-spider.org/risks-and-disasters/disaster-risk-management.
+VALENCIO, N.; SIENA, M.; MARCHEZINI, V.; GONÇALVES, J. C. Sociologiadosdesastres–Construção, interfaces e perspectivas no Brasil. SãoCarlos: RiMa Editora, 2009.
+VALERIANO, M.M. Dados topográficos. In: FLORENZANO, T.G. (Org.). Geomorfologia,conceitos e tecnologias atuais. São Paulo: Oficinade Textos, 2008. p. 72-104.
+VASCONCELLOS, P. FAN - Formação de Analistas de Negócios. 2019.
+VEDOVELLO, R. Modelagem e Arquitetura de um Sistema Gerenciador de InformaçõesGeoambientais(SGIG) comoProdutodeAvaliaçõesGeológico-geotécnicas.In:10ºCongressoBrasileiro de Geologia de Engenharia e Ambiental, 2002, Ouro Preto, MG.
+VEDOVELLO, R. Zoneamentogeotécnicosaplicadosàgestãoambiental, apartirdeUnidadesBásicasdeCompartimentação- UBSs. RioClaro(SP);2000.[TesedeDoutoramento-Institutode Geociências e Ciências Exatas da UNESP]. 154p.
+VIEIRA, R. Umolhar sobreapaisagemeolugarcomoexpressãodocomportamentofrenteaorisco de deslizamento. 2004. 197f. Tese (Doutorado) – Departamento de Geociências,Universidade Federal de Santa Catarina, UFSC, Florianópolis,2004.
+VILAD.A.; SCOFIELDR.A.; KULIGOWSKI R.J.; DAVENPORTJ.C.;Satelliterainfall estimationover South America: Evaluation of two major events. NOAA Technical Reports n. 114, USDepartment of Commerce, Washington, D.C, June 2003.
+WATT, W.E., &CHOW, K.C. (1985). Ageneral expressionfor basinlagtime.CanadianJournalof Civil Engineering, 12, 294-300.
+WORLDBANK. MelhoriadaResiliênciaClimáticadaMalhaRodoviáriaFederal Brasileira,maiode 2019. 2019.
+XAVIER, H. Percepção geográfica dos deslizamentos de encostas em áreas de risco nomunicípiodeBeloHorizonte, MG. 1996. 222f. Tese(Doutorado) - DepartamentodeGeografia,Universidade Estadual Paulista, UNESP, Rio Claro,1996.
+ZÊZERE, J.L.; RODRIGUES, M.L.; FERREIRA, A.B. Recent landslide activity in relation torainfall in the Lisbon region (Portugal). Geophysical Research Abstracts, v.5, 2003.
+
+===== PAGE 58 =====
+56
+7. EQUIPETÉCNICA
+Os documentos referentes à “Anotação de Responsabilidade Técnica - ART”, paraexecuçãodeste projeto são apresentados noANEXO A.
+Geólogo Dr. Fernando Facciolla Kertzman
+Geólogo MSc. Fernando Machado Alves
+Engenheiro Civil Dr. José Mauro Marquez
+Analista de Sistema Bruno Alexandre Araújo
+Analista de Sistema Brunno Pirani Bassan
+Geólogo MSc. Guilherme Nunes Fernandez
+Geólogo Pedro Machado Simões
+Geógrafo Esp. Adão Aparecido Lanzieri Modesto
+Engenheiro Cartógrafo MSc. Tobias Rehder da CunhaPatuci
+Analista de Sistema Diego dos Santos Rodrigues
+Geólogo Dr. Fernando Facciolla Kertzman
+CREA 0601488426
+Coordenador do Projeto
+
+===== PAGE 59 =====
+ANEXOS
+
+===== PAGE 60 =====
+ANEXO
+A
+Exemplo geral dos códigos utilizados no TerraMA2:
+Risco Hidrológico - Hidroestimandor
+
+===== PAGE 61 =====
+Risco Geológico - Hidroestimandor
+
+===== PAGE 62 =====
+
+===== PAGE 63 =====
+Risco Hidrológico - DAEE
+
+===== PAGE 64 =====
+
+===== PAGE 65 =====
+Risco Geológico - DAEE
+
+===== PAGE 66 =====
+
+===== PAGE 67 =====
+
+===== PAGE 68 =====
+ANEXO
+B
+Todos os códigos utilizados no TerraMA²
+https://optimusgis.sharepoint.com/sites/ProjetoIG-DER/Documentos%20Partilhados/C%C3%B3digo-Fonte?csf=1&web=1&e=wCHhMN

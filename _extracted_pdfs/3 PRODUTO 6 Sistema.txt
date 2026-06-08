@@ -1,0 +1,12420 @@
+
+--- PAGE 1 ---
+RELATÓRIO TÉCNICO E DE ATIVIDADES
+ETAPA 2
+NATUREZA  DO TRABALHO
+Elaboração de Planos de Contingência frente a riscos
+de eventos geodinâmicos em 
+trechos rodoviários selecionados das Unidades Básicas
+de Atendimento (UBA) do 
+Departamento de Estradas de Rodagem do Estado de São
+Paulo (DER/SP) de 
+Caraguatatuba, Mogi das Cruzes e São V icente
+INTERESSADO
+Departamento de Estradas de Rodagem do Estado de São
+Paulo – DER/SP
+PROGRAMA
+Transporte, Logística e Meio Ambiente
+PROJET O
+Transporte Sustentável de São Paulo
+CONTRATO
+CÓDIGO REGEA
+REVISÃO
+LOCAL E DATA 
+20.595-3 
+Protocolo DER/2087634//2019
+2053-R03-20
+1
+São Paulo 
+23.Fevereiro.2021
+Rua Moacir Miguel da Silva, 633   Jd. Bonfiglioli
+CEP 05595-000   São Paulo   SP   Brasil 
++55 11 3735-5172   www.regea.com.br
+
+--- PAGE 2 ---
+1
+SUMÁRIO
+Introdução
+1
+Objetivo
+1
+Área de estudo
+2
+Divisão administrativa e de conservação das UBAs
+3
+Divisão das regiões por CPC – coeficiente de precipitação
+crítica
+4
+Resultados obtidos na etapa 1
+5
+Produto 03 – modelo de correlação entre eventos e
+chuvas
+5
+Correlação para eventos geológicos
+5
+Correlação para eventos hidrológicos
+5
+Produto 04 – análise de risco
+7
+Correlação entre o risco aos eventos geológicos analisado
+e as chuvas
+13
+Correlação entre o risco aos eventos hidrológicos
+analisado e as chuvas
+14
+Etapa 2 – implantação de sistema automatizado de análise,
+monitoramento e alerta
+19
+Plataforma computacional TerraMA²
+20
+Serviços e fontes de dados para as análises
+22
+Plataforma computacional arcgis
+22
+Módulo de alerta
+23
+Funcionalidades
+23
+Ferramenta de alerta
+23
+Modelo previsional
+28
+O Modelo Hidroestimador
+28
+O Modelo WRF
+28
+Eventos geológicos
+29
+Modelo para o script
+29
+Eventos hidrológicos
+33
+Modelo para o script
+34
+Módulo de administração
+36
+Módulo de configuração
+37
+Serviços de gerência de planos
+38
+Serviços de animação
+38
+Serviço de notificação
+39
+Serviço de análise
+39
+5. Cronograma de atividades e próximas etapas
+41
+6. Referências bibliográficas
+44
+7. Equipe técnica
+56
+Anexos
+57
+Anexo A
+58
+Anexo B
+66
+
+--- PAGE 3 ---
+1
+1.
+I
+NTRODUÇÃO
+O
+Consórcio
+NIPPON
+KOEI
+LAC
+/
+NIPPON
+KOEI
+LAC
+DO
+BRASIL
+/
+REGEA
+/
+GEOTEC
+/ 
+OPTIMUS
+GIS
+(Consórcio 4X044)
+elaborou
+e
+apresenta
+este
+Relatório
+Técnico
+e
+de
+Atividades 
+em
+cumprimento
+às
+exigências
+do
+Edital
+SDP nº 064/2019,
+para
+execução
+do
+Contrato 
+nº 20.595-3,
+relativo
+à
+“Prestação
+de
+Serviços
+Técnicos
+para
+Elaboração
+de
+Planos
+de 
+Contingência
+frente
+a
+riscos
+de
+eventos
+geodinâmicos
+em
+trechos
+rodoviários
+selecionados
+das 
+Unidades
+Básicas
+de
+Atendimento
+(UBA)
+do
+Departamento
+de
+Estradas
+de
+Rodagem
+do 
+Estado
+de
+São
+Paulo
+(DER/SP)
+de
+Caraguatatuba,
+Mogi
+das
+Cruzes
+e
+São
+Vicente”, 
+pertencente
+ao
+Programa
+Transporte,
+Logística
+e
+Meio
+Ambiente
+do
+Projeto
+Transporte 
+Sustentável
+de
+São
+Paulo,
+implementado
+pelo
+Departamento
+de
+Estradas
+de
+Rodagem
+do 
+Estado de São Paulo – DER/SP.
+Conforme
+estabelecido
+no
+item 5
+do
+Termo
+de
+Referência
+(TDR)
+da
+SDP nº 064/2019,
+os 
+serviços
+contratados
+devem
+ser
+desenvolvidos
+em
+uma
+etapa
+preparatória
+e
+três
+etapas
+de 
+elaboração
+de
+produtos
+(
+Tabela 1-1
+).
+O
+Relatório
+Técnico
+e
+de
+Atividades
+ora
+apresentado
+se 
+refere
+ao
+relatório
+relativo
+à
+conclusão
+da
+Etapa 2
+–
+Implantação
+de
+Sistema
+Automatizado 
+de
+Análise,
+Monitoramento
+e
+Alerta
+,
+composta
+pelo
+Produto 07,
+definido
+nos
+itens 5.4
+e
+6.6 
+do Termo de Referência (TDR) da SDP nº 064/2019.
+Tabela 1-1
+. Etapas de desenvolvimento dos serviços.
+Etapa
+Produtos Previstos
+Preparatória 
+*
+Produto 01 - Elaboração do Plano de Trabalho
+1
+Produto 02 - Cadastro de Ocorrências de Eventos Geodinâmicos
+e Desastres
+Produto 03 - Modelo de Correlação entre Eventos e
+Chuvas
+Produto 04 - Análise de Risco
+Produto 05 - Análise do Contexto Institucional
+2
+Produto 06 - Sistema Automatizado de Análise, Monitoramento
+e Alerta de Risco
+3
+Produto 07 - Plano de Contingência frente a Riscos
+de Eventos Geodinâmicos
+* Etapa Preparatória foi concluída em 13/08/2020,
+conforme previsto nos cronogramas apresentados junto
+ao Plano de Trabalho.
+Fonte: Elaborado pelo Consórcio REGEA-PANGEA-NIPPON
+(4X044) a partir do Termo de Referência do Edital
+SDP nº 064/2019.
+Os
+documentos
+referentes
+à
+“Anotação
+de
+Responsabilidade
+Técnica
+-
+ART”,
+para
+execução 
+dos serviços contratados, são apresentados no
+ANEXO A
+.
+2.
+O
+BJETIVO
+O
+objetivo
+do
+serviço
+é
+a
+elaboração
+de
+planos
+de
+contingência
+frente
+a
+riscos
+de
+eventos 
+geodinâmicos
+em
+trechos
+rodoviários
+selecionados
+das
+Unidades
+Básicas
+de
+Atendimento 
+(UBAs)
+de
+Caraguatatuba,
+Mogi
+das
+Cruzes
+e
+São
+Vicente,
+em
+apoio
+aos
+planos
+estratégicos, 
+gerenciais
+e
+operacionais
+do
+Setor
+de
+Transportes
+e
+à
+implementação
+do
+Programa
+Estadual 
+de
+Prevenção
+de
+Desastres
+Naturais
+e
+Redução
+de
+Riscos
+Geológicos
+do
+Estado
+de
+São
+Paulo 
+-
+PDN
+(Decreto
+Estadual
+nº 57.512/2011),
+quanto
+ao
+gerenciamento
+de
+risco
+na
+gestão 
+rodoviária.
+2.1.
+Á
+REA
+DE
+ESTUDO
+A
+área
+de
+estudo
+compreende,
+parcialmente,
+as
+rodovias
+SP-055
+e
+SP-098,
+em
+uma
+faixa
+de 
+1 km
+de
+largura
+a
+partir
+do
+eixo
+das
+rodovias.
+A
+relação
+de
+UBAs
+e
+respectivas
+divisões
+
+--- PAGE 4 ---
+2
+administrativa
+e
+de
+conservação
+estão
+apresentadas
+na
+Tabela 2-1.
+As
+rodovias
+e
+respectivos 
+municípios interceptados que definem a área de estudo
+estão apresentados na
+Figura 2-1
+.
+Tabela 2-1
+. Área
+de
+estudo
+do
+projeto,
+com
+especificação
+da
+divisão
+administrativa
+e
+de
+conservação 
+das rodovias em relação às UBAs.
+Rodovia
+Município
+Regional
+Residência da 
+Conservação
+Conservação
+Inicial 
+(km)
+Final
+(km)
+Extensão 
+(km)
+Jurisdição
+SP-055
+Ubatuba
+Taubaté 
+DR.06
+Caraguatatuba 
+UBA 06.04
+Caraguatatuba 
+UBA 06.04
+53,600
+81,970
+28,370
+Estadual
+Caraguatatuba
+81,970
+87,240
+5,270
+Estadual 
+87,240
+89,100
+1,860
+Federal 
+89,100
+99,630
+10,530
+Estadual
+Prefeitura 
+Municipal de 
+Caraguatatuba
+99,630
+102,300
+2,670
+Estadual
+Caraguatatuba 
+UBA 06.04
+102,300
+112,550
+10,250
+Estadual
+São Sebastião
+112,550
+120,200
+7,650
+Estadual
+Prefeitura 
+Municipal de 
+São Sebastião
+120,200
+127,800
+7,600
+Estadual
+São Vicente 
+UBA 05.04
+127,800
+165,910
+38,110
+Estadual 
+165,910
+174,600
+8,690
+Federal 
+174,600
+176,200
+1,600
+Estadual 
+176,200
+185,900
+9,700
+Federal 
+185,900
+191,400
+5,500
+Estadual
+Bertioga
+Cubatão 
+DR.05
+São Vicente 
+UBA 05.04
+191,400
+220,450
+29,050
+Estadual 
+220,450
+233,400
+12,950
+Federal
+Santos
+233,400
+248,100
+14,700
+Federal
+Extensão total da área de estudo da rodovia SP-055
+194,500
+SP-098
+Mogi das 
+Cruzes
+São Paulo 
+DR.10
+Mogi das Cruzes 
+UBA 10.04
+Mogi das 
+Cruzes 
+UBA 10.04
+62,900
+75,000
+12,100
+Estadual
+Biritiba-Mirim
+75,000
+82,400
+7,400
+Estadual
+Bertioga
+Cubatão 
+DR.05
+São Vicente 
+UBA 05.04
+82,400
+98,100
+15,700
+Estadual
+Extensão total da área de estudo da rodovia SP-098
+35,200
+Extensão total da área de estudo do projeto
+229,700
+A intersecção entre as rodovias ocorre nos Km 214,650
+da rodovia SP-055 e no KM 98,100 da rodovia SP-098.
+Figura 2-1
+. Área de estudo do projeto. Fonte: Elaborado
+pelo Consórcio 4X044 no âmbito do 
+desenvolvimento dos serviços contratados.
+
+--- PAGE 5 ---
+3
+2.1.1.
+D
+IVISÃO
+ADMINISTRATIVA
+E
+DE
+CONSERVAÇÃO
+DAS
+UBA
+S
+Desta
+forma,
+embora
+alguns
+trechos
+das
+rodovias
+estejam
+geograficamente
+situados
+nos 
+municípios
+de
+abrangência
+de
+uma
+determinada
+UBA,
+sua
+conservação,
+manutenção
+e 
+atendimentos
+de
+emergência
+são
+realizados
+pela
+UBA
+vizinha
+ou,
+ainda,
+pela
+Prefeitura
+do 
+município em que o trecho está inserido, conforme
+apresentado na relação a seguir:
+●
+Caraguatatuba
+–
+UBA 06.04
+–
+Rodovia
+SP-055,
+do
+km 53,600
+ao
+km 99,630,
+e
+do 
+km 102,300
+ao
+km 112,550,
+totalizando
+63,930 quilômetros
+de
+extensão,
+sendo 
+46,030 quilômetros no primeiro intervalo, e 17,900 quilômetros
+no segundo intervalo;
+●
+Mogi
+das
+Cruzes
+–
+UBA 10.04
+–
+Rodovia
+SP-098,
+do
+km 62,900
+ao
+km 98,100,
+totalizando 
+35,200 quilômetros;
+●
+São
+Vicente
+–
+UBA 05.04
+–
+Rodovia
+SP-055,
+do
+km 127,800
+ao
+km 248,100,
+totalizando 
+120,300 quilômetros;
+●
+Prefeitura
+Municipal
+de
+Caraguatatuba
+–
+Rodovia
+SP-055,
+do
+km 99,630
+ao
+km 102,300, 
+totalizando
+2,670 quilômetros.
+O
+trecho
+tem
+os
+limites
+Norte
+e
+Sul
+coincidentes
+com
+os 
+intervalos conservados pela UBA 06.04;
+●
+Prefeitura
+Municipal
+de
+São
+Sebastião
+–
+Rodovia
+SP-055,
+do
+km 120,200
+ao
+km 127,800, 
+totalizando
+7,600 quilômetros.
+O
+trecho
+tem
+olimite
+Norte
+coincidente
+com
+o
+segundo 
+intervalo
+conservado
+pela
+UBA 06.04,
+e
+o
+limite
+Sul
+coincidente
+com
+o
+intervalo
+conservado 
+pela UBA 05.04.
+Para
+simplificar
+a
+análise
+dos
+dados
+e
+apresentação
+de
+resultados,
+a
+divisão
+dos
+trechos
+de 
+abrangência e atuação das UBAs foi considerada conforme
+apresentado na relação a seguir:
+●
+UBA 05.04 – São
+Vicente
+–
+Rodovia
+SP-055,
+do
+km 127,800
+ao
+km 248,100,
+totalizando 
+120,300 quilômetros;
+●
+UBA 06.04 – Caraguatatuba
+–
+Rodovia
+SP-055,
+do
+km 53,600
+ao
+km 127,800,
+totalizando 
+74,200 quilômetros
+e
+abrangendo
+os
+trechos
+sob
+conservação
+das
+Prefeituras
+Municipais
+de 
+Caraguatatuba e de São Sebastião;
+●
+UBA 10.04 – Mogi
+das
+Cruzes
+–
+Rodovia
+SP-098,
+do
+km 62,900
+ao
+km 98,100,
+totalizando 
+35,200 quilômetros.
+2.1.2.
+D
+IVISÃO
+DAS
+REGIÕES
+POR
+CPC – 
+COEFICIENTE
+DE
+PRECIPITAÇÃO
+CRÍTICA
+A
+correlação
+entre
+os
+processos
+geodinâmicos,
+suas
+respectivas
+localizações
+e
+as
+condições 
+de
+chuvas
+necessárias
+para
+sua
+deflagração
+foram
+analisadas
+na
+elaboração
+do
+Produto 03
+da 
+Etapa 1
+deste
+projeto.
+Ao
+observar
+as
+correlações
+possíveis,
+notou-se
+resultados
+similares
+ao 
+longo
+de
+4
+trechos
+distintos,
+denominados
+Regiões,
+que
+estão
+representados
+na
+Tabela 2.1.2-1 
+e
+na
+Figura 2.1.2-1
+e,
+para
+cada
+uma
+delas,
+foram
+calculados
+os
+Coeficientes
+de
+Precipitação 
+Crítica (CPC) que deflagram os processos de escorregamentos
+e de inundações.
+Tabela 2.1.2-1
+. Regiões
+separadas
+em
+decorrência
+dos
+Coeficientes
+de
+Precipitação
+Crítica
+analisados 
+e definidos.
+Região
+Rodovia
+Municípios
+1
+Rod. Mogi-Bertioga (SP-098)
+Bertioga, Biritiba-Mirim, Mogi das Cruzes
+2
+Rod. Rio-Santos (SP-055)
+Caraguatatuba e Ubatuba
+3
+Rod. Rio-Santos (SP-055)
+São Sebastião
+4
+Rod. Rio-Santos (SP-055)
+Bertioga e Santos
+
+--- PAGE 6 ---
+4
+Figura 2.1.2-1
+. Localização das quatro Regiões separadas
+em decorrência dos Coeficientes de 
+Precipitação Crítica analisados e definidos.
+3.
+R
+ESULTADOS
+OBTIDOS
+NA
+ETAPA
+ 1
+Após
+a
+elaboração
+da
+Etapa 1,
+os
+Produtos 03
+e
+04,
+relacionados
+ao
+Modelo
+de
+Correlação 
+entre
+Eventos
+e
+Chuvas
+e
+à
+Análise
+de
+Risco,
+respectivamente,
+subsidiaram
+a
+elaboração
+do 
+Produto 06, resultante desta Etapa 2.
+Os resultados obtidos na elaboração dos Produtos 03
+e 04 estão resumidos a seguir.
+3.1.
+P
+RODUTO
+ 03 – 
+MODELO
+DE
+CORRELAÇÃO
+ENTRE
+EVENTOS
+E
+CHUVAS
+3.1.1.
+C
+ORRELAÇÃO
+PARA
+EVENTOS
+GEOLÓGICOS
+Cada
+região
+apresenta
+uma
+equação
+envoltória
+correspondente,
+a
+partir
+da
+qual
+é
+possível 
+calcular
+o
+Coeficiente
+de
+Precipitação
+Crítica
+(CPC)
+de
+qualquer
+evento
+de
+chuva
+utilizando
+o 
+valor
+de
+intensidade
+instantânea
+de
+chuva
+(mm / h)
+e
+de
+chuva
+acumulada
+em
+96 h
+(mm). 
+Desta
+maneira,
+foram
+delimitadas
+faixas
+de
+Índice
+de
+Correlação
+com
+Chuvas
+(ICC)
+para
+os 
+eventos geológicos,  sendo estas faixas projetadas
+a partir das equações de cada região.
+Os
+valores
+de
+CPC
+inferiores
+a
+1,0
+indicam
+chuvas
+que
+não
+tendem
+a
+gerar
+eventos
+geológicos 
+nas
+rodovias.
+A
+probabilidade
+de
+deflagração
+de
+eventos
+aumenta
+à
+medida
+que
+se
+avança 
+dentro
+das
+quatro
+faixas
+estabelecidas
+para
+cada
+Região
+analisada.
+As
+Tabelas 3.1.1-1
+e
+
+--- PAGE 7 ---
+5
+3.1.1-2
+resumem
+a
+equação
+que
+traça
+o
+limite
+de
+cada
+faixa
+de
+Índice
+de
+Correlação
+com 
+Chuvas (ICC), e apresentam as faixas de ICC determinadas.
+3.1.2.
+C
+ORRELAÇÃO
+PARA
+EVENTOS
+HIDROLÓGICOS
+Para
+os
+processos
+hidrológicos,
+as
+faixas
+de
+ICC
+foram
+estabelecidas
+de
+acordo
+com
+a 
+probabilidade
+de
+ocorrência
+de
+eventos
+hidrológicos,
+com
+base
+no
+histórico
+de
+eventos 
+avaliados
+em
+limiares
+de
+chuva.
+Desta
+forma,
+as
+faixas
+de
+índice
+de
+correlação
+com
+chuvas 
+(ICC)
+foram
+traçadas
+a
+partir
+destas
+probabilidades.
+A
+relação
+entre
+a
+probabilidade
+e
+a 
+mudança de faixas está sintetizada na
+Tabela 3.1.2-1
+.
+
+--- PAGE 8 ---
+6
+Tabela 3.1.1-1
+. Resumo
+das
+equações
+que
+definem
+os
+limites
+das
+quatro
+faixas
+usadas
+para
+adoção
+de
+Índice
+de
+Correção
+de
+Chuvas
+(ICC).
+Onde 
+I = Intensidade de chuva em mm / h, e Ac96h = Acumulado
+de chuva nas 96 h anteriores ao evento.
+Região
+Equação 1
+CPC
+Equação 2
+CPC
+Equação 3
+CPC
+Equação 4
+CPC
+1
+I = 1.000 x Ac96h
+-0,9
+1
+I = 3.000 x Ac96h
+-0,9
+3
+I = 6.000 x Ac96h
+-0,9
+6
+I = 15.000 Ac96h
+-0,9
+15 
+2
+I = 400 x Ac96h
+-0,9
+1
+I = 2.400 x Ac96h
+-0,9
+6
+I = 6.400 x Ac96h
+-0,9
+12
+I = 9.600 x Ac96h
+-0,9
+24 
+3
+I =200 Ac96h
+-0,9
+1
+I = 1.600 x Ac96h
+-0,9
+8
+I = 3.200 x Ac96h
+-0,9
+16
+I = 4.800 x Ac96h
+-0,9
+24 
+4
+I = 1.000 x Ac96h
+-0,9
+1
+I = 4.000 x Ac96h
+-0,9
+4
+I = 8.000 x Ac96h
+-0,9
+8
+I = 16.000 x Ac96h
+-0,9
+16
+Tabela 3.1.1-2
+.  Faixas de Índice de Correlação com
+Chuvas (ICC) para os eventos Geológicos.
+Região
+Coeficiente de Precipitação Crítica da Região (CPC) 
+Faixa 0 (ICC
+GEO
+0)
+Faixa 1 (ICC
+GEO
+1)
+Faixa 2 (ICC
+GEO
+2)
+Faixa 3 (ICC
+GEO
+3)
+Faixa 4 (ICC
+GEO
+4) 
+De
+Até
+De
+Até
+De
+Até
+De
+Até
+A partir de
+1
+SP-098 - Mogi-Bertioga
+0
+< 1
+1
+3
+> 3
+6
+> 6
+15
+> 15 
+2
+SP-055 - Caraguatatuba-Ubatuba
+0
+< 1
+1
+6
+> 6
+12
+> 12
+24
+> 24 
+3
+SP-055 - São Sebastião
+0
+< 1
+1
+8
+> 8
+16
+> 16
+24
+> 24 
+4
+SP-055 - Santos-Bertioga
+0
+< 1
+1
+4
+> 4
+8
+> 8
+16
+> 16
+Tabela 3.1.2-1
+.  Faixas de Índice de Correlação com
+Chuvas (ICC) para os eventos Hidrológicos.
+Região
+Probabilidade de Ocorrência de Eventos Hidrológicos 
+Faixa 0 (ICC
+HID
+0)
+Faixa 1 (ICC
+HID
+1)
+Faixa 2 (ICC
+HID
+2)
+Faixa 3 (ICC
+HID
+3)
+Faixa 4 (ICC
+HID
+4) 
+0% a 10%
+> 10% a 25%
+> 25% a 50%
+> 50% a 75%
+> 75% a 100%
+Intensidade Pluviométrica (24h) 
+De
+Até
+De
+Até
+De
+Até
+De
+Até
+A partir de
+1
+SP-098 - Mogi-Bertioga
+0
+110
+> 110
+160
+> 160
+200
+> 200
+280
+> 280 
+2
+SP-055 - Caraguatatuba-Ubatuba
+0
+70
+> 70
+80
+> 80
+120
+> 120
+143
+> 143 
+3
+SP-055 - São Sebastião
+0
+60
+> 60
+85
+>85
+110
+> 110
+126
+> 126 
+4
+SP-055 - Santos-Bertioga
+0
+150
+> 450
+200
+> 200
+230
+> 230
+300
+> 300
+
+--- PAGE 9 ---
+7
+3.2.
+P
+RODUTO
+ 04 – 
+ANÁLISE
+DE
+RISCO
+A
+Análise
+de
+Risco
+para
+as
+rodovias
+da
+área
+de
+estudo
+foi
+realizada
+utilizando
+os
+Planos
+de 
+Informações
+de
+Risco,
+Perigo,
+Vulnerabilidade
+e
+Dano
+Potencial
+para
+as
+Unidades
+de
+Análise 
+mapeadas
+na
+escala
+de
+maior
+detalhe
+disponível
+para
+cada
+trecho
+avaliado.
+Desta
+forma, 
+embora
+as
+escalas
+de
+mapeamento
+e
+Unidades
+de
+Análise
+resultantes
+variem
+entre
+1:1.000 
+(Setores
+de
+Risco)
+e
+1:10.000
+e
+1:25.000
+(UTB
+–
+Unidades
+Territoriais
+Básicas),
+cada
+uma 
+destas
+Unidades
+de
+Análise
+têm
+a
+dimensão
+apropriada
+para
+a
+Gestão
+do
+Risco
+naquele 
+trecho,
+adequadas
+para
+análise
+do
+Perigo
+ao
+processo
+para
+o
+qual
+este
+trecho
+é
+suscetível, 
+bem como à sua Vulnerabilidade e Dano Potencial.
+As
+809 Unidades
+de
+Análise
+utilizadas,
+discriminadas
+para
+cada
+Região,
+e
+respectivos
+tipos, 
+escalas
+de
+elaboração,
+quantidade
+de
+unidades
+e
+extensão
+de
+trecho
+rodoviário
+estão 
+apresentadas na
+Tabela 3.2-1
+e nas
+Figuras 3.2-1
+a
+3.2-5
+.
+Tabela 3.2-1
+. Relação
+das
+Unidades
+de
+Análise
+utilizadas,
+por
+Região,
+e
+respectivos
+tipos,
+escalas
+de 
+elaboração, quantidade de unidades e extensão de trecho
+rodoviário.
+Rodovia
+Região
+Município
+Unidades de Análise
+Extensão (km)
+Quantidade
+Escala
+Tipo
+SP-098
+1
+Rodovia 
+Mogi-Bertioga
+Bertioga
+0
+25K
+UTB*
+0,00 
+11
+10K
+UTB*
+5,68 
+32
+1K
+SR**
+5,54
+Subtotal Município
+43
+-
+-
+11,21
+Biritiba-Mirim
+22
+25K
+UTB*
+8,51 
+0
+10K
+UTB*
+0,00 
+5
+1K
+SR**
+0,66
+Subtotal Município
+27
+-
+-
+9,16
+Mogi das Cruzes
+41
+25K
+UTB*
+14,28 
+0
+10K
+UTB*
+0,00 
+0
+1K
+SR**
+0,00
+Subtotal Município
+41
+-
+-
+14,28
+Subtotal Região 1
+111
+-
+-
+34,66
+SP-055
+2
+Caraguatatuba-U 
+batuba
+Caraguatatuba
+0
+25K
+UTB*
+0,00 
+68
+10K
+UTB*
+22,32 
+30
+1K
+SR**
+7,19
+Subtotal Município
+98
+-
+-
+29,51
+Ubatuba
+0
+25K
+UTB*
+0,00 
+30
+10K
+UTB*
+16,40 
+60
+1K
+SR**
+12,85
+Subtotal Município
+90
+-
+-
+29,24
+Subtotal Região 2
+188
+-
+-
+58,76
+3
+São Sebastião
+São Sebastião
+0
+25K
+UTB*
+0,00 
+103
+10K
+UTB*
+34,60 
+252
+1K
+SR**
+43,56
+Subtotal Município
+355
+-
+-
+78,17
+Subtotal Região 3
+355
+-
+-
+78,17
+4
+Santos-Bertioga
+Bertioga
+0
+25K
+UTB*
+0,00 
+87
+10K
+UTB*
+36,59 
+16
+1K
+SR**
+5,92
+Subtotal Município
+103
+-
+-
+42,51
+Santos
+0
+25K
+UTB*
+0,00 
+36
+10K
+UTB*
+11,56 
+16
+1K
+SR**
+3,21
+Subtotal Município
+52
+-
+-
+14,77
+Subtotal Região 4
+155
+-
+-
+57,29
+UTB* - Unidade Territorial Básica 
+SR** - Setor de Risco
+
+--- PAGE 10 ---
+8
+Figura 3.2-1
+. Unidades de Análise para classificação
+do Risco, separadas por escala de origem do 
+dado e Região analisada. Fonte: Elaborado pelo Consórcio 4X044
+no âmbito do desenvolvimento dos 
+serviços contratados.
+Figura 3.2-2
+. Unidades de Análise para classificação
+do Risco em detalhe da Região 1 – Rodovia 
+Mogi-Bertioga, separadas por escala de origem do dado.
+Fonte: Elaborado pelo Consórcio 4X044 no 
+âmbito do desenvolvimento dos serviços contratados.
+
+--- PAGE 11 ---
+9
+Figura 3.2-3
+. Unidades de Análise para classificação
+do Risco em detalhe da 
+Região 2 – Caraguatatuba-Ubatuba, separadas por escala
+de origem do dado. Fonte: Elaborado pelo 
+Consórcio 4X044 no âmbito do desenvolvimento dos serviços
+contratados.
+Figura 3.2-4
+. Unidades de Análise para classificação
+do Risco em detalhe da Região 3 – São 
+Sebastião, separadas por escala de origem do dado.
+Fonte: Elaborado pelo Consórcio 4X044 no 
+âmbito do desenvolvimento dos serviços contratados.
+
+--- PAGE 12 ---
+10
+Figura 3.2-5
+. Unidades de Análise para classificação
+do Risco em detalhe da 
+Região 4 – Santos-Bertioga, separadas por escala de
+origem do dado. Fonte: Elaborado pelo 
+Consórcio 4X044 no âmbito do desenvolvimento dos serviços
+contratados.
+Cada
+uma
+destas
+Unidades
+de
+Análise
+têm
+uma
+classe
+de
+Risco
+intrínseca
+à
+suscetibilidade
+e 
+vulnerabilidade
+aos
+processos
+geológicos
+e
+hidrológicos
+naquele
+trecho
+e
+relativa
+à
+escala
+de 
+mapeamento
+ao
+qual
+este
+trecho
+foi
+submetido.
+Para
+viabilizar
+a
+correlação
+entre
+os 
+fenômenos
+analisados
+e
+as
+chuvas,
+as
+classes
+de
+Risco
+tiveram,
+então,
+sua
+classificação 
+homogeneizada.Neste
+processo,
+a
+variável
+resultante
+passou
+a
+ser
+denominada
+Risco 
+Analisado
+(RA).
+Por
+sua
+vez,
+este
+Risco
+Analisado,
+para
+cada
+um
+dos
+grupos
+de
+eventos 
+geodinâmicos (geológicos ou hidrológicos), foi dividido
+em 5 níveis, relacionados a seguir:
+●
+Risco Analisado Geológico (
+RA
+GEO
+):
+o
+RA
+GEO
+0
+ – Risco Analisado Geológico Nulo a Quase Nulo
+o
+RA
+GEO
+1
+ – Risco Analisado Geológico Muito Baixo a Baixo
+o
+RA
+GEO
+2
+ – Risco Analisado Geológico Médio
+o
+RA
+GEO
+3
+ – Risco Analisado Geológico Alto
+o
+RA
+GEO
+4
+ – Risco Analisado Geológico Muito Alto 
+●
+Risco Analisado Hidrológico (RA
+HID
+):
+o
+RA
+HID
+0
+ – Risco Analisado Hidrológico Nulo a Quase
+Nulo
+o
+RA
+HID
+1
+ – Risco Analisado Hidrológico Muito Baixo a
+Baixo
+o
+RA
+HID
+2
+ – Risco Analisado Hidrológico Médio
+o
+RA
+HID
+3
+ – Risco Analisado Hidrológico Alto
+o
+RA
+HID
+4
+ – Risco Analisado Hidrológico Muito Alto
+Cada
+classe
+de
+Risco
+Analisado
+para
+os
+processos
+geológicos
+e
+hidrológicos
+pode
+ser 
+caracterizada
+de
+acordo
+com
+as
+características
+e
+critérios
+apresentados
+nas
+Tabelas 3.2-2
+e 
+3.2-3
+.
+
+--- PAGE 13 ---
+11
+Tabela 3.2-2
+. Classes
+de
+Risco
+de
+escorregamento,
+erosão
+e
+solapamento
+de
+margens
+fluviais, 
+correspondendo o Risco ao Risco Analisado (Adaptado
+de IG, 2014a).
+RISCO
+ANALISADO
+CRITÉRIOS BÁSICOS E DESCRIÇÃO
+RA
+GEO
+0 
+NULO A 
+QUASE NULO
+●
+Os
+condicionantes
+geológico-geotécnicos
+predisponentes
+(declividade,
+tipo
+de
+terreno,
+etc.)
+e 
+o
+nível
+de
+intervenção
+no
+setor
+não
+têm
+potencialidade
+para
+o
+desenvolvimento
+de
+processos 
+de escorregamentos, erosão ou solapamento;
+●
+É a condição menos crítica;
+●
+O Perigo é nulo a quase nulo para eventos geológicos.
+Mantidas
+as
+condições
+existentes,
+não
+se
+espera
+a
+ocorrência
+de
+eventos
+destrutivos
+no
+período 
+compreendido por uma estação chuvosa normal (no período
+de 1 ano).
+RA
+GEO
+1 
+BAIXO E
+MUIT O BAIXO
+●
+Os
+condicionantes
+geológico-geotécnicos
+predisponentes
+(declividade,
+tipo
+de
+terreno,
+etc.)
+e 
+o
+nível
+de
+intervenção
+no
+setor
+são
+de
+baixa
+potencialidade
+para
+o
+desenvolvimento
+de 
+processos de escorregamentos, erosão ou solapamento;
+●
+Não
+há
+evidência(s)
+de
+instabilidade
+de
+encostas
+ou
+indícios
+de
+desenvolvimento
+de 
+processos erosivos ou de solapamento de margens de
+drenagens; 
+●
+É a condição de baixa a muito baixa criticidade;
+●
+O Perigo é baixo e a V ulnerabilidade varia de baixa
+a média; 
+Mantidas
+as
+condições
+existentes,
+não
+se
+espera
+a
+ocorrência
+de
+eventos
+destrutivos
+no
+período 
+compreendido por uma estação chuvosa normal (no período
+de 1 ano).
+RA
+GEO
+2 
+MÉDIO
+●
+Os
+condicionantes
+geológico-geotécnicos
+predisponentes
+(declividade,
+tipo
+de
+terreno,
+etc.)
+e 
+o
+nível
+de
+intervenção
+no
+setor
+são
+de
+média
+potencialidade
+para
+o
+desenvolvimento
+de 
+processos de escorregamentos, erosão ou solapamento;
+●
+Observa-se
+incipiente
+presença
+de
+alguma(s)
+evidência(s)
+de
+instabilidade
+de
+encostas
+e/ou 
+vertentes
+e
+de
+margens
+de
+drenagens.
+Os
+processos
+de
+instabilização
+estão
+em
+estágio 
+inicial de desenvolvimento;
+●
+É a condição de mediana criticidade;
+●
+O
+Perigo
+é
+baixo
+e
+a
+Vulnerabilidade
+varia
+de
+alta
+a
+muito
+alta
+OU
+o
+Perigo
+é
+médio
+com
+a 
+Vulnerabilidade variando de média a baixa OU o Perigo
+é alto com V ulnerabilidade baixa; 
+Mantidas
+as
+condições
+existentes,
+é
+reduzida
+a
+possibilidade
+de
+ocorrência
+de
+eventos 
+destrutivos
+durante
+episódios
+de
+chuvas
+intensas
+e
+prolongadas,
+no
+período
+compreendido
+por 
+uma estação chuvosa normal (período de 1 ano).
+RA
+GEO
+3 
+ALTO
+●
+Os
+condicionantes
+geológico-geotécnicos
+predisponentes
+(declividade,
+tipo
+de
+terreno,
+etc.)
+e 
+o
+nível
+de
+intervenção
+no
+setor
+são
+de
+alta
+potencialidade
+para
+o
+desenvolvimento
+de 
+processos de escorregamentos, erosão ou solapamento;
+●
+Observa-se
+a
+presença
+de
+significativa(s)
+evidência(s)
+de
+instabilidade
+(trincas
+no
+solo, 
+degraus
+de
+abatimento
+em
+taludes,
+pequenas
+cicatrizes
+de
+escorregamentos,
+erosão
+laminar , 
+sulcos em taludes e/ou vertentes, etc.);
+●
+Os
+processos
+de
+instabilização
+estão
+em
+pleno
+desenvolvimento,
+sendo
+necessário
+monitorar 
+a sua evolução;
+●
+O
+Perigo
+é
+médio
+e
+a
+Vulnerabilidade
+varia
+de
+alta
+a
+muito
+alta
+OU
+o
+Perigo
+é
+alto
+com
+a 
+Vulnerabilidade
+média
+OU
+o
+Perigo
+é
+muito
+alto
+com
+a
+Vulnerabilidade
+variando
+de
+média
+a 
+baixa;
+Mantidas
+as
+condições
+existentes,
+é
+perfeitamente
+possível
+a
+ocorrência
+de
+eventos
+destrutivos 
+durante
+episódios
+de
+chuvas
+intensas
+e
+prolongadas,
+no
+período
+compreendido
+por
+uma
+estação 
+chuvosa (período de 1 ano).
+RA
+GEO
+4 
+MUIT O ALTO
+●
+Os
+condicionantes
+geológico-geotécnicos
+predisponentes
+(declividade,
+tipo
+de
+terreno,
+etc.)
+e 
+o
+nível
+de
+intervenção
+no
+local
+são
+de
+muito
+alta
+potencialidade
+para
+o
+desenvolvimento
+de 
+processos de escorregamentos, erosão ou solapamento;
+●
+As
+evidências
+de
+instabilidade
+(como
+trincas
+no
+solo
+e/ou
+em
+moradias
+ou
+em
+estruturas
+de 
+contenção;
+degraus
+de
+abatimento
+em
+taludes
+ou
+terreno;
+trincas
+em
+moradias
+ou
+em
+muros 
+de
+contenção;
+árvores
+ou
+postes
+inclinados;
+cicatrizes
+de
+escorregamento;
+feições
+de
+erosão 
+laminar ,
+sulcos
+em
+taludes
+e/ou
+vertentes;
+afloramento
+do
+lençol
+freático,
+com
+a
+presença
+de 
+boçoroca;
+proximidade
+da(s)
+moradia(s)
+em
+relação
+aos
+processos
+e/ou
+em
+relação
+à 
+margem
+de
+córregos,
+etc.)
+são
+expressivas
+e
+estão
+presentes
+em
+grande
+número
+ou 
+magnitude;
+●
+Os processos de instabilização encontram-se em avançado
+estágio de desenvolvimento; 
+●
+É
+a
+condição
+mais
+crítica,
+em
+muitos
+casos
+sendo
+impossível
+monitorar
+a
+evolução
+do 
+processo, dado o seu elevado estágio de desenvolvimento;
+●
+O Perigo é muito alto a alto e a V ulnerabilidade varia
+entre muito alta a alta; 
+Mantidas
+as
+condições
+existentes,
+é
+muito
+provável
+a
+ocorrência
+de
+eventos
+destrutivos
+durante 
+episódios
+de
+chuvas
+intensas
+e
+prolongadas,
+no
+período
+compreendido
+por
+uma
+estação 
+chuvosa (período de 1 ano).
+
+--- PAGE 14 ---
+12
+Tabela 3.2-3
+. Classes
+de
+Risco
+Analisado
+de
+inundações
+e
+processos
+correlatos
+(adaptado
+de 
+ANDRADE et al, 2012.
+RISCO
+ANALISADO
+CRITÉRIOS BÁSICOS E DESCRIÇÃO
+RA
+HID
+0 
+NULO A 
+QUASE NULO
+●
+O
+setor
+não
+apresenta
+condições
+potenciais
+para
+o
+desenvolvimento
+inundações
+e
+processos 
+correlatos;
+●
+Não
+há
+registro
+da
+ocorrência
+de
+pelo
+menos
+1
+(um)
+evento
+de
+inundações
+ou
+processos 
+correlatos nos últimos 10 anos.
+RA
+HID
+1 
+BAIXO E
+MUIT O BAIXO
+●
+O
+setor
+pode
+apresentar
+condições
+potenciais
+para
+o
+desenvolvimento
+de
+inundações
+e 
+processos correlatos;
+●
+Os
+eventos
+de
+inundações
+ou
+processos
+correlatos
+são
+muito
+pouco
+frequentes,
+em
+geral, 
+não tendo sido registrada a ocorrência de pelo menos
+1 (um) evento nos últimos 10 anos.
+RA
+HID
+2 
+MÉDIO
+●
+O
+setor
+apresenta
+condições
+potenciais
+para
+o
+desenvolvimento
+de
+inundações
+e
+processos 
+correlatos:
+localização
+em
+áreas
+de
+vale
+e
+de
+baixada
+(várzeas),
+proximidade
+das
+vias
+em 
+relação aos cursos de água;
+●
+Os
+eventos
+de
+inundações
+ou
+processos
+correlatos
+são
+moderadamente
+frequentes,
+em 
+geral, tendo sido registrada a ocorrência de 1 (um)
+ou mais eventos nos últimos 10 anos.
+RA
+HID
+3 
+ALTO
+●
+As
+condições
+verificadas
+no
+setor
+são
+favoráveis
+ao
+desenvolvimento
+de
+inundações
+e 
+processos
+correlatos:
+localização
+em
+áreas
+de
+vale
+e
+de
+baixada
+(várzeas),
+proximidade
+das 
+vias em relação aos cursos de água;
+●
+Ocorrência dos processos verificada em mapeamento
+de detalhe para Setorização de Risco; 
+●
+Os
+eventos
+de
+inundações
+ou
+processos
+correlatos
+são
+frequentes,
+tendo
+sido
+registrada
+a 
+ocorrência de 1 (um) ou mais eventos significativos
+nos últimos 10 anos.
+RA
+HID
+4 
+MUIT O ALTO
+●
+As
+condições
+verificadas
+no
+setor
+são
+muito
+favoráveis
+ao
+desenvolvimento
+de
+inundações
+e 
+processos
+correlatos:
+localização
+em
+áreas
+de
+vale
+e
+de
+baixada
+(várzeas),
+grande 
+proximidade das vias em relação aos cursos de água;
+●
+Ocorrência
+dos
+processos
+verificada
+em
+mapeamento
+de
+detalhe
+para
+Setorização
+de
+Risco, 
+tendo sido observada destruição do pavimento de infraestrutura
+da via; 
+●
+A
+frequência
+dos
+eventos
+de
+inundações
+ou
+processos
+correlatos
+é
+elevada,
+tendo
+sido 
+registrada a ocorrência de diversos eventos significativos
+nos últimos 10 anos.
+Após
+o
+estabelecimento
+das
+classes
+de
+Risco
+Analisado,
+foi
+avaliada
+a
+correlação
+entre
+as 
+chuvas
+e
+a
+deflagração
+dos
+eventos
+geodinâmicos
+e
+do
+respectivo
+Risco
+atribuído
+a
+cada 
+Unidade
+de
+Análise.
+A
+variável
+de
+Risco
+resultante
+desta
+correlação
+foi
+denominada
+Risco 
+Dinâmico
+(RD),
+buscando
+traduzir
+a
+alternância
+entre
+classes
+resultantes
+da
+variação
+dos 
+índices
+de
+intensidade
+e
+de
+acumulação
+de
+chuvas,
+de
+forma
+a
+auxiliar
+a
+gestão
+dos
+níveis
+de 
+alerta e de medidas de gestão ou de intervenção das
+UBAs nas rodovias.
+A
+correlação
+entre
+as
+chuvas
+e
+os
+eventos
+geodinâmicos,
+apresentada
+no
+Produto 03,
+permite 
+que
+as
+ocorrências
+de
+chuvas
+deflagradoras
+sejam
+avaliadas
+em
+tempo
+real,
+possibilitando
+a 
+adequação
+da
+classe
+de
+Risco
+Analisado
+(RA)
+de
+cada
+Unidade
+de
+Análise
+às
+chuvas 
+incidentes
+ou
+previstas,
+elevando
+ou
+rebaixando
+a
+classe
+com
+base
+em
+patamares 
+pré-estabelecidos
+para
+estas
+correlações,
+como,
+por
+exemplo,
+a
+acumulação
+e
+a
+intensidade 
+das
+chuvas,
+cuja
+combinação
+compõem
+o
+CPC.
+O
+Risco
+variável
+resultante
+desta
+avaliação, 
+denominado Risco Dinâmico (RD), é resultante da
+Equação 3.2-1
+:
+Equação 3.2-1
+RD = RA x ICC,
+da qual formam-se:
+RD
+GEO
+ = RA
+GEO
+ x ICC
+GEO
+RD
+HID
+ = RA
+HID
+ x ICC
+HID
+
+--- PAGE 15 ---
+13
+Onde:
+●
+RD
+ = Risco
+Dinâmico,
+sendo
+RD
+GEO
+para
+os
+eventos
+geológicos
+e
+RD
+HID
+para
+os
+eventos 
+hidrológicos;
+●
+RA
+ = Risco
+Analisado,
+sendo
+RA
+GEO
+para
+os
+eventos
+geológicos
+e
+RA
+HID
+para
+os
+eventos 
+hidrológicos;
+●
+ICC
+ = Índice
+de
+correlação
+com
+chuvas,
+sendo
+ICC
+GEO
+para
+os
+eventos
+geológicos
+e
+ICC
+HID 
+para os eventos hidrológicos, onde:
+o
+Para o
+ICC
+GEO
+, corresponde à Faixa de CPC específica
+da região sob análise;
+o
+Para
+o
+ICC
+HID
+,
+corresponde
+à
+Faixa
+de
+Probabilidade
+de
+ocorrência
+de
+eventos 
+hidrológicos na região sob análise.
+Tal
+como
+ocorre
+para
+o
+Risco
+Analisado
+(RA),
+o
+Risco
+Dinâmico
+é
+classificado
+conforme 
+destacado  a seguir:
+●
+RD
+GEO/HID
+0
+ – Risco Dinâmico Nulo a Quase Nulo;
+●
+RD
+GEO/HID
+1
+ – Risco Dinâmico Muito Baixo a Baixo;
+●
+RD
+GEO/HID
+2
+ – Risco Dinâmico Médio;
+●
+RD
+GEO/HID
+3
+ – Risco Dinâmico Alto;
+●
+RD
+GEO/HID
+4
+ – Risco Dinâmico Muito Alto;
+3.2.1.
+C
+ORRELAÇÃO
+ENTRE
+O
+RISCO
+AOS
+EVENTOS
+GEOLÓGICOS
+ANALISADO
+E
+AS
+CHUVAS
+A
+Tabela 3.2.1-1
+apresenta
+uma
+matriz
+de
+correlação
+para
+atribuir
+o
+Risco
+Dinâmico
+(RD
+GEO
+) 
+para
+cada
+Unidade
+de
+Análise
+avaliada,
+correspondendo
+o
+RA
+GEO
+analisado
+à
+uma
+faixa
+de 
+ICC
+GEO
+,
+definida
+para
+cada
+Região
+de
+abrangência
+avaliada.
+Cada
+uma
+destas
+faixas
+é
+definida 
+por
+um
+intervalo
+de
+CPC
+(Coeficiente
+de
+Precipitação
+Crítica),
+obtido
+a
+partir
+da
+equação
+que 
+define
+a
+curva
+de
+correlação
+para
+uma
+pluviometria
+acumulada
+de
+96 h
+e
+de
+intensidade
+de 
+chuvas registrada por hora.
+Assim,
+quando
+a
+intensidade
+das
+chuvas
+e
+a
+pluviometria
+acumulada
+caracterizam
+um
+ICC
+GEO 
+0(Faixa 0,
+que
+compreende
+valores
+de
+0
+a
+< 1),
+entende-se
+que
+o
+RA
+GEO
+deve
+ser
+considerado 
+Nulo
+ou
+Quase
+Nulo
+(RD
+GEO
+0),
+uma
+vez
+que
+não
+há
+expectativa
+de
+que
+índices
+de
+chuvas 
+alcancem
+os
+limiares
+necessários
+para
+a
+deflagração
+de
+eventos
+geológicos.
+Da
+mesma 
+forma,
+quando
+as
+condições
+de
+chuvas
+em
+uma
+Região
+alcançam
+a
+Faixa 1
+(ICC
+GEO
+1),
+o 
+RD
+GEO
+iguala-se
+ao
+RA
+GEO
+,
+indicando
+que
+as
+chuvas
+registradas
+são
+suficientes
+para
+iniciar
+a 
+deflagração
+de
+eventos
+geológicos
+isolados
+naquela
+região.
+Situações
+onde
+a
+intensidade
+de 
+chuvas
+e
+pluviometrias
+acumuladas
+são
+extremas,
+em
+que
+são
+excedidos
+os
+limiares 
+superiores
+do
+modelo
+(ICC
+GEO
+4),
+entende-se
+que
+há
+a
+possibilidade
+de
+ocorrência
+de
+múltiplos 
+eventos geológicos.
+Os
+resultados
+obtidos
+para
+a
+reclassificação
+do
+Risco
+aos
+processos
+geológicos
+estão 
+sintetizados
+na
+Tabela 3.2.1-2
+.
+A
+maior
+parte
+das
+Unidades
+de
+Análise
+foram
+classificadas 
+como
+RA
+GEO
+1
+(48,95%),
+seguidas
+pelas
+Unidades
+de
+Análise
+de
+Risco
+RA
+GEO
+4
+(17,43%), 
+RA
+GEO
+3
+(15,70%),
+RA
+GEO
+2
+(13,10%),
+e
+RA
+GEO
+0
+(4,82%),
+respectivamente.
+A
+Região
+que
+tem
+a
+
+--- PAGE 16 ---
+14
+maior
+quantidade
+de
+Unidade
+de
+Análise
+com
+Risco
+classificado
+como
+RA
+GEO
+4
+foi
+a
+de
+São 
+Sebastião, com cerca de 10% do total.
+3.2.2.
+C
+ORRELAÇÃO
+ENTRE
+O
+RISCO
+AOS
+EVENTOS
+HIDROLÓGICOS
+ANALISADO
+E
+AS
+CHUVAS
+Para
+o
+Risco
+aos
+eventos
+hidrológicos,
+a
+melhor
+correlação
+obtida
+foi
+quanto
+à
+probabilidade 
+de
+ocorrência
+(deflagração)
+de
+eventos
+em
+função
+dos
+índices
+de
+chuvas
+acumuladas
+em
+24 h. 
+A
+Tabela 3.2.2-1
+apresenta
+a
+matriz
+de
+correlação
+para
+obtenção
+do
+Risco
+Dinâmico
+(RD
+HID
+) 
+para
+cada
+Unidade
+de
+Análise
+avaliada,
+correspondendo
+o
+RA
+HID
+analisado
+à
+uma
+faixa
+de 
+ICC
+HID
+,
+definida
+para
+cada
+Região
+de
+abrangência
+avaliada.
+Enquanto
+o
+Risco
+Dinâmico 
+Geológico
+é
+decorrente
+da
+Faixa
+em
+que
+o
+CPC
+calculado
+se
+encontra,
+o
+Risco
+Dinâmico 
+Hidrológico
+(RD
+HID
+)
+é
+estabelecido
+pelos
+intervalos
+de
+probabilidade
+de
+ocorrência. 
+Observando-se
+os
+dados
+disponíveis,
+foi
+definido
+que
+as
+chuvas
+acumuladas
+em
+24 h,
+cuja 
+probabilidade
+de
+deflagração
+é
+inferior
+a
+10%,
+podem
+ser
+admitidas
+como
+chuvas
+em
+que
+a 
+expectativa
+para
+a
+ocorrência
+de
+eventos
+é
+suficientemente
+pequena
+para
+que
+o
+Risco 
+Dinâmico
+seja
+considerado
+Nulo
+ou
+Quase
+Nulo
+(RD
+HID
+0).
+Em
+condições
+em
+que
+as
+chuvas 
+alcançam
+limiares
+em
+que
+a
+probabilidade
+de
+ocorrência
+de
+eventos
+é
+superior
+a
+10%, 
+entende-se
+que
+a
+expectativa
+de
+ocorrência
+de
+eventos
+é
+suficiente
+para
+que
+o
+RD
+HID
+seja 
+diferente de RD
+HID
+0,  variando até seus limites superiores.
+Para
+os
+processos
+hidrológicos,
+os
+resultados
+obtidos
+para
+a
+reclassificação
+do
+Risco
+estão 
+sintetizados
+na
+Tabela 3.2.2-2
+.
+As
+Unidades
+de
+Análise
+de
+Risco
+Analisado
+RA
+HID
+0
+(54,51%)
+e 
+RA
+HID
+1
+(41,41%)
+representam
+mais
+de
+95%
+das
+unidades
+da
+área
+de
+estudo,
+sendo
+os
+cerca 
+de
+4%
+restantes
+classificados
+como
+RA
+HID
+2
+e
+RA
+HID
+3,
+respectivamente.
+A
+Região
+que
+tem
+a 
+maior
+quantidade
+de
+Unidade
+de
+Análise
+com
+Risco
+classificado
+como
+RA
+HID
+3
+é
+a
+de 
+Caraguatatuba-Ubatuba,
+com
+menos
+de
+1%
+do
+total.
+No
+entanto,
+a
+Região
+com
+o
+maior 
+número
+de
+Unidades
+de
+Análise
+sujeitas
+a
+alguma
+classe
+de
+Risco
+Analisado
+Hidrológico
+é
+a 
+de
+Santos-Bertioga,
+com
+127 Unidades
+de
+Análise
+(15,70%
+do
+total
+de
+Unidades
+de
+Análise), 
+seguida
+por
+São
+Sebastião,
+com
+107
+(13,23%),
+Caraguatatuba-Ubatuba,
+com
+104
+(12,86%)
+e, 
+por
+fim,
+Mogi-Bertioga,
+com
+30
+(3,71%).
+Como
+esperado,
+observa-se
+que
+as
+regiões
+em
+que
+a 
+SP-055
+está
+inserida
+estão
+mais
+sujeitas
+à
+ocorrência
+de
+eventos
+hidrológicos
+que
+a
+região 
+abrangida pela SP-098.
+
+--- PAGE 17 ---
+15
+Tabela 3.2.1-1
+. Classes
+de
+Risco
+Dinâmico
+resultantes
+da
+correlação
+entre
+a
+classe
+de
+Risco
+Analisado
+(RA)
+e
+a
+Faixa
+de
+Índice
+de
+Correlação
+com 
+Chuvas (ICC) para os eventos Geológicos.
+Região
+Coeficiente de Precipitação Crítica da Região (CPC) 
+Faixa 0 (ICC
+GEO
+0)
+Faixa 1 (ICC
+GEO
+1)
+Faixa 2 (ICC
+GEO
+2)
+Faixa 3 (ICC
+GEO
+3)
+Faixa 4 (ICC
+GEO
+4) 
+De
+Até
+De
+Até
+De
+Até
+De
+Até
+A partir de
+1
+SP-098 - Mogi-Bertioga
+0
+< 1
+1
+3
+> 3
+6
+> 6
+15
+> 15
+2
+SP-055
+- 
+Caraguatatuba-Ubatuba
+0
+< 1
+1
+6
+> 6
+12
+> 12
+24
+> 24
+3
+SP-055 - São Sebastião
+0
+< 1
+1
+8
+> 8
+16
+> 16
+24
+> 24
+4
+SP-055 - Santos-Bertioga
+0
+< 1
+1
+4
+> 4
+8
+> 8
+16
+> 16
+Risco Analisado
+Risco Dinâmico
+RA
+GEO
+0
+RD
+GEO
+0
+RD
+GEO
+0
+RD
+GEO
+0
+RD
+GEO
+0
+RD
+GEO
+0
+RA
+GEO
+1
+RD
+GEO
+0
+RD
+GEO
+1
+RD
+GEO
+2
+RD
+GEO
+3
+RD
+GEO
+4
+RA
+GEO
+2
+RD
+GEO
+0
+RD
+GEO
+2
+RD
+GEO
+3
+RD
+GEO
+4
+RD
+GEO
+4
+RA
+GEO
+3
+RD
+GEO
+0
+RD
+GEO
+3
+RD
+GEO
+4
+RD
+GEO
+4
+RD
+GEO
+4
+RA
+GEO
+4
+RD
+GEO
+0
+RD
+GEO
+4
+RD
+GEO
+4
+RD
+GEO
+4
+RD
+GEO
+4
+
+--- PAGE 18 ---
+16
+Tabela 3.2.1-2
+. Síntese dos resultados obtidos para
+a reclassificação do Risco para Risco Analisado aos
+processos geológicos.
+Escala e Unidade 
+de Análise
+Região
+Classe do Risco Analisado
+Unidades de Análise
+1:25.000 
+(UTB)
+1
+Rodovia Mogi-Bertioga
+RA
+GEO
+0 - Nulo ou Quase Nulo
+19
+2,35%
+RA
+GEO
+1 - Muito Baixo e Baixo
+11
+1,36%
+RA
+GEO
+2 - Médio
+10
+1,24%
+RA
+GEO
+3 - Alto
+4
+0,49%
+RA
+GEO
+4 - Muito Alto
+19
+2,35%
+Subtotal escala 1:25.000
+63
+7,79%
+1:10.000 
+(UTB)
+1
+Rodovia Mogi-Bertioga
+RA
+GEO
+1 - Muito Baixo e Baixo
+11
+1,36%
+2
+Caraguatatuba-Ubatuba
+RA
+GEO
+1 - Muito Baixo e Baixo
+97
+11,99%
+RA
+GEO
+2 - Médio
+1
+0,12%
+3
+São Sebastião
+RA
+GEO
+1 - Muito Baixo e Baixo
+103
+12,73%
+4
+Santos-Bertioga
+RA
+GEO
+1 - Muito Baixo e Baixo
+123
+15,20%
+Subtotal escala 1:10.000
+335
+41,41%
+1:1.000 
+(SR)
+1
+Rodovia Mogi-Bertioga
+RA
+GEO
+2 - Médio
+16
+1,98%
+RA
+GEO
+3 - Alto
+14
+1,73%
+RA
+GEO
+4 - Muito Alto
+7
+0,87%
+2
+Caraguatatuba-Ubatuba
+RA
+GEO
+0 - Nulo ou Quase Nulo
+8
+0,99%
+RA
+GEO
+1 - Muito Baixo e Baixo
+10
+1,24%
+RA
+GEO
+2 - Médio
+11
+1,36%
+RA
+GEO
+3 - Alto
+28
+3,46%
+RA
+GEO
+4 - Muito Alto
+33
+4,08%
+3
+São Sebastião
+RA
+GEO
+0 - Nulo ou Quase Nulo
+7
+0,87%
+RA
+GEO
+1 - Muito Baixo e Baixo
+33
+4,08%
+RA
+GEO
+2 - Médio
+63
+7,79%
+RA
+GEO
+3 - Alto
+69
+8,53%
+RA
+GEO
+4 - Muito Alto
+80
+9,89%
+4
+Santos-Bertioga
+RA
+GEO
+0 - Nulo ou Quase Nulo
+5
+0,62%
+RA
+GEO
+1 - Muito Baixo e Baixo
+8
+0,99%
+RA
+GEO
+2 - Médio
+5
+0,62%
+RA
+GEO
+3 - Alto
+12
+1,48%
+RA
+GEO
+4 - Muito Alto
+2
+0,25%
+Subtotal escala 1:1.000
+411
+50,80%
+Total
+809
+100,00%
+
+--- PAGE 19 ---
+17
+Tabela 3.2.2-1
+. Classes
+de
+Risco
+Dinâmico
+resultantes
+da
+correlação
+entre
+a
+classe
+de
+Risco
+Analisado
+(RA)
+e
+a
+Faixa
+de
+Índice
+de
+Correlação
+com 
+Chuvas (ICC) para os eventos Hidrológicos.
+Região
+Probabilidade de Ocorrência de Eventos Hidrológicos 
+Faixa 0 (ICC
+HID
+0)
+Faixa 1 (ICC
+HID
+1)
+Faixa 2 (ICC
+HID
+2)
+Faixa 3 (ICC
+HID
+3)
+Faixa 4 (ICC
+HID
+4) 
+0% a 10%
+> 10% a 25%
+> 25% a 50%
+> 50% a 75%
+> 75% a 100%
+Intensidade Pluviométrica (24h) 
+De
+Até
+De
+Até
+De
+Até
+De
+Até
+A partir de
+1
+SP-098 - Mogi-Bertioga
+0
+110
+> 110
+160
+> 160
+200
+> 200
+280
+> 280
+2
+SP-055 - Caraguatatuba-Ubatuba
+0
+70
+> 70
+80
+> 80
+120
+> 120
+143
+> 143
+3
+SP-055 - São Sebastião
+0
+60
+> 60
+85
+>85
+110
+> 110
+126
+> 126
+4
+SP-055 - Santos-Bertioga
+0
+150
+> 450
+200
+> 200
+230
+> 230
+300
+> 300
+Risco Analisado
+Risco Dinâmico
+RA
+HID
+0
+RD
+HID
+0
+RD
+HID
+0
+RD
+HID
+0
+RD
+HID
+0
+RD
+HID
+0
+RA
+HID
+1
+RD
+HID
+0
+RD
+HID
+1
+RD
+HID
+2
+RD
+HID
+3
+RD
+HID
+4
+RA
+HID
+2
+RD
+HID
+0
+RD
+HID
+2
+RD
+HID
+3
+RD
+HID
+4
+RD
+HID
+4
+RA
+HID
+3
+RD
+HID
+0
+RD
+HID
+3
+RD
+HID
+4
+RD
+HID
+4
+RD
+HID
+4
+RA
+HID
+4
+RD
+HID
+0
+RD
+HID
+4
+RD
+HID
+4
+RD
+HID
+4
+RD
+HID
+4
+
+--- PAGE 20 ---
+18
+Tabela 3.2.2-2
+. Síntese dos resultados obtidos para
+a reclassificação do Risco para Risco Analisado aos
+processos hidrológicos.
+Escala e 
+Unidade de 
+Análise
+Região
+Classe do Risco Analisado
+Quantidade de Unidades de Análise
+1:25.000 
+(UTB)
+1
+Rodovia Mogi-Bertioga
+RA
+HID
+0 - Nulo ou Quase Nulo
+44
+5,44%
+RA
+HID
+1 - Muito Baixo e Baixo
+19
+2,35%
+Subtotal escala 1:25.000
+63
+7,79%
+1:10.000 
+(UTB)
+1
+Rodovia Mogi-Bertioga
+RA
+HID
+1 - Muito Baixo e Baixo
+11
+1,36%
+2
+Caraguatatuba-Ubatuba
+RA
+HID
+1 - Muito Baixo e Baixo
+89
+11,00%
+RA
+HID
+2 - Médio
+9
+1,11%
+3
+São Sebastião
+RA
+HID
+1 - Muito Baixo e Baixo
+99
+12,24%
+RA
+HID
+2 - Médio
+4
+0,49%
+4
+Santos-Bertioga
+RA
+HID
+1 - Muito Baixo e Baixo
+117
+14,46%
+RA
+HID
+2 - Médio
+6
+0,74%
+Subtotal escala 1:10.000
+335
+41,41%
+1:1.000 
+(SR)
+1
+Rodovia Mogi-Bertioga
+RA
+HID
+0 - Nulo ou Quase Nulo
+37
+4,57%
+2
+Caraguatatuba-Ubatuba
+RA
+HID
+0 - Nulo ou Quase Nulo
+84
+10,38%
+RA
+HID
+3 - Alto
+6
+0,74%
+3
+São Sebastião
+RA
+HID
+0 - Nulo ou Quase Nulo
+248
+30,66%
+RA
+HID
+3 - Alto
+4
+0,49%
+4
+Santos-Bertioga
+RA
+HID
+0 - Nulo ou Quase Nulo
+28
+3,46%
+RA
+HID
+3 - Alto
+4
+0,49%
+Subtotal escala 1:1.000
+411
+50,80%
+Total
+809
+100,00%
+
+--- PAGE 21 ---
+19
+4.
+E
+TAPA
+ 2 –
+IMPLANTAÇÃO
+DE
+SISTEMA
+AUTOMATIZADO
+DE
+ANÁLISE
+,
+MONITORAMENTO
+E
+ALERTA
+A
+Etapa 2,
+de
+acordo
+com
+os
+itens 5.2
+e
+6.6
+do
+TDR
+da
+SDP nº 064/2019,
+prevê
+a
+elaboração 
+do
+Produto 6
+–
+Sistema
+Automatizado
+de
+Análise,
+Monitoramento
+e
+Alerta
+de
+Risco
+de
+Eventos 
+Geodinâmicos.
+O
+Sistema
+Automatizado
+referente
+ao
+Produto 6
+é
+composto
+por
+um
+conjunto
+de
+Servidores 
+Internos,
+Externos
+e
+Aplicativos
+que
+obtém
+dados
+de
+índices
+pluviométricos
+e
+de
+previsão
+de 
+chuva,
+que
+são
+analisados,
+em
+conjunto,
+com
+os
+dados
+da
+Análise
+de
+Risco,
+subsidiando
+o 
+monitoramento
+das
+condições
+das
+rodovias
+em
+tempo
+real,
+visando
+a
+Gestão
+do
+Risco
+pelo 
+DER/SP,
+bem
+como
+a
+emissão
+de
+alertas
+em
+decorrência
+das
+chuvas
+acumuladas
+e/ou
+das 
+chuvas previstas.
+A
+Figura 4-1
+e
+a
+Tabela 4-1
+apresentam
+a
+estrutura
+geral
+da
+arquitetura
+proposta
+para
+o 
+Sistema.
+Figura 4-1
+. Estrutura geral da arquitetura proposta
+para o Sistema. Fonte: Elaborado pelo 
+Consórcio 4X044 no âmbito do desenvolvimento dos serviços
+contratados
+Tabela 4-1
+. Estrutura geral da arquitetura proposta
+para o Sistema
+Módulo
+Descrição
+Serviço de Coleta 
+de Dados
+Responsável
+pela
+aquisição
+dos
+dados
+hidro
+meteorológicos
+disponibilizados
+por 
+servidores
+remotos,
+buscando
+periodicamente
+arquivos,
+dentre
+os
+quais
+se 
+distinguem:
+a)
+previsões:
+como
+por
+exemplo,
+valores
+de
+precipitação,
+umidade 
+relativa
+do
+ar,
+direção
+e
+magnitude
+do
+vento;
+e
+b)
+observações,
+como
+por
+exemplo, 
+precipitação
+estimada
+por
+satélite
+e
+radares,
+descargas
+elétricas,
+focos
+de 
+queimadas;
+Módulo de Alerta
+Responsável
+pela
+apresentação
+de
+alertas
+quando
+uma
+situação
+de
+risco
+é 
+detectada
+pelo
+módulo
+de
+análise.
+Deve
+ser
+previsto
+o
+alerta
+tanto
+por
+e-mail 
+como
+por
+mensagem
+nos
+sistemas
+de
+gerenciamento
+do
+Instituto
+Geológico
+e 
+Departamento de Estradas de Rodagem.
+Módulo de 
+Administração
+Responsável
+por
+permitir
+a
+configuração
+de
+cada
+serviço
+do
+sistema.
+Estas 
+configurações
+devem
+incluir
+o
+endereço
+e
+a
+porta
+de
+cada
+serviço,
+o
+local
+em
+que 
+as
+imagens
+com
+o
+resultado
+das
+análises
+serão
+armazenadas,
+definição
+do
+banco
+
+--- PAGE 22 ---
+20
+de
+dados,
+local
+de
+armazenamento
+dos
+dados
+coletados,
+configuração
+do
+servidor 
+de e-mail, definição dos arquivos de log e outras
+informações.
+Módulo de 
+Configuração
+Responsável
+por
+permitir
+a
+configuração
+do
+sistema.
+Estas
+configurações
+devem 
+incluir
+a
+forma
+como
+os
+dados
+são
+obtidos
+dos
+servidores
+externos,
+definições
+dos 
+planos
+de
+risco
+e
+adicionais,
+a
+definição
+dos
+tipos
+de
+análise
+seus
+modelos, 
+definição
+dos
+usuários
+e
+análises
+para
+estes,
+e
+definição
+de
+boletins
+que
+serão 
+enviados;
+Serviços de 
+Gerência de 
+Planos
+Executa
+serviços
+para
+manipulação
+de
+planos
+de
+informação
+na
+base
+de
+dados 
+geográficos,
+como
+exemplo
+a
+inclusão
+de
+novos
+planos
+e
+listagem
+de
+planos 
+existentes
+Serviço de 
+Animação
+Responsável
+pela
+geração
+de
+um
+conjunto
+de
+imagens
+que,
+agrupadas,
+formam 
+uma animação de fontes de dados de Previsão e Observação
+Serviço de 
+Notificação
+Responsável
+pelo
+envio
+de
+mensagens
+e
+relatórios
+contendo
+informações
+a 
+respeito
+das
+alterações
+nos
+níveis
+de
+risco
+detectados
+pelo
+módulo
+de
+análise. 
+Deve
+permitir
+o
+cadastramento
+de
+usuários
+para
+receberem
+os
+relatórios
+de 
+alteração, enviados através de correio eletrônico
+e boletins
+Serviço de 
+Análise
+Responsável
+pelo
+cruzamento
+entre
+as
+informações
+hidro
+meteorológicas,
+planos 
+de risco e planos adicionais para determinação da
+ocorrência de zonas de alerta
+O
+sistema
+utiliza
+as
+plataformas
+TerraMA²,
+para
+a
+análise
+dos
+dados,
+serviços
+e
+geração
+de 
+alertas,
+conforme
+descrito
+no
+item
+4.1,
+e
+a
+plataforma
+ArcGIS,
+para
+a
+interação
+com
+o
+usuário, 
+navegação
+e
+ferramentas
+de
+interatividade
+com
+o
+mapa
+e
+alertas
+e
+serviço
+de
+animação, 
+conforme descrito no
+item 4.2.
+4.1.
+P
+LATAFORMA
+COMPUTACIONAL
+T
+ERRA
+MA²
+O
+Sistema
+foi
+elaborado
+utilizando
+a
+Plataforma
+Computacional
+TerraMA²,
+desenvolvida
+pelo 
+INPE
+–
+Instituto
+Nacional
+de
+Pesquisas
+Espaciais.
+As
+informações
+sobre
+a
+plataforma
+foram 
+obtidas
+na
+página
+da
+internet.
+A
+plataforma
+computacional
+TerraMA²
+foi
+planejada
+dentro
+da 
+linha
+de
+produtos
+de
+base
+tecnológica
+inovadora,
+no
+domínio
+de
+softwares
+abertos,
+com 
+extensivo
+uso
+de
+nossa
+biblioteca
+geográfica
+TerraLib,
+além
+de
+atender
+uma
+demanda 
+crescente
+de
+aplicações
+de
+monitoramento,
+análise
+e
+alerta
+em
+áreas
+como:
+qualidade
+do
+ar, 
+qualidade
+da
+água,
+gasodutos,
+barragens
+de
+rejeito
+em
+área
+de
+mineração,
+incêndios
+florestais, 
+movimentos de massa do tipo escorregamentos e corridas
+de lama, enchentes e estiagens.
+Estas
+aplicações
+necessitam
+de
+plataformas
+que
+possam
+integrar
+serviços
+geográficos
+e 
+modelagem,
+com
+base
+de
+acesso
+a
+dados
+geoambientais
+disponíveis
+em
+qualquer
+servidor 
+conectado
+à
+internet
+em
+tempo
+real,
+e
+que
+podem
+ser
+lidos,
+processados
+e
+aplicados
+a
+diversos 
+usos.
+Portanto,
+a
+plataforma
+TerraMA²
+é
+um
+sistema
+computacional,
+baseado
+em
+uma 
+arquitetura
+de
+serviços,
+aberta,
+que
+provê
+a
+infraestrutura
+tecnológica
+necessária
+ao 
+desenvolvimento
+de
+sistemas
+operacionais
+para
+monitoramento
+de
+alertas
+de
+riscos
+ambientais 
+(
+Figura 4.1-1
+).
+
+--- PAGE 23 ---
+21
+Figura 4.1-1
+. Exemplo de tela do TerraMA². Fonte:
+INPE (2018).
+As
+relações
+dos
+serviços
+(SOA)
+e
+a
+plataforma
+estão
+apresentadas
+no
+fluxograma
+do
+modelo 
+conceitual do TerraMA², apresentado na
+Figura 4.1-2
+.
+Figura 4.1-2
+. Fluxograma do modelo conceitual do TerraMA².
+Fonte: INPE (2018).
+Por
+sua
+vez,
+os
+serviços
+descritos
+(coleta,
+análises,
+visualização
+e
+alerta)
+interagem
+e,
+assim, 
+apresentam
+lógicas
+de
+relacionamentos
+com:
+i) as
+bases
+de
+acesso
+em
+tempo
+real
+a
+dados 
+geoambientais
+da
+plataforma
+(meteorológicos,
+climáticos,
+atmosféricos,
+hidrológicos, 
+geotécnicos,
+sociodemográficos,
+etc.);
+ii) Servidores
+das
+instituições
+parceiras
+do
+projeto; 
+iii) servidores
+de
+mapas;
+iv) Interações
+com
+e-mails,
+SMS,
+e
+outras
+plataformas
+de 
+comunicação.
+
+--- PAGE 24 ---
+22
+4.2.
+S
+ERVIÇOS
+E
+FONTES
+DE
+DADOS
+PARA
+AS
+ANÁLISES
+Para
+que
+sejam
+gerados
+os
+alertas
+das
+áreas
+de
+interesse,
+é
+necessário
+que
+o
+sistema
+obtenha 
+dados
+de
+chuva
+das
+áreas
+de
+interesse
+do
+projeto.
+Estes
+dados
+são
+obtidos
+através
+de
+serviços 
+disponibilizados pelos órgãos competentes.
+O
+TerraMA²
+já
+possui
+um
+conjunto
+de
+serviços
+próprios,
+utilizados
+para
+os
+cálculos
+do 
+Hidroestimador.
+Além
+dos
+dados
+dos
+serviços
+padrão
+do
+TerraMA²,
+o
+sistema
+deverá
+contar
+também
+com
+os 
+dados
+dos
+pluviômetros.
+O
+acesso
+à
+estes
+dados
+se
+dará
+na
+forma
+de
+serviços,
+a
+partir
+do
+link 
+abaixo:
+http://sibh.daee.sp.gov.br/api/eventos_ultimas_horas
+Os
+dados
+de
+chuva
+fornecidos
+por
+este
+serviço
+deverão
+ser
+coletados
+e
+armazenados
+em
+um 
+banco de dados espacial.
+Figura 4.2-1
+. Exemplo de dados fornecidos pelo DAEE
+e importados para um banco de dados 
+espacial. Fonte: Elaborado pelo Consórcio 4X044 no
+âmbito do desenvolvimento dos serviços 
+contratados.
+4.3.
+P
+LATAFORMA
+COMPUTACIONAL
+ARCGIS
+Além
+das
+mensagens
+enviadas,
+é
+necessário
+possuir
+uma
+plataforma
+para
+a
+consulta
+dos 
+registros
+gerados,
+navegação,
+medições,
+e
+todas
+as
+funcionalidades
+descritas
+no 
+Quadro 4.3.1.1-1. Ferramentas do Sistema. 
+Para
+estas
+funcionalidades,
+foi
+realizado
+o
+desenvolvimento
+utilizando
+da
+plataforma
+ArcGIS, 
+utilizando
+as
+linguagens
+programação,
+JavaScript,
+HTML5,
+Dojo
+e
+Python,
+acessada
+através
+do 
+servidor de aplicações do IIS (Internet Information
+Services). 
+A
+plataforma
+é
+composta
+por
+um
+sistema
+de
+banco
+de
+dados
+e
+serviços
+de
+publicação
+de 
+dados,
+acessados
+através
+de
+aplicações
+web.
+A
+arquitetura
+da
+plataforma
+ArcGIS
+é 
+representada na
+Figura 4.3-1
+:
+
+--- PAGE 25 ---
+23
+Figura 4.3-1
+. Exemplo de arquitetura da plataforma
+Arcgis em configuração de instalação em servidor 
+único. Fonte: Elaborado pelo Consórcio 4X044 no âmbito
+do desenvolvimento dos serviços contratados
+4.4.
+M
+ÓDULO
+DE
+ALERTA
+O
+Módulo
+de
+Alerta
+é
+uma
+ferramenta
+de
+análise,
+monitoramento
+e
+alerta
+de
+riscos 
+relacionados
+à
+ocorrência
+de
+eventos
+geodinâmicos
+e
+hidrodinâmicos
+que
+relaciona
+dados 
+estáticos
+(mapeamentos
+de
+risco)
+e
+dinâmicos
+(variáveis
+meteorológicas).
+A
+plataforma 
+TerraMA²-INPE é o motor para realização das análises
+e emissão de alertas de risco.
+4.4.1.
+F
+UNCIONALIDADES
+4.4.1.1.
+Ferramenta de alerta
+Ferramenta que emite estados de alerta para os eventos,
+cujas definições são as seguintes:
+●
+O conteúdo disposto é atualizado em um intervalo de
+10 minutos;
+●
+As
+informações
+são
+mostradas
+no
+painel
+de
+alertas,
+cuja
+cor
+de
+representação
+é 
+relativa
+ao
+respectivo
+nível
+de
+alerta
+para
+a
+Unidade
+de
+Análise.
+As
+cores
+e
+respectivas 
+classes dos níveis de alerta estão apresentadas na
+Tabela 4.4.1.1-1
+;
+Tabela 4.4.1.1-1
+. Parâmetros
+definidos
+para
+a
+apresentação,
+em
+tela,
+dos
+níveis
+de
+classificação
+do 
+Sistema de Alerta.
+COR
+CLASSIFICAÇÃO 
+DO ALERTA
+PIXELS DA 
+SIMBOLOGIA
+TRANSPARÊNCIA
+Observação
+20
+50
+Atenção
+20
+50
+Alerta
+20
+50
+Alerta Máximo
+20
+50
+
+--- PAGE 26 ---
+24
+●
+É
+possível
+dar
+um
+zoom
+para
+localizar
+a
+geometria.
+Na
+Figura 4.4.1.1-1
+abaixo,
+podemos 
+ver a representação de um tipo de alerta com a sua
+simbologia aplicada;
+Figura 4.4.1.1-1
+. Exemplo de área com alerta de risco.
+Fonte: Elaborado pelo Consórcio 4X044 no 
+âmbito do desenvolvimento dos serviços contratados.
+●
+Para
+a
+geração
+dos
+alertas
+são
+utilizadas
+as
+classes
+de
+Risco
+Dinâmico,
+definidas
+no 
+Produto 04;
+●
+As
+mensagens
+de
+alerta
+só
+são
+enviadas
+quando
+a
+classificação
+for
+de
+“Atenção”,
+“Alerta” 
+ou “Alerta Máximo”;
+●
+Alerta com classificação do tipo “Observação” não
+emitem mensagens;
+●
+A janela de pop-up é apresentada para todas as classificações;
+●
+O
+sistema
+contém
+as
+ferramentas
+para
+navegação
+e
+consulta
+dos
+dados
+de
+alertas 
+apresentadas no
+Quadro 4.3.1.1-1
+:
+Quadro 4.4.1.1-1
+. Ferramentas do Sistema.
+Nome da ferramenta
+Ícone
+Descrição
+Mapa Base
+Permite
+ao
+usuário
+alterar
+o
+mapa
+base
+(mapa
+de
+“plano
+de 
+fundo”).
+Legenda
+Legenda com as camadas do mapa.
+Busca por atributos
+Muda a área de visualização do mapa.
+Camadas do Mapa
+“Liga”
+ou
+“Desliga”
+a
+visualização
+de
+cada
+camada
+do 
+respectivo módulo.
+Ferramenta de exportação
+Exportar
+para
+os
+formatos
+CSV
+e
+Shapefile
+as
+consultas 
+filtradas de acordo com o tempo (1 hora, 2 horas,
+etc.)
+●
+O
+sistema
+apresenta,
+em
+janelas
+de
+Pop-ups,
+os
+dados
+relacionados
+àquele
+alerta,
+assim 
+como permite a visualização dos dados de maneira tabular.
+
+--- PAGE 27 ---
+25
+Figura 4.4.1.1-2
+. Exemplo de Janela de Pop-up com
+as informações relacionadas ao alerta gerado. 
+Janela com informações geradas a partir de valores
+simulados. Fonte: Elaborado pelo 
+Consórcio 4X044 no âmbito do desenvolvimento dos serviços
+contratados
+Na
+figura
+anterior
+Figura 4.4.1.1-2,
+o
+valor
+de
+Soma
+(24h)
+é
+composto
+pela
+somatória
+dos 
+valores de
+Previsão de chuva (6h)
+e
+Acumulado (18h)
+.
+●
+O
+sistema
+permite
+também,
+a
+partir
+da
+janela
+de
+pop-up,
+navegar
+até
+o
+evento
+que
+está 
+sendo apresentado;
+Figura 4.4.1.1-3
+. Exemplo de Janela de Pop-up com
+as informações relacionadas ao alerta gerado e o 
+link para navegar para o evento. Janela com informações
+geradas a partir de valores simulados. Fonte: 
+Elaborado pelo Consórcio 4X044 no âmbito do desenvolvimento
+dos serviços contratados
+●
+Para
+os
+eventos
+gerados
+é
+possível
+ter
+acesso
+às
+recomendações.
+A
+janela
+de 
+recomendações
+é
+colorida
+de
+acordo
+com
+o
+nível
+de
+alerta
+e
+é
+acessada
+através
+do
+link
+na 
+janela de pop-up do alerta.
+
+--- PAGE 28 ---
+26
+Figura 4.4.1.1-4
+. Exemplo de Janela de recomendações
+com Nível do Plano de Contingência: Alerta. 
+Fonte: Elaborado pelo Consórcio 4X044 no âmbito do
+desenvolvimento dos serviços contratados
+●
+Permite
+a
+visualização
+dos
+alertas,
+filtrados
+de
+acordo
+com
+as
+seguintes
+opções:
+última 
+1 hora,
+últimas
+2
+horas,
+últimas
+6
+horas,
+último
+1
+dia,
+últimos
+7
+dias,
+últimos
+15
+dias,
+últimos 
+30 dias.
+Figura 4.4.1.1-5
+.Janela de filtro dos alertas. Fonte:
+Elaborado pelo Consórcio 4X044 no âmbito do 
+desenvolvimento dos serviços contratados
+●
+O acesso ao sistema é realizado através de usuários
+cadastrados e login;
+
+--- PAGE 29 ---
+27
+Figura 4.4.1.1-6
+. Janela de login do sistema. Fonte:
+Elaborado pelo Consórcio 4X044 no âmbito do 
+desenvolvimento dos serviços contratados
+●
+O sistema contém uma ferramenta que permite o gerenciamento
+dos usuários;
+Figura 4.4.1.1-7
+. Janela de administração de usuários
+e permissões. Fonte: Elaborado pelo 
+Consórcio 4X044 no âmbito do desenvolvimento dos serviços
+contratados
+●
+O
+sistema
+possui
+uma
+camada
+com
+as
+informações
+de
+ponto
+de
+interesse
+para
+que
+possam 
+ser consultados.
+
+--- PAGE 30 ---
+28
+Figura 4.4.1.1-8
+. 
+Mapa apresentando os POI’s (Points
+of Interest – Pontos de Interesse) de um Posto 
+Policial. Fonte: Elaborado pelo Consórcio 4X044 no
+âmbito do desenvolvimento dos serviços 
+contratados
+Os
+pontos
+de
+interesse
+representados
+são
+os
+Hospitais,
+Corpo
+de
+Bombeiros,
+Postos
+Policiais 
+e
+Escolas.
+As
+fontes
+de
+dados
+dos
+pontos
+de
+interesses
+são
+o
+OpenStreetMap 
+(
+https://download.geofabrik.de/south-america/brazil.html
+),
+com
+os
+dados
+disponíveis
+em 
+janeiro
+de
+2021,
+e
+os
+dados
+levantados
+pelo
+Consórcio
+4X044,
+no
+âmbito
+do
+desenvolvimento 
+dos serviços contratados, através de pesquisas e informações
+dos dados do Censo 2010.
+4.5.
+M
+ODELO
+PREVISIONAL
+4.5.1.
+O M
+ODELO
+H
+IDROESTIMADOR
+A
+definição
+de
+Hidroestimador,
+segundo
+Scofield,
+2001,
+“é
+um
+método
+inteiramente
+automático 
+que
+utiliza
+uma
+relação
+empírica
+exponencial
+entre
+a
+precipitação
+(estimada
+por
+radar)
+e
+a 
+temperatura
+de
+brilho
+do
+topo
+das
+nuvens
+(extraídas
+do
+canal
+infravermelho
+do
+satélite 
+GOES-12),
+gerando
+taxas
+de
+precipitação
+em
+tempo
+real.
+Através
+da
+tendência
+de
+temperatura 
+da
+nuvem
+(e
+informações
+de
+textura)
+é
+utilizado
+um
+ajuste
+da
+área
+coberta
+pela
+precipitação. 
+Variáveis
+como:
+água
+precipitável,
+umidade
+relativa,
+orografia,
+paralax
+e
+um
+ajuste
+do
+nível
+de 
+equilíbrio
+convectivo
+para
+eventos
+de
+topos
+quentes,
+são
+utilizadas
+para
+ajustar 
+automaticamente a taxa de precipitação
+”.
+Sendo
+um
+dos
+serviços
+possíveis
+de
+serem
+acessados
+diretamente
+através
+da
+plataforma 
+TerraMA²,
+e
+pelo
+fato
+de
+permitir
+uma
+quantificação
+da
+precipitação
+em
+um
+intervalo
+de
+10 
+minutos,
+optou-se
+por
+utilizar
+o
+modelo
+hidroestimador
+para
+as
+análises
+de
+risco
+de
+eventos 
+geológicos e hidrológicos.
+4.5.2.
+O M
+ODELO
+WRF
+Conforme
+a
+descrição
+presenteno
+endereço 
+https://www.mmm.ucar.edu/weather-research-and-forecasting-model,
+“o
+WRF
+é
+um
+sistema
+de 
+previsão
+numérica
+de
+mesoescala,
+projetado
+para
+aplicações
+de
+pesquisa
+atmosférica
+e 
+previsão
+operacional.
+Possui
+um
+sistema
+de
+assimilação
+de
+dados
+e
+uma
+arquitetura
+de 
+software
+que
+suporta
+computação
+paralela.
+O
+modelo
+serve
+para
+uma
+ampla
+gama
+de 
+aplicações
+meteorológicas
+em
+escalas
+de
+dezenas
+de
+metros
+a
+milhares
+de
+quilômetros.
+O 
+esforço
+para
+desenvolver
+o
+WRF
+começou
+no
+final
+dos
+anos
+1990
+e
+foi
+uma
+parceria
+
+--- PAGE 31 ---
+29
+colaborativa
+do
+Centro
+Nacional
+para
+Pesquisa
+Atmosférica
+(NCAR),
+a
+Administração
+Nacional 
+Oceânica
+e
+Atmosférica
+(representada
+pelos
+Centros
+Nacionais
+de
+Previsão
+Ambiental
+(NCEP) 
+e
+pelo
+Laboratório
+de
+Pesquisa
+do
+Sistema
+Terrestre),
+a
+Força
+Aérea
+dos
+EUA,
+o
+Laboratório 
+de Pesquisa Naval, a Universidade de Oklahoma e a
+Administração Federal de Aviação (FAA).”
+As
+informações
+provenientes
+do
+WRF
+fornecido
+pelo
+INPE
+(INSTITUTO
+NACIONAL
+DE 
+PESQUISAS
+ESPACIAIS)
+são
+acessadas,
+diretamente,
+através
+do
+TerraMA²,
+permitindo
+uma 
+previsão de até 72 horas, com  resolução espacial
+de 5 quilômetros.
+4.5.3.
+E
+VENTOS
+GEOLÓGICOS
+Para
+avaliar
+eventos
+geológicos
+são
+consideradas
+duas
+variáveis:
+intensidade
+horária
+de
+chuva 
+e
+chuva
+acumulada
+em
+96 h.
+De
+acordo
+com
+o
+mecanismo
+de
+deflagração
+de
+eventos 
+geológicos,
+considera-se
+sempre
+o
+valor
+máximo
+de
+intensidade
+de
+chuva
+prevista
+para
+as 
+próximas 24h.
+A
+intensidade
+horária
+da
+chuva
+é
+normalmente
+expressa
+em
+mm / h.
+As
+retroanálises
+foram 
+realizadas
+considerando
+os
+dados
+coletados
+a
+cada
+10 minutos
+(mm / 10 min,
+ou
+mm / 1/6
+de 
+hora).
+Para
+que
+as
+medidas
+fossem
+expressas
+em
+mm / h,
+os
+dados
+de
+chuva,
+coletados
+a 
+cada 10 minutos, foram multiplicados por 6, projetando
+o seu valor no formato mm / h.
+A
+segunda
+variável
+corresponde
+a
+chuva
+acumulada
+em
+um
+período
+de
+96 h.
+Este
+período 
+poderá
+ser
+composto
+pela
+soma
+da
+chuva
+acumulada
+em
+72 h
+somada
+à
+previsão
+de
+chuva 
+das 24 h futuras, totalizando período de análise de
+96 h.     .
+A
+Figura 4.5.3-1
+exemplifica
+a
+combinação
+de
+72 h
+de
+dados
+coletados
+a
+serem
+somados
+com 
+os dados previstos de chuva para as 24 h seguintes.
+Figura 4.5.3
+-1
+. Modelo de combinação entre dados de
+chuva coletados e previstos. Intervalo de 96h 
+para análise. Fonte: Elaborado pelo Consórcio 4X044
+no âmbito do desenvolvimento dos serviços 
+contratados.
+4.5.3.1.
+Modelo para o script
+Foram
+criados
+dois
+modelos
+de
+análise:
+um
+utilizando
+os
+dados
+de
+pluviômetros
+do
+DAEE,
+e
+o 
+outro  os dados do Hidroestimador.
+4.5.3.1.1.
+Modelos Hidroestimador 
+Para o modelo de análise utilizando Hidroestimador,
+seguiu-se o seguinte processo:
+
+--- PAGE 32 ---
+30
+●
+Em
+um
+intervalo
+de
+10
+minutos,
+o
+sistema
+analisa
+o
+acumulado
+de
+chuva
+nas
+últimas
+72 
+horas
+e
+a
+previsão
+de
+chuva
+para
+as
+próximas
+24
+horas
+e,
+então,
+realiza
+a
+soma
+destes 
+valores.
+●
+Tendo estes valores somados é, então, realizado o
+cálculo do CPC.
+●
+A
+partir
+do
+cálculo
+do
+CPC
+é
+cruzada
+a
+informação
+com
+os
+valores
+de
+Risco
+Analisado
+de 
+cada
+trecho
+descrito
+na
+Tabela 3.2.1-1.
+A
+partir
+deste
+cruzamento,
+são
+realizados
+os
+cálculos 
+do Risco Dinâmico.
+Figura 4.5.3.1.1-1
+. Código fonte criado no TerraMa²
+para a obtenção da precipitação através do 
+hidroestimador. Fonte: Elaborado pelo Consórcio 4X044
+no âmbito do desenvolvimento dos serviços 
+contratados.
+●
+A partir da definição do Risco Dinâmico, é então definido
+o nível de alerta.
+4.5.3.1.2.
+Modelo a partir dos dados do DAEE
+Para
+o
+modelo
+de
+análise
+utilizando
+os
+dados
+de
+pluviômetros
+do
+DAEE,
+foi
+realizado
+o 
+seguinte processo:
+●
+Foram
+definidos
+quais
+pluviômetros
+seriam
+utilizados
+no
+processo.
+Esta
+definição
+ocorreu 
+através
+da
+criação
+de
+uma
+área
+de
+buffer
+de
+30
+quilômetros
+da
+área
+de
+estudo
+e
+da 
+interseção com os pluviômetros existentes.
+
+--- PAGE 33 ---
+31
+Figura 4.5.3.1.2-1
+. Determinação dos pluviômetros
+a serem utilizados no processo. Área de interesse 
+gerada a partir do buffer de 30 quilômetros. Fonte:
+Elaborado pelo Consórcio 4X044 no âmbito do 
+desenvolvimento dos serviços contratados
+●
+A
+cada
+intervalo
+de
+1
+hora,
+a
+aplicação
+realiza
+o
+download
+dos
+dados
+fornecidos
+pelo
+DAEE, 
+através
+da
+API
+(Application
+Programming
+Interface)
+acessada
+através
+do
+endereço: 
+http://sibh.daee.sp.gov.br/api/eventos_ultimas_horas?horas=1
+●
+Após
+realizar
+o
+download
+dos
+dados,
+os
+mesmos
+são
+armazenados
+em
+uma
+camada
+do 
+banco de dados.
+●
+São,
+então,
+analisados
+os
+registros
+de
+pluviômetros
+que
+não
+possuem
+informação.
+Para 
+estes pluviômetros, são inseridos o valor 0 (zero).
+●
+É realizada a sumarização dos dados de chuva das últimas
+72 horas.
+●
+A
+próxima
+etapa
+do
+processo
+foi
+realizar
+a
+interpolação
+com
+o
+método
+Vizinho
+Natural, 
+utilizando-se um valor de célula de 0,027 graus.
+
+--- PAGE 34 ---
+32
+Figura 4.5.3.1.2-2
+Resultado de processo de Vizinho
+Natural, a partir dos pluviômetros 
+pré-selecionados. Fonte: Elaborado pelo Consórcio 4X044
+no âmbito do desenvolvimento dos serviços 
+contratados
+●
+A
+partir
+do
+raster
+gerado
+no
+processo
+anterior
+é,
+então,
+somado
+o
+valor
+da
+previsão
+para
+as 
+próximas 24 horas.
+●
+Tendo
+estes
+valores
+somados
+é
+realizado
+o
+cálculo
+do
+CPC.
+Definida
+a
+faixa
+em
+qual
+o
+CPC 
+se encaixa. Os cálculos do CPC são realizados de acordo
+com a tabela
+Tabela 
+4.5.3.1.2-1.
+Tabela 4.5.3.1.2-1
+. Equações
+de
+CPC
+para
+eventos
+geológicos
+para
+cada
+uma
+das
+quatro
+regiões 
+analisadas.
+Região
+Trecho
+Equação de CPC
+Região 01
+Rodovia Mogi-Bertioga
+CPC = I / (1.000 x Ac96h
+-0,9
+)
+Região 02
+Caraguatatuba-Ubatuba
+CPC = I / (400 x Ac96h
+-0,9
+)
+Região 03
+São Sebastião
+CPC = I / (200 x Ac96h
+-0,9
+)
+Região 04
+Santos-Bertioga
+CPC = I / (1.000 x Ac96h
+-0,9
+)
+●
+A
+partir
+do
+cálculo
+do
+CPC
+é
+cruzada
+a
+informação
+com
+os
+valores
+de
+Risco
+Analisado
+de 
+cada
+trecho
+descritos
+na
+Tabela 3.2.1-1
+.
+A
+partir
+deste
+cruzamento,
+são
+realizados
+os 
+cálculos do Risco Dinâmico.
+●
+A partir da definição do Risco Dinâmico é definido
+o nível de alerta.
+
+--- PAGE 35 ---
+33
+Figura 4.5.3.1.2-3
+. Fluxo de processamento para a
+geração dos alertas através dos dados do DAEE. 
+Fonte: Elaborado pelo Consórcio 4X044 no âmbito do
+desenvolvimento dos serviços contratados
+4.5.4.
+E
+VENTOS
+HIDROLÓGICOS
+Para
+eventos
+hidrológicos
+foi
+considerada
+apenas
+uma
+variável
+-
+a
+chuva
+acumulada
+de
+24h. 
+Assim,
+a
+mudança
+de
+nível
+do
+Risco
+Dinâmico
+ocorre
+em
+cada
+uma
+das
+04 regiões 
+exclusivamente a partir desta variável , conforme
+mostra a
+Tabela 2.1.2-1
+.
+O
+intervalo
+de
+análise
+será
+fixo
+em
+24 h,
+porém
+resulta
+de
+uma
+composição
+entre
+um
+período 
+de
+18
+horas
+para
+os
+dados
+já
+coletados,
+e
+um
+período
+de
+6
+horas
+para
+os
+dados
+de
+previsão, 
+onde
+a
+soma
+é
+24 horas,
+conforme
+esquema
+apresentado
+na
+Figura 4.5.4-1
+.
+Assim,
+devemos 
+considerar
+a
+maior
+somatória
+de
+chuva
+possível,
+num
+intervalo
+fixo
+de
+24 h,
+porém
+com
+início
+e 
+fim
+variável.
+No
+exemplo
+da
+Figura 4.5.4-1
+,
+o
+intervalo
+é
+composto
+pela
+chuva
+registrada
+nas 
+últimas
+18 horas,
+somada
+à
+previsão
+das
+próximas
+6 horas.
+O
+tamanho
+dos
+intervalos 
+possíveis
+será
+definido
+de
+acordo
+com
+o
+nível
+de
+detalhamento
+dos
+dados
+coletados
+e 
+previstos.
+Figura 4.5.4-1
+ Modelo de combinação entre dados de
+chuva coletados e previstos. Intervalo de 24h 
+para análise móvel. Fonte: Elaborado pelo Consórcio 4X044
+no âmbito do desenvolvimento dos 
+serviços contratados.
+
+--- PAGE 36 ---
+34
+A
+Tabela 
+4.5.4
+apresenta
+um
+exemplo
+prático,
+para
+um
+dia
+e
+horário
+hipotético.
+Nesse
+exemplo 
+o
+maior
+somatório
+de
+chuva
+em
+24h
+possível
+corresponde
+aos
+dados
+obtidos
+nas
+18 h
+que 
+antecedem
+o
+momento
+atual,
+somados
+aos
+valores
+previstos
+de
+chuva
+para
+as
+6 h
+seguintes, 
+totalizando 100 mm.
+Tabela 4.5.4-1
+. Exemplo de aplicação para eventos
+hidrológicos.
+Atual
+Dia:
+10
+Hora:
+06:00
+ 
+Dados Coletados
+Dados de Previsão
+Dia
+9
+9
+9
+10
+10
+10
+10
+11
+11
+11
+Hora
+06:00
+12:00
+18:00
+00:00
+06:00
+12:00
+18:00
+00:00
+06:00
+12:00
+Chuva (mm)
+0
+5,5
+5,8
+40,2
+29,8
+10
+20
+60
+5
+0
+4.5.4.1.
+Modelo para o script
+Foram
+criados
+dois
+modelos
+de
+análise:
+um
+utilizando
+os
+dados
+de
+pluviômetros
+do
+DAEE
+e
+o 
+outro  os dados do Hidroestimador.
+4.5.4.1.1.
+Modelos Hidroestimador 
+Para aplicar o modelo de análise utilizando Hidroestimador,
+foi realizado o seguinte processo:
+●
+Em
+um
+intervalo
+de
+10
+minutos,
+o
+sistema
+analisa
+o
+acumulado
+de
+chuva
+nas
+últimas
+18 
+horas
+e
+a
+previsão
+de
+chuva
+para
+as
+próximas
+6
+horas
+e,
+posteriormente,
+realiza
+a
+soma 
+destes valores.
+Figura 4.5.4.1.1-1
+ Código fonte criado no TerraMa²
+para a obtenção da precipitação através do 
+hidroestimador. Fonte: Elaborado pelo Consórcio 4X044
+no âmbito do desenvolvimento dos serviços 
+contratados.
+●
+Após
+somar
+estes
+valores
+é,
+então,
+realizada
+a
+soma
+para
+obter
+o
+valor
+do
+Índice
+de 
+Correlação com Chuvas – Hidrológico.
+●
+A
+partir
+do
+cálculo
+do
+ICC
+a
+informação
+é
+cruzada
+com
+os
+valores
+de
+Risco
+Analisado
+de 
+cada
+trecho
+descrito
+na
+Tabela
+3.2.2-1
+.
+A
+partir
+deste
+cruzamento
+são
+realizados
+os
+cálculos 
+do Risco Dinâmico.
+●
+A partir da definição do Risco Dinâmico é definido
+o nível de alerta.
+
+--- PAGE 37 ---
+35
+4.5.4.1.3.
+Modelo a partir dos dados do DAEE
+Para
+o
+modelo
+de
+análise
+utilizando
+os
+dados
+de
+pluviômetros
+do
+DAEE,
+foi
+realizado
+o 
+seguinte processo:
+●
+Foram
+inicialmente
+definidos
+os
+pluviômetros
+a
+serem
+utilizados
+no
+processo.
+A
+definição 
+destes
+se
+deu
+através
+da
+criação
+de
+uma
+área
+de
+buffer
+de
+30
+quilômetros
+da
+área
+de 
+estudo e da interseção com os pluviômetros existentes.
+●
+A
+cada
+intervalo
+de
+1
+hora,
+a
+aplicação
+realiza
+o
+download
+dos
+dados
+fornecidos
+pelo
+DAEE 
+através
+da
+API
+(Application
+Programming
+Interface),
+acessada
+através
+do
+endereço: 
+http://sibh.daee.sp.gov.br/api/eventos_ultimas_horas?horas=1
+Figura 4.5.4.1.2-1
+ Trecho do código fonte para a realização
+do download dos dados do DAEE. Fonte: 
+Elaborado pelo Consórcio 4X044 no âmbito do desenvolvimento
+dos serviços contratados.
+●
+Após realizar o download, os dados são armazenados
+em uma camada do banco de dados. 
+●
+São,
+então,
+analisados
+os
+registros
+de
+pluviômetros
+que
+não
+possuem
+informação.
+Para 
+estes pluviômetros é  atribuído o valor 0 (zero). 
+●
+Segue-se a sumarização dos dados de chuva das últimas
+18 horas. 
+●
+A
+próxima
+etapa
+do
+processo
+é
+a
+interpolação
+com
+o
+método
+Vizinho
+Natural,
+utilizando-se 
+um valor de célula de 0,027 graus. 
+●
+A
+partir
+do
+raster
+gerado
+no
+processo
+anterior
+é,
+então,
+somado
+o
+valor
+da
+previsão
+para
+as 
+próximas 6 horas. 
+●
+A
+partir
+deste
+passo,é
+realizada
+a
+soma
+para
+obter
+o
+valor
+do
+Índice
+de
+Correlação
+com 
+Chuvas – Hidrológico. 
+●
+Após
+o
+cálculo
+do
+ICC
+é
+realizado
+o
+cruzamento
+da
+informação
+com
+os
+valores
+de
+Risco 
+Analisado
+de
+cada
+trecho,
+descrito
+na
+Tabela
+3.2.2-1
+.
+A
+partir
+deste
+cruzamento,
+são 
+realizados os cálculos do Risco Dinâmico. 
+●
+A partir da obtenção do Risco Dinâmico, é definido
+o nível de alerta.
+O
+fluxo
+de
+processo
+é
+o
+mesmo
+definido
+na
+Figura 4.5.3.1.2-3,
+apenas
+com
+os
+valores
+das 
+análises realizadas no TerraMA² , ajustados conforme
+descrito acima.
+
+--- PAGE 38 ---
+36
+4.6.
+M
+ÓDULO
+DE
+ADMINISTRAÇÃO
+No
+módulo
+de
+Administração
+do
+TerraMA²
+são
+definidos
+os
+servidores
+de
+dados,
+os
+dados 
+estáticos e dinâmicos, as análises e os alertas de
+risco.
+●
+O
+sistema
+possui
+um
+link
+para
+o
+acesso
+ao
+sistema
+de
+administração
+do
+TerraMA²,
+sendo 
+necessária
+a
+informação
+de
+usuário
+e
+senha
+para
+o
+acesso,
+como
+apresentado
+na 
+Figura 4.6-1
+.
+Figura 4.6-1
+. Tela de
+login
+do Sistema. Fonte: Elaborado
+pelo Consórcio 4X044 no âmbito do 
+desenvolvimento dos serviços contratados.
+●
+Ao
+validar
+o
+login
+,
+o
+sistema
+é
+direcionado
+para
+o
+ambiente
+de
+administração
+do
+TerraMA² 
+onde é fornecido o acesso às configurações dos seguintes
+ambientes (
+Figura 4.5-2
+):
+o
+Projetos; 
+o
+Servidores de Dados; 
+o
+Dados Dinâmicos; 
+o
+Dados Estáticos; 
+o
+Views
+; 
+o
+Status; 
+o
+Ferramentas;
+
+--- PAGE 39 ---
+37
+Figura 4.6-2
+. Tela do ambiente de administração do
+Sistema. Fonte: Elaborado pelo Consórcio 4X044 
+no âmbito do desenvolvimento dos serviços contratados.
+4.7.
+M
+ÓDULO
+DE
+CONFIGURAÇÃO
+A
+plataforma
+TerraMA2
+permite
+o
+desenvolvimento
+de
+análises
+integrando
+os
+dados
+dinâmicos 
+ambientais
+com
+os
+dados
+estáticos
+vetoriais
+ou
+matriciais.
+Uma
+análise
+envolve
+a
+escolha
+do 
+tipo,
+dados
+de
+entrada,
+saídas
+e
+um
+programa
+(“
+script
+”)
+para
+definir
+como
+será
+feita
+a 
+integração
+dos
+dados.
+Os
+modelos
+de
+análise
+são
+escritos
+na
+linguagem
+Python
+e
+um
+conjunto 
+de operadores espaciais criados especialmente para
+a plataforma.
+O
+sistema
+permite
+o
+acesso
+ao
+ambiente
+de
+configuração
+das
+análises
+do
+TerraMA².O
+acesso
+é 
+permitido
+somente
+através
+de
+login
+(
+Figura 4.5-1
+).
+A
+Figura
+4.6-1
+representa
+a
+tela
+de 
+configuração da análise.
+Figura 4.7-1
+. Tela do módulo de configuração do Sistema.
+Fonte: Elaborado pelo Consórcio 4X044 no 
+âmbito do desenvolvimento dos serviços contratados.
+
+--- PAGE 40 ---
+38
+4.8.
+S
+ERVIÇOS
+DE
+GERÊNCIA
+DE
+PLANOS
+Para
+o
+serviço
+de
+gerência
+de
+plano,
+as
+informações
+dos
+planos
+de
+ação
+são
+armazenadas
+em 
+um
+arquivo
+.JSON.
+Este
+arquivo
+é
+lido
+diretamente
+pelo
+sistema
+e,
+caso
+seja
+necessária
+a 
+alteração
+do
+plano,
+deve-se
+abrir
+o
+arquivo
+e
+alterar
+a
+devida
+informação.
+A
+Figura 4.8-1 
+apresenta um exemplo do arquivo .JSON.
+Figura 4.8-1
+. Arquivo JSON de recomendações. Fonte:
+Elaborado pelo Consórcio 4X044 no âmbito do 
+desenvolvimento dos serviços contratados.
+O arquivo
+config.JSON
+está armazenado no seguinte
+endereço:
+●
+C:\inetpub\wwwroot\SGI-Riscos-DER\Content\webgis\config\pt\alertas
+Para
+a
+visualização
+dos
+alertas,
+não
+há
+diferenciação
+de
+acordo
+com
+o
+login
+realizado.
+Todos 
+os logins terão acesso a todos os alertas gerados.
+Ao
+gerar
+um
+alerta,
+as
+informações
+do
+plano
+são
+apresentadas
+somente
+para
+o
+polígono
+que 
+gerou
+o
+alerta.
+Os
+alertas
+são
+emitidos
+para
+todos
+os
+usuários
+registrados
+para
+o
+recebimento 
+do alerta, independente das regionais.
+4.9.
+S
+ERVIÇOS
+DE
+ANIMAÇÃO
+O
+serviço
+de
+animação
+consiste
+em
+permitir
+que
+os
+usuários,
+a
+partir
+dos
+alertas
+gerados, 
+consigam
+visualizar
+a
+gerar
+uma
+animação
+das
+últimas
+96 h,
+de
+hora
+em
+hora,
+dos
+polígonos 
+de
+alerta.
+Estes
+polígonos
+serão
+acessados
+através
+de
+serviços
+que
+permitam
+a
+visualização 
+das
+informações
+de
+forma
+temporal.
+A
+ferramenta
+possui
+uma
+barra
+de
+controle
+que
+permite 
+aos
+usuários
+avançarem
+ou
+voltarem
+na
+linha
+do
+tempo
+(
+Figura 4.8-1
+),
+assim
+como
+o
+acesso
+à 
+ferramenta de controle de visualização temporal.
+
+--- PAGE 41 ---
+39
+Figura 4.9-1
+. Exemplo do serviço de animação do Sistema.
+Fonte: Elaborado pelo Consórcio 4X044 no 
+âmbito do desenvolvimento dos serviços contratados.
+A
+barra
+de
+controle
+de
+visualização
+temporal
+permite
+aos
+usuários
+escolherem
+o
+intervalo
+de 
+horas e o período que será acumulado, além de executar,
+automaticamente, a animação.
+4.10.
+S
+ERVIÇO
+DE
+NOTIFICAÇÃO
+A
+partir
+da
+análise
+gerada
+pelo
+TerraMA²,
+caso
+sejam
+identificadas
+áreas
+de
+riscos,
+o
+sistema 
+executa as seguintes ações: 
+●
+Envia, por e-mail, uma mensagem  aos os devidos responsáveis
+previamente cadastrados; 
+●
+As notificações enviadas possuem as seguintes informações:
+o
+Data e Horário da notificação;
+o
+Nível de Alerta;
+o
+Recomendações;
+o
+Inserir
+o
+local
+do
+alerta
+a
+partir
+do
+quilômetro
+de
+ocorrência
+do
+evento,
+informado
+na
+tabela de Área de Estudo;
+o
+Inserir o link do sistema;
+●
+O sistema contém uma tela de cadastros dos usuários
+a serem notificados.
+4.11.
+S
+ERVIÇO
+DE
+ANÁLISE
+Os
+serviços
+de
+análise
+são
+responsáveis
+pelo
+cruzamento
+entre
+dados
+ambientais 
+(hidrometeorológicos)
+e
+dados
+estáticos.
+Uma
+análise
+configurada
+produzirá
+novos
+dados
+
+--- PAGE 42 ---
+40
+dinâmicos,
+sejam
+geográficos
+ou
+tabulares.
+Os
+modelos
+de
+análises
+são
+desenvolvidos
+com
+a 
+linguagem de programação
+Python
+. Um serviço de análise
+será executado localmente.
+O Serviço de Análise utiliza os critérios estabelecidos
+nos Produtos 03 e 04.
+Figura 4.11-1
+. Tela de gerenciamento dos serviços
+de análise configurados no TerraMA². Fonte: 
+Elaborado pelo Consórcio 4X044 no âmbito do desenvolvimento
+dos serviços contratados.
+Os
+serviços
+de
+análise
+utilizam
+os
+dados
+dos
+modelos
+Hidroestimador,
+WRF
+e
+dos
+processos 
+de
+interpolação
+dos
+dados
+do
+DAEE
+para
+realizar
+as
+análises
+e
+geração
+de
+alertas.
+O
+modelo 
+utilizado
+para
+cada
+uma
+das
+análises
+foi
+descrito
+no
+item
+4.5.
+Foram
+criados
+os
+serviços
+para 
+cada região, separadamente.
+Figura 4.11-2
+. Exemplo de serviços de alerta separados
+por região configurados no TerraMA². Fonte: 
+Elaborado pelo Consórcio 4X044 no âmbito do desenvolvimento
+dos serviços contratados.
+Esta
+separação
+deve-se
+ao
+fato
+de
+que
+os
+tipos
+de
+alertas,
+tanto
+para
+os
+Processos
+Geológicos 
+quanto
+para
+os
+Processos
+Hidrológicos,
+são
+analisados
+individualmente
+para
+cada
+uma
+das 
+regiões.
+Esta
+separação
+visa
+garantir
+um
+melhor
+desempenho
+do
+sistema,
+bem
+como
+a 
+aplicação das simbologias adequadas aos respectivos
+processos e níveis de alerta.
+O
+código
+utilizado
+para
+a
+implantação
+do
+modelo
+foi
+escrito
+e
+configurado
+diretamente
+dentro 
+da plataforma TerraMA². A
+Figura 4.11.3
+apresenta
+um trecho do código utilizado.
+
+--- PAGE 43 ---
+41
+Figura 4.11-3
+. Trecho de código utilizado para a implantação
+dos modelos de análise no TerraMA². 
+Fonte: Elaborado pelo Consórcio 4X044 no âmbito do
+desenvolvimento dos serviços contratados.
+5. C
+RONOGRAMA
+DE
+ATIVIDADES
+E
+PRÓXIMAS
+ETAPAS
+O
+cronograma
+com
+as
+atividades
+previstas
+é
+apresentado
+na
+Figura 5-1
+.
+Observa-se
+que
+as 
+entregas
+dos
+relatórios
+de
+cada
+uma
+das
+três
+Etapas
+seguem,
+como
+previsto
+no
+Contrato 
+nº 20.595-3,
+com
+datas
+contadas
+a
+partir
+da
+assinatura
+da
+Nota
+de
+Serviço,
+em
+03
+de
+agosto
+de 
+2020, conforme relação a seguir:
+●
+Etapa 1 – 4 meses após a emissão da Ordem de Serviço;
+●
+Etapa 2 – 6 meses após a emissão da Ordem de Serviço;
+●
+Etapa 3 – 8 meses após a emissão da Ordem de Serviço;
+
+--- PAGE 44 ---
+42
+
+--- PAGE 45 ---
+43
+A
+Etapa
+seguinte
+corresponde
+à
+Etapa 3,
+constituída
+pela
+elaboração
+do
+Produto 07
+–
+Plano 
+de
+Contingência
+de
+Riscos
+de
+Eventos
+Geodinâmicos
+,
+que
+constitui
+a
+etapa conclusiva
+do 
+projeto.
+O
+Plano
+de
+Contingência
+deverá
+contemplar,
+minimamente,
+os
+processos
+de 
+escorregamentos
+de
+encostas
+e
+os
+processos
+de
+inundações
+e
+alagamentos.
+A
+metodologia 
+para
+elaboração
+o
+Plano
+de
+Contingência,
+como
+exposto
+no
+Plano
+de
+Trabalho,
+deverá 
+contemplar as seguintes fases:
+●
+Revisão bibliográfica / Análise comparativa;
+●
+Definição de um modelo geológico;
+●
+Definição dos cenários de Risco;
+●
+Definição das instituições envolvidas;
+●
+Sistema de monitoramento, alerta e alarme;
+●
+Sistema de comunicação;
+●
+Definição de ações e procedimentos;
+●
+Definição de funções e atribuição de responsabilidades;
+●
+Articulação do Plano de Contingência com outros planos
+existentes;
+●
+Evento-teste e revisão do Plano;
+●
+Redação final do documento;
+●
+Procedimentos formais de aprovação, validação e divulgação
+do Plano de Contingência.
+
+--- PAGE 46 ---
+44
+6. R
+EFERÊNCIAS
+BIBLIOGRÁFICAS
+AB'SABER,
+A.N.
+Os
+domínios
+morfoclimáticos
+na
+América
+do
+Sul.
+Geomorfologia,
+São
+Paulo, 
+n. 52, p. 1-22, 1977.
+ABNT
+-
+ASSOCIAÇÃO
+BRASILEIRA
+DE
+NORMAS
+TÉCNICAS.
+ISO
+31000
+Gestão
+de
+riscos
+— 
+Princípios e diretrizes (
+Risk management – Principles
+and guidelines
+). 2009.
+ACSELRAD,
+H.
+Vulnerabilidade
+Ambiental,
+processos
+e
+relações.
+Comunicação
+ao
+II
+Encontro 
+Nacional
+de
+Produtores
+e
+Usuários
+de
+Informações
+Sociais,
+Econômicas
+e
+Territoriais,
+FIBGE, 
+Rio de Janeiro, 2006.
+ALESP
+–
+ASSEMBLEIA
+LEGISLATIVA
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Decreto
+nº
+30860,
+de
+04 
+de
+dezembro
+de
+1989.
+Dispõe
+sobre
+a
+aprovação
+e
+implantação
+do
+Plano
+Preventivo
+de
+Defesa 
+Civil
+Específico
+para
+Escorregamentos
+nas
+Encostas
+do
+Mar.
+São
+Paulo.
+1989.
+Disponível
+em 
+<https://www.al.sp.gov.br/repositorio/legislacao/decreto/1989/decreto-30860-04.12.1989.html>. 
+Acesso em outubro de 2020.
+ALESP
+–
+ASSEMBLEIA
+LEGISLATIVA
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Decreto
+nº
+42565,
+de
+01 
+de
+dezembro
+de
+1997.
+Redefine
+o
+Plano
+Preventivo
+de
+Defesa
+Civil
+-
+PPDC
+específico
+para 
+Escorregamentos
+nas
+Encostas
+da
+Serra
+do
+Mar,
+e
+dá
+outras
+providências.
+São
+Paulo.
+1997. 
+Disponível
+em 
+<https://www.al.sp.gov.br/repositorio/legislacao/decreto/1997/decreto-42565-01.12.1997.html>. 
+Acesso em outubro de 2020.
+ALHEIROS,
+M.M.;
+SOUZA,
+M.A.A.;
+BITOUN,
+J.;
+MEDEIROS,
+S.M.G.M.;
+AMORIM
+JÚNIOR, 
+W.M.
+Manual
+de
+ocupação
+de
+morros
+da
+Região
+Metropolitana
+de
+Recife.
+Recife:
+Fundação
+de 
+Desenvolvimento Municipal, 2003. 384p.
+ÁLVARES,
+C.A.;
+STAPE,
+J.
+L.;
+SENTELHAS,
+P.C.;
+GONÇALVES,
+J.L.
+de
+M.;
+SPAROVEK,
+G. 
+Köppen's
+climate
+classification
+map
+for
+Brazil.
+Meteorologische
+Zeitschrift
+,
+v.
+22,
+n.
+6,
+p. 
+711-728(18),
+dezembro
+de
+2013.
+E.
+Schweizerbart'sche
+Verlagsbuchhandlung
+.
+DOI: 
+https://doi.org/10.1127/0941-2948/2013/0507.
+ALVES,
+F.M.,
+FLORES,
+M.,
+IWASA,
+O.Y.,
+ALVES,
+C.F.C.,
+FERNANDES,
+G.N.,
+SILVA,
+L.H., 
+GOTO
+de
+PAULA,
+C.M.M,
+MAGRO,
+S.A.,
+BONGIOVANNI,
+L.A.
+Plano
+municipal
+de
+redução
+de 
+riscos
+do
+Município
+de
+Diadema.
+In:
+Congresso
+Brasileiro
+de
+Geologia
+de
+Engenharia
+e 
+Ambiental, 13, Rio de Janeiro - RJ, Anais..., São
+Paulo: ABGE, 2013, CD-ROM.
+ANA
+-
+AGÊNCIA
+NACIONAL
+DE
+ÁGUAS.
+Base
+Hidrográfica
+Ottocodificada
+da
+Bacia
+do
+Rio 
+Tietê [Brasília], 2015.1: 50.000.
+ANA
+-
+AGÊNCIA
+NACIONAL
+DE
+ÁGUAS.
+Base
+Hidrográfica
+Ottocodificada
+do
+Rio
+Paraíba
+do 
+Sul. [Brasília], 2017 1:50.000.
+ANA
+-
+AGÊNCIA
+NACIONAL
+DE
+ÁGUAS.
+Base
+Hidrográfica
+Ottocodificada
+Litorâneas
+SP-RJ. 
+[Brasília], 2017 1:50.000.
+ANDRADE,
+E.;
+DANNA,
+L.C.;
+FERNANDES
+DA
+SILVA,
+P.C.
+Mapeamento
+de
+perigos
+e
+riscos 
+de
+inundação
+no
+Município
+de
+Aparecida
+(São
+Paulo).
+Anuário
+do
+Instituto
+de
+Geociências
+- 
+UFRJ. ISSN 0101-9759 e-ISSN 1982-3908 - Vol. 35 -
+2 / 2012 p.28-42. 2012.
+ANDRADE,
+E.;
+DANNA,
+L.C.;
+SANTOS,
+M.L.;
+FERNANDES
+DA
+SILVA,
+P.C.
+2010. 
+Levantamento
+de
+ocorrências
+de
+inundação
+em
+registros
+de
+jornais
+como
+subsídio
+ao 
+planejamento
+regional
+e
+ao
+mapeamento
+de
+risco.
+In:
+ABGE,
+Simpósio
+Brasileiro
+de
+Cartografia 
+Geotécnica, 7, Maringá-PR, 8 a 11 de agosto de 2010,
+Anais..., CD-ROOM.
+
+--- PAGE 47 ---
+45
+ANTT
+-
+Agência
+Nacional
+de
+Transportes
+Terrestres.
+AGEST
+-
+Assessoria
+de
+Gestão 
+Estratégica
+e
+Inovação.
+Metodologia
+de
+Avaliação
+e
+Tratamento
+de
+Riscos.
+Brasília,
+2018. 
+Disponível
+em
+<http://anexosportal.datalegis.inf.br/arquivos/1310858.pdf>.
+Acesso
+em
+outubro 
+de 2020.
+ARMANI,
+G.;
+TAVARES,
+R.;
+BRIGATTI,
+N.
+Climatologia.
+In:
+FERREIRA
+C.J.
+[coord].
+Diretrizes 
+para
+a
+regeneração
+socioambiental
+de
+áreas
+degradadas
+por
+mineração
+de
+saibro
+(caixas
+de 
+empréstimo),
+Ubatuba,
+SP.
+Relatório
+Técnico
+3,
+FAPESP
+(processo
+FAPESP
+03/07182-5) 
+inédito, p. 119-142, 2007.
+BIRKMANN,
+J.
+Measuring
+vulnerability
+to
+promote
+disaster-resilient
+societies:
+Conceptual 
+frameworks
+and
+definitions
+.
+In:
+BIRKMANN,
+J.
+(ed):
+Measuring
+vulnerability
+to
+Natural
+Hazards. 
+Towards
+Disaster
+Resilient
+Societies.
+New
+Delhi
+:
+TERI
+Press,
+United
+Nations
+University
+Press, 
+2006. p. 9-56.
+BONGIOVANNI,
+L.A.;
+FREITAS,
+J.O.;
+ALVES,
+F.M.
+Desenvolvimento
+sustentável
+e
+gestão
+de 
+risco
+de
+desastres
+naturais.
+III
+Congresso
+da
+Sociedade
+de
+Análise
+de
+Risco
+Latino
+Americana, 
+São Paulo, 2016.
+BRAND,
+E.W.
+Relationship
+between
+rainfall
+and
+landslides
+in
+Hong
+Kong
+.
+In:
+INTERNATIONAL 
+SYMPOSIUM ON LANDSLIDES, 4., 1984. Toronto: [s.n.],
+1984. v.1, p.377-84.
+BRASIL
+(DEPARTAMENTO
+NACIONAL
+DE
+INFRAESTRUTURA
+DE
+TRANSPORTES).
+Manual 
+para
+implementação
+de
+planos
+de
+ação
+de
+emergência
+para
+atendimento
+a
+sinistros 
+envolvendo
+o
+transporte
+rodoviário
+de
+produtos
+perigosos.
+2005.
+142p.
+(IPR.
+Publ.,
+716). 
+Disponível em: <https://goo.gl/sFGxPg>.
+BRASIL
+(MCIDADES
+–
+MINISTÉRIO
+DAS
+CIDADES,
+IPT
+–
+INSTITUTO
+DE
+PESQUISAS 
+TECNOLÓGICAS
+DO
+ESTADO
+DE
+SÃO
+PAULO).
+Mapeamento
+de
+Riscos
+em
+Encostas
+e 
+Margem de Rios. CARVALHO, C.S.; MACEDO, E.S; OGURA,
+A.T. (orgs.), Brasília, 2007.
+BRASIL
+(MI
+–
+MINISTÉRIO
+DA
+INTEGRAÇÃO
+NACIONAL,
+SEDEC
+–
+SECRETARIA 
+NACIONAL
+DE
+DEFESA
+CIVIL).
+Glossário
+de
+Defesa
+Civil,
+estudos
+de
+riscos
+e
+medicina
+de 
+desastres. 3. ed. Brasília, DF: MI 2009.
+BRASIL
+(MINISTÉRIO
+DA
+INTEGRAÇÃO
+NACIONAL).
+Manual
+de
+orientações
+para
+a
+produção 
+do
+plano
+municipal
+de
+contingência
+-
+PLAMCON.
+Secretaria
+Nacional
+de
+Defesa
+Civil.
+Brasília, 
+DF: MI, 2012. Disponível em: <https://goo.gl/Eu8acH>.
+BRASIL
+(MI
+–
+MINISTÉRIO
+DA
+INTEGRAÇÃO
+NACIONAL).
+Instrução
+Normativa
+n 02,
+de
+02 
+de
+dezembro
+de
+2016.
+Estabelece
+procedimentos
+e
+critérios
+para
+a
+decretação
+de
+situação
+de 
+emergência
+ou
+estado
+de
+calamidade
+pública
+pelos
+Municípios,
+Estados
+e
+pelo
+Distrito
+Federal, 
+e
+para
+o
+reconhecimento
+federal
+das
+situações
+de
+anormalidade
+decretadas
+pelos
+entes 
+federativos
+e
+dá
+outras
+providências.
+Brasília,
+DF:
+MI,
+2016.
+Disponível
+em: 
+<https://www.in.gov.br/materia/-/asset_publisher/Kujrw0TZC2Mb/content/id/24789597/do1-2016 
+-12-22-instrucao-normativa-n-2-de-20-de-dezembro-de-2016--24789506>.
+BRASIL
+(MINISTÉRIO
+DA
+SAÚDE).
+Secretaria
+Executiva.
+Sistema
+Único
+de
+Saúde
+(SUS): 
+instrumentos
+de
+gestão
+em
+saúde
+/
+Ministério
+da
+Saúde,
+Secretaria
+Executiva.
+Brasília, 
+Ministério da Saúde, 2002.
+BRASIL
+(MINISTÉRIO
+DA
+INTEGRAÇÃO
+NACIONAL).
+Secretaria
+Nacional
+de
+Proteção
+e 
+Defesa
+Civil.
+PROJETO
+GIDES:
+Manual
+de
+Planos
+de
+Contingência
+para
+Desastres
+de 
+Movimento de Massa. Brasília, MI/SEDEC, 2018.
+
+--- PAGE 48 ---
+46
+BRITO,
+M.M.;
+EVERS,
+M.;
+ALMORADIE,
+A.D.S.
+2018.
+Participatory
+flood
+vulnerability 
+assessment:
+a
+multi-criteria
+approach.
+Hydrology
+and
+Earth
+System
+Sciences
+.
+22:373-390, 
+2018.
+CANIL,
+K.;
+MACEDO,
+E.S.;
+GRAMANI,
+M.F.;
+ALMEIDA
+FILHO,
+G.S.;
+YOSHIKAWA,
+N.K.; 
+MIRANDOLA,
+F.A.;
+VIEIRA,
+B.C.;
+BAIDA,
+L.M.A.;
+AUGUSTO
+FILHO,
+O.;
+SHINOHARA,
+E.J. 
+Mapeamento
+de
+risco
+em
+assentamentos
+precários
+nas
+zonas
+sul
+e
+parte
+do
+oeste
+no 
+município
+de
+São
+Paulo
+(SP).
+In:
+Simpósio
+Brasileiro
+de
+Cartografia
+Geotécnica
+e 
+Geoambiental, 5, 2004, São Carlos. Anais... São Paulo:
+ABGE, 2004, p.193-204.
+CARDONA,
+O.D.
+La
+necesidad
+de
+repensar
+de
+manera
+holistica
+los
+conceptos
+de 
+vulnerabilidad
+y
+riesgo:
+uma
+crítica
+y
+una
+revisión
+necessaria
+para
+la
+gestión
+.
+In: 
+INTERNATIONAL
+WORK-CONFERENCE
+ON
+VULNERABILITY
+IN
+DISASTER
+THEORY
+AND 
+PRACTICE
+,
+2001,
+Disaster
+Studies
+of
+Wageningen
+University
+and
+Research
+Centre, 
+Wageninger, Holanda. 18 p. 2001.
+CARDOSO,
+D.;
+RIEDEL,
+P.S.;
+VEDOVELLO,
+R.;
+BROLLO,
+M.J.;
+TOMINAGA,
+L.K. 
+Compartimentação
+fisiográfica
+do
+município
+de
+Peruíbe,
+litoral
+de
+São
+Paulo
+-
+uma
+abordagem 
+metodológica
+como
+subsídio
+à
+avaliação
+geotécnica
+de
+terrenos.
+Pesquisas
+em
+Geociências, 
+v.36, n.3, p.251-262, 2009. Disponível em: http://www.ufrgs.br/igeo/pesquisas/3603/02-3603.pdf
+CARMO,
+H.M.G.
+&
+NERI,
+A.S.C.
+Capacidades
+Institucionais:
+Do
+conceito
+à
+aplicação.
+In:
+VI 
+SINGEP
+-
+SIMPOSIO
+INTERNACIONAL
+de
+GESTÃO
+de
+PROJETOS,
+INOVAÇÃO
+e 
+SUSTENTABILIDADE. São Paulo, Anais do VI SINGEP, 2017.
+CASA
+MILITAR
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Resolução
+CMIL
+17-610
+-
+Cedec,
+de
+28
+de 
+novembro
+de
+2016.
+Edita
+o
+Plano
+Preventivo
+de
+Defesa
+Civil
+para
+erosão
+costeira,
+inundações 
+costeiras
+e
+enchentes / alagamentos
+causados
+por
+eventos
+meteorológicos-oceanográficos 
+extremos
+como
+ressacas
+do
+mar
+e
+marés
+altas.
+São
+Paulo.
+2016.
+Disponível
+em 
+<http://dobuscadireta.imprensaoficial.com.br/default.aspx?DataPublicacao=20161129&Caderno 
+=DOE-I&NumeroPagina=3>. Acesso em outubro de 2020.
+CASTRO,
+J.M.
+Pluviosidade
+e
+movimentos
+de
+massa
+nas
+encostas
+de
+Ouro
+Preto.
+2006. 
+Dissertação (Mestrado) – Universidade Federal de Ouro
+Preto, Ouro Preto, 2006.
+CEDEC/MG
+-
+Coordenadoria
+Estadual
+de
+Defesa
+Civil
+do
+Estado
+de
+Minas
+Gerais.
+Proposta
+de 
+Plano
+de
+Contingência.
+Minas
+Gerais,
+2019.
+Disponível
+em 
+<http://www.defesacivil.mg.gov.br/images/defesacivil/PLANO_DE_CONTINGENCIA.pdf>. 
+Acesso em outubro de 2020.
+CERRI,
+L.E.S.
+1993.
+Riscos
+geológicos
+associados
+a
+escorregamentos:
+uma
+proposta
+para
+a 
+prevenção
+de
+acidentes.
+Tese
+de
+doutorado,
+Universidade
+Estadual
+Paulista
+Júlio
+de
+Mesquita 
+Filho, UNESP.
+CERRI,
+L.E.S.;
+MACEDO,
+E.S.;
+OGURA,
+A.T.;
+NUNES,
+C.M.;
+CARNEIRO,
+S.R.;
+MODESTO, 
+R.P.
+1990.
+Plano
+preventivo
+de
+defesa
+Civil
+para
+a
+minimização
+das
+consequências
+de 
+escorregamentos
+em
+municípios
+da
+Baixada
+Santista
+e
+Litoral
+Norte
+do
+Estado
+de
+São
+Paulo. 
+In:
+SIMPÓSIO
+LATINOAMERICANO
+SOBRE
+RISCO
+GEOLÓGICO
+URBANO,
+1,
+São
+Paulo. 
+Anais... São Paulo: Associação Brasileira de Geologia
+de Engenharia, 1: 396-408.
+CHOW,
+V.T.;
+MAIDMENT,
+D.R.;
+MAYS,
+L.W.
+Applied
+Hydrology
+.
+McGraw
+Hill,
+New
+York.
+572
+p. 
+1988.
+CPRM
+-
+SERVIÇO
+GEOLÓGICO
+DO
+BRASIL.
+PROJETO
+INTEGRAÇÃO 
+GEOLÓGICO-METALOGENÉTICA.
+Carta
+Geológica
+do
+Estado
+de
+São
+Paulo,
+Folha 
+SF.23-Y-C. 1:250.000. 1999.
+
+--- PAGE 49 ---
+47
+CPRM
+-
+SERVIÇO
+GEOLÓGICO
+DO
+BRASIL
+e
+IPT
+-
+Instituto
+de
+Pesquisas
+Tecnológicas. 
+Cartas
+de
+Suscetibilidade
+a
+Movimentos
+Gravitacionais
+de
+Massa
+e
+Inundações,
+1:25.000. 
+2015.
+CARDOZA,
+C.
+Spreading
+Scrum
+through
+the
+enterprise
+.
+Disponível
+em: 
+<
+https://sdtimes.com/agile/spreading-scrum-enterprise/
+>.
+Acesso em 23 de julho de 2020.
+CROSTA,
+A.P.
+Processamento
+Digital
+de
+Imagens
+de
+Sensoriamento
+Remoto.
+Instituto
+de 
+geociências. Departamento de Metalogênese e Geoquímica.
+IG/UNICAMP. Campinas. 1992.
+DAEE
+–
+DEPARTAMENTO
+DE
+ÁGUAS
+E
+ENERGIA
+ELÉTRICA.
+CTH
+–
+CENTRO 
+TECNOLÓGICO
+DE
+HIDRÁULICA
+E
+RECURSOS
+HÍDRICOS.
+Precipitações
+intensas
+no 
+Estado de São Paulo. MARTINEZ Jr., F. DAEE/CTH. (Org).
+2018.
+DAEE
+–
+DEPARTAMENTO
+DE
+ÁGUAS
+E
+ENERGIA
+ELÉTRICA.
+CTH
+–
+CENTRO 
+TECNOLÓGICO
+DE
+HIDRÁULICA
+E
+RECURSOS
+HÍDRICOS.
+Rede
+Hidrológica
+Básica
+do 
+Estado
+de
+São
+Paulo.
+Disponível
+em:
+< 
+http://www.daee.sp.gov.br/index.php?option=com_content&view=article&id=72%3Ahidrometeor 
+ologia&catid=43%3Ahidrometeorologia&Itemid=30
+>. Acesso
+em outubro de 2020.
+DAEE
+–
+DEPARTAMENTO
+DE
+ÁGUAS
+E
+ENERGIA
+ELÉTRICA.
+CTH
+–
+CENTRO 
+TECNOLÓGICO
+DE
+HIDRÁULICA
+E
+RECURSOS
+HÍDRICOS.
+Séries
+Históricas
+de
+Estações. 
+Disponível
+em:
+<
+http://www.snirh.gov.br/hidroweb/serieshistoricas
+>.
+Acesso
+em
+outubro
+de 
+2020.
+DER/SP
+-
+DEPARTAMENTO
+DE
+ESTRADAS
+DE
+RODAGEM
+DO
+ESTADO
+DE
+SÃO
+PAULO. 
+Atuação
+das
+UBA’s
+em
+Eventos
+de
+Desastres
+Naturais.
+São
+Paulo,
+emitido
+em
+novembro
+de 
+2017.
+Disponível
+em 
+<http://www.der.sp.gov.br/WebSite/Arquivos/BancoMundial/Plano_Contingencia/PlanoContingn 
+cia.pdf>. Acesso em outubro de 2020.
+DER/SP
+-
+DEPARTAMENTO
+DE
+ESTRADAS
+DE
+RODAGEM
+DO
+ESTADO
+DE
+SÃO
+PAULO. 
+Classificação
+e
+Codificação
+das
+Rodovias
+do
+Estado
+de
+São
+Paulo.
+Disponível
+em 
+<
+http://www.der.sp.gov.br/WebSite/Arquivos/MalhaRodoviaria/codificacao.pdf
+>.
+Acesso
+em 
+outubro de 2020.
+DER/SP
+-
+DEPARTAMENTO
+DE
+ESTRADAS
+DE
+RODAGEM
+DO
+ESTADO
+DE
+SÃO
+PAULO. 
+Edital
+de
+Solicitação
+de
+Propostas
+SDP
+nº
+064/2019.
+Seleção
+de
+Serviços
+de
+Consultoria
+para 
+Prestação
+de
+Serviços
+Técnicos
+para
+Elaboração
+de
+Planos
+de
+Contingência
+frente
+a
+riscos
+de 
+eventos
+geodinâmicos
+em
+trechos
+rodoviários
+selecionados
+das
+Unidades
+Básicas
+de 
+Atendimento
+(UBA)
+do
+Departamento
+de
+Estradas
+de
+Rodagem
+do
+Estado
+de
+São
+Paulo 
+(DER/SP)
+de
+Caraguatatuba,
+Mogi
+das
+Cruzes
+e
+São
+Vicente.
+São
+Paulo,
+emitido
+em
+17
+de 
+dezembro de 2019.
+DER/SP
+-
+DEPARTAMENTO
+DE
+ESTRADAS
+DE
+RODAGEM
+DO
+ESTADO
+DE
+SÃO
+PAULO. 
+Volume
+Diário
+Médio
+das
+Rodovias
+(VDM).
+Disponível
+em 
+<
+http://www.der.sp.gov.br/WebSite/MalhaRodoviaria/VolumeDiario.aspx
+>.
+Acesso
+em
+outubro 
+de 2020.
+DER/SP
+-
+DEPARTAMENTO
+DE
+ESTRADAS
+DE
+RODAGEM
+DO
+ESTADO
+DE
+SÃO
+PAULO. 
+WEBROTAS.
+Disponível
+em 
+<
+http://www.der.sp.gov.br/WebSite/Servicos/ServicosOnline/WebRotas.aspx#
+>.
+Acesso
+em 
+outubro de 2020.
+DNIT
+-
+DEPARTAMENTO
+NACIONAL
+DE
+INFRAESTRUTURA
+DE
+TRANSPORTES.
+Custo 
+Médio Gerencial. Brasília: DNIT, 2017.
+
+--- PAGE 50 ---
+48
+D’ORSI,
+R.;
+D’ÁVILA,
+C.;
+ORTIGÃO,
+J.A.R.;
+DIAS,
+A.;
+MORAES,
+L.;
+SANTOS,
+M.D.
+Rio-Watch: 
+The
+Rio
+de
+Janeiro
+landslide
+watch
+system
+.
+In:
+CONFERÊNCIA
+BRASILEIRA
+SOBRE 
+ESTABILIDADE DE ENCOSTAS, 2., 1997. Rio de Janeiro.
+1997. v.1, p. 21- 30.
+DRM
+–
+Serviço
+Geológico
+do
+Estado
+do
+Rio
+de
+Janeiro.
+2015.
+Correlação
+chuvas
+x 
+escorregamentos
+no
+Estado
+do
+Rio
+de
+Janeiro
+no
+mês
+de
+março
+de
+2015.
+Relatório
+Técnico. 
+Disponível em: https://goo.gl/vyDp8U.
+ELBACHÁ,
+A.T.;
+CAMPOS,
+L.E.P.;
+BAHIA,
+R.F.C.
+Tentativa
+de
+correlação
+entre
+precipitação
+e 
+deslizamentos
+na
+cidade
+de
+Salvador.
+In:
+CONFERÊNCIA
+BRASILEIRA
+SOBRE 
+ESTABILIDADE DE ENCOSTAS, 1.,1992. Rio de Janeiro,
+1992.
+EMPLASA
+-
+EMPRESA
+PAULISTA
+DE
+PLANEJAMENTO
+METROPOLITANO
+S.A.
+Carta 
+Geológica da Região Metropolitana da Grande São Paulo.
+São Paulo. 1:50.000. 1980.
+EMPLASA
+-
+EMPRESA
+PAULISTA
+DE
+PLANEJAMENTO
+METROPOLITANO
+S.A.
+Ortofotos
+do 
+Estado de São Paulo (Projeto Mapeia São Paulo). São
+Paulo. 1:25.000. 2010/2011.
+ESRI.
+About
+geocoding
+a
+table
+of
+addresses
+.
+Disponível
+em: 
+<
+https://desktop.arcgis.com/en/arcmap/10.3/guide-books/geocoding/geocoding-a-table-of-addre 
+sses-about.htm
+>. Acesso em 23 de julho de 2020.
+FERNANDES
+DA
+SILVA,
+P.C.;
+ANDRADE,
+E.;
+DANNA,
+L.C.
+Mapeamento
+de
+risco
+à
+inundação/ 
+em
+municípios
+do
+Vale
+do
+Paraíba
+(SP):
+abordagem
+metodológica
+para
+delimitação
+e 
+caracterização
+de
+setores
+de
+perigo.
+In:
+Congresso
+Brasileiro
+de
+Geologia
+de
+Engenharia
+e 
+Ambiental,
+13,
+São
+Paulo-SP,
+2
+a
+6
+de
+novembro
+de
+2011,
+Anais...,
+São
+Paulo:
+ABGE,
+2011, 
+CD-ROM.
+FERNANDES
+DA
+SILVA,
+P.C.;
+ANDRADE,
+E.;
+ROSSINI-PENTEADO,
+D.
+Mapeamento
+de 
+perigos
+e
+riscos
+de
+inundação:
+uma
+abordagem
+semiquantitativa.
+Revista
+do
+Instituto 
+Geológico, São Paulo, 35 (2), 13-38, 2014.
+FERNANDES
+DA
+SILVA,
+P.C.;
+VEDOVELLO,
+R.;
+FERREIRA,
+C.J.;
+BROLLO,
+M.J.; 
+FERNANDES,
+A.J.;
+CRIPPS,
+J.C.
+Geo-environmental
+mapping
+using
+physiographic
+analysis: 
+constraints
+on
+the
+evaluation
+of
+land
+instability
+and
+groundwater
+pollution
+hazards
+in
+the 
+Metropolitan
+District
+of
+Campinas,
+Brazil
+.
+Environmental
+Earth
+Sciences,
+v.
+59,
+p.
+124,
+2010. 
+Disponível em: http://link.springer.com/article/10.1007%2Fs12665-010-0480-z
+FERNANDES
+DA
+SILVA,
+P.C.;
+ANDRADE,
+E.;
+DANNA,
+L.C.
+Mapeamento
+de
+risco
+à
+inundação 
+em
+municípios
+do
+Vale
+do
+Paraíba
+(SP):
+abordagem
+metodológica
+para
+delimitação
+e 
+caracterização
+de
+setores
+de
+perigo.
+In:
+Congresso
+Brasileiro
+de
+Geologia
+de
+Engenharia
+e 
+Ambiental,
+13,
+São
+Paulo
+-
+SP,
+2
+a
+6
+de
+novembro
+de
+2011,
+Anais...,
+São
+Paulo:
+ABGE,
+2011, 
+CD-ROM.
+Disponível
+em: 
+https://www.researchgate.net/publication/271133102_MAPEAMENTO_DE_RISCO__INUNDAO 
+_EM_MUNICPIOS_DO_VALE_DO_PARABA_(SP)_ABORDAGEM_METODOLGICA_PARA_D 
+ELIMITAO_E_CARATERIZAO_DE_SETORES_DE_PERIGO
+FERNANDEZ,
+G.N.
+Determinação
+de
+limiares
+críticos
+de
+chuva
+deflagradores
+de
+movimentos 
+gravitacionais
+de
+massa,
+município
+de
+São
+Bernardo
+do
+Campo,
+SP.
+Dissertação
+de
+Mestrado, 
+Instituto de Geociências, Universidade de São Paulo,
+São Paulo, 2018.
+FERNANDEZ,
+G.N.;
+ALVES,
+F.M.;
+MODESTO,
+A.A.L.,
+PISSATO,
+E.
+Análise
+espacial
+e 
+temporal
+de
+escorregamentos
+em
+São
+Bernardo
+do
+Campo,
+SP
+(1993
+–
+2016).
+In:
+18º CBGE 
+Congresso Brasileiro de Geologia de Engenharia e Ambiental,
+2018, São Paulo, SP.
+
+--- PAGE 51 ---
+49
+FERREIRA,
+C.J.
+ROSSINI-PENTEADO,
+D.;
+SOUZA,
+C.R.G.;
+ROCHA,
+G.A.
+SOUZA,
+L., 
+GUEDES,
+A.C.M.
+2015.
+Integração
+de
+mapeamento
+de
+risco
+e
+índices
+pluviométricos
+no 
+monitoramento
+e
+alerta
+de
+risco
+de
+escorregamentos
+planares
+no
+Litoral
+Norte
+do
+Estado
+de 
+São
+Paulo.
+Revista
+Brasileira
+de
+Geologia
+de
+Engenharia
+e
+Ambiental,
+v.5
+(1):
+37-53. 
+Disponível em: https://goo.gl/mqv6QG. Acesso em julho
+de 2020.
+FERREIRA,
+C.J.;
+ROSSINI-PENTEADO,
+D.
+Mapeamento
+de
+risco
+a
+escorregamento
+e 
+inundação
+por
+meio
+da
+abordagem
+quantitativa
+da
+paisagem
+em
+escala
+regional.
+In: 
+CONGRESSO
+BRASILEIRO
+DE
+GEOLOGIA
+DE
+ENGENHARIA
+E
+AMBIENTAL,
+11,
+2011,
+São 
+Paulo.
+Anais...
+São
+Paulo:
+Associação
+Brasileira
+de
+Geologia
+de
+Engenharia
+e
+Ambiental,
+2011. 
+CD-ROM.
+FERREIRA,
+C.J.;
+ROSSINI-PENTEADO,
+D.;
+GUEDES,
+A.C.M.
+O
+uso
+de
+sistemas
+de 
+informações
+geográficas
+na
+análise
+e
+mapeamento
+de
+risco
+a
+eventos
+geodinâmicos.
+In: 
+FREITAS,
+M.I.C
+&
+LOMBARDO,
+M.A.:
+Riscos
+e
+Vulnerabilidades:
+Teoria
+e
+prática
+no
+contexto 
+Luso-Brasileiro. São Paulo: Cultura Acadêmica, 2013.
+FERREIRA,
+C.J.;
+ALVES,
+F.
+M.;
+RAFFAELLI,
+C..S.;
+SOUSA,
+C.A.
+Causas
+da
+Redução
+do
+Risco 
+de
+Escorregamentos
+e
+de
+Inundações
+em
+Núcleos
+Residenciais
+do
+Município
+de
+Poá,
+SP,
+no 
+Período
+2006-2015.
+In:
+III
+Congresso
+da
+Sociedade
+de
+Análise
+de
+Risco
+Latino
+Americana, 
+2016,
+São
+Paulo.
+Anais
+do
+III
+Congresso
+da
+Sociedade
+de
+Análise
+de
+Risco
+Latino
+Americana, 
+2016.
+GARIANO,
+S.L.;
+BRUNETTI,
+M.T.;
+IOVINE,
+G.;
+MELILLO,
+M.;
+PERUCCACCI,
+S.; 
+TERRANOVA,
+O.;
+VENNARI,
+C.;
+GUZZETTI,
+F.
+Calibration
+and
+validation
+of
+rainfall
+thresholds 
+for
+shallow
+landslide
+forecasting
+in
+Sicily,
+southern
+Italy
+.
+In:
+Geomorphology,
+228,
+p.
+653–665, 
+2015.
+GRAMANI,
+M.F.
+2001
+Caracterização
+geológico-geotécnica
+das
+corridas
+de
+detritos
+(“
+debris 
+flows
+”)
+no
+Brasil
+e
+comparação
+com
+os
+casos
+internacionais.
+Dissertação
+de
+Mestrado, 
+Departamento
+de
+Estruturas
+e
+Fundações,
+Escola
+Politécnica,
+Universidade
+de
+São
+Paulo,
+São 
+Paulo, 385 p.
+GRAMANI,
+M.F.
+&
+AUGUSTO
+FILHO,
+O.
+2004.
+Analysis
+of
+the
+triggering
+of
+debris
+flow 
+potentiality
+and
+the
+run-out
+reach
+estimative:
+an
+application
+essay
+in
+the
+Serra
+do
+Mar
+mountain 
+range.
+In:
+International
+Symposium
+on
+Landslides
+,
+9,
+Rio
+de
+Janeiro.
+Proceedings...
+Londres: 
+Balkema, v. 2. p. 1477-1483.
+GRAMANI,
+M.F.
+&
+KANJI
+M.A.
+2001.
+Inventário
+e
+análise
+das
+corridas
+de
+detritos
+no
+Brasil.
+In
+: 
+III
+Conferência
+Brasileira
+de
+Estabilidade
+de
+Encostas
+-
+COBRAE,
+3,
+Rio
+de
+Janeiro,
+Anais,Rio 
+de Janeiro: ABMS - NRRJ.
+GOMES,
+J.V.P.
+&
+SILVA
+de
+BARROS,
+R.
+(2011).
+A
+importância
+das
+Ottobacias
+para
+gestão
+de 
+recursos
+hídricos.
+In:
+XV
+Simpósio
+Brasileiro
+de
+Sensoriamento
+Remoto
+-
+SBSR,
+Curitiba,
+PR, 
+Brasil, Anais, Curitiba pp.: 1287-1294.
+GUIDICINI,
+G.,
+IWASA,
+O.Y.
+Ensaio
+de
+Correlação
+entre
+Pluviometria
+e
+Deslizamentos
+em 
+Meio Tropical Úmido. São Paulo: IPT, 1976.
+HOEK,
+E.
+&
+BRAY,
+J.
+1974.
+Rock
+Slope
+Engineering.
+Londres,
+Institution
+of
+Mining
+and 
+Metallurgy
+, 309 p.
+HORTON,
+R.E.
+The
+role
+of
+infiltration
+in
+the
+hydrologic
+cycle
+.
+Transactions,
+American 
+Geophysical Union, V. 14, ed. 1, p. 446-460. 1933.
+
+--- PAGE 52 ---
+50
+IDE,
+F.S.
+Escorregamento,
+meteorologia
+e
+precipitação:
+uma
+proposta
+de
+método
+de 
+investigação
+para
+prevenção
+e
+monitoramento
+de
+riscos,
+aplicado
+em
+Campinas/SP. 
+Dissertação (Mestrado) - Instituto de Pesquisas Tecnológicas,
+IPT, São Paulo, 2005.
+IG
+-
+INSTITUTO
+GEOLÓGICO
+DA
+SECRETARIA
+DE
+INFRAESTRUTURA
+E
+MEIO
+AMBIENTE 
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Mapeamento
+de
+riscos
+associados
+a
+escorregamentos, 
+inundações,
+erosão,
+solapamento,
+colapso
+e
+subsidência
+-
+Município
+de
+Aparecida
+-
+SP.
+São 
+Paulo:
+Instituto
+Geológico.
+Relatório
+Técnico,
+3
+volumes.
+2011.
+Disponível
+em: 
+<
+http://www.defesacivil.sp.gov.br/instrumentos-de-identificacao-de-riscos/
+>.
+Acesso
+em
+agosto 
+de 2020.
+IG
+-
+INSTITUTO
+GEOLÓGICO
+DA
+SECRETARIA
+DE
+INFRAESTRUTURA
+E
+MEIO
+AMBIENTE 
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Mapeamento
+de
+riscos
+associados
+a
+escorregamentos, 
+inundações,
+erosão
+e
+solapamento
+de
+margens
+de
+drenagens
+-
+Município
+de
+Campos
+do 
+Jordão
+-
+SP.
+São
+Paulo:
+Instituto
+Geológico.
+Relatório
+Técnico,
+4
+volumes.
+2014a. 
+<
+http://www.defesacivil.sp.gov.br/instrumentos-de-identificacao-de-riscos/
+>.
+Acesso
+em
+agosto 
+de 2020.
+IG
+-
+INSTITUTO
+GEOLÓGICO
+DA
+SECRETARIA
+DE
+INFRAESTRUTURA
+E
+MEIO
+AMBIENTE 
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Unidades
+básicas
+de
+compartimentação
+do
+meio
+físico
+(UBC). 
+São
+Paulo,
+2014b.
+Disponível
+em: 
+<
+https://www.infraestruturameioambiente.sp.gov.br/wp-content/uploads/sites/233/2017/02/Ficha 
+_Tecnica_Unidades_Basicas_Compartimentacao_Meio_Fisico_UBC.pdf
+>.
+Acesso
+em
+agosto 
+de 2020.
+IG
+-
+INSTITUTO
+GEOLÓGICO
+DA
+SECRETARIA
+DE
+INFRAESTRUTURA
+E
+MEIO
+AMBIENTE 
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Mapeamento
+de
+riscos
+associados
+a
+escorregamentos, 
+inundações
+e
+corridas
+de
+massa
+-
+Município
+de
+Itaóca,
+SP.
+São
+Paulo:
+Instituto
+Geológico, 
+Secretaria
+do
+Meio
+Ambiente
+do
+Estado
+de
+São
+Paulo.
+Relatório
+Técnico,
+2015.
+3
+volumes. 
+Boletim
+do
+Instituto
+Geológico
+nº
+64.
+ISSN
+0100-431X.
+Disponível
+em: 
+<
+http://www.defesacivil.sp.gov.br/instrumentos-de-identificacao-de-riscos/
+>.
+Acesso
+em
+agosto 
+de 2020.
+IG
+-
+INSTITUTO
+GEOLÓGICO
+DA
+SECRETARIA
+DE
+INFRAESTRUTURA
+E
+MEIO
+AMBIENTE 
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Unidades
+homogêneas
+de
+uso
+e
+ocupação
+do
+solo
+urbano 
+(UHCT).
+São
+Paulo,
+2016.
+Disponível
+em: 
+<
+http://s.ambiente.sp.gov.br/cpla/Ficha_Tecnica_UHCT.pdf
+>.
+Acesso em agosto de 2020.
+IG
+-
+INSTITUTO
+GEOLÓGICO
+DA
+SECRETARIA
+DE
+INFRAESTRUTURA
+E
+MEIO
+AMBIENTE 
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Cadastro
+Georreferenciado
+de
+Eventos
+Geodinâmicos: 
+50 Municípios
+da
+Região
+Metropolitana
+de
+São
+Paulo,
+Baixada
+Santista
+e
+Litoral
+Norte.
+Projeto 
+Transporte
+Sustentável
+de
+São
+Paulo
+(P127723).
+São
+Paulo,
+2017a.
+Disponível
+em:
+< 
+https://www.infraestruturameioambiente.sp.gov.br/institutogeologico/2017/12/instituto-geologico- 
+lanca-sistema-de-classificacao-unidades-territoriais-basicas-mapas-de-perigo-vulnerabilidade-e 
+-risco-do-estado-de-sao-paulo-e-cadastro-de-eventos-geodinamicos-acidentes-e-desast/
+>. 
+Acesso em agosto de 2020.
+IG
+-
+INSTITUTO
+GEOLÓGICO
+DA
+SECRETARIA
+DE
+INFRAESTRUTURA
+E
+MEIO
+AMBIENTE 
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Sistema
+de
+classificação
+“Unidades
+Territoriais
+Básicas”
+(UTB) 
+e
+mapeamento
+de
+risco
+de
+áreas
+urbanas
+de
+uso
+residencial/comercial/serviços
+à
+eventos 
+geodinâmicos
+do
+Estado
+de
+São
+Paulo.
+São
+Paulo,
+2017b.
+Disponível
+em: 
+<
+https://www.infraestruturameioambiente.sp.gov.br/institutogeologico/wp-content/uploads/sites/ 
+233/2017/12/Ficha_Tecnica_UTB_SP_IG.pdf
+>. Acesso em
+agosto de 2020.
+IG
+-
+INSTITUTO
+GEOLÓGICO
+DA
+SECRETARIA
+DE
+INFRAESTRUTURA
+E
+MEIO
+AMBIENTE 
+DO
+ESTADO
+DE
+SÃO
+PAULO.
+Relatório
+da
+Operação
+dos
+Planos
+Preventivos
+de
+Defesa
+
+--- PAGE 53 ---
+51
+Civil-PPDC-Operação
+Verão
+2016-2017.
+São
+Paulo.
+2017c.
+Disponível
+em 
+<https://www.infraestruturameioambiente.sp.gov.br/wp-content/uploads/sites/233/2017/11/RELA 
+T_PPDC_2016-2017_FINAL.pdf>. Acesso em outubro de
+2020.
+INPE
+-
+INSTITUTO
+NACIONAL
+DE
+PESQUISAS
+ESPACIAIS.
+TerraMA²
+-
+Monitoramento, 
+Análise
+e
+Alerta
+–
+Manual
+do
+Usuário.
+2018.
+191 p.
+Disponível
+em:
+< 
+http://www.terrama2.dpi.inpe.br/manuais
+>. Acesso em
+23 de julho de 2020.
+IPT
+-
+INSTITUTO
+DE
+PESQUISAS
+TECNOLÓGICAS
+DO
+ESTADO
+DE
+SÃO
+PAULO;
+CPRM
+– 
+SERVIÇO
+GEOLÓGICO
+DO
+BRASIL.
+Cartas
+de
+suscetibilidade
+a
+movimentos
+gravitacionais
+de 
+massa
+e
+inundações:
+1:25.000:
+nota
+técnica
+explicativa.
+Coordenação
+Omar
+Yazbek
+Bittar.
+São 
+Paulo, SP / Brasília, DF. 2014
+IPT
+-
+INSTITUTO
+DE
+PESQUISAS
+TECNOLÓGICAS
+DO
+ESTADO
+DE
+SÃO
+PAULO. 
+Diagnóstico
+da
+situação
+dos
+recursos
+hídricos
+da
+bacia
+hidrográfica
+do
+Litoral
+Norte
+– 
+UGRHI-03. São Paulo: IPT, 2001.
+ISO
+31.000
+-
+ASSOCIAÇÃO
+BRASILEIRA
+DE
+NORMAS
+TÉCNICAS
+-
+Gestão
+de
+riscos: 
+NBR/ISO 31000, 2009: Rio de Janeiro: ABNT, 2009.
+IWASA,
+O.Y.;
+ASSANO,
+V.
+Y.;
+ALVES,
+F.M.;
+ALVES,
+C.F.C.;
+MAGRO,
+S.A.;
+FAGUNDES,
+M.G.; 
+BONGIOVANNI,
+L.A.;
+MOREIRA,
+M.R.;
+PEIXOTO
+FILHO,
+G.E.C.;
+SCHADECK,
+R. 
+Vulnerabilidade
+da
+ocupação
+em
+setores
+de
+risco
+a
+movimentos
+gravitacionais
+de
+massa
+e 
+inundação
+no
+município
+de
+Luiz
+Alves,
+Santa
+Catarina.
+In:
+CONGRESSO
+BRASILEIRO
+DE 
+GEOLOGIA
+DE
+ENGENHARIA
+E
+AMBIENTAL,
+Rio
+de
+Janeiro
+-
+RJ.
+Anais...
+São
+Paulo: 
+Associação Brasileira de Geologia de Engenharia e
+Ambiental, 2013. CD-ROM.
+JICA
+-
+JAPANESE
+INTERNATIONAL
+COOPERATION
+AGENCY
+.
+Guide
+to
+landslide
+inspection 
+form
+records
+.
+In:
+Project
+of
+Strengthening
+the
+National
+Strategy
+about
+the
+Risk
+Management
+of 
+the Natural Disaster
+(GIDES). 2015.
+JICA
+-
+JAPANESE
+INTERNATIONAL
+COOPERATION
+AGENCY.
+Projeto
+GIDES
+– 
+Fortalecimento
+da
+Estratégia
+Nacional
+da
+Gestão
+Integrada
+de
+Riscos
+de
+Desastres.
+Manual
+de 
+Planos
+de
+Contingência
+para
+Desastres
+de
+Movimentos
+de
+Massa,
+v.3.
+2018.
+Brasília,
+DF. 
+Disponível
+em 
+<https://www.jica.go.jp/brazil/portuguese/office/publications/c8h0vm000001w9k8-att/volume3.pd 
+f>. Acesso em outubro de 2020.
+KAY,
+J.N.;
+CHEN,
+T.
+Rainfall-landslide
+relationship
+for
+Hong
+Kong
+.
+In:
+ICE.
+GEOTECHNICAL 
+ENGINEERING. Bangkok: 1995. v. 113. p. 117-118.
+LOMBARDO,
+M.A.
+&
+FREITAS,
+M.I.C.
+Riscos
+e
+vulnerabilidades
+[recurso
+eletrônico]:
+teoria
+e 
+prática no contexto luso-brasileiro. 1. ed. – São
+Paulo: Cultura Acadêmica, 2013
+LUMB,
+P.
+Slope
+failures
+in
+Hong
+Kong
+.
+Quarterly
+Journal
+of
+Engineering
+Geology
+,
+London,
+v.
+8, 
+p. 31-35. 1975.
+MACEDO,
+E.S.;
+OGURA,
+A.T.;
+CANIL,
+K.;
+ALMEIDA
+FILHO,
+G.S.;
+GRAMANI,
+M.F.;
+SILVA, 
+F.C.;
+CORSI,
+A.C.;
+MIRANDOLA,
+F.A.
+Modelos
+de
+fichas
+descritivas
+para
+áreas
+de
+risco
+de 
+escorregamento,
+inundação
+e
+erosão.
+In:
+Simpósio
+Brasileiro
+de
+Desastres
+Naturais,
+1,
+2004, 
+Florianópolis. Anais... Florianópolis: GEDN/UFSC,
+2004b, p. 892-907, CD-ROM. 2004.
+MACEDO,
+E.S.;
+OGURA,
+A.T.,
+SANTORO
+J.
+Defesa
+Civil
+e
+escorregamentos:
+o
+plano 
+preventivo
+do
+litoral
+paulista.
+In:
+CONGRESSO
+BRASILEIRO
+DE
+GEOLOGIA
+E
+ENGENHARIA, 
+9,
+São
+Pedro.
+Anais...
+São
+Paulo:
+Associação
+Brasileira
+de
+Geologia
+de
+Engenharia
+e 
+Ambiental. 1999.
+
+--- PAGE 54 ---
+52
+MACEDO,
+E.S.;
+SANTORO,
+J.,
+ARAÚJO,
+R.E.
+Plano
+Preventivo
+de
+Defesa
+Civil
+(PPDC)
+para 
+Deslizamentos,
+Estado
+de
+São
+Paulo,
+Brasil.
+In:
+SIMPÓSIO
+BRASILEIRO
+DE
+DESASTRES 
+NATURAIS,
+1.,
+2004,
+Florianópolis.
+Anais...
+Florianópolis:
+GEDN/UFSC,
+2004.
+p.
+908-919. 
+(CD-ROM).
+Disponível
+em 
+<http://www.sidec.sp.gov.br/defesacivil/media/OSDownloads/1398369924_Artigo%20PPDC.pdf 
+>. Acesso em outubro de 2020.
+MANSO,
+A.P.;
+BARROS,
+M.S.S.;
+OLIVEIRA,
+M.L.N.
+Determinação
+de
+zonas
+homogêneas 
+através de sensoriamento remoto. São José dos Campos,
+INPE. 1978.
+MARTINS,
+A.M.,
+PIMENTA,
+C.O.,
+FERNANDES,
+F.S.,
+NOVAES,
+G.T.F.,
+LOPES,
+V.V.A 
+capacidade
+institucional
+de
+municípios
+paulistas:
+uma
+análise
+de
+políticas
+educacionais
+em 
+regiões
+metropolitanas.
+Cadernos
+de
+Pesquisa
+(Fundação
+Carlos
+Chagas.),
+2013.
+Disponível 
+em: http://www.scielo.br/pdf/cp/v43n150/05.pdf. Acesso
+em outubro de 2020.
+MENDES,
+R.M.,
+VALÉRIO
+FILHO,
+M.,
+BERTOLDO,
+M.A.,
+SILVA,
+M.F.
+Estudos
+de
+limiares 
+críticos
+de
+chuva
+deflagradores
+de
+deslizamentos
+no
+município
+de
+São
+José
+dos
+Campos 
+(Brasil). In: Territorium. ed. 22, 2015, p. 119-129.
+NATIONAL
+CENTER
+FOR
+ATMOSFERIC
+RESEARCH.
+Weather
+Research
+And
+Forecasting 
+Model,https://www.mmm.ucar.edu/weather-research-and-forecasting-model,
+acessador
+em
+30 
+de janeiro de 2021
+OLIVEIRA,
+T.A.;
+RIEDEL,
+P.S.;
+VEDOVELLO,
+R.;
+SOUZA,
+C.R.G.;
+BROLLO,
+M.J.
+Utilização
+de 
+técnicas
+de
+fotointerpretação
+na
+compartimentação
+fisiográfica
+do
+município
+de
+Cananéia,
+SP: 
+apoio
+ao
+planejamento
+territorial
+e
+urbano.
+Geociências
+(São
+Paulo),
+v.
+26,
+p.
+55-65,
+2007. 
+Disponível em: http://www.revistageociencias.com.br/26_1/Art%206%20Thomaz.pdf
+ONU-ISDR.
+Terminology
+in
+disaster
+risk
+reduction
+.
+2017.
+Disponível
+em: 
+<https://goo.gl/a2CMDE>.
+PARIZZI,
+M.G.;
+SEBASTIÃO,
+C.S.;
+VIANA,
+C.S.;
+PFLUEGER,
+M.C.;
+CAMPOS,
+L.C.; 
+CAJAZEIRO,
+J.
+M.
+D.;
+TOMICH,
+R.S.;
+GUIMARÃES,
+R.N.;
+ABREU,
+M.L.;
+SOBREIRA,
+F.G.; 
+REIS,
+R.
+2010.
+Correlações
+entre
+chuvas
+e
+movimentos
+de
+massa
+no
+município
+de
+Belo 
+Horizonte, MG. Geografias (UFMG), 6(2): 49- 68.
+PIERSON,
+L.A.
+The
+Rockfall
+Hazard
+Rating
+System
+.
+Report
+FHWA-OR-GT-92-05.
+Oregon 
+Department of Transportation. 1991.
+PFAFSTETTER,
+O.
+Classificação
+de
+Bacias
+Hidrográficas
+–
+Metodologia
+de
+Codificação.
+Rio 
+de Janeiro, RJ: DNOS, 1989.
+PINTO,
+H.S.;
+ORTOLANI,
+A.A.;
+ALFONSI,
+R.R.
+Estimativa
+das
+temperaturas
+médias
+mensais 
+do Estado de São Paulo em função da altitude e latitude.
+São Paulo: USP, 1972. 20p.
+PORTO,
+M.F.A.;
+PORTO,
+R.L.L.
+Gestão
+de
+bacias
+hidrográficas.
+Estud.
+av.,
+São
+Paulo,
+v.
+22, 
+n. 63,
+p. 43-60,
+2008.
+Disponível
+em: 
+<http://www.scielo.br/scielo.php?script=sci_arttext&pid=S0103-40142008000200004&lng=en&n 
+rm=iso>.
+Acesso
+em
+15
+de
+junho
+de
+2020. 
+http://dx.doi.org/10.1590/S0103-40142008000200004.
+PNUD
+-
+PROGRAMA
+DAS
+NAÇÕES
+UNIDAS
+PARA
+O
+DESENVOLVIMENTO.
+Atlas
+do 
+desenvolvimento
+humano
+no
+Brasil,
+2014.
+Disponível
+em: 
+<
+http://www.atlasbrasil.org.br/2013/pt/
+>. Acesso em:
+03 de junho de 2020.
+
+--- PAGE 55 ---
+53
+PRESENTATION
+PROCESS.
+Create
+stunning
+circular
+flow
+diagram
+easily.
+2020.
+Disponível 
+em:
+<
+https://www.presentation-process.com/circular-flow-diagram.html
+>.
+Acesso
+em
+23
+de
+julho 
+de 2020
+RENNÓ,
+C.D.;
+NOBRE,
+A.D.;
+CUARTAS,
+L.A.;
+SOARES,
+J.V.;
+HODNETT,
+M.G.;
+TOMASELLA, 
+J;
+WATERLOO,
+M.J.
+HAND,
+a
+new
+terrain
+descriptor
+using
+SRTM-DEM:
+Mapping
+terra-firme 
+rainforest
+environments,
+in
+Amazonia.
+Remote
+Sensing
+of
+Environment
+.
+New
+York,
+v.112,
+n.9, 
+p.3469-3481, 2008.
+ROLIM,
+GLAUCO
+DE
+SOUZA,
+et
+al.
+Classificação
+climática
+de
+Köppen
+e
+de
+Thornthwaite
+e
+sua 
+aplicabilidade
+na
+determinação
+de
+zonas
+agroclimáticas
+para
+o
+Estado
+de
+São
+Paulo. 
+Bragantia,
+Campinas,
+v. 66,
+n. 4,
+p. 711-720,
+2007.
+Disponível
+em: 
+<http://www.scielo.br/scielo.php?script=sci_arttext&pid=S0006-87052007000400022&lng=en&n 
+rm=iso>.
+Acesso
+em
+19
+de
+outubro
+de
+2020.
+DOI: 
+https://doi.org/10.1590/S0006-87052007000400022.
+ROSS,
+J.LS.
+Ecogeografia
+do
+Brasil:
+subsídios
+para
+planejamento
+ambiental.
+Oficina
+de
+Textos. 
+São Paulo, 2006.
+ROSS,
+J.L.S;
+MOROZ,
+I.C.
+Mapa
+Geomorfológico
+do
+Estado
+de
+São
+Paulo.
+São
+Paulo, 
+DG-FFLCH-USP, IPT, FAPESP, 1997.
+ROSSI,
+M.
+Mapa
+Pedológico
+do
+Estado
+de
+São
+Paulo:
+revisado
+e
+ampliado.
+São
+Paulo: 
+Instituto
+Florestal,
+2017.
+Disponível
+em: 
+https://www.infraestruturameioambiente.sp.gov.br/institutoflorestal/2017/09/mapa-pedologico-do 
+-estado-de-sao-paulo-revisado-e-ampliado/
+ROSSINI-PENTEADO,
+D.;
+FERREIRA,
+C.J.;
+GIBERTI,
+P.P.C.
+Quantificação
+da
+vulnerabilidade 
+e
+dano
+aplicados
+ao
+mapeamento
+e
+análise
+de
+risco,
+escala
+1:10.000,
+Ubatuba-SP.
+In: 
+SIMPÓSIO
+BRASILEIRO
+DE
+DESASTRES
+NATURAIS
+E
+TECNOLÓGICOS,
+2,
+2007,
+Santos 
+SP.
+Anais...
+São
+Paulo:
+Associação
+Brasileira
+de
+Geologia
+de
+Engenharia
+e
+Ambiental,
+2007. 
+CD-ROM.
+SALAROLI,
+I.S.
+Movimentos
+de
+Massa
+no
+Município
+de
+Vitória
+-
+ES:
+Inventário,
+caracterização 
+e
+indicativos
+de
+um
+modelo
+comportamental.
+2003.
+Dissertação
+(Mestrado)
+-
+Universidade 
+Federal do Espírito Santo, Vitória, 2003.
+SÃO
+PAULO
+(Estado).
+Plano
+Preventivo
+de
+Defesa
+Civil
+-
+PPDC
+específico
+para 
+Escorregamentos
+nas
+Encostas
+da
+Serra
+do
+Mar.
+DECRETO
+N.
+42.565,
+DE
+1
+DE
+DEZEMBRO 
+DE 1997. Disponível em: <https://goo.gl/Ypkdgl>.
+SENTELHAS,
+P.C.;
+SANTOS,
+D.L.
+dos;
+MACHADO,
+R.E.
+Water
+deficit
+and
+water
+surplus
+maps 
+for
+Brazil,
+based
+on
+FAO
+Penman-Monteith
+potential
+evapotranspiration
+.
+Revista
+Ambiente
+e 
+Água, v.3, p.28-42, 2008.
+SCS
+–
+SOIL
+CONSERVATION
+SERVICE.
+A
+Method
+for
+Estimating
+Volume
+and
+Rate
+of
+Runoff 
+in Small Watersheds
+. Washington, D.C.: U.S. Department
+of Agriculture, 1973.
+SCS
+–
+SOIL
+CONSERVATION
+SERVICE.
+National
+engineering
+handbook
+.
+Washington
+D.C.: 
+U.S. Department of Agriculture, sec. 4. 1972.
+SCOFIELD,
+R.
+A.
+Comments
+on
+“A
+quantitative
+assessment
+of
+the
+NESDIS 
+AutoEstimator”.Weather and Forecasting. - v. 16, n.
+2, pp. 277-278, 2001.
+SILVA,
+A.M.
+&
+ALVARES,
+C.A.
+Levantamento
+de
+informações
+e
+estruturação
+de
+um
+banco
+de 
+dados
+sobre
+a
+erodibilidade
+de
+classes
+de
+solos
+no
+Estado
+de
+São
+Paulo.
+Revista
+Geociências, 
+UNESP, São Paulo, v. 24, n. 1, p. 33-41, 2005.
+
+--- PAGE 56 ---
+54
+SINDUSCON
+–
+SINDICATO
+DA
+INDÚSTRIA
+DA
+CONSTRUÇÃO
+CIVIL
+DO
+ESTADO
+DE
+SÃO 
+PAULO.
+Custo
+Unitário
+Básico
+da
+Construção
+Civil.
+2018.
+Consultado
+em
+outubro
+de
+2018. 
+Disponível
+em:
+https://www.sindusconsp.com.br/cub/
+e 
+https://www.sindusconsp.com.br/wp-content/uploads/2018/11/10-Outubro-2018-Desonerado.pdf 
+.
+SOARES
+E.P.
+2006.
+Caracterização
+da
+precipitação
+na
+região
+de
+Angra
+dos
+Reis
+e
+a
+sua 
+relação
+com
+a
+ocorrência
+de
+deslizamentos
+de
+encostas.
+Dissertação
+de
+Mestrado. 
+Universidade Federal do Rio de Janeiro. 145p.
+SOARES
+E.P.
+&
+MARTON
+E.
+2006.
+Relação
+entre
+precipitação
+e
+deslizamentos
+de
+encostas
+na 
+região
+de
+Angra
+dos
+Reis.
+In:
+CONGRESSO
+BRASILEIRO
+DE
+METEOROLOGIA,
+14, 
+Florianópolis.
+Anais...
+Rio
+de
+Janeiro:
+Sociedade
+Brasileira
+de
+Meteorologia.
+Disponível
+em: 
+https://goo.gl/BHHFnk. Acessado em: 29 jun. 2015.
+TATIZANA
+C.,
+OGURA
+A.T.,
+CERRI
+L.E.S.,
+ROCHA
+M.C.M.
+1987a.
+Análise
+de
+Correlação
+entre 
+Chuvas
+e
+Deslizamentos
+–
+Serra
+do
+Mar
+–
+Município
+de
+Cubatão.
+In:
+CONGRESSO 
+BRASILEIRO
+DE
+GEOLOGIA
+E
+ENGENHARIA,
+5,
+São
+Paulo.
+Anais...
+São
+Paulo:
+Associação 
+Brasileira de Geologia de Engenharia e Ambiental,
+2: 225-236.
+TATIZANA,
+C.,
+OGURA,
+A.T.,
+CERRI,
+L.E.S.,
+ROCHA,
+M.C.M.
+1987b.
+Modelamento
+Numérico 
+da
+Análise
+de
+Correlação
+entre
+Chuvas
+e
+Deslizamentos
+aplicados
+à
+Encosta
+da
+Serra
+do
+Mar. 
+In:
+CONGRESSO
+BRASILEIRO
+DE
+GEOLOGIA
+E
+ENGENHARIA,5,
+São
+Paulo.Anais…
+São 
+Paulo: Associação Brasileira de Geologia de Engenharia
+e Ambiental, 2: 237-248.
+THORNTHWAITE,
+C.W.;
+MATHER,
+J.R.
+The
+water
+balance
+.
+New
+Jersey:
+Centerton,
+1955. 
+104p. (Publications in Climatology, v.8, n.1).
+TOMINAGA,
+L.K.;
+FERREIRA,
+C.J.;
+VEDOVELLO,
+R.;
+TAVARES,
+R.;
+SANTORO,
+J.
+&
+SOUZA, 
+C.R.
+de
+G.
+Cartas
+de
+perigo
+a
+escorregamentos
+e
+de
+risco
+a
+pessoas
+e
+bens
+do
+Litoral
+Norte
+de 
+São
+Paulo:
+conceitos
+e
+técnicas.
+In:
+PEJON,
+O.;
+ZUQUETTE,
+L.
+(eds.):
+SIMPÓSIO 
+BRASILEIRO
+DE
+CARTOGRAFIA
+GEOTÉCNICA
+E
+GEOAMBIENTAL,
+5,
+2004,
+São
+Carlos. 
+Anais...
+São
+Paulo:
+Associação
+Brasileira
+de
+Geologia
+de
+Engenharia
+e
+Ambiental,
+2004. 
+CD-ROM, p. 205-216.
+TOMINAGA,
+L;
+ROSSINI-PENTEADO,
+D;
+FERREIRA,
+C.J;
+VEDOVELLO,
+R.
+Mapeamento
+de 
+Risco
+a
+Escorregamentos
+na
+Escala
+1:10.000:
+Abordagem
+Metodológica
+Aplicada
+em
+Ubatuba, 
+SP.
+In:
+Simpósio
+Nacional
+de
+Geomorfologia,
+VII,
+e
+Encontro
+Latino-Americano
+de 
+Geomorfologia
+,
+2,
+Belo
+Horizonte,
+01
+a
+08
+de
+agosto
+de
+2008.
+Anais...,
+Instituto
+de 
+Geociências, Universidade Federal de Minas Gerais,
+2008.
+TURCOTTE,
+R.;
+FORTIN,
+J.P.;
+ROUSSEAU,
+A.N.;
+MASSICOTTE,
+S.;
+VILLENEUVE,
+J.P. 
+Determination
+of
+the
+drainage
+structure
+of
+a
+watershed
+using
+a
+digital
+elevation
+model
+and
+a 
+digital river and lake network
+. Journal of Hydrology,
+Amsterdam, v.240, n.3, p.225-242, 2001.
+TURNER,
+B.L.;
+NIELSEN,
+T.H.
+Influence
+of
+rainfall
+and
+ancient
+landslides
+deposits
+on
+recent 
+landslides
+. Geological Survey Bulletin, Washington,
+n.1388, 18p, 1975.
+UNDRO
+-
+UNITED
+NATIONS
+DISASTER
+RELIEF
+ORGANIZATION.
+Mitigation
+natural
+disasters: 
+phenomena,
+effects
+and
+options.
+A
+manual
+for
+policy
+makers
+and
+planners
+.
+Office
+of
+the
+United 
+Nations Disaster Relief Coordinator, Geneva. 1991.
+UNESCO
+-
+INSTITUTO
+INTERNACIONAL
+DE
+PLANEJAMENTO
+DA
+EDUCAÇÃO.
+Avaliação 
+da
+capacidade
+institucional
+para
+a
+melhoria
+da
+qualidade
+educativa:
+materiais
+de
+apoio
+à 
+formação
+em
+competências
+de
+inspetores
+da
+educação
+em
+Angola.
+IIPE-UNESO,
+Buenos 
+Aires, 2012.
+
+--- PAGE 57 ---
+55
+UN-ISDR
+–
+UNITED
+NATIONS
+INTERNATIONAL
+STRATEGY
+FOR
+DISASTER
+REDUCTION. 
+International
+Strategy
+for
+Disaster
+Reduction.
+2009.
+Terminology
+on
+Disaster
+Risk
+Reduction
+. 
+Disponível em
+<http://www.unisdr.org/we/inform/terminology
+>.
+Acesso em julho de 2020.
+UN-ISDR
+–
+UNITED
+NATIONS
+INTERNATIONAL
+STRATEGY
+FOR
+DISASTER
+REDUCTION. 
+Sendai Framework for Disaster Risk Reduction - 2015
+- 2030
+. Geneva. 2015.
+UN-SPIDER
+–
+SPACE-BASED
+INFORMATION
+FOR
+DISASTER
+MANAGEMENT
+AND 
+EMERGENCY
+RESPONSE.
+Disaster
+Risk
+Management
+.
+Disponível
+em 
+http://www.un-spider.org/risks-and-disasters/disaster-risk-management
+.
+VALENCIO,
+N.;
+SIENA,
+M.;
+MARCHEZINI,
+V.;
+GONÇALVES,
+J.
+C.
+Sociologia
+dos
+desastres
+– 
+Construção, interfaces e perspectivas no Brasil. São
+Carlos: RiMa Editora, 2009.
+VALERIANO,
+M.M.
+Dados
+topográficos.
+In:
+FLORENZANO,
+T.G.
+(Org.).
+Geomorfologia, 
+conceitos e tecnologias atuais. São Paulo: Oficina
+de Textos, 2008. p. 72-104.
+VASCONCELLOS, P. FAN - Formação de Analistas de Negócios.
+2019.
+VEDOVELLO,
+R.
+Modelagem
+e
+Arquitetura
+de
+um
+Sistema
+Gerenciador
+de
+Informações 
+Geoambientais
+(SGIG)
+como
+Produto
+de
+Avaliações
+Geológico-geotécnicas.
+In:
+10º
+Congresso 
+Brasileiro de Geologia de Engenharia e Ambiental,
+2002, Ouro Preto, MG.
+VEDOVELLO,
+R.
+Zoneamento
+geotécnicos
+aplicados
+à
+gestão
+ambiental,
+a
+partir
+de
+Unidades 
+Básicas
+de
+Compartimentação
+-
+UBSs.
+Rio
+Claro
+(SP);
+2000.
+[Tese
+de
+Doutoramento
+-
+Instituto 
+de Geociências e Ciências Exatas da UNESP]. 154p.
+VIEIRA,
+R.
+Um
+olhar
+sobre
+a
+paisagem
+e
+o
+lugar
+como
+expressão
+do
+comportamento
+frente
+ao 
+risco
+de
+deslizamento.
+2004.
+197f.
+Tese
+(Doutorado)
+–
+Departamento
+de
+Geociências, 
+Universidade Federal de Santa Catarina, UFSC, Florianópolis,
+2004.
+VILA
+D.A.;
+SCOFIELD
+R.A.;
+KULIGOWSKI
+R.J.;
+DAVENPORT
+J.C.;
+Satellite
+rainfall
+estimation 
+over
+South
+America:
+Evaluation
+of
+two
+major
+events
+.
+NOAA
+Technical
+Reports
+n.
+114,
+US 
+Department of Commerce, Washington, D.C, June 2003.
+WATT,
+W.E.,
+&
+CHOW,
+K.C.
+(1985).
+A
+general
+expression
+for
+basin
+lag
+time
+.
+Canadian
+Journal 
+of Civil Engineering, 12, 294-300.
+WORLD
+BANK.
+Melhoria
+da
+Resiliência
+Climática
+da
+Malha
+Rodoviária
+Federal
+Brasileira,
+maio 
+de 2019. 2019.
+XAVIER,
+H.
+Percepção
+geográfica
+dos
+deslizamentos
+de
+encostas
+em
+áreas
+de
+risco
+no 
+município
+de
+Belo
+Horizonte,
+MG.
+1996.
+222f.
+Tese
+(Doutorado)
+-
+Departamento
+de
+Geografia, 
+Universidade Estadual Paulista, UNESP, Rio Claro,
+1996.
+ZÊZERE,
+J.L.;
+RODRIGUES,
+M.L.;
+FERREIRA,
+A.B.
+Recent
+landslide
+activity
+in
+relation
+to 
+rainfall in the Lisbon region (Portugal). Geophysical
+Research Abstracts, v.5, 2003.
+
+--- PAGE 58 ---
+56
+7. E
+QUIPE
+TÉCNICA
+Os
+documentos
+referentes
+à
+“Anotação
+de
+Responsabilidade
+Técnica
+-
+ART”,
+para
+execução 
+deste projeto são apresentados no
+ANEXO A
+.
+Geólogo Dr. Fernando Facciolla Kertzman
+Geólogo MSc. Fernando Machado Alves
+Engenheiro Civil Dr. José Mauro Marquez
+Analista de Sistema Bruno Alexandre Araújo
+Analista de Sistema Brunno Pirani Bassan
+Geólogo MSc. Guilherme Nunes Fernandez
+Geólogo Pedro Machado Simões
+Geógrafo Esp. Adão Aparecido Lanzieri Modesto
+Engenheiro Cartógrafo MSc. Tobias Rehder da Cunha
+Patuci
+Analista de Sistema Diego dos Santos Rodrigues
+Geólogo Dr. Fernando Facciolla Kertzman
+CREA 0601488426
+Coordenador do Projeto
+
+--- PAGE 59 ---
+A
+NEXOS
+
+--- PAGE 60 ---
+A
+NEXO
+A
+Exemplo geral dos códigos utilizados no TerraMA2:
+Risco Hidrológico - Hidroestimandor
+
+--- PAGE 61 ---
+Risco Geológico - Hidroestimandor
+
+--- PAGE 63 ---
+Risco Hidrológico - DAEE
+
+--- PAGE 65 ---
+Risco Geológico - DAEE
+
+--- PAGE 68 ---
+A
+NEXO
+B
+Todos os códigos utilizados no TerraMA²
+https://optimusgis.sharepoint.com/sites/ProjetoIG-DER/Documentos%20Partilhados/C%C3%B3 
+digo-Fonte?csf=1&web=1&e=wCHhMN

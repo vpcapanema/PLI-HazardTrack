@@ -1,0 +1,3661 @@
+
+===== PAGE 1 =====
+ 
+ 
+ 
+Rua Moacir Miguel da Silva, 633   Jd. Bonfiglioli   CEP 05595-000   São Paulo   SP   Brasil 
++55 11 3735-5172   www.regea.com.br 
+ 
+ 
+ 
+ 
+PLANO DE TRABALHO 
+ 
+ 
+NATUREZA DO TRABALHO 
+Elaboração de Planos de Contingência frente a riscos de eventos geodinâmicos em 
+trechos rodoviários selecionados das Unidades Básicas de Atendimento (UBA) do 
+Departamento de Estradas de Rodagem do Estado de São Paulo (DER/SP) de 
+Caraguatatuba, Mogi das Cruzes e São Vicente 
+ 
+INTERESSADO 
+Departamento de Estradas de Rodagem do Estado de São Paulo – DER/SP 
+ 
+ 
+ 
+PROGRAMA 
+Transporte, Logística e Meio Ambiente 
+ 
+ 
+PROJETO 
+Transporte Sustentável de São Paulo 
+ 
+ 
+ 
+ 
+CONTRATO CÓDIGO REGEA REVISÃO LOCAL E DATA 
+20.595-3 
+Protocolo DER/2087634//2019 2053 -R01-20 0 São Paulo 
+13.Agosto.2020 
+ 
+===== PAGE 2 =====
+I 
+ 
+ 
+ 
+ 
+SUMÁRIO 
+1 INTRODUÇÃO ..................................................................................................................................... 1 
+2 OBJETIVO............................................................................................................................................ 1 
+3 ETAPA PREPARATÓRIA – PRODUTO 1 – PLANO DE TRABALHO DETALHADO ....................... 3 
+4 ETAPA 1 – HISTÓRICO DE EVENTOS E DESASTRES, ÍNDICES METEOROLÓGICOS 
+CRÍTICOS, ANÁLISE DE RISCO E CAPACIDADE INSTITUCIONAL ....................................................... 4 
+4.1 PRODUTO 2 – CADASTRO DE EVENTOS E DESASTRES ........................................................................ 4 
+4.1.1 Modelagem dos dados ............................................................................................................. 5 
+4.1.2 Análise e processamento do Cadastro Georreferenciado de Eventos Geodinâmicos de 
+50 municípios das Regiões Metropolitanas de São Paulo, Baixada Santista e Litoral Norte, no 
+período 1993-2013 ............................................................................................................................... 6 
+4.1.3 Análise e processamento do Cadastro de Eventos e Desastres do Estado de São Paulo no 
+período 2014-2017 ............................................................................................................................... 6 
+4.1.4 Levantamento e sistematização das informações oriundas do SIGA e do SAT no período 
+2009-2017............................................................................................................................................. 6 
+4.1.5 Organização dos dados/informações coletadas em um sistema georreferenciado ................ 7 
+4.2 PRODUTO 3 – MODELO DE CORRELAÇÃO ENTRE EVENTOS GEODINÂMICOS E CHUVAS ......................... 7 
+4.2.1 Levantamento e sistematização dos dados históricos hidrográficos e de chuvas ................... 8 
+4.2.2 Definição de modelagem e elaboração de base de dados para a correlação chuvas-eventos9 
+4.2.3 Determinação das envoltórias para eventos geodinâmicos e estabelecimento dos índices de 
+precipitação crítica .............................................................................................................................. 10 
+4.3 PRODUTO 4 – ANÁLISE DE RISCO ................................................................................................... 11 
+4.3.1 Interpretação de produtos de sensoriamento remoto de alta resolução para pré-setorização
+ 12 
+4.3.2 Fatores relacionados ao perigo .............................................................................................. 13 
+4.3.3 Fatores relacionados à vulnerabilidade .................................................................................. 13 
+4.3.4 Fatores relacionados ao dano potencial, exposição dos usuários e potencial de indução ... 15 
+4.4 PRODUTO 5 – ESTRUTURA E ORGANIZAÇÃO DAS UBAS ................................................................... 15 
+4.4.1 Benchmark e elaboração de critérios e indicadores para análise da capacidade institucional 
+das UBAs ............................................................................................................................................ 16 
+4.4.2 Análise da estrutura institucional das UBAs ........................................................................... 16 
+4.4.3 Disponibilidade de recursos físicos, humanos e financeiros .................................................. 16 
+4.4.4 Estrutura organizacional ......................................................................................................... 16 
+4.4.5 Instrumentos de gestão .......................................................................................................... 17 
+4.4.6 Diagnóstico da capacidade institucional ................................................................................ 17 
+4.5 RELATÓRIO CONSOLIDADO DA ETAPA 1 .......................................................................................... 17 
+5 ETAPA 2 – IMPLANTAÇÃO DE SISTEMA AUTOMATIZADO DE ANÁLISE, MONITORAMENTO E 
+ALERTA ..................................................................................................................................................... 18 
+5.1 PRODUTO 6 – SISTEMA AUTOMATIZADO DE ANÁLISE, MONITORAMENTO E ALERTA DE RISCO DE EVENTOS 
+GEODINÂMICOS ......................................................................................................................................... 18 
+5.1.1 Arquitetura orientada de serviços ........................................................................................... 20 
+5.2 RELATÓRIO CONSOLIDADO DA ETAPA 2 .......................................................................................... 23 
+6 ETAPA 3 – PLANO DE CONTINGÊNCIA ......................................................................................... 24 
+6.1 PRODUTO 7 – PLANO DE CONTINGÊNCIA DE RISCOS DE EVENTOS GEODINÂMICOS ............................. 24 
+6.2 RELATÓRIO CONSOLIDADO DA ETAPA 3 .......................................................................................... 26 
+7 CRONOGRAMA ................................................................................................................................. 27 
+8 REFERÊNCIAS BIBLIOGRÁFICAS .................................................................................................. 29 
+9 EQUIPE TÉCNICA ............................................................................................................................. 39 
+ 
+ANEXOS 
+Anexo A – Anotação de Responsabilidade Técnica – ART 
+Anexo B – Cronograma Detalhado de atividades do projeto 
+Anexo C – Súmulas das Reuniões Técnicas e Oficinas realizadas 
+Anexo D – Fluxograma de atividades do projeto 
+ 
+ 
+===== PAGE 3 =====
+1 
+ 
+ 
+ 
+ 
+1 INTRODUÇÃO 
+O Consórcio NIPPON KOEI LAC / NIPPON KOEI LAC DO BRASIL / REGEA / GEOTEC / 
+OPTIMUS GIS (Consórcio 4X044) elaborou e apresenta este Plano de Trabalho em cumprimento 
+às exigências do Edital SDP  nº 064/2019, para execução do Contrato nº  20.595-3, relativo à 
+“Prestação de Serviços Técnicos para Elaboração de Planos de Contingência frente a riscos de 
+eventos geodinâmicos em trechos rodoviários selecionados das Unidades Básicas de 
+Atendimento (UBA)  do Departamento de Estradas de Rodagem do Estado de São Paulo 
+(DER/SP) de Caraguatatuba, Mogi das Cruzes e São Vicente ”, pertencente ao Programa 
+Transporte, Logística e Meio Ambiente do Projeto Transpo rte Sustentável de São Paulo, 
+implementado pelo Departamento de Estradas de Rodagem do Estado de São Paulo – DER/SP. 
+Conforme estabelecido no item 5 do Termo de Referência ( TDR) da SDP nº 064/2019, os 
+serviços contratados devem ser desenvolvidos em uma eta pa preparatória e três etapas de 
+elaboração de produtos (Tabela 1-1). O Plano de Trabalho ora apresentado constitui o 
+Produto 01, atendendo às determinações dos itens  5.2 e 6.1 do Termo de Referência (TDR) da 
+SDP nº 064/2019. O item 6.1 estabelece, como parte deste Plano de Trabalho, a apresentação 
+da proposta de previsão de realização de reuniões técnicas e oficinas de trabalho com o 
+Contratante em dois momentos relativos à entrega de cada produto previsto: 
+• Antes do início da elaboração de cada produto, co m o intuito de preparar e planeja r a 
+execução das atividades , incluindo o detalhamento e a compatibilidade conceitual e prática 
+dos procedimentos a serem adotados; 
+• Após a entrega de cada produto, apresentando e discutindo os resultados obtidos. 
+ 
+Tabela 1-1. Etapas de desenvolvimento dos serviços. 
+Etapa Produtos Previstos 
+Preparatória Produto 01 - Elaboração do Plano de Trabalho 
+1 
+Produto 02 - Cadastro de Ocorrências de Eventos Geodinâmicos e Desastres 
+Produto 03 - Modelo de Correlação entre Eventos e Chuvas 
+Produto 04 - Análise de Risco 
+Produto 05 - Análise do Contexto Institucional 
+2 Produto 06 - Sistema Automatizado de Análise, Monitoramento e Alerta de Risco 
+3 Produto 07 - Plano de Contingência frente a Riscos de Eventos Geodinâmicos 
+Fonte: Elaborado pelo Consórcio REGEA-PANGEA-NIPPON (4X044) a partir do Termo de Referência do Edital SDP nº 064/2019. 
+ 
+Os documentos referentes à “Anotação de Responsabilidade Técnica - ART”, para execução dos 
+serviços contratados, são apresentados no ANEXO A. 
+ 
+2 OBJETIVO 
+O objetivo do serviço é a elaboração de planos de contingência frente a riscos de eventos 
+geodinâmicos em trechos rodoviários selecionados das Unidades Básicas de Atendimento 
+(UBAs) de Caraguatatuba, Mogi das Cruzes e São Vicente, em apoio aos planos estra tégicos, 
+gerenciais e operacionais do Setor de Transportes e à implementação do Programa Estadual de 
+Prevenção de Desastres Naturais e Redução de Riscos Geológicos do Estado de São Paulo - 
+PDN (Decreto Estadual nº 57.512/2011), quanto ao gerenciamento de risco na gestão rodoviária. 
+A área de estudo compreende parcialmente as rodovias SP-055 e SP-098, em uma faixa de 1 km 
+de largura a partir do eixo das rodovias, conforme Tabela 2-1 e Figura 2-1. 
+===== PAGE 4 =====
+2 
+ 
+ 
+ 
+ 
+Tabela 2-1. Área de estudo do projeto. 
+Rodovia Regional UBA Município Inicial (km) Final (km) Extensão (km) Jurisdição 
+SP-055 
+Taubaté Caraguatatuba 
+Ubatuba 53,600 81,970 28,370 Estadual 
+Caraguatatuba 
+81,970 87,240 5,270 Estadual 
+87,240 89,100 1,860 Federal 
+89,100 112,550 23,450 Estadual 
+São Sebastião 
+112,550 165,910 53,360 Estadual 
+165,910 174,600 8,690 Federal 
+174,600 176,200 1,600 Estadual 
+176,200 185,900 9,700 Federal 
+185,900 191,400 5,500 Estadual 
+Cubatão São Vicente Bertioga 191,400 220,450 29,050 Estadual 
+220,450 233,400 12,950 Federal 
+Santos 233,400 248,100 14,700 Federal 
+Extensão total da área de estudo da rodovia SP-055 194,500  
+SP-098 
+São 
+Paulo Mogi das Cruzes Mogi das Cruzes 62,900 75,000 12,100 Estadual 
+Biritiba-Mirim 75,000 82,400 7,400 Estadual 
+Cubatão São Vicente Bertioga 82,400 98,100 15,700 Estadual 
+Extensão total da área de estudo da rodovia SP-098 35,200  
+Extensão total da área de estudo do projeto 229,700  
+ 
+ 
+Figura 2-1. Área de estudo do projeto. Fonte: Elaborado pelo Consórcio 4X044 no âmbito do 
+desenvolvimento dos serviços contratados. 
+ 
+  
+
+===== PAGE 5 =====
+3 
+ 
+ 
+ 
+ 
+O projeto foi dividido em três  Etapas de realização, com um total de seis  produtos, além de um 
+produto preliminar, denominado Produto 1 – Plano de Trabalho Detalhado, conforme relação a 
+seguir: 
+• Etapa 1: 
+o Produto 2 – Cadastro de Ocorrências de Eventos Geodinâmicos e Desastres; 
+o Produto 3 – Modelo de Correlação entre Eventos e Chuvas; 
+o Produto 4 – Análise de Risco; 
+o Produto 5 – Análise do Contexto Institucional. 
+ 
+• Etapa 2: 
+o Produto 6 – Sistema Automatizado de Análise, Monitoramento e Alerta de Risco. 
+ 
+• Etapa 3: 
+o Produto 7 – Plano de Contingência frente a Riscos de Eventos Geodinâmicos. 
+ 
+Estas etapas e produtos são detalhados a seguir. 
+ 
+3 ETAPA PREPARATÓRIA – PRODUTO 1 – PLANO DE TRABALHO DETALHADO 
+Este Plano de Trabalho Detalhado, que constitui o Produto 1 previsto para o projeto, foi elaborado 
+pelo Consórcio NIPPON KOEI LAC / NIPPON KOEI LAC DO BRASIL / REGEA / GEOTEC / 
+OPTIMUS GIS em 10 dias corridos, contados a partir da emissão da Nota de Serviço, conforme 
+previsto no item  5.2 do Termo de Referência ( TDR) da SDP nº 064/2019, e Cronograma 
+Detalhado apresentado no ANEXO B. 
+As datas para realização das reuniões técnicas, oficinas e treinamento da equipe da Contratada 
+pela Equipe Técnica do Contratante estão previstas no Cronograma Síntese apresentado no 
+item 7 deste Plano de Trabalho, e são detalhad as no Cronograma Detalhado apresentado no 
+ANEXO B. 
+A reunião de abertura do  projeto, realizada com o intuito de discutir as informações acerca dos 
+produtos previstos e seus respectivos prazos de entrega, ocorreu no dia 06 de agosto de 2020, 
+por meio de videoconferência entre a Equipe Técnica do Contratante, representada pelo Instituto 
+Geológico da Secretaria de Infraestrutura e Meio Ambiente do Estado de São Paulo (IG/SIMA), 
+e os membros do Consórcio Contratado, conforme Súmula apresentada no ANEXO C. As 
+atividades e produtos previstos e sua sequência de elaboração no projeto estã o detalhados no 
+fluxograma do ANEXO D. O estudo e estruturação do conhecimento do objeto do contrato são 
+detalhados nos itens seguintes, junto às atividades que serão envolvidas no projeto. 
+Conforme previsto nos itens 7.4 a 7.8 do TDR da SDP nº 064/2019, este Plano de Trabalho, tal 
+como ocorrerá com os Relatórios Consolidados previstos na conclusão de cada uma das três 
+Etapas previstas, é submetido à Área Técnica do Contratante para avaliação  de qualidade, 
+===== PAGE 6 =====
+4 
+ 
+ 
+ 
+ 
+realizada em um período de 10  dias úteis. Caso haja necessidade de promoção dos ajustes 
+considerados necessários pelo Contratante, a Contratada terá 15  dias corridos, a partir da data 
+de conclusão da avaliação de qualidade, para apresentação  da redação revisada do Plano de 
+Trabalho ou Relatório Consolidado do projeto à Área Técnica do Contratante e, após esta 
+apresentação, deverá ocorrer nova avaliação de qualidade, realizada em um período de 10 dias 
+úteis. Caso sejam necessárias novas correç ões, estas deverão ser realizadas pela Contratada 
+em um prazo de 15  dias corridos, após os quais deverá ser reapresentada a redação revisada 
+do Plano de Trabalho ou Relatório Consolidado do projeto à Área Técnica do Contratante para 
+avaliação definitiva de qualidade, realizada em um período de 10 dias úteis. 
+ 
+4 ETAPA 1 – HISTÓRICO DE EVENTOS E DESASTRES, ÍNDICES 
+METEOROLÓGICOS CRÍTICOS, ANÁLISE DE RISCO E CAPACIDADE 
+INSTITUCIONAL 
+Após a conclusão das Reuniões Técnicas e Oficinas de Trabalho entre a Equipe Téc nica do 
+Contratante e a Equipe Técnica Alocada, a Contratada iniciará a elaboração desta Etapa, 
+prevista para conclusão em até 4 meses após a emissão da Nota de Serviço , conforme 
+Cronograma Detalhado apresentado no ANEXO B. Os trabalhos desta Etapa compree ndem a 
+Pesquisa e Desenvolvimento Metodológico, elaboração da estrutura dos Bancos de Dados, 
+pesquisa bibliográfica, definição de modelos de análise de correlação entre chuvas e eventos e 
+desastres, e o  levantamento e georreferenciamento de dados de cadast ros de eventos 
+geodinâmicos e acidentes . No início desta Etapa deverão, ainda, serem realizados os trâmites 
+iniciais e envios de Ofícios aos órgãos gestores de planos de contingência de proteção e defesa 
+civil e do setor rodoviário, bem como às concessioná rias de rodovias do Estado de São Paulo, 
+viabilizando o entendimento da estrutura e organização das UBAs e o levantamento de 
+informações necessárias à elaboração do Plano de Contingência, objetos deste projeto. 
+Esta Etapa abrange os Produtos  2 a 5 previsto s para o projeto. As reuniões técnicas 
+programadas para ocorrerem antes do início da elaboração de cada produto serão constituídas 
+por uma reunião inicial da Etapa, onde serão abordadas as metodologias propostas para 
+elaboração de cada um dos produtos espe rados, bem como o planejamento apresentando as 
+datas pretendidas para início e fim de cada um dos produtos, além das expectativas do 
+Contratante para cada um destes produtos e para o conteúdo do Relatório Consolidado. Ao longo 
+da elaboração dos produtos desta Etapa, poderão ser realizadas novas reuniões entre a Equipe 
+Técnica do Contratante e a Equipe Técnica Alocada, conforme definido no item  7.2 do TDR da 
+SDP nº 064/2019. 
+Os produtos que constituem esta Etapa estão detalhados a seguir. 
+ 
+4.1 PRODUTO 2 – CADASTRO DE EVENTOS E DESASTRES 
+Esta Subetapa deverá ter início imediatamente após a entrega dos insumos previstos no TDR, 
+bem como a conclusão das Reuniões Técnicas e Oficinas de Trabalho entre a Equipe Técnica 
+do Contratante e a Equipe Técnica Alocada. Sua con clusão está prevista para  a 7ª  semana 
+corrida após a emissão da Nota de Serviço. 
+O Produto 2, previsto como resultados desta Subetapa, compreende a entrega de um “Cadastro 
+de Eventos e Desastres”, que abrangerá parte do relatório consolidado da Etapa  1 e subsidiará 
+a elaboração dos demais produtos da Etapa 1, além dos produtos das Etapas 2 e 3. 
+===== PAGE 7 =====
+5 
+ 
+ 
+ 
+ 
+Este Cadastro de Eventos e Desastres deverá ser constituído por um Plano de Informação com 
+a síntese dos resultados oriundos: do “Cadastro georreferenciado de evento s geodinâmicos 
+ocorridos no período entre 1993 e 2013 (21 anos) em 50 municípios das regiões metropolitanas 
+de São Paulo e Baixada Santista e municípios de Caraguatatuba, São Sebastião e Ubatuba”; do 
+“Cadastro de eventos e desastres do Estado de São Paulo”  para o período 2014 – 2017; e dos 
+levantamentos realizados nos bancos de dados do DER (SIGA e SAT), fornecendo o histórico 
+georreferenciado dos locais afetados por eventos geodinâmicos e desastres ao longo da área de 
+estudo. 
+ 
+4.1.1 MODELAGEM DOS DADOS 
+A modelag em de dados consiste no processo de identificar, entender e registrar os dados 
+necessários para a criação do repositório no qual serão armazenados os dados oriundos de 
+todas as fases de análise, processamento e coleta de informações. A modelagem dos dados 
+será feita em d ois ou mais estágios, visando o ajuste e adequações que podem não ter sido 
+identificadas no início do projeto, juntamente com a contratante. 
+O primeiro estágio consiste nas reuniões com a equipe da contratante para a identificação dos 
+dados que serão utilizados no repositório e os respectivos acessos aos mesmos, incluindo 
+aqueles obtidos ao longo da elaboração do Produto 2. 
+O segundo estágio consiste na modelage m do banco de dados. Ao final dest e estágio, será 
+apresentado um Modelo de Banco de Dados, contendo a situação atual dos dados e a sugestão 
+de arquitetura para a execução do projeto, conforme exemplificado na Figura 4.1.1-1. 
+ 
+Figura 4.1.1-1. Exemplo de Modelo de Banco de Dados. Fonte: Elaborado pelo Consórcio 4X044 no 
+âmbito do desenvolvimento dos serviços contratados. 
+ 
+Ao final da elaboração do Produto 2, a modelagem dos dados será apresentada para a Equipe 
+Técnica do Contratante, que deverá validá-la ou sugerir as alterações necessárias. Caso sejam 
+necessárias alterações ou ajustes no Modelo apresentado, deverá ser realizada nova análise 
+pelo Contratante, visando a avaliação e aprovação do Modelo do Banco de Dados para 
+incorporação ao relatório final. 
+A modelagem será realizada para os dados que serão utilizados neste projeto. Dados que não 
+forem relacionados a este projeto não serão incluídos nesta modelagem. 
+
+===== PAGE 8 =====
+6 
+ 
+ 
+ 
+ 
+4.1.2 ANÁLISE E PROCESSAMENTO DO CADASTRO GEORREFERENCIADO DE EVENTOS 
+GEODINÂMICOS DE 50 MUNICÍPIOS DAS REGIÕES METROPOLITANAS DE SÃO PAULO, BAIXADA 
+SANTISTA E LITORAL NORTE, NO PERÍODO 1993-2013 
+A análise e processamento dos 7.213 registros que constituem os dados georreferenciados dos 
+eventos geodinâmicos ocorridos entre 1993 e 2013 na  área de estudo fornecerão informações 
+que possibilitarão a seleção preliminar das áreas-alvo para o mapeamento e análise de área de 
+risco mediante a utilização de critérios como tipo de processo, recorrência, número de vítimas, 
+etc. A consulta deste banco  de dados pode ser realizada diretamente a partir de seu endereço 
+eletrônico ( http://igeologico.sp.gov.br/publicacoes/mapas/instituto-geologico-lanca-sistema-de-
+classificacao-unidades-territoriais-basicas-mapas-de-perigo-vulnerabilidade-e-risco-do-estado-
+de-sao-paulo-e-cadastro-de-eventos-geodinamicos-acidentes-e-desast/). 
+Os registros oriundos do Cadastro Georreferenciado de Eventos Geodinâmicos de 50 municípios 
+das Regiões Metropolitanas de São Paulo, Baixada Santista e Litoral Norte, no período 1993 -
+2013 deverão ser adequados ao Modelo de Banco de Dados previsto no subitem 4.1.1. 
+ 
+4.1.3 ANÁLISE E PROCESSAMENTO DO CADASTRO DE EVENTOS E DESASTRES DO ESTADO DE SÃO 
+PAULO NO PERÍODO 2014-2017 
+Os 393 registros não espacializados, que serão fornecidos como insumo pelo Instituto Geológico, 
+deverão ser analisados e processados para que seja possível realizar a identificação do processo 
+geodinâmico atuante, bem como seu georreferenciamento. A inform ação oriunda deste banco 
+de dados deverá ser sistematizada no mesmo banco de dados previsto no subitem  4.1.1, tal 
+como as informações do Cadastro Georreferenciado de Eventos Geodinâmicos, seguindo sua 
+estrutura e convenções adotadas. 
+ 
+4.1.4 LEVANTAMENTO E SISTEM ATIZAÇÃO DAS INFORMAÇÕES ORIUNDAS DO SIGA E DO SAT NO 
+PERÍODO 2009-2017 
+Os registros e informações oriundos do Sistema de Gestão de Atendimento (SIGA) e do Sistema 
+de Acidentes de Transporte (SAT), do DER, sobre acidentes de trânsito em períodos de chuva 
+intensa entre 2009 e 2017 serão levantados, analisados, espacializados (em processo 
+denominado geocodificação e utilizando-se, preferencialmente, mas não exclusivamente, a base 
+de dados do WEBROTAS do DER-SP) e sistematizados no banco de dados georreferenci ado, 
+tal qual o produto intermediário anterior. Será gerada uma classe de feição do formato de pontos 
+contendo a localização geoespacial dos atendimentos e acidentes, assim como os seus atributos 
+(campos) definidos e registrados no subitem 4.1.1. 
+O processo de geocodificação para espacialização dos dados será realizado de acordo com a 
+seguinte ordem: 
+• Endereço completo, incluindo a quilometragem de referência da rodovia; 
+• Logradouro, com a indicação de quilometragem aproximada; 
+• Bairro ou trecho da rodovia como, por exemplo, trecho do Planalto, Serra ou Baixada Santista; 
+• Município. 
+ 
+===== PAGE 9 =====
+7 
+ 
+ 
+ 
+ 
+Deverá ser registrado no banco qual o nível de detalhamento foi aplicado para a localização de 
+cada um dos registros. A Figura 4.1.4-1 representa o fluxo do processo de geocodificação. 
+ 
+Figura 4.1.4-1. Fluxo do processo de geocodificação. Fonte: ESRI (2020) 
+ 
+4.1.5 ORGANIZAÇÃO DOS DADOS/INFORMAÇÕES COLETADAS EM UM SISTEMA GEORREFERENCIADO 
+Os cadastros consolidados serão integrados em um cadastro único, gerando o produto final desta 
+subetapa que é o Cadastro de Ocorrência de Eventos Geodinâmicos. O sistema 
+georreferenciado deste cadastro deverá suportar os dados dos anos de 1993 a 2017  e, ainda, 
+permitir a inclusão de dados anteriores a 1993 ou posteriores a 2017, bem como a inclusão de 
+outras rodovias submetidas ao mesmo processo de cadastramento. 
+Este produto compreenderá a elaboração de um registro -síntese, contendo todos os dados 
+obtidos nas fases de elaboração. Os principais parâmetros da planilha eletrônica que servirá de 
+base para o banco de dados serão definidos em conjunto com a Equipe Técnica do Contratante. 
+Deve-se ressaltar a necessidade de atenção especial às datas de ocorrência d e eventos e 
+índices de chuva correspondentes, que permitirão a correlação de eventos e índices 
+pluviométricos críticos na área. 
+O registro -síntese deverá compor um banco de dados em SIG, sumarizando as informações 
+espaciais levantadas para elaboração do Pr oduto 2, adequando os resultados obtidos e 
+substituindo-os por informações espaciais de interpretação fácil e concisa. 
+ 
+4.2 PRODUTO 3 – MODELO DE CORRELAÇÃO ENTRE EVENTOS GEODINÂMICOS E CHUVAS 
+Esta Subetapa deverá ter início imediatamente após a conclusão das Reuniões Técnicas e 
+Oficinas de Trabalho entre a Equipe Técnica do Contratante e a Equipe Técnica Alocada , e sua 
+conclusão está prevista para a 8ª  semana corrida após a emissão da Nota de Serviço. Caso 
+necessário, deverão ser solicitadas e agendadas reuniões técnicas específicas para definição da 
+metodologia para correlação entre chuvas intensas e movimentos de massa (e processos 
+
+===== PAGE 10 =====
+8 
+ 
+ 
+ 
+ 
+correlatos), inundações (e processo s correlatos) e acidentes de trânsit o em períodos de chuva 
+intensa. 
+O Produto  3, resultante desta Subetapa , é o “Modelo de correlação de eventos 
+geológicos/hidrológicos x chuvas intensas” que, tal como o Produto  2, compreende parte do 
+relatório consolidado  da Etapa 1 e subsidiará a elaboração dos demais produtos da Etapa  1, 
+além dos produtos das Etapas 2 e 3. 
+ 
+4.2.1 LEVANTAMENTO E SISTEMATIZAÇÃO DOS DADOS HISTÓRICOS HIDROGRÁFICOS E DE CHUVAS 
+A elaboração do modelo de correlação entre os eventos geodinâmicos e hidrológicos às chuvas 
+intensas necessita do banco de dados dos eventos, descritos no item anterior, e do levantamento 
+e sistematização dos dados sobre as chuvas. Uma rede de coleta de dados pluviométricos se 
+traduz em questão fundamental para a gestão do ris co, e seus equipamentos devem estar 
+localizados de maneira a recobrir diferentes áreas do município, sendo válida ainda a integração 
+com os dados obtidos em municípios vizinhos. Tal lógica também se aplica aos trechos 
+rodoviários. 
+Em um sistema de monitoramento de chuva, existem equipamentos denominados pluviômetros 
+(instrumentos que mensuram a quantidade de precipitação que incide sobre um determinado 
+local em um determinado período) e pluviógrafos (que registram automaticamente a quantidade 
+acumulada de precipitação em função do tempo, e abrangem a medição da intensidade da chuva 
+sobre determinado local, numa relação de volume por tempo, como mm/hora ou mm/min.). 
+Bases variadas de dados e estações hidrográficas e de chuvas são mantidas para a área do 
+projeto, com destaque para os dois principais órgãos a manter estações na área, sendo o 
+primeiro o  Departamento de Águas e Energia Elétrica - DAEE 
+(http://www.daee.sp.gov.br/index.php?option=com_content&view=article&id=72%3Ahidrometeo
+rologia&catid=43%3Ahidrometeorologia&Itemid=30), cujo histórico permite a avaliação de longas 
+séries históricas do período dos cadastros de eventos geodinâmicos, e que recentemente ainda 
+ampliou algumas estações com telemetria, de maneira que se podem utilizar os dados como 
+pluviógrafos. A segunda base de dados provém do Centro Nacional de Monitoramento e Alertas 
+de Desastres Naturais - CEMADEN, cujo histórico é apenas a partir de 2013. 
+É i mportante destacar que essas bases estão compiladas no portal HidroWeb  
+(http://www.snirh.gov.br/hidroweb/serieshistoricas), que é uma ferramenta integrante do Sistema 
+Nacional de Informações sobre Recursos Hídricos (SNIRH) e oferece o acesso ao banco de 
+dados que contém todas as informações coletadas pela Rede Hidrometeorológica Nacional 
+(RHN), reunindo dados de níveis fluviais, vazões, ch uvas, climatologia, qualidade da água e 
+sedimentos. Conforme dados disponíveis na base do portal HidroWeb, há cerca de 161 estações 
+pluviométricas para coleta de dados nos municípios da área de estudo, conforme relação abaixo: 
+• Bertioga:   10 estações; 
+• Biritiba-Mirim:  13 estações; 
+• Caraguatatuba:  25 estações; 
+• Mogi das Cruzes:  35 estações; 
+• Santos:   23 estações; 
+• São Sebastião:  23 estações; 
+===== PAGE 11 =====
+9 
+ 
+ 
+ 
+ 
+• Ubatuba:   32 estações. 
+ 
+Ainda de acordo com a base de dados do portal HidroWeb, há cerca de 84  estações 
+fluviométricas para coletas de dados nos municípios da área de estudo, conforme relação a 
+seguir: 
+• Bertioga:   11 estações; 
+• Biritiba-Mirim:  17 estações; 
+• Caraguatatuba:  10 estações; 
+• Mogi das Cruzes:  22 estações; 
+• Santos:   03 estações; 
+• São Sebastião:  08 estações; 
+• Ubatuba:   13 estações. 
+ 
+4.2.2 DEFINIÇÃO DE MODELAGEM E ELABORAÇÃO DE BASE DE DADOS PARA A CORRELAÇÃO CHUVAS-
+EVENTOS 
+Diversos estudos têm sido realizados no Brasil e em outros países na busca de relações 
+matemáticas que expressem concretamente a relação entre quantidade de chuva e a ocorrência 
+de movimentos gravitacionais de massa, todos estes estudos têm como objetivo de melhorar a 
+consistência da previsibilidade destes processos. Desde a década de 1970 autores buscam essa 
+relação em diferentes localidades, chegando a diferentes modelos e limites de chuva. Os estudos 
+desenvolvidos nesta área apontam diferentes parâmetros a serem analisados, diferentes 
+períodos para o cálculo de pluviosidade acumulada, com períodos variando de horas até dezenas 
+de dias, ou ainda toda uma estação chuvosa local. Os limites também podem distinguir processos 
+de escorregamentos em diferentes escalas, abrangências e intensidades. Assim a Tabela 4.2.2-
+1 a seguir apresenta as metodologias compiladas, que devem se somar aos aut ores citados no 
+TDR que considerou a literatura científica e experiências similares como, por exemplo, os 
+trabalhos de TATIZANA et al. (1987a, b), CERRI (1993), CERRI et al. (1993), MACEDO et al. 
+(1999), SOARES (2006), SOARES & MARTAN (2006), PARIZZI et al. (2010), DRM (2015) e 
+FERREIRA et al. (2015). 
+Tabela 4.2.2-1. Resumo do histórico de pesquisas sobre a relação chuva x escorregamento 
+Autor e Ano Localidade Características e Conclusões 
+Lumb, 1975 Hong Kong Relação entre precipitação de 24h x precipitação de 15  dias, 
+escorregamentos a partir de 50 mm. 
+Turner e Nielsen, 
+1975 
+Condado de 
+Alameda, EUA 
+Limite de 180 mm/evento de chuva 
+Guidicini e Iwasa, 
+1977 
+Várias cidades 
+brasileiras 
+Evento com 8 % a 17% da pluviosidade anula. Acima de 20% da 
+pluviosidade anual ocorrem catástrofes. 
+Brand et al., 1984 Hong Kong Limite de 100 mm/24h ou intensidade de 70 mm/h 
+Elbachá et al., 1992 Salvador, BA Limite de 120 mm/4 dias. 
+Kay e Chen, 1995 Hong Kong Relação d  = (180-h)/s. Onde d  = chuva diária, h  = intensidade de 
+chuva e s = coeficiente de inclinação superficial. 
+Xavier, 1996 Belo Horizonte, 
+MG 
+Limite de 30 mm/24h ou 50 mm/48h 
+===== PAGE 12 =====
+10 
+ 
+ 
+ 
+ 
+Tabela 4.2.2-1. Resumo do histórico de pesquisas sobre a relação chuva x escorregamento 
+Autor e Ano Localidade Características e Conclusões 
+D’Orsi et al., 1997 Rio de Janeiro, 
+RJ 
+Estado de atenção a partir de acumulados de 50  mm a 100 mm em 
+24h, ou intensidade de 10  mm/h a 30  mm/h; alerta máximo para 
+precipitações > 175 mm em 24h, ou intensidade > 50 mm/h. 
+Zêzere et al., 2003 Lisboa, Portugal Limites de 160  mm a 220  mm/15 dias para escorregamentos de 
+pequeno porte. Limite de 130 mm/dia para escorregamentos múltiplos. 
+Limite de 459  mm/40 dias a 690  mm/75 dias para movimentos de 
+massa profundos 
+Alheiros et al., 2003 Olinda, PE R = Pac x I, o nde “Pac” é a precipitação acumulada na estação 
+chuvosa, e “I” é a intensidade horária da chuva. Escorregamentos 
+ocorrem quando R > 60.000. 
+Salaroli, 2003 Vitória, ES Nível de Atenção a partir de 36 mm em 4 dias, e nível de Alerta a partir 
+de 87,5 mm em 4 dias. 
+Vieira, 2004 Blumenau, SC Chuva acumulada de 3 a 4 dias acima de 50 mm. 
+Ide, 2005 Campinas, SP Maior suscetibilidade a partir de 78  mm/7 dias para área de 
+embasamento cristalino. 
+Castro, 2006 Ouro Preto, MG Precipitações de 22  mm/5 dias para esc orregamentos quaisquer; e 
+128 mm/5 dias para escorregamentos severos. 
+Mendes et al., 2015 São José dos 
+Campos, SP 
+Chuva diária entre 20  mm e 50  mm ou chuva acumulada acima de 
+50 mm/72h. 
+Gariano et al., 2015 Sicília, Itália  Correlação entre chuva acumulada (mm) no evento e duração (t) do 
+evento pluviométrico. Resultados em função das litologias. 
+Fernandez, 2018 São Bernardo do 
+Campo, SP 
+Correlação entre chuva acumulada ( “Ac” em mm) e intensidade de 
+chuva (“I” em mm/h) para deflagrar escorregamento com a equação: 
+I (Ac) = 10.392 x Ac-1,323 
+ 
+Para as correlações de chuva escorregamento, serão avaliados os pontos relacionados no 
+item 4.1, referente ao cadastro de ocorrências de eventos geodinâmicos, selecionando os 
+pluviógrafos/pluviômetros mais representativos, dentro de metodologia devidamente 
+estabelecida (para que possam ser adicionadas estações de coleta de informações adicionais 
+conforme a necessidade), e assim permitindo a criação de uma base de dados para a correlação 
+dos eventos geodinâmicos com as chuvas. 
+Embora as metodologias supracitadas estejam relacionadas apenas a movimentos de massa, o 
+projeto prevê a definição de metodologias para as modelagens das correlações de inundações 
+e processos correlatos. Estas metodologias serão definidas pela seleção dos dados aos modelos 
+mais representativos, que deverão ser avaliados e, a partir de modelos hidrológicos de vazão de 
+pico da sub -bacia, baseados n o método de definição de tempo de pico de WATT & CHOW 
+(1985), no qual as variáveis geomorfológicas se referem à bacia de contribuição , permitindo 
+simulações mais precisas em relação às condições de contorno e descarga dos cursos d’água, 
+a partir das precipitações intensas identificadas e que podem cont ribuir para o plano de 
+contingência. 
+ 
+4.2.3 DETERMINAÇÃO DAS ENVOLTÓRIAS PARA EVENTOS GEODINÂMICOS E ESTABELECIMENTO DOS 
+ÍNDICES DE PRECIPITAÇÃO CRÍTICA 
+Após definido o modelo a ser utilizado para a correlação entre eventos geodinâmicos, acidentes 
+e chuvas inten sas, os dados de pluviosidade acumulada e respectivos eventos geodinâmicos 
+deflagrados serão ponderados para estabelecimento da expressão matemática que permita a 
+separação entre os eventos pluviométricos com ocorrência daqueles sem ocorrência do evento 
+geodinâmico sob análise. 
+De maneira qualitativa, essa correlação pode ser explicada como: quanto menor a pluviosidade 
+acumulada anterior, maior a necessidade de eventos instantâneos de chuva de altíssima 
+intensidade para a deflagração de processos geodinâmicos. Por outro lado, quanto maior o valor 
+===== PAGE 13 =====
+11 
+ 
+ 
+ 
+ 
+de acumulado de chuva, menor será o valor de intensidade horária de chuva necessária para a 
+deflagração dos processos geodinâmicos. Essas relações visam relacionar as características da 
+mecânica do solo, com os gati lhos deflagradores, como a relação do aumento de saturação do 
+solo (ou de concentração de água por escoamento superficial em uma bacia) que provoca uma 
+diminuição da necessidade de fortes intensidades de chuva para a deflagração de eventos 
+geodinâmicos. Es tes eventos deverão, ainda, ser discretizados entre eventos esparsos, 
+generalizados e corridas de lama (ou inundações generalizadas), de acordo com as suas 
+condicionantes (características geotécnicas, geomorfológicas e de condições do fluxo dinâmico 
+das águas superficiais e subterrâneas). 
+Os índices de precipitação crítica para cada tipo de evento geodinâmico, que mensuram a 
+suscetibilidade ao um evento geodinâmico em função dos índices de chuvas, agregando 
+intensidade e acumulado, resultando em envoltórias  para cada tipo de deflagração de evento 
+geodinâmico e sua extensão de danos discretizada, para diferentes tipos de substratos 
+geológicos, geomorfológicos e morfométricos, desde que a densidade de dados permita as 
+análises de maneira discretizada. Estes ín dices de precipitação crítica poderão, ainda, serem 
+utilizados comparando -os a uma previsão hidrometeorológica, discriminando a previsão da 
+intensidade e volume total aguardados, com vistas a prever a tipologia dos eventos baseados 
+nas envoltórias definida s, estas previsões são preponderantes à gestão de riscos a desastres 
+geodinâmicos. Ainda vale destacar que a partir dos dados de acidentes espacializados, e da 
+sistematização dos eventos de precipitação intensa, ainda pode -se estimar correlação e 
+envoltória para os acidentes relacionados a eventos climáticos de pluviosidade intensa. 
+ 
+4.3 PRODUTO 4 – ANÁLISE DE RISCO 
+Esta Subetapa igualmente será iniciada imediatamente após a conclusão das Reuniões Técnicas 
+e Oficinas de Trabalho entre a Equipe Técnica do Contra tante e a Equipe Técnica Alocada. No 
+entanto, a fim de subsidiar sua elaboração, prevê -se a definição da metodologia de análise de 
+risco para todos os processos abrangidos, em um prazo não superior as primeiras 2  semanas 
+do projeto. Sua conclusão está prevista para a 10ª semana corrida após a emissão da Nota de 
+Serviço. 
+O Produto  4 elaborado nesta Subetapa compreende a “Análise de Risco” aos processos de 
+movimentos de massa (e processos correlatos) e de inundações (e processos correlatos), além 
+de acidentes de trânsito em períodos de chuva intensa. Assim como os Produtos anteriores, o 
+Produto 4 integra parte do relatório consolidado da Etapa 1 e subsidiará a elaboração dos demais 
+produtos da Etapa 1, além dos produtos das Etapas 2 e 3. 
+A Análise de Risco do projeto prevê uma análise dos planos de informação contendo os índices 
+de Perigo para cada tipo de evento geodinâmico analisado, Vulnerabilidade do trecho rodoviário, 
+exposição dos usuários com Dano Potencial e por fim, do Risco, em formatos vetoriais de 
+unidades territoriais de análise e tabela de atributos. Segundo BRASIL (2007), o zoneamento ou 
+setorização compreende a identificação dos processos destrutivos atuantes, a avaliação do risco 
+de ocorrência de acidentes e a delimitação e distribuição espacial  de setores homogêneos em 
+relação ao grau de probabilidade de ocorrência do processo ou mesmo ocorrência de risco, 
+estabelecendo tantas classes quantas necessárias. Permite individualizar e caracterizar cada um 
+dos setores, fornecendo informações sobre aos diversos níveis de suscetibilidade ao qual estão 
+submetidos. 
+Os fatores que compõem a análise de risco são obtidos, de maneira simplificada, pelo 
+agrupamento e avaliação qualitativa de observações diretas em campo, utilizando métodos e 
+técnicas já adotada s em projetos similares (e.g. MACEDO ET al. 2004). Desta forma, serão 
+avaliados os seguintes fatores considerados como essenciais à análise do risco: i)  Tipologia do 
+===== PAGE 14 =====
+12 
+ 
+ 
+ 
+ 
+processo esperado e a sua probabilidade ou possibilidade de ocorrência; ii) Vulnerabilidade dos 
+elementos sob risco; e iii) Potencial de danos. 
+Os setores de risco delimitados, com índices e classificados (insumos para a contratada), ainda 
+serão avaliados e validados em campo, utilizando a metodologia adequada para o processo 
+geodinâmico ao qua l o setor está submetido, em alguns casos acumulando processos, com 
+intuito de eventuais ajustes para que a aplicação desse mapeamento para o plano de 
+contingência possa ocorrer sem demais problemas. Estes trabalhos de campo devem verificar a 
+setorização de risco (fornecida como insumo) e devem complementar e finalizar o Produto  2. 
+Esta subetapa é imprescindível para a ratificação ou retificação da localização e do tipo de 
+processo geodinâmico, dos limites do setor de risco, da área -fonte da deflagração do processo 
+e extensão da área atingida. Serão, ainda, verificadas as condições da rodovia e dos aspectos 
+fisiográficos que condicionam a ocorrências de acidentes, e a relação com eventos 
+geodinâmicos. 
+Dentre as propostas metodológicas que serão testadas, des taca-se a “Metodologia de 
+Mapeamento de Áreas de Risco de Deslizamentos de Terra” proposta em WORLD BANK (2019), 
+utilizada em área -piloto da BR -101 entre os municípios de Mangaratiba e Paraty, no Rio de 
+Janeiro. Os testes com esta metodologia compreenderão  ensaios para adequação da 
+metodologia para os eventos geodinâmicos relacionados aos processos hidrológicos, como 
+inundações. 
+Desta forma, o resultado a ser obtido para a Análise de Risco é a elaboração de Planos de 
+Informação, em Escala 1:1000, dos índices: de Perigo a deslizamentos e movimentos de massa 
+em geral, inundações e processos correlatos, e chuvas intensas, oriundo da análise de 
+informações secundárias fornecidas pelo Contratante; de Vulnerabilidade; de Dano Potencial / 
+Exposição dos Usuários; e de Risco, resultantes de pesquisa e desenvolvimento específicos para 
+o contexto de rodovias. 
+ 
+4.3.1 INTERPRETAÇÃO DE PRODUTOS DE SENSORIAMENTO REMOTO DE ALTA RESOLUÇÃO PARA PRÉ-
+SETORIZAÇÃO 
+Para a análise dos setores de risco (perigo e vulnerabilidade) de insumo, para eventuais ajustes, 
+adequações e consistência desses dados, destaca -se o uso de produtos de sensoriamento 
+remoto, também disponibilizados como insumos pelo Contratante, como: imagens Landsat, 
+SPOT, RapidEye, ortofotos digitais e relevos sombreados obtidos a partir de MDE de resoluções 
+compatíveis, informações oriundas de setores censitários do IBGE, além de produtos como 
+planos de informações com as Sub -bacias Hidrográficas (SBH), Unidades Básicas de 
+Compartimentação Fisiográfica (UBC), Unidades Homogê neas de Uso e Cobertura da Terra e 
+do Padrão da Ocupação Urbana (UHCT) e Unidades Territoriais Básicas (UTB) elaborados pelo 
+Instituto Geológico, quando disponíveis. 
+As Subetapas de interpretação de produtos de sensoriamento remoto de alta resolução 
+abrangem, além da classificação supervisionada, adaptações de metodologias de análise de 
+imagens de sensoriamento remoto e fotointerpretação, baseados nos parâmetros definidos por 
+CROSTA (1992): a)  Tonalidade; b)  Textura; c)  Sombreamento; d)  Forma; e)  Padrão; 
+f) Tamanho; e g) Localização. 
+Como material de apoio complementar ao mapeamento dos setores de risco na escala 1:1.000, 
+será avaliada  e submetida à aprovação da Equipe Técnica do Contratante a utilização de 
+imagens obtidas por equipamento do tipo ARP (Aerona ve Remotamente Pilotada) ou 
+transportado por automóveis, de maneira a gerar um material de visualização de grande 
+abrangência para compor as análises, permitindo a obtenção de imagens aéreas atualizadas 
+===== PAGE 15 =====
+13 
+ 
+ 
+ 
+ 
+acerca da área de estudo, de modo a facilitar a relação de feições naturais e antrópicas do terreno 
+com as feições mapeadas, auxiliando a identificação, localização e demarcação das áreas-alvo. 
+ 
+4.3.2 FATORES RELACIONADOS AO PERIGO 
+As grandezas associadas ao meio físico são diversas, e podem expressar fatores distintos, com 
+influência na composição espacial e nos atributos, para diferentes composições de perigo de 
+processos geodinâmicos, como: 
+• Geologia e aspectos geotécnicos relacionados à resistência do material ao cisalhamento: 
+i) Estabilidade relativa das unidades litoestratigráficas; ii) Comportamento físico e químico da 
+litologia, ou capacidade de intemperização; iii)  Estruturas e descontinuidades geológicas e 
+etc.; 
+• Geomorfologia: permite indicadores como: i)  Formas de relevo, unidades morfoesculturais; 
+ii) Presença de movimentos de massa pretéritos; iii)  Formas de vertentes; e etc., pressupõe 
+áreas homogêneas na composição das unidades espaciais; 
+• Hidrologia e clima: abordam informações, relevantes para a definição de perigo, como 
+excedente hídrico; temper atura média; pluviosidade; intensidade, duração e frequência das 
+chuvas; 
+• Morfometria: i) Declividade de encostas; ii)  Bacias e sub-bacias hidrográficas; iii) Formas da 
+bacia; iv)  Comprimento da bacia; índice de circularidade; v)  Declividade/inclinação de 
+encostas; vi)  Amplitude da encosta; vii)  Formas de vertente; viii)  Orientação de vertentes; 
+ix) Rede de drenagens; x) Densidade de drenagens; e xi) Rugosidade, e etc. 
+ 
+Cada fator requer uma combinação diferente de atributos, de maneira que fatores Geologia 
+podem ser expressos por atributos, ponderados ou não, sobre a erodibilidade, densidades de 
+lineamentos, e fatores de geomorfologia. Fatores para corridas de massa, como índice de Melton 
+e de circularidade, e fatores para inundação gradual, como declividade  e densidade de 
+drenagem. 
+ 
+4.3.3 FATORES RELACIONADOS À VULNERABILIDADE 
+O Estado da Arte atual dos entendimentos de vulnerabilidade em gestão de risco a desastres 
+naturais apresenta inúmeros indicadores de vulnerabilidade. CARDONA (2001) divide -os em 
+3 grupos: i) Fragilidade física ou exposição; ii) Fragilidade social; e iii) Falta de resiliência. Ainda 
+existem outros autores, como BIRKMANN (2006), que divide os indicadores em 4  classes, 
+sendo: i) Física/demográfica, ii) Social; iii) Ambiental e Econômica. IWASA et al. (2013) além dos 
+fatores fragilidade física e social, resiliência e ambiental, ainda apresentam como fator de 
+relevância a Capacidade de Prevenção e Resposta do Município. ROSSINI -PENTEADO et al. 
+(2007), FERREIRA & ROSSINI-PENTEADO (2011), FERREIRA et al. (2013) calculam um índice 
+de vulnerabilidade no contexto da análise de risco com base em 6  atributos: Ordenamento 
+Urbano (OU), Índice Abastecimento de Água (AA), Índice Coleta de Esgoto (CE), Índice Coleta 
+de Lixo (CL), Índice Instrução (IN) e Índice  Renda (RE), de maneira que são atribuídos valores 
+numéricos em resposta a cada uma dessas variáveis. Para os demais fatores ROSSINI -
+PENTEADO et al. (2007) apresenta uma tabela, com atributos e classes a serem considerados 
+===== PAGE 16 =====
+14 
+ 
+ 
+ 
+ 
+para a estimativa da vulnerabilid ade e dano do elemento, que em geral apontam para que seja 
+utilizado o valor médio obtido do IBGE (censo 2010), normalizados de 0 a 1.  
+Embora os diversos autores apresentem metodologias para a análise de vulnerabilidade em 
+ambiente urbano, não há metodolo gia estabelecida para determinação de fatores para análise 
+de vulnerabilidade em trechos rodoviários. Desta forma, prevê-se a pesquisa e desenvolvimento 
+metodológico em conjunto com o Contratante, visando à determinação dos fatores que permitam 
+a análise d e vulnerabilidade por trecho de rodovia suscetível ao processo geodinâmico sob 
+análise. Apurou-se que os fatores mínimos relacionados à vulnerabilidade são: 
+• Existência ou ausência de obras e sua eficiência em relação ao processo geodinâmico 
+analisado; 
+• Existência ou ausência de equipamentos da rodovia, como praças de pedágio, SAUs – 
+Serviços de Atendimento ao Usuário, Postos de Polícia Rodoviária, etc.; 
+• Recorrência de processos no local, quando em função de intervenções antrópicas, como 
+ausência ou direcionamento inadequado de sistema de drenagem; 
+• Sinuosidade da pista e a distância de um eventual processo na pista até o ponto de visibilidade 
+do motorista (distância para frenagem); 
+• Proximidade de entroncamentos das rodovias descritas no projeto com vias de men or 
+expressão, como vias rurais, rodovias estaduais transitórias, estrada, acessos, marginais, 
+interligações e dispositivos, conforme estabelecido na Classificação e Codificação de 
+Rodovias Estaduais de São Paulo (DER/SP, 2005); 
+• Velocidade máxima da pista no trecho; 
+• Volume diário médio de tráfego no trecho, que pode variar entre cerca de 4200 veículos/dia a 
+20.900 veículos/dia, de acordo com dados de 2017 do DER/SP; 
+• Ocorrência ou não de acostamento; 
+• Ocorrência de estruturas de acessibilidade em situações de emergência, como rotas 
+operacionais; 
+• Infraestrutura da pista, sinalização, drenagem da pista e do talude, além de presença de 
+elementos de contenção e seu estado de conservação; 
+• Áreas de aterros, obras de artes especiais e túneis. 
+ 
+O Manual para gestão de riscos de quedas de blocos do Oregon Highway Division ( PIERSON, 
+1991), ainda apresenta relevantes abordagens para uma análise da vulnerabilidade de rodovias. 
+Os atributos apresentados podem formar fatores relevantes de análise para rodovias, e estes 
+fatores poderão ter escores atribuídos a classes, possibilitando a ponderação e determinação da 
+vulnerabilidade do trecho r odoviário a um determinado processo geodinâmico. Neste sentido, 
+apenas ressalta-se a ampla experiência da proponente neste sentido, por ter atuado no programa 
+de mapeamentos de vulnerabilidades em mais de uma centena de municípios brasileiros, em 
+projeto do CENAD do Ministério da Integração Nacional. 
+ 
+===== PAGE 17 =====
+15 
+ 
+ 
+ 
+ 
+4.3.4 FATORES RELACIONADOS AO DANO POTENCIAL , EXPOSIÇÃO DOS USUÁRIOS E POTENCIAL DE 
+INDUÇÃO 
+Os fatores das equações que se referem ao dano potencial, diretamente relacionado à exposição 
+dos usuários, deverá expressar um fator ponderador para o perigo e vulnerabilidade calculados 
+que, multiplicados, resultam no índice de dano da equação que estabelece o índice de risco. 
+Desta forma, para o cálculo dos fatores de danos para a rede rodoviária, a ponderação 
+considerada ainda pode ser corrigida para incluir uma análise dos acidentes do trecho, vidas ou 
+ainda custos de reconstrução da via, sempre ponderando pelo processo envolvido e analisando 
+a infraestrutura presente para devida valoração, destacando que a gestão das rodovias por meio 
+do sistema previsto para este plano de contingência pode , potencialmente, contribuir para a 
+construção de uma base de dados para a Avaliação Econômica das Medidas de Mitigação de 
+Risco proposta na publicação “M elhoria da resiliência climática  da malha rodoviária federal 
+brasileira” (WORLD BANK, 2019). 
+ 
+4.4 PRODUTO 5 – ESTRUTURA E ORGANIZAÇÃO DAS UBAS 
+Esta Subetapa, que compreende o último Produto previsto para a Etapa 1, igualmente terá início 
+imediatamente após a conclusão das Reuniões Técnicas e Oficinas de Trabalho entre a Equipe 
+Técnica do Contratante e a Equipe Técnica Alocada. Contudo, sua elabor ação está vinculada à 
+emissão e envio, pelo Contratante, de Ofícios aos órgãos gestores de planos de contingência de 
+proteção e defesa civil e do setor rodoviário, bem como às concessionárias de rodovias do 
+Estado de São Paulo. Estes Ofícios deverão solici tar aos órgãos supracitados datas para a 
+realização de entrevistas que, depois de realizadas em conjunto com o preenchimento de 
+questionários de levantamento de dados institucionais sobre a estrutura e contexto 
+organizacional, RH e materiais das UBAs, perm itindo seu diagnóstico, bem como fornecendo 
+subsídios à elaboração do Plano de Contingência. Sua conclusão está prevista para a 
+13ª semana corrida após a emissão da Nota de Serviço. 
+O Produto 5 elaborado nesta Subetapa compreende a “Estrutura e Organização  das UBAs” e, 
+como os Produtos  1, 2 e 3 anteriores, este Produto compõe parte do relatório consolidado da 
+Etapa 1 e subsidiará a elaboração dos demais produtos das Etapas 2 e 3. 
+Para a elaboração de um Plano de Contingência que atenda aos órgãos atuantes na prevenção 
+e mitigação de riscos nas rodovias do Estado, e sua implantação e operação funcional, a 
+capacidade institucional de cada UBA para a gestão de risco de desastres deverá ser analisada 
+e avaliada. 
+Há múltiplos conceitos sobre capacidade institucio nal, autores como CARMO & NERI (2017) 
+consideram que ela está relacionada à capacidade das organizações de absorverem 
+responsabilidades, operar com mais eficiência e fortalecer a prestação de contas, já MARTINS 
+(2014) refere-se “à estrutura e aos processos  organizacionais e administrativos de instituições 
+públicas e privadas que viabilizam objetivos e metas concretizados em setores, programas e 
+projetos.” A publicação do IIPE -UNESCO (2012) afirma que: “Capacidade institucional é a 
+habilidade de identificar,  criar e utilizar, eficientemente, recursos para estabelecer e atingir os 
+objetivos institucionais”. Observa -se, portanto, que não há consenso sobre o conceito de 
+capacidade institucional. Assim, a análise da capacidade institucional das UBAs, refere -se à 
+avaliação da aptidão dessas instituições para, com eficiência, eficácia e efetividade, 
+desempenhar a implantação, operação, avaliação e desenvolvimento de planos de contingência 
+voltados aos eventos geodinâmicos listados no TDR. 
+ 
+===== PAGE 18 =====
+16 
+ 
+ 
+ 
+ 
+4.4.1 BENCHMARK E ELABORAÇÃO DE CRITÉRIOS E INDICADORES PARA ANÁLISE DA CAPACIDADE 
+INSTITUCIONAL DAS UBAS 
+Ao se iniciar a análise e avaliação das UBAs, a Contratada deverá realizar uma revisão da 
+estrutura de processos existentes de avaliação da capacidade institucionais de diferentes 
+organizações para subsidiar a elaboração de um modelo específico para as UBAs. A partir desse 
+modelo serão elaborados roteiros de entrevistas e elaboração de questionários para com 
+gestores, funcionários, etc. 
+ 
+4.4.2 ANÁLISE DA ESTRUTURA INSTITUCIONAL DAS UBAS 
+Após a definição dos formatos dos questionários e entrevistas, bem como as informações que 
+deverão ser adquiridas das UBAs, procede-se à análise de suas estruturas institucionais. 
+ 
+4.4.3 DISPONIBILIDADE DE RECURSOS FÍSICOS, HUMANOS E FINANCEIROS 
+Avaliação da estrutura física e tecnológica das UBAs para desenvolver, com eficácia, a gestão 
+de risco de desastres, especialmente a aplicação de planos de contingência, objeto dessa 
+contratação. Também deverá ser analisado se as UBAs dispõem de gestores e técnicos 
+adequadamente capacitados para a referida gestão de riscos, com destaque para seus 
+mecanismos e sua capacidade de comunicação interna e externa. 
+ 
+4.4.4 ESTRUTURA ORGANIZACIONAL 
+A complexidade do desafio de produzir e implementar um plano de contingência implica a 
+necessidade de executar ações diversificadas envolvendo diferentes órgãos públicos ou da 
+iniciativa, de diferentes áreas do conhecimento, com diferentes atribuições, diferentes interesses 
+e recursos. Para construir a interssetorialidade do plano, é necessário arq uitetar uma estrutura 
+organizacional interinstitucional para garantir sua viabilidade. Dessa forma, para este item deve-
+se avaliar a estrutura organizacional das UBAs na sua área de atuação e sua posição no 
+organograma, caracterizando assim seu grau de aut onomia e seu poder decisório, requisitos 
+fundamentais na operação de planos de contingência. Também é preciso delinear a formação 
+do pessoal através de análise do vínculo empregatício, escolaridade e capacitação. 
+Paralelamente, é necessário examinar a info rmatização dos serviços e existência ou 
+possibilidade de sua terceirização e, ainda, a existência de canais de participação e controle 
+social. 
+Outro aspecto indispensável é a análise da capacidade de articulação das UBAs com outras 
+instituições, verificando sua interação com demais órgão públicos, empresas do setor privado, 
+organizações do terceiro setor (OS, OCSIPS e ONGs). Deverão ser indicadas parcerias 
+consideradas importantes e que devem ser construídas para a aplicação do plano de 
+contingência. 
+ 
+===== PAGE 19 =====
+17 
+ 
+ 
+ 
+ 
+4.4.5 INSTRUMENTOS DE GESTÃO 
+Outro aspecto a ser considerado na análise da capacidade institucional relaciona -se aos 
+instrumentos de gestão à disposição da agência em estudo. Tais instrumentos podem ser: 
+a) Instrumentos jurídicos - possibilidade de aplicação da legislação (municipal, estadual e 
+federal) para dar suporte às medidas de gestão; 
+a) Instrumentos de planejamento - disponibilidade de planos e projetos para ação das 
+UBAs; 
+b) Instrumentos financeiros - habilidade para captar e mobilizar recursos para a Unidade; 
+c) Instrumentos administrativos - possibilidade de aplicar normas, procedimentos e 
+institutos jurídicos como a requisição administrativa, etc. 
+ 
+4.4.6 DIAGNÓSTICO DA CAPACIDADE INSTITUCIONAL  
+A execução das atividades anteriores permite traçar um diagnóstico sobre a capacidade 
+institucional das UBAs para implantar, operar, avaliar e atualizar planos de contingência 
+relacionados a processos geológico-geotécnicos e hidrológicos. Será possível, ainda, apontar as 
+potencialidades das limitações das UBAs, com diagnóstico pr eciso e passível de implantação, 
+visando à mitigação ou supressão destas limitações, bem como melhorias nos sistemas 
+existentes. 
+ 
+4.5 RELATÓRIO CONSOLIDADO DA ETAPA 1 
+Esta subetapa complementar compreende, em seu início, as Reuniões Técnicas e Oficinas de 
+Trabalho entre a Equipe Técnica do Contratante e a Equipe Técnica Alocada, necessárias para 
+a definição das metodologias que irão fundamentar a preparação dos 4 Produtos que compõem 
+esta Etapa, e é concluída com a elaboração do Relatório Consolidado da Fase 1, cuja produção 
+é constituída das seguintes Subetapas: 
+a) Estudo e estruturação do conhecimento do objeto do contrato; 
+b) Detalhamento das atividades que serão envolvidas no projeto e orientação da Área 
+Técnica do Contratante para a execução do projeto; 
+c) Incorporação das informações complementares obtidas após orientação da Área 
+Técnica do Contratante e ajuste de metodologia; 
+d) Submissão do Relatório consolidado da Etapa  1 (Produtos  2 a 5) do projeto à Área 
+Técnica do Contratante para avaliação, promoção dos ajustes considerados necessários 
+pelo Contratante, e apresentação da redação final do Plano de Trabalho do projeto pela 
+Área Técnica do Contratante , conforme previsto nos itens  7.4 a 7.8 do TDR da 
+SDP nº 064/2019; 
+e) Reunião de entrega da Etapa, para apresentação dos resultados obtidos. 
+ 
+===== PAGE 20 =====
+18 
+ 
+ 
+ 
+ 
+Este produto deverá incorporar, ainda, um Banco de Dados Georreferenciado contendo a 
+informação obtida nos Produtos 2 a 5 sistematizada, ordenada e georreferenciada. 
+Sua conclusão está prevista para a 18ª  semana corrida após a emissão  da Nota de Serviço , 
+conforme Cronograma Detalhado apresentado no ANEXO B. 
+ 
+5 ETAPA 2 – IMPLANTAÇÃO DE SISTEMA AUTOMATIZADO DE ANÁLISE, 
+MONITORAMENTO E ALERTA 
+Com a conclusão das Reuniões Técnicas e Oficinas de Trabalho da Etapa  1 entre a Equipe 
+Técnica do C ontratante e a Equipe Técnica Alocada, o Contratante e a Contratada deverão 
+proceder às Reuniões Técnicas e Oficinas de Trabalho entre a Equipe Técnica do Contratante e 
+a Equipe Técnica Alocada que terão por objetivo a elaboração do Produto  6, que constitu i o 
+produto único desta Etapa , definido nos itens  5.2 e 6.6 do TDR da SDP nº 064/2019. Estas 
+reuniões terão, como principal escopo, a definição das metodologias iniciais para elaboração do 
+Produto 6, bem como o esclarecimento das expectativas do Contratante e a programação do 
+acompanhamento técnico, tendo em vista os ajustes e correções do sistema ao longo do projeto, 
+e administrativo, decorrentes da necessidade de estabelecimento de interface de comunicação 
+entre a Contratada e os demais órgãos que deverão prover o acesso e a transferência dos dados 
+necessários para elaboração do objeto desta Etapa. 
+Sua conclusão deverá ocorrer em até 6 meses após a emissão da Nota de Serviço , conforme 
+Cronograma Detalhado apresentado no ANEXO B. 
+ 
+5.1 PRODUTO 6 – SISTEMA AUTOMATIZADO DE ANÁLISE, MONITORAMENTO E ALERTA DE RISCO DE 
+EVENTOS GEODINÂMICOS 
+Esta Subetapa corresponde ao Produto  6, previsto para esta Etapa  2. Embora as Reuniões 
+Técnicas e Oficinas de Trabalho entre a Equipe Técnica do Contratante e a Equipe Téc nica 
+alocada estejam previstas para o início do 4º mês do projeto, os trabalhos da equipe responsável 
+pela análise de sistemas, tecnologia e informática do projeto serão iniciados na primeira semana 
+do projeto, visando elaborar a definição detalhada de requisitos, a arquitetura e estruturação das 
+inter-relações entre as subetapas de elaboração do sistema, cuja definição e aprovação pela 
+Equipe Técnica do Contratante deverão ocorrer até o final da 2ª semana após a emissão da Nota 
+de Serviço. Será gerado um documento a ser aprovado pela contratante descrevendo todos os 
+requisitos de desenvolvimento, documento este que servirá como guia para  o desenvolvimento 
+do sistema. Juntamente com este documento serão gerados, ainda, os documentos de casos de 
+uso, onde estarão descritos a unidade funcional, fluxo principal, fluxo alternativo e as regras de 
+negócios, exemplificado na Figura 5.1-1. 
+===== PAGE 21 =====
+19 
+ 
+ 
+ 
+ 
+ 
+Figura 5.1-1. Exemplo de documento de Casos de Uso. Fonte: Adaptado de VASCONCELLOS 
+(2019). 
+ 
+Será apresentado um cronograma detalhado com as entregas e iterações de validação de cada 
+um dos casos de uso, bem como serão agendadas reuniões intermediárias para a validação do 
+desenvolvimento destes. A equipe responsável pela análise de sistemas, tecnologia e informática 
+do projeto deverá, então, configurar todo o ambiente necessário para o desenvolvimento do 
+sistema. 
+Em seguida, a Equipe Técnica da Contratada procederá com a elaboração e testes dos serviços 
+e módulos previstos para o Produto  6 de acord o com o cronograma de entrega dos casos de 
+uso, cuja validação e subsequente unificação e consolidação do sistema previsto para esta 
+Subetapa tem sua conclusão prevista para a 26ª  semana corrida após a emissão da Nota de 
+Serviço. Será disponibilizado um am biente para que os colaboradores do IG possam acessar, 
+de forma remota, o ambiente de desenvolvimento para os testes iniciais e acompanhamento do 
+desenvolvimento e ajustes necessários.  
+Para cada módulo ou serviços previstos, teremos as etapas de: 
+• Repasse para a equipe e início do desenvolvimento; 
+• Desenvolvimento; 
+• Testes internos; 
+• Ajuste de acordo com os testes internos; 
+• Teste com o cliente; 
+• Ajustes de acordo com os testes no cliente; e 
+• Homologação. 
+
+===== PAGE 22 =====
+20 
+ 
+ 
+ 
+ 
+A estrutura de dados a serem utilizadas pelos módulos e serviços deverá estar contida no Modelo 
+de Dados definido na subetapa 4.1.1. 
+Para o gerenciamento do desenvolvimento serão adotadas algumas práticas previstas no Guia 
+PMBOK. Em complemento aos processos do PMBOK, práticas Scrum serão adotadas visando 
+entregas parciais do produto e validação/aceitação desta entrega do projeto. O Processo Scrum 
+em uma etapa de trabalho está diagramado na Figura 5.1-2. 
+ 
+Figura 5.1-2. Diagrama do Processo Scrum. Fonte: Adaptado de PRESENTATION PROCESS (2020). 
+ 
+Segundo o TDR da SDP nº 064/2019, a contratada deverá entregar customização da plataforma 
+de monitoramento, análise e alerta, TerraMA², em sua versão mais atual, do Instituto Nacional 
+de Pesquisas Espaciais (INPE) ou similar. O sistema deve integrar serviços geográficos e de 
+modelagem, c om base de acesso em tempo real a dados geoambientais (meteorológicos, 
+climáticos, atmosféricos, hidrológicos, geotécnicos, sociodemográficos, etc.) disponíveis em 
+qualquer servidor conectado a internet, e que podem ser lidos, processados e aplicados ao 
+monitoramento e alerta de riscos relacionados a eventos geodinâmicos externos. Para tanto, os 
+produtos dessa etapa devem prever a entrega de programas executáveis instalados em 
+ambiente desktop e disponibilizado em WEB, em serviços de servidores do IG e DER-SP, esses 
+serviços, devem ser baseados no conceito de Arquitetura Orientada a Serviços (SOA - Service-
+Oriented Architecture - em sua sigla do inglês). 
+ 
+5.1.1 ARQUITETURA ORIENTADA DE SERVIÇOS  
+A Arquitetura Orientada a Serviços (SOA) engloba uma série de diretri zes, padrões e boas 
+práticas para a implementação de serviços. Trata-se de um corpo de conhecimentos concebido 
+para atender às mais diferentes plataformas de desenvolvimento, sem se prender a uma 
+tecnologia específica. 
+Quanto aos serviços, estes representa m a unidade básica de implementação dentro desta 
+arquitetura. Em termos práticos, um serviço nada mais é do que um componente de software 
+com capacidades, as quais são implementadas sob a forma de operações (métodos). Já as 
+
+===== PAGE 23 =====
+21 
+ 
+ 
+ 
+ 
+capacidades podem ser vistas como funcionalidades das quais um ou mais sistemas dependem, 
+a arquitetura deverá prever os seguintes serviços apresentados na Tabela 5.1.1-1 a seguir: 
+Tabela 5.1.1-1. Resumo dos Serviços da SOA previstos no sistema automatizado. 
+Serviço Funções 
+Serviço de 
+Coleta de Dados 
+Responsável pela aquisição dos dados hidrometeorológicos disponibilizados por servidores 
+remotos, buscando periodicamente arquivos, dentre os quais se distinguem: a) previsões: como 
+por exemplo, valores de precipitação, umidade relativa do ar, direção e magnitude do vento; e 
+b) observações, como por exemplo, precipitação estimada por satélite e radares, descargas 
+elétricas, focos de queimadas. 
+Serviço de 
+Análise 
+Responsável pelo cruzamento entre as informações hidrometeorológicas , planos de risco e 
+planos adicionais para determinação da ocorrência de zonas de alerta. 
+Serviço de 
+Notificação 
+Responsável pelo envio de mensagens e relatórios contendo informações a respeito das 
+alterações nos níveis de risco detectados pelo módulo de análise. Deve permitir o 
+cadastramento de usuários para receberem os relatórios de alteração, enviados através de 
+correio eletrônico e boletins. 
+Serviço de 
+Animação 
+Responsável pela geração de um conjunto de imagens que agrupadas formam uma animação 
+de fontes de dados de Previsão e Observação. 
+Serviço de 
+Gerência de 
+Planos 
+Executa a serviços para manipulação de planos de informação na base de dados geográficos, 
+como a inclusão de novos planos e listagem de planos existentes. 
+Módulo de 
+Configuração 
+Responsável por permitir a configuração do sistema. Estas configurações devem incluir como 
+os dados são obtidos dos servidores externos, definições dos planos de risco e adicionais, a 
+definição dos tipos de análise seus modelos, definição dos usuários e análises para estes, e 
+definição de boletins que serão enviados. 
+Módulo de 
+Administração 
+Responsável por permitir a configuração de cada serviço do sistema. Estas configurações 
+devem incluir o endereço e a porta de cada serviço, o local em que as imagens com o resultado 
+das análises serão armazenadas, definição do banco de dados, local de armazenamento dos 
+dados coletados, configuração do servidor de e-mail, definição dos arquivos de log e outras 
+informações. 
+Módulo de Alerta Responsável pela apresentaç ão de alertas quando uma situação de Risco é detectada pelo 
+módulo de análise. Deve ser previsto o alerta tanto por e-mail como por mensagem nos 
+sistemas de gerenciamento do IG e DER-SP. 
+ 
+O ambiente computacional deve ser composto de no mínimo um servidor de páginas WEB, um 
+gerenciador de banco de dados, um aplicativo geográfico e um servidor de mapas no padrão 
+OGC (Open Geospatial Consortium). 
+ 
+5.1.1.1Plataforma computacional TerraMA² 
+As informações sobre a plataforma foram obtidas na página da internet,  segundo o qual a 
+plataforma computacional TerraMA² foi planejada dentro da linha de produtos de base 
+tecnológica inovadora, no domínio de softwares abertos, com extensivo uso de nossa biblioteca 
+geográfica TerraLib, além de atender uma demanda crescente de aplicações de monitoramento, 
+análise e alerta em áreas como qualidade do ar, qualidade da água, gasodutos, barragens de 
+rejeito em área de mineração, incêndios florestais, movimentos de massa do tipo 
+escorregamentos e corridas de lama, enchentes e estiagens. 
+Estas aplicações necessitam de plataformas que possam integrar serviços geográficos e 
+modelagem, com base de acesso em tempo real a dados geoambientais disponíveis em qualquer 
+servidor conectado à internet, e que podem ser lidos, processados e aplicados a diversos usos. 
+Portanto, a plataforma TerraMA² é um sistema computacional, baseado em uma arquitetura de 
+serviços, aberta, que provê a infraestrutura tecnológica necessária ao desenvolvimento de 
+sistemas operacionais para monitoramento de alertas de riscos ambientais (Figura 5.1.1.1-1). 
+===== PAGE 24 =====
+22 
+ 
+ 
+ 
+ 
+ 
+Figura 5.1.1.1-1. Exemplo de tela do TerraMA². Fonte: INPE (2018). 
+ 
+As relações dos serviços (SOA) e a plataforma, estão apresentadas no fluxograma do modelo 
+conceitual do TerraMA², apresentado na Figura 5.1.1.1-2. 
+ 
+Figura 5.1.1.1-2. Fluxograma do modelo conceitual do TerraMA². Fonte: INPE (2018). 
+ 
+Por sua vez os serviços descritos (coleta, análises, visualização e alerta), devem interagir, e 
+assim apresentar lógicas de relacionamentos com: i) as bases de acesso em tempo real a dados 
+geoambientais da plataforma (meteorológicos, climáticos, atmosféricos, hidrológicos, 
+geotécnicos, sociodemográficos, etc.); ii) Servidores das instituições do projeto; iii) servidores de 
+mapas; iv) Interações com e-mails, SMS, e outras plataformas de comunicação. 
+ 
+
+===== PAGE 25 =====
+23 
+ 
+ 
+ 
+ 
+5.1.1.2Aplicação metodológica geral 
+A proposição da arquitetura do sistema contemplará a previsão de desenvolvimento de módulos 
+para aquisição de dados, análise, geraç ão de avisos, alertas e alarmes levando em conta que 
+este sistema irá integrar a Sala de Situação do IG  / Defesa CIVIL com a operação do DER -SP, 
+nas localidades das UBA. O sistema, prevê o uso da plataforma TerraMA² , que permitirá acesso 
+em tempo real a dados geoambientais (meteorológicos, climáticos, atmosféricos, hidrológicos, 
+geotécnicos, sociodemográficos, etc.) disponíveis em qualquer servidor conectado à internet, e 
+que podem ser lidos, processados e aplicados a diversos usos.  
+A arquitetura deste si stema também deverá contemplar informações e possíveis produtos já 
+existentes que auxiliem os operadores na tomada de decisão permitindo assim o sistema possuir 
+uma característica modular preparada no conceito do SOA e TerraMA² onde, permite -se a 
+integração de diferentes dados e tecnologias de forma transparente ao usuário. 
+Para os servidores de aplicações, webservices e aplicações de acesso web via navegador de 
+internet, serão propostos balanceamentos na estrutura para permitir acessos simultâneos às 
+aplicações sem interferir no desempenho do sistema total. 
+Durante as reuniões técnicas, serão identificados todos os componentes de hardware e software 
+disponíveis atualmente da infraestrutura do Contratante. A partir desta identificação, será gerado 
+um mapa da  arquitetura, bem como a análise para a identificação de possíveis ajustes 
+necessários e respectivo diagnóstico. O desenvolvimento das soluções será baseado na 
+infraestrutura final acordada entre a Contratada e o Contratante. Após a definição da estrutura 
+final, esta não deverá ser alterada, ainda que sejam disponibilizadas novas versões de qualquer 
+um dos aplicativos a serem utilizados, a fim de evitar comprometimento da elaboração do sistema 
+automatizado de análise, monitoramento e alerta de eventos geodinâmicos. 
+Como um todo, a estrutura estará separada por camadas minimamente composto por: camada 
+física, lógica e de negócios permitindo o perfeito entendimento do contexto do projeto pelos 
+usuários ou responsáveis das áreas relacionadas à arquitetura do sistema. 
+As etapas metodológicas para este produto estão listadas a seguir: 
+a) Análise de requisitos gerais do sistema com acompanhamento do Cliente; 
+b) Definição da arquitetura física; 
+c) Definição de arquitetura de sistemas, softwares e tecnologias a serem utilizados como 
+Sistema Operacional, Sistema Gerenciador de Banco de Dados, Virtualizadores 
+(Ex.: Citrix), Containers (servidores de aplicações) WEB, Servidores Geoespaciais, 
+Linguagem de programação (preferencialmente Python), entre outros; 
+d) Definição das divisões em camadas para cada item apresentado; 
+e) Detalhamento das camadas; 
+f) Definição e detalhamento da arquitetura do sistema; 
+g) Relatório final com Proposição da Arquitetura do Sistema. 
+ 
+5.2 RELATÓRIO CONSOLIDADO DA ETAPA 2 
+Esta subetapa complementar envolve as Reuniões Técnicas e Oficinas de Trabalho entre a 
+Equipe Técnica do Contratante e a Equipe Técnica Alocada que auxiliarão no estabelecimento 
+===== PAGE 26 =====
+24 
+ 
+ 
+ 
+ 
+das metodologias que irão compor o Produto  6, objeto desta Etapa. Sua conclusão é definida 
+pela elaboração e entrega do Relatório Consolidado da Fase 2, cuja produção é constituída das 
+seguintes Subetapas: 
+a) Estudo e estruturação do conhecimento do objeto do contrato; 
+b) Detalhamento das atividades que serão envolvidas no projeto e orientação da Área 
+Técnica do Contratante para a execução do projeto; 
+c) Incorporação das informações complementares obtidas após orientação da Área 
+Técnica do Contratante e ajuste de metodologia; 
+d) Submissão do Relatório consolidado da Etapa  2 (Produto 6) do projeto à Área Técnica 
+do Contratante para a valiação, promoção dos ajustes considerados necessários pelo 
+Contratante, e apresentação da redação final do Plano de Trabalho do projeto pela Área 
+Técnica do Contratante, conforme previsto nos itens 7.4 a 7.8 do TDR da SDP nº 064/2019; 
+e) Reunião de entrega da Etapa, para apresentação dos resultados obtidos. 
+ 
+Sua conclusão está prevista para a 27ª  semana corrida após a emissão da Nota de Serviço , 
+conforme Cronograma Detalhado apresentado no ANEXO B. 
+ 
+6 ETAPA 3 – PLANO DE CONTINGÊNCIA 
+As Reuniões Técnicas e Oficinas de Trabalho entre a Equipe Técnica do Contratante e a Equipe 
+Técnica Alocada desta Etapa deverão ocorrer no período de conclusão das Etapas 1 e 2. Nestas 
+reuniões a Contratada deverá apresentar ao Contratante uma breve sínte se dos documentos 
+levantados junto aos gestores de planos de contingência de proteção e defesa civil e do setor 
+rodoviário, bem como das concessionárias de rodovias do Estado de São Paulo, dando início ao 
+processo de definição do modelo de plano de conting ência que será adotado na elaboração do 
+Produto 7, objeto único desta Etapa. Sua conclusão deverá ocorrer em até 8 meses após a 
+emissão da Nota de Serviço. 
+6.1 PRODUTO 7 – PLANO DE CONTINGÊNCIA DE RISCOS DE EVENTOS GEODINÂMICOS 
+Esta Subetapa é composta pelo Pr oduto 7, previsto para esta Etapa final , conforme itens 5.3 e 
+6.7 do TDR da SDP nº 064/2019. O levantamento e sistematização de documentos, modelos de 
+planos de contingência e dados oriundos de entrevistas e reuniões com os gestores de planos 
+de contingência de proteção e defesa civil e do setor rodoviário e com as concessionárias de 
+rodovias do Estado de São Paulo deverá ser iniciado concomitantemente à Subetapa  D.1.4.b - 
+Realização de entrevistas e preenchimento de questionários de levantamento de dados prevista 
+no Cronograma Detalhado do ANEXO B. Desta forma, permite -se a haja tempo hábil para a 
+realização dos contatos iniciais com os órgãos e agentes envolvidos, bem como para o 
+agendamento e execução das entrevistas e aquisição dos dados e informações que deverão ser 
+incorporados ao projeto. 
+A integração dos Produtos  2 a 6, associada à definição de procedimentos e responsabilidades 
+para cada estágio do Plano, configura o Produto  7 – Plano de contingência frente a riscos 
+relacionados a eventos geodinâmicos dos trechos rodoviários. É importante destacar que o Plano 
+de Contingência deve observar as diferenças entre os procedimentos para eventos geológico -
+===== PAGE 27 =====
+25 
+ 
+ 
+ 
+ 
+geotécnicos (movimentos de massa e processos correlatos) e para os eventos hidrológicos 
+(inundações e processos correlatos). 
+A SEDEC/MI considera que: “os planos de contingência devem ser elaborados para cenários de 
+riscos específicos” (BRASIL, 2017) ou, de forma mais precisa, um plano de contingência deve 
+ser elaborado e destinado a um tipo de evento específi co e seus respectivos impactos. Em 
+concordância, o TDR da SDP nº 064/2019 estabelece, no mínimo, dois cenários de riscos, 
+sendo: o primeiro cenário-modelo elaborado para definição dos cenários de crise frente aos 
+eventos geodinâmicos decorrentes de processos geológicos; e o segundo cenário-modelo para 
+os processos hidrológicos deflagrados por chuvas intensas. 
+Estes cenários-modelo auxiliarão na definição dos parâmetros do Plano de Contingência, como 
+instituições envolvidas, recursos que serão utilizados, funcionamento dos sistemas de 
+monitoramento, alerta, alarme e comunicação, além das ações e procedimentos, funções e 
+responsabilidades e articulação do plano com outros planos pré-existentes. 
+Como é sabido, as causas e os impactos provocados po r um escorregamento de encosta são 
+muito diferentes das causas e impactos de inundação, o que implica diferentes deflagrações, 
+diferentes procedimentos e atribuições nas ações de resposta a esses eventos. Por 
+consequência, n o presente projeto, deverão ser considerados, minimamente,  dois planos de 
+contingência, a exemplo de como procede anualmente a Coordenadoria Estadual de Proteção e 
+Defesa Civil nas edições da Operação Verão. 
+O Quadro 6.1-1 expõe a síntese de etapas para elaboração do Plano de Contingênci a, bem 
+como a metodologia de elaboração de cada uma destas etapas. 
+Quadro 6.1-1. Síntese de etapas e metodologias para elaboração do Plano de Contingência. 
+ATIVIDADE DESCRIÇÃO 
+Revisão 
+bibliográfica/ 
+análise 
+comparativa 
+A revisão bibliográfica sobre planos de contingência de proteção e defesa civil e do setor 
+rodoviário e sobre as etapas empregadas na sua elaboração para, através de análise 
+comparativa (benchmark), selecionar os principais parâmetros como recursos, atividades, 
+procedimentos, atribuições que devem ser considerados para a elaboração. Simultânea e 
+integradamente serão realizadas entrevistas com gestores de planos de contingência de 
+proteção e defesa civil e do setor rodoviário, com intuito de se avaliar as análises comparativas. 
+Definição de um 
+modelo 
+metodológico 
+Nessa atividade executada a partir da referida análise comparativa, será definido um modelo 
+metodológico para elaboração de cada plano de contingência (avaliando tipos de processo). 
+Esse modelo deve considerar a integração dos produtos 2 a 6 que constituem as Etapas 1 e 2 
+(TDR).  
+Definição dos 
+cenários de risco 
+Os cenários de riscos serão o objeto do plano de contingência. A SEDEC/MI (BRASIL, 2017) 
+considera que “Três elementos são necessários para definir um cenário: ameaças, 
+vulnerabilidades e capacidades/recursos”. Assim, a integração dos cadastros de eventos 
+geodinâmicos e acidentes rodoviários (Produto 2) com modelos de correlação e índices 
+pluviométricos críticos (Produto 3), associados à análi se de risco (Produto 4) definem 
+espacialmente os cenários de risco quanto às ameaças e vulnerabilidades. Segundo a definição 
+da SEDEC restaria ainda definir as capacidades/recursos do órgão. 
+Definição das 
+instituições 
+envolvidas 
+Essa atividade define como cada instituição deve contribuir com recursos para a execução das 
+ações de resposta. BRASIL (2017) relaciona uma série de recursos que devem ser cadastrados: 
+recursos humanos, recursos institucionais, recursos materiais, etc. Vários autores alertam para 
+a necessidade de os planos de contingência ser elaborados considerando as especificidades e 
+realidades das instituições envolvidas. Dessa forma deve -se buscar um equilíbrio entre as 
+necessidades e a disponibilidade de recursos. No entanto, uma das tarefas nessa atividade são 
+a identificação e mobilização de eventuais recursos adicionais.  
+Sistema de 
+monitoramento, 
+alerta e alarme 
+O Produto 6 deverá ser integrado ao plano de contingência de forma que assuma as ações de 
+monitoramento, alerta prévio e alarme. Para tanto as definições do Produto 3, da definição dos 
+índices críticos de chuva devem ser incorporados nas análises para o plano de contingência. 
+Sistema de 
+comunicação 
+Deverá ser implantado um sistema de comunicação que dê sustentação ao sistema de ale rta 
+prévio e de alarme. Devendo este ser ágil e eficiente, o arranjo de comunicação interno (entre 
+todas as instituições envolvidas), o plano de contingência deve, paralelamente, dispor de uma 
+rede de comunicação com órgãos da Administração Pública (nas três esferas de governo), com 
+as concessionárias dos serviços de água, luz, telefonia, transportes públicos, gás e rodovias e 
+===== PAGE 28 =====
+26 
+ 
+ 
+ 
+ 
+Quadro 6.1-1. Síntese de etapas e metodologias para elaboração do Plano de Contingência. 
+ATIVIDADE DESCRIÇÃO 
+também com as empresas privadas, já que muitas delas têm planos de contingências ou de 
+emergência. 
+Definição de 
+ações e 
+procedimentos 
+Serão relacionadas às ações básicas segundo o modelo metodológico definido, e para cada 
+ação serão especificados os procedimentos necessários. Segundo a SEDEC: “Na etapa de 
+preparação, a organização dessas ações e procedimentos também varia d e acordo com o 
+modelo adotado, podendo ser definidos em função das características intrínsecas dos desastres 
+previstos; dos condicionantes relacionados com o cenário dos desastres; das estimativas de 
+danos esperados; do controle de sinistros e socorro às populações em risco; da assistência às 
+populações afetadas; e da reabilitação dos cenários.” (BRASIL, 2017) 
+Nessa atividade deverão ser definidas as operações, os comandos unificados, os estágios do 
+plano, os critérios de ativação e o roteiro sequencial de operações.  
+Definição de 
+funções e 
+atribuição de 
+responsabilidades 
+Para cada ação e procedimento previsto no item anterior é necessário que se definam as 
+funções das instituições. Posteriormente, como preconiza a SEDEC, serão selecionados, dentre 
+os órgãos envolvidos, “aqueles que melhores condições possuem para executar as ações 
+previstas. Essa seleção deve c onsiderar a experiência institucional acumulada de cada um 
+desses órgãos, seguindo uma estrutura básica de ação, procedimento, recursos necessários, 
+responsáveis e atribuições (BRASIL, 2017). 
+Articulação do 
+plano de 
+contingência com 
+outros planos 
+existentes 
+Após o levantamento de planos de contingência ou emergência existentes tanto no setor público 
+como no privado, será desenvolvida sua articulação o plano de contingência aqui tratado 
+visando ao compartilhamento de capacidades e recursos e, assim, otimizar esforços. 
+Evento-teste e 
+revisão do plano 
+Para aferir a operacionalidade do plano de contingência deverá ser realizado um evento -teste 
+(exercício simulado) que permitirá avaliar as performances e diretrizes apontando falhas e 
+limitações e promovendo a revisão do plano onde for necessário. Mesmo depois de aprovado, 
+o plano de contingência deve ser revisado regularmente através de exercícios simulados ou da 
+aplicação em situações reais de desastres. O próprio plano pode definir a frequência com que 
+será revisado. 
+Redação final do 
+documento 
+Essa atividade consiste na redação final do documento que também deverá incluir ”a previsão 
+de quem são os responsáveis pela aprovação, divulgação e revisão do plano, bem como a 
+periodicidade de realização de cada uma dessas ações.” (BRASIL, 2017). 
+Procedimentos 
+formais de 
+aprovação, 
+validação e 
+divulgação 
+Habitualmente os planos de contingência são aprovados em Audiência Pública ou em Consulta 
+Pública, a critério da instituição que é responsável por sua execução.  Essa instituição deve 
+também, de maneira formal, validar o plano. 
+ 
+A conclusão desta Subetapa  está prevista para a 33ª  semana corrida após a emissão da Nota 
+de Serviço, conforme Cronograma Detalhado apresentado no ANEXO B. 
+ 
+6.2 RELATÓRIO CONSOLIDADO DA ETAPA 3 
+Esta subetapa complementar envolve as Reuniões Técnicas e Oficinas de Trabalho entre a 
+Equipe Técnica do Contratante e a Equipe Técnica Alocada que auxiliarão no estabelecimento 
+das metodologias que irão compor o Produto  6, objeto desta Etapa. Sua conclusão é definida 
+pela elaboração e entrega do Relatório Consolidado da Fase 2, cuja produção é constituída das 
+seguintes Subetapas: 
+a) Estudo e estruturação do conhecimento do objeto do contrato; 
+b) Detalhamento das atividades que serão envolvidas no projeto  e orientação da Área 
+Técnica do Contratante para a execução do projeto; 
+c) Incorporação das informações complementares obtidas após orientação da Área 
+Técnica do Contratante e ajuste de metodologia; 
+===== PAGE 29 =====
+27 
+ 
+ 
+ 
+ 
+d) Submissão do Relatório consolidado da Etapa  2 (Produto 6) do projeto à Área Técnica 
+do Contratante para avaliação, promoção dos ajustes considerados necessários pelo 
+Contratante, e apresentação da redação final do Plano de Trabalho do projeto pela Área 
+Técnica do Contratante, conforme previsto nos itens 7.4 a 7.8 do TDR da SDP nº 064/2019; 
+e) Reunião de entrega da Etapa, para apresentação dos resultados obtidos. 
+ 
+Sua conclusão está prevista para a 3 5ª semana corrida após a emissão da Nota de Serviço , 
+conforme Cronograma Detalhado apresentado no ANEXO B. 
+ 
+7 CRONOGRAMA 
+O Cronograma Síntese  previsto para execução das atividades relacionadas aos produtos e 
+etapas do projeto está apresentado na Tabela 7-1. 
+ 
+===== PAGE 30 =====
+28 
+ 
+ 
+ 
+ 
+Tabela 7-1. Cronograma simplificado das atividades previstas para execução dos produtos. 
+Etapa Produtos Semanas 
+Meses TOTAL 
+(DIAS) 
+Data de 
+conclusão 
+prevista 
+1 2 3 4 5 6 7 8 9 
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
+D-0 Etapa Preparatória - Plano de Trabalho Detalhado 1,43   10,00 13/08/2020 
+D-0.1.a Reuniões Técnicas, Oficinas e Treinamentos 0,14                                        1,00 06/08/2020 
+D-0.1 Produto 1 - Elaboração do plano de trabalho detalhado 1,43                                        10,00 13/08/2020 
+D-0.1.e Submissão do Plano de Trabalho do projeto à Área Técnica do 
+Contratante para avaliação de qualidade 0,14                                        1,00 13/08/2020 
+D-0.1.f Análise dos produtos pelo Contratante 1,71                                        12,00 27/08/2020 
+D-0.1.g Apresentação e discussão dos produtos da Etapa Preparatória 0,14                                        1,00 27/08/2020 
+D-0.1.h Realização de ajustes nos produtos da Etapa Preparatória 2,14                                        15,00 11/09/2020 
+D-0.1.i Apresentação da versão final dos produtos da Etapa Preparatória 0,14                                        1,00 11/09/2020 
+D-1 
+Etapa 1 - Histórico de Eventos e Desastres, Índices 
+Meteorológicos Críticos, Análise de Risco e Capacidade 
+Institucional 
+17,00   119,00 03/12/2020 
+D-1.5.a Reuniões Técnicas, Oficinas e Treinamentos 0,14                                        1,00 07/08/2020 
+D-1.1 Produto 2 - Cadastro de ocorrências de eventos geodinâmicos e 
+desastres 7,00                                        49,00 18/09/2020 
+D-1.2 Produto 3 - Modelo de correlação entre eventos e chuvas 8,00                                        56,00 25/09/2020 
+D-1.3 Produto 4 - Análise de risco 10,00                                        70,00 09/10/2020 
+D-1.4 Produto 5 - Análise do contexto institucional 13,00                                        91,00 30/10/2020 
+D-1.5 Elaboração do relatório consolidado da Etapa 1, abrangendo os 
+Produtos 2, 3, 4 e 5 18,00                                        126,00 03/12/2020 
+D-1.5.e Submissão do Relatório Consolidado da Etapa 1 do projeto à 
+Área Técnica do Contratante para avaliação de qualidade 0,14                                        1,00 03/12/2020 
+D-1.5.f Análise dos produtos pelo Contratante 1,71                                        12,00 17/12/2020 
+D-1.5.g Apresentação e discussão dos produtos da Etapa 1 0,14                                        1,00 17/12/2020 
+D-1.5.h Realização de ajustes nos produtos da Etapa 1 2,14                                        15,00 01/01/2021 
+D-1.5.i Apresentação da versão final dos produtos da Etapa 1 0,14                                        1,00 01/01/2021 
+D-2 Etapa 2 - Implantação do Sistema Automatizado de Análise, 
+Monitoramento e Alerta 26,00   182,00 03/02/2021 
+D-2.2.a Reuniões Técnicas, Oficinas e Treinamentos 0,14                                        1,00 06/11/2020 
+D-2.1 Produto 6 - Sistema automatizado de análise, monitoramento e 
+alerta de risco 26,00                                        182,00 29/01/2021 
+D-2.2 Elaboração do relatório consolidado da Etapa 2, abrangendo o 
+Produto 6 14,00                                        98,00 03/02/2021 
+D-2.2.e Submissão do Relatório Consolidado da Etapa 2 do projeto à 
+Área Técnica do Contratante para avaliação de qualidade 0,14                                        1,00 03/02/2021 
+D-2.2.f Análise dos produtos pelo Contratante 1,71                                        12,00 18/02/2021 
+D-2.2.g Apresentação e discussão dos produtos da Etapa 2 0,14                                        1,00 18/02/2021 
+D-2.2.h Realização de ajustes nos produtos da Etapa 2 2,14                                        15,00 05/03/2021 
+D-2.2.i Apresentação da versão final dos produtos da Etapa 2 0,14                                        1,00 05/03/2021 
+D-3 Etapa 3 - Plano de Contingência 33,00   231,00 03/04/2021 
+D-3.2.a Reuniões Técnicas, Oficinas e Treinamentos 0,14                                        1,00 01/01/2021 
+D-3.1 
+Produto 7 - Plano de contingência frente a riscos de eventos 
+geodinâmicos (deslizamentos e movimentos de massa em geral, 
+inundações e processos correlatos e chuvas intensas) em 
+trechos rodoviários 
+32,00                                        224,00 19/03/2021 
+D-3.2 Elaboração do relatório consolidado da Etapa 3, abrangendo o 
+Produto 7 15,00                                        105,00 05/04/2021 
+D-3.2.e Submissão do Relatório Consolidado da Etapa 3 do projeto à 
+Área Técnica do Contratante para avaliação de qualidade 0,14                                        1,00 03/04/2021 
+D-3.2.f Análise dos produtos pelo Contratante 1,71                                        12,00 16/04/2021 
+D-3.2.g Apresentação e discussão dos produtos da Etapa 3 0,14                                        1,00 16/04/2021 
+D-3.2.h Realização de ajustes nos produtos da Etapa 3 2,14                                        15,00 21/04/2021 
+D-3.2.i Apresentação da versão final dos produtos da Etapa 3 0,14                                        1,00 21/04/2021 
+D-4 Procedimentos de encerramento do contrato 5,00   35,00 21/04/2021 
+D-4.1 Procedimentos de encerramento do contrato 5,00                                        35,00 21/04/2021                                                  Atividade conjunta realizada por Contratada e Contratante                                                    Atividade realizada pela Contratada                                                    Entrega de produto                                                    Atividade realizada pelo Contratante                                                  
+Obs.: O cronograma está dividido em semanas. Desta forma, para que fosse possível o ajuste em relação às 52 semanas que compõ em um ano. Os meses se repetem da 
+seguinte maneira: os meses múltiplos de 3 (3, 6, 9) possuem 5 semanas, com os demais meses com 4 semanas cada. 
+  
+     
+ 
+===== PAGE 31 =====
+29 
+ 
+ 
+ 
+ 
+8 REFERÊNCIAS BIBLIOGRÁFICAS 
+ABNT - ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ISO 31000 Gestão de riscos — 
+Princípios e diretrizes (Risk management – Principles and guidelines). 2009. 
+ACSELRAD, H. Vulnerabilidade Ambiental, processos e relações. Comunicação ao II Encontro 
+Nacional de Produtores e Usuários de Informações Sociais, Econômicas e Territoriais, FIBGE, 
+Rio de Janeiro, 2006. 
+ALHEIROS, M.M.; SOUZA, M.A.A.; BITOUN, J.; MEDEIROS, S.M.G.M.; AMORIM JÚNIOR, 
+W.M. Manual de ocupação de morros da Região Metropolitana de Rec ife. Recife: Fundação de 
+Desenvolvimento Municipal, 2003. 384p. 
+ALVES, F.M., FLORES, M., IWASA, O.Y., ALVES, C.F.C., FERNANDES, G.N., SILVA, L.H., 
+GOTO de PAULA, CMM, MAGRO, S.A., BONGIOVANNI, L.A. Plano municipal de redução de 
+riscos do Município de Diade ma. In: Congresso Brasileiro de Geologia de Engenharia e 
+Ambiental, 13, Rio de Janeiro - RJ, Anais..., São Paulo: ABGE, 2013, CD-ROM. 
+ANA - AGÊNCIA NACIONAL DE ÁGUAS. Base Hidrográfica Ottocodificada da Bacia do Rio Tietê 
+[Brasília], 2015.1: 50.000. 
+ANA - AGÊNCIA NACIONAL DE ÁGUAS. Base Hidrográfica Ottocodificada do Rio Paraíba do 
+Sul. [Brasília], 2017 1:50.000. 
+ANA - AGÊNCIA NACIONAL DE ÁGUAS. Base Hidrográfica Ottocodificada Litorâneas SP -RJ. 
+[Brasília], 2017 1:50.000. 
+ANDRADE, E.; DANNA, L.C.; FERNANDES  DA SILVA, P.C. Mapeamento de perigos e riscos 
+de inundação no Município de Aparecida (São Paulo). Anuário do Instituto de Geociências - 
+UFRJ. ISSN 0101-9759 e-ISSN 1982-3908 - Vol. 35 - 2 / 2012 p.28-42. 2012. 
+ANDRADE, E.; DANNA, L.C.; SANTOS, M.L.; FERNANDES DA SILVA, P.C. 2010. 
+Levantamento de ocorrências de inundação em registros de jornais como subsídio ao 
+planejamento regional e ao mapeamento de risco. In: ABGE, Simpósio Brasileiro de Cartografia 
+Geotécnica, 7, Maringá-PR, 8 a 11 de agosto de 2010, Anais..., CD-ROOM. 
+ARMANI, G.; TAVARES, R.; BRIGATTI, N. Climatologia. In: FERREIRA C.J. [coord]. Diretrizes 
+para a regeneração socioambiental de áreas degradadas por mineração de saibro (caixas de 
+empréstimo), Ubatuba, SP. Relatório Técnico 3, FAPESP ( processo FAPESP 03/07182 -5) 
+inédito, p. 119-142, 2007. 
+BIRKMANN, J. Measuring vulnerability to promote disaster -resilient societies: Conceptual 
+frameworks and definitions. In: BIRKMANN, J. (ed): Measuring vulnerability to Natural Hazards. 
+Towards Disaster Resilient Societies. New Delhi: TERI Press, United Nations University Press, 
+2006. p. 9-56. 
+BONGIOVANNI, L. A.; FREITAS, J. O.; ALVES, F. M. Desenvolvimento sustentável e gestão de 
+risco de desastres naturais. III Congresso da Sociedade de Análise de Risco  Latino Americana, 
+São Paulo, 2016. 
+BRAND, E.W. Relationship between rainfall and landslides in Hong Kong . In: INTERNATIONAL 
+SYMPOSIUM ON LANDSLIDES, 4., 1984. Toronto: [s.n.], 1984. v.1, p.377-84. 
+BRASIL (DEPARTAMENTO NACIONAL DE INFRAESTRUTURA DE TRANSPORTES). Manual 
+para implementação de planos de ação de emergência para atendimento a sinistros envolvendo 
+===== PAGE 32 =====
+30 
+ 
+ 
+ 
+ 
+o transporte rodoviário de produtos perigosos. 2005. 142p. (IPR. Publ., 716). Disponível em: 
+<https://goo.gl/sFGxPg>. 
+BRASIL (MCIDADES – MINISTÉRIO DAS  CIDADES, IPT – INSTITUTO DE PESQUISAS 
+TECNOLÓGICAS DO ESTADO DE SÃO PAULO). Mapeamento de Riscos em Encostas e 
+Margem de Rios. CARVALHO, C.S.; MACEDO, E.S; OGURA, A.T. (orgs.), Brasília, 2007. 
+BRASIL (MI – MINISTÉRIO DA INTEGRAÇÃO NACIONAL, SEDEC – SECRETARIA NACIONAL 
+DE DEFESA CIVIL). Glossário de Defesa Civil, estudos de riscos e medicina de desastres. 3. ed. 
+Brasília, DF: MI 2009. 
+BRASIL (MINISTÉRIO DA INTEGRAÇÃO). Manual de orientações para a produção do plano 
+municipal de contingência - PLAMCON. Secretaria Nacional de Defesa Civil. 2012. Disponível 
+em: <https://goo.gl/Eu8acH>. 
+BRITO, M.M.; EVERS, M.; ALMORADIE, A.D.S. 2018. Participatory flood vulnerability 
+assessment: a multi-criteria approach. Hydrology and Earth System Sciences. 22:373-390, 2018. 
+CANIL, K.; MACEDO, E.S.; GRAMANI, M.F.; ALMEIDA FILHO, G.S.; YOSHIKAWA, N.K.; 
+MIRANDOLA, F.A.; VIEIRA, B.C.; BAIDA, L.M.A.; AUGUSTO FILHO, O.; SHINOHARA, E.J. 
+Mapeamento de risco em assentamentos precários nas zonas sul e parte da oeste no município 
+de São Paulo (SP). In: Simpósio Brasileiro de Cartografia Geotécnica e Geoambiental, 5, 2004, 
+São Carlos. Anais... São Paulo: ABGE, 2004, p.193-204. 
+CARDONA, O.D. La necesidad de repensar de manera holistica los conceptos de vulnerabilidad 
+y riesgo: uma crítica y una revisión necessaria para la gestión . In: INTERNATIONAL WORK-
+CONFERENCE ON VULNERABILITY IN DISASTER THEORY AND PRACTICE, 2001, Disaster 
+Studies of Wageningen University and Research Centre, Wageninger, Holanda. 18 p. 2001. 
+CARDOSO, D.; RIEDEL, P.S.; VEDOVELLO, R.; BROLLO, M.J.; TOMINAGA, L.K. 
+Compartimentação fisiográfica do município de Peruíbe, litoral de São Paulo - uma abordagem 
+metodológica como subsídio à avaliação geotécnica de terrenos. Pesquisas em Geociências, 
+v.36, n.3, p.251-262, 2009. Disponível em: http://www.ufrgs.br/igeo/pesquisas/3603/02-3603.pdf 
+CASTRO, J.M. Pluviosidade e movimentos de massa nas encostas de Ouro Preto. 2006. 
+Dissertação (Mestrado) – Universidade Federal de Ouro Preto, Ouro Preto, 2006. 
+CERRI, L.E.S. 1993. Riscos geológicos associados a escorregamentos: uma proposta para a 
+prevenção de acidentes. Tese de doutorado, Universidade Estadual Paulista Júlio de Mesquita 
+Filho, UNESP. 
+CERRI, L.E.S.; MACEDO, E.S.; OGURA, A.T.; NUNES, C.M.; CARNEIRO, S.R.; MODE STO, 
+R.P. 1990. Plano preventivo de defesa Civil para a minimização das consequências de 
+escorregamentos em municípios da Baixada Santista e Litoral Norte do Estado de São Paulo. In: 
+SIMPÓSIO LATINOAMERICANO SOBRE RISCO GEOLÓGICO URBANO, 1, São Paulo. 
+Anais... São Paulo: Associação Brasileira de Geologia de Engenharia, 1: 396-408. 
+CHOW, V.T.; MAIDMENT, D.R.; MAYS, L.W. Applied Hydrology. McGraw Hill, New York. 572 p. 
+1988. 
+CPRM - SERVIÇO GEOLÓGICO DO BRASIL. PROJETO INTEGRAÇÃO GEOLÓGICO -
+METALOGENÉTICA. Carta Geológica do Estado de São Paulo, Folha SF.23 -Y-C. 1:250.000. 
+1999. 
+CPRM - SERVIÇO GEOLÓGICO DO BRASIL e IPT - Instituto de Pesquisas Tecnológicas. Cartas 
+de Suscetibilidade a Movimentos Gravitacionais de Massa e Inundações, 1:25.000. 2015. 
+===== PAGE 33 =====
+31 
+ 
+ 
+ 
+ 
+CARDOZA, C . Spreading Scrum through the enterprise . Disponível em: 
+<https://sdtimes.com/agile/spreading-scrum-enterprise/>. Acesso em 23 de julho de 2020. 
+CROSTA, A.P. Processamento Digital de Imagens de Sensoriamento Remoto. Instituto de 
+geociências. Departamento de Metalogênese e Geoquímica. IG/UNICAMP. Campinas. 1992. 
+DAEE – DEPARTAMENTO DE ÁGUAS E ENERGIA ELÉTRICA. CTH – CENTRO 
+TECNOLÓGICO DE HIDRÁULICA E RECURSOS HÍDRICOS. Precipitações intensas no Estado 
+de São Paulo. MARTINEZ Jr., F. DAEE/CTH. (Org). 2018. 
+DAEE – DEPARTAMENTO DE ÁGUAS E ENERGIA ELÉTRICA. CTH – CENTRO 
+TECNOLÓGICO DE HIDRÁULICA E RECURSOS HÍDRICOS. Rede Hidrológica Básica do 
+Estado de São Paulo. Disponível em: < 
+http://www.daee.sp.gov.br/index.php?option=com_content&view=article&id=72%3Ahidrometeor
+ologia&catid=43%3Ahidrometeorologia&Itemid=30>. Acesso em julho de 2020. 
+DAEE – DEPARTAMENTO DE ÁGUAS E ENERGIA ELÉTRICA. CTH – CENTRO 
+TECNOLÓGICO DE HIDRÁULICA E RECURSOS HÍDRICOS. Séries Históricas de Estações. 
+Disponível em: < http://www.snirh.gov.br/hidroweb/serieshistoricas>. Acesso em julho de 2020. 
+DER/SP - DEPARTAMENTO DE ESTRADAS DE RODAGEM DO ESTADO DE SÃO PAULO. 
+Classificação e Codificação das Rodovias do Estado de São Paulo . Disponível em 
+<http://www.der.sp.gov.br/WebSite/Arquivos/MalhaRodoviaria/codificacao.pdf>. Acesso em 
+junho de 2020. 
+DER/SP - DEPARTAMENTO DE ESTRADAS DE RODAGEM DO ESTADO DE SÃO PAULO. 
+Edital de Solicitação de Propostas SDP nº 064/2019. Seleção de Serviços de Consultoria para 
+Prestação de Serviços Técnicos para Elaboração de Planos de Contingência frente a riscos de 
+eventos geodinâmicos em trechos rodoviários selecionados das Unidades Básicas de 
+Atendimento (UBA) do Departamento de Estradas de Rodagem do Estado de São Paulo 
+(DER/SP) de Caraguatatuba, Mogi das Cruzes e São Vicente . São Paulo, emitido em 17 de 
+dezembro de 2019. 
+DER/SP - DEPARTAMENTO DE ESTRADAS DE RODAGEM DO ESTADO DE SÃO PAULO. 
+Volume Diári o Médio das Rodovias (VDM). Disponível em 
+<http://www.der.sp.gov.br/WebSite/MalhaRodoviaria/VolumeDiario.aspx>. Acesso em junho de 
+2020. 
+DER/SP - DEPARTAMENTO DE ESTRADAS DE  RODAGEM DO ESTADO DE SÃO PAULO. 
+WEBROTAS. Disponível em 
+<http://www.der.sp.gov.br/WebSite/Servicos/ServicosOnline/WebRotas.aspx#>. Acesso em 
+junho de 2020. 
+DNIT - DEPARTAMENTO NACIONAL DE INFRAESTRUTURA DE TRANSPORTES. Custo 
+Médio Gerencial. Brasília: DNIT, 2017. 
+D’ORSI, R.; D’ÁVILA, C.; ORTIGÃO, J.A.R.; DIAS, A.; MORAES, L.; SANTOS, M.D. Rio-Watch: 
+The Rio de Janeiro landslide watch system . In: CONFERÊNCIA  BRASILEIRA SOBRE 
+ESTABILIDADE DE ENCOSTAS, 2., 1997. Rio de Janeiro. 1997. v.1, p. 21- 30. 
+DRM (Departamento de Recursos Naturais). 2015. Correlação chuvas x escorregamentos no 
+Estado do Rio de Janeiro no mês de março de 2015. Relatório Técnico. Disponível em: 
+https://goo.gl/vyDp8U. 
+ELBACHÁ, A.T.; CAMPOS, L.E.P.; BAHIA, R.F.C. Tentativa de correlação entre  precipitação e 
+deslizamentos na cidade de Salvador. In: CONFERÊNCIA BRASILEIRA SOBRE 
+ESTABILIDADE DE ENCOSTAS, 1.,1992. Rio de Janeiro, 1992. 
+===== PAGE 34 =====
+32 
+ 
+ 
+ 
+ 
+EMPLASA - EMPRESA PAULISTA DE PLANEJAMENTO METROPOLITANO S.A. Carta 
+Geológica da Região Metropolitana da Grande São Paulo. São Paulo. 1:50.000. 1980. 
+EMPLASA - EMPRESA PAULISTA DE PLANEJAMENTO METROPOLITANO S.A. Ortofotos do 
+Estado de São Paulo (Projeto Mapeia São Paulo). São Paulo. 1:25.000. 2010/2011. 
+ESRI. About geocoding a table of addresses . Disponível em: 
+<https://desktop.arcgis.com/en/arcmap/10.3/guide-books/geocoding/geocoding-a-table-of-
+addresses-about.htm>. Acesso em 23 de julho de 2020. 
+FERNANDES DA SILVA, P.C.; ANDRADE, E.; DANNA, L.C. Mapeamento de risco à inundação/ 
+em municípios do Vale do Paraíba (SP): abordagem metodológica para delimitação e 
+caracterização de setores de perigo. In: Congresso Brasileiro de Geologia de Engenharia e 
+Ambiental, 13, São Paulo -SP, 2 a 6 de novembro de 2011, Anais..., São Paulo: ABGE, 2011, 
+CD-ROM. 
+FERNANDES DA SILVA, P.C.; ANDRADE, E.; ROSSINI -PENTEADO, D. Mapeamento de 
+perigos e riscos de inundação: uma abordagem semiquantitativa. Revista do Instituto Geológico, 
+São Paulo, 35 (2), 13-38, 2014. 
+FERNANDES DA SILVA, P.C.; VEDOVELLO, R.; FERREIRA, C. J.; BROLLO, M. J.; 
+FERNANDES, A.J.; CRIPPS, J.C. Geo-environmental mapping using physiographic analysis: 
+constraints on the evaluation of land instability and grou ndwater pollution hazards in the 
+Metropolitan District of Campinas, Brazil . Environmental Earth Sciences, v. 59, p. 124, 2010. 
+Disponível em: http://link.springer.com/article/10.1007%2Fs12665-010-0480-z 
+FERNANDES DA SILVA, P.C.; ANDRADE, E.; DANNA, L.C. Mapeamento de risco à inundação 
+em municípios do Vale do Paraíba (SP): abordagem metodológica para delimitação e 
+caracterização de setores de perigo. In: Congresso Brasileiro de Geologia de Engenharia e 
+Ambiental, 13, São Paulo - SP, 2 a 6 de novembro de 201 1, Anais..., São Paulo: ABGE, 2011, 
+CD-ROM. Disponível em: 
+https://www.researchgate.net/publication/271133102_MAPEAMENTO_DE_RISCO__INUNDAO
+_EM_MUNICPIOS_DO_VALE_DO_PARABA_(SP)_ABORDAGEM_METODOLGICA_PARA_D
+ELIMITAO_E_CARATERIZAO_DE_SETORES_DE_PERIGO 
+FERNANDEZ, G. N. Determinação de limiares críticos de chuva deflagradores de movimentos 
+gravitacionais de massa, município de São Bernardo do Campo, SP. Dissertação de Mestrado, 
+Instituto de Geociências, Universidade de São Paulo, São Paulo, 2018. 
+FERNANDEZ, G. N.;  ALVES, F. M.; MODESTO, A. A. L., PISSATO, E. Análise espacial e 
+temporal de escorregamentos em São Bernardo do Campo, SP (1993 – 2016). In: 18º  CBGE 
+Congresso Brasileiro de Geologia de Engenharia e Ambiental, 2018, São Paulo, SP. 
+FERREIRA, C.J. ROSSINI -PENTEADO, D.; SOUZA, C.R.G.; ROCHA, G.A. SOUZA, L., 
+GUEDES, A.C.M. 2015. Integração de mapeamento de risco e índices pluviométricos no 
+monitoramento e alerta de risco de escorregamentos planares no Litoral Norte do Estado de São 
+Paulo. Revista Brasileira de Geologia de Engenharia e Ambiental, v.5 (1): 37-53. Disponível em: 
+https://goo.gl/mqv6QG. Acesso em julho de 2020. 
+FERREIRA, C.J.; ROSSINI -PENTEADO, D. Mapeamento de risco a escorregamento e 
+inundação por meio da abordagem quantitativa da paisagem em escal a regional. In: 
+CONGRESSO BRASILEIRO DE GEOLOGIA DE ENGENHARIA E AMBIENTAL, 11, 2011, São 
+Paulo. Anais... São Paulo: Associação Brasileira de Geologia de Engenharia e Ambiental, 2011. 
+CD-ROM. 
+FERREIRA, C.J.; ROSSINI -PENTEADO, D.; GUEDES, A.C.M. O uso de si stemas de 
+informações geográficas na análise e mapeamento de risco a eventos geodinâmicos. In: 
+===== PAGE 35 =====
+33 
+ 
+ 
+ 
+ 
+FREITAS, M.I.C & LOMBARDO, M.A.: Riscos e Vulnerabilidades: Teoria e prática no contexto 
+Luso-Brasileiro. São Paulo: Cultura Acadêmica, 2013. 
+FERREIRA, C. J.; AL VES, F. M.; RAFFAELLI, C. B. S.; SOUSA, C. A. Causas da Redução do 
+Risco de Escorregamentos e de Inundações em Núcleos Residenciais do Município de Poá, SP, 
+no Período 2006 -2015. In: III Congresso da Sociedade de Análise de Risco Latino Americana, 
+2016, São Paulo. Anais do III Congresso da Sociedade de Análise de Risco Latino Americana, 
+2016. 
+GARIANO, S.L.; BRUNETTI, M.T.; IOVINE, G.; MELILLO, M.; PERUCCACCI, S.; TERRANOVA, 
+O.; VENNARI, C.; GUZZETTI, F. Calibration and validation of rainfall thresholds for shallow 
+landslide forecasting in Sicily, southern Italy. In: Geomorphology, 228, p. 653–665, 2015. 
+GRAMANI, M.F. 2001 Caracterização geológico -geotécnica das corridas de detritos (“ debris 
+flows”) no Brasil e comparação com os casos internacionais. Disserta ção de Mestrado, 
+Departamento de Estruturas e Fundações, Escola Politécnica, Universidade de São Paulo, São 
+Paulo, 385 p. 
+GRAMANI, M.F. & AUGUSTO FILHO, O. 2004. Analysis of the triggering of debris flow potentiality 
+and the run-out reach estimative: an application essay in the Serra do Mar mountain range. In: 
+International Symposium on Landslides, 9, Rio de Janeiro. Proceedings... Londres: Balkema, v. 
+2. p. 1477-1483. 
+GRAMANI, M.F. & KANJI M.A. 2001. Inventário e análise das corridas de de tritos no Brasil. In : 
+III Conferência Brasileira de Estabilidade de Encostas - COBRAE, 3, Rio de Janeiro, Anais,Rio 
+de Janeiro: ABMS - NRRJ. 
+GOMES, J. V. P. & SILVA de BARROS, R. (2011). A importância das Ottobacias para gestão de 
+recursos hídricos. In: XV  Simpósio Brasileiro de Sensoriamento Remoto - SBSR, Curitiba, PR, 
+Brasil, Anais, Curitiba pp.: 1287-1294. 
+GUIDICINI, G., IWASA, O.Y. Ensaio de Correlação entre Pluviometria e Deslizamentos em Meio 
+Tropical Úmido. São Paulo: IPT, 1976. 
+HOEK, E. & BRAY, J. 1974. Rock Slope Engineering. Londres, Institution of Mining and 
+Metallurgy, 309 p. 
+HORTON, R. E. The role of infiltration in the hydrologic cycle . Transactions, American 
+Geophysical Union, V. 14, ed. 1, p. 446-460. 1933. 
+IDE, F.S. Escorregamento, meteorol ogia e precipitação: uma proposta de método de 
+investigação para prevenção e monitoramento de riscos, aplicado em Campinas/SP. Dissertação 
+(Mestrado) - Instituto de Pesquisas Tecnológicas, IPT, São Paulo, 2005. 
+INPE - INSTITUTO NACIONAL DE PESQUISAS ESPACI AIS. TerraMA² - Monitoramento, 
+Análise e Alerta – Manual do Usuário. 2018. 191 p. Disponível em: < 
+http://www.terrama2.dpi.inpe.br/manuais>. Acesso em 23 de julho de 2020. 
+IPT – INSTITUTO DE PESQUISAS TECNOLÓGICAS DO ESTADO DE SÃO PAULO; CPRM – 
+SERVIÇO GEOLÓGICO DO BRASIL. Cartas de suscetibilidade a movimentos gravitacionais de 
+massa e inundações: 1:25.000: nota técnica explicativa. Coordenação Omar Yazbek Bittar. São 
+Paulo, SP / Brasília, DF. 2014 
+ISO 31.000 - ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS - Gestão de riscos: 
+NBR/ISO 31000, 2009: Rio de Janeiro: ABNT, 2009. 
+===== PAGE 36 =====
+34 
+ 
+ 
+ 
+ 
+IG - INSTITUTO GEOLÓGICO DA SECRETARIA DE INFRAESTRUTURA E MEIO AMBIENTE 
+DO ESTADO DE SÃO PAULO. Mapeamento de riscos associados a es corregamentos, 
+inundações, erosão, solapamento, colapso e subsidência - Município de Aparecida - SP. São 
+Paulo: Instituto Geológico. Relatório Técnico, 3 volumes . 2011. Disponível em: 
+<http://www.defesacivil.sp.gov.br/instrumentos-de-identificacao-de-riscos/>. Acesso em agosto 
+de 2020. 
+IG - INSTITUTO GEOLÓGICO DA SECRETARIA DE INFRAESTRUTURA E MEIO AMBIENTE 
+DO ESTADO DE SÃO PAULO. Mapeamento de riscos associados a esco rregamentos, 
+inundações, erosão e solapamento de margens de drenagens - Município de Campos do Jordão 
+- SP. São Paulo: Instituto Geológico. Relatório Técnico, 4 volumes. 2014a. 
+<http://www.defesacivil.sp.gov.br/instrumentos-de-identificacao-de-riscos/>. Acesso em agosto 
+de 2020. 
+IG - INSTITUTO GEOLÓGICO DA SECRETARIA DE INFRAESTRUTURA E MEIO AMBIENTE 
+DO ESTADO DE SÃO PAULO. Unidades básicas de compartimentação do meio físico (UBC). 
+São Paulo, 2014b. Disponível em: < https://www.infraestruturameioambiente.sp.gov.br/wp-
+content/uploads/sites/233/2017/02/Ficha_Tecnica_Unidades_Basicas_Compartimentacao_Mei
+o_Fisico_UBC.pdf>. Acesso em agosto de 2020. 
+IG - INSTITUTO GEOLÓGICO DA SECRETARIA DE INFRAESTRUTURA E MEIO AMBIENTE 
+DO ESTADO DE SÃO PAULO. Mapeamento de riscos associados a escorregamentos, 
+inundações e corridas de massa - Município de Itaóca, SP. São Paulo: Instituto Geológico, 
+Secretaria do Meio  Ambiente do Estado de São Paulo. Relatório Técnico, 2015. 3 volumes. 
+Boletim do Instituto Geológico nº 64. ISSN 0100 -431X. Disponível em: 
+<http://www.defesacivil.sp.gov.br/instrumentos-de-identificacao-de-riscos/>. Acesso em agosto 
+de 2020. 
+IG - INSTITUTO GEOLÓGICO DA SECRETARIA DE INFRAESTRUTURA E MEIO AMBIENTE 
+DO ESTADO DE SÃO PAULO. Unidades homogêneas de uso e ocupação do solo urbano 
+(UHCT). São Paulo, 2016. Dispo nível em: 
+<http://s.ambiente.sp.gov.br/cpla/Ficha_Tecnica_UHCT.pdf>. Acesso em agosto de 2020. 
+IG - INSTITUTO GEOLÓGICO DA SECRETARIA DE INFRAESTRUTURA E MEIO AMBIENTE 
+DO ESTADO DE SÃO  PAULO. Cadastro Georreferenciado de Eventos Geodinâmicos: 50 
+Municípios da Região Metropolitana de São Paulo, Baixada Santista e Litoral Norte. Projeto 
+Transporte Sustentável de São Paulo (P127723). São Paulo, 2017a. Disponível em: < 
+https://www.infraestruturameioambiente.sp.gov.br/institutogeologico/2017/12/instituto-
+geologico-lanca-sistema-de-classificacao-unidades-territoriais-basicas-mapas-de-perigo-
+vulnerabilidade-e-risco-do-estado-de-sao-paulo-e-cadastro-de-eventos-geodinamicos-
+acidentes-e-desast/ >. Acesso em agosto de 2020. 
+IG - INSTITUTO GEOLÓGICO DA SECRETARIA DE INFRAESTRUTURA E MEIO AMBIENTE 
+DO ESTADO DE SÃO PAULO. Sistema de classificação “Unidades Territoriais Básicas” (UTB) 
+e mapeamento de risco de áreas urb anas de uso residencial/comercial/serviços à eventos 
+geodinâmicos do Estado de São Paulo. São Paulo, 2017b. Disponível em: 
+<https://www.infraestruturameioambiente.sp.gov.br/institutogeologico/wp-
+content/uploads/sites/233/2017/12/Ficha_Tecnica_UTB_SP_IG.pdf>. Acesso em agosto de 
+2020. 
+IWASA, O.Y.; ASSANO, V. Y.; ALVES, F.M.; ALVES, C.F.C.; MAGRO, S.A.; FAGUNDES, M.G.; 
+BONGIOVANNI, L.A.; MOREIRA, M.R.; PEIXOTO FILHO, G.E.C.; SCHADECK, R. 
+Vulnerabilidade da ocupação em setores de risco a movimentos gravitacionais de massa e 
+inundação no município de Luiz Alves, Santa Catarina. In: CONGRESSO BRASILEIRO DE 
+GEOLOGIA DE ENGENHARIA E AMBIENTAL, 2013, Rio de Janeiro - RJ. Anais... São Paulo: 
+Associação Brasileira de Geologia de Engenharia e Ambiental, 2013. CD-ROM. 
+===== PAGE 37 =====
+35 
+ 
+ 
+ 
+ 
+JICA – JAPANESE INTERNATIONAL COOPERATION AGENCY . 2015. Guide to landslide 
+inspection form records . In: Project of Strengthening the National Strategy about the Risk 
+Management of the Natural Disaster (GIDES). 2015. 
+KAY, J.N.; CHEN, T. Rainfall-landslide relationship for Hong Kong . In: ICE. GEOTECHNICAL 
+ENGINEERING. Bangkok: 1995. v. 113. p. 117-118. 
+LOMBARDO, M. A. & FREITAS, M. I. C. Riscos e vulnerabilidades [recurso eletrônico]: teoria e 
+prática no contexto luso-brasileiro. 1. ed. – São Paulo: Cultura Acadêmica, 2013 
+LUMB, P. Slope failures in Hong Kong. Quarterly Journal of Engineering Geology, London, v. 8, 
+p. 31-35. 1975. 
+MACEDO, E.S.; OGURA, A.T.; CANIL, K.; ALMEIDA FILHO, G.S.; GRAMANI, M.F.; SILVA, F.C.; 
+CORSI, A.C.; MIRANDOLA, F.A. Modelos de fichas descritivas para áreas de risco de 
+escorregamento, inundação e erosão. In: Simpósio Brasileiro  de Desastres Naturais, 1, 2004, 
+Florianópolis. Anais... Florianópolis: GEDN/UFSC, 2004b, p. 892-907, CD-ROM. 2004. 
+MACEDO, E.S.; OGURA, A.T., SANTORO J. 1999. Defesa Civil e escorregamentos: o plano 
+preventivo do litoral paulista. In: CONGRESSO BRASILEIRO DE GEOLOGIA E ENGENHARIA, 
+9, São Pedro. Anais... São Paulo: Associação Brasileira de Geologia de Engenharia e Ambiental. 
+MANSO, A. P.; BARROS, M. S.S.; OLIVEIRA, M. L. N. Determinação de zonas homogêneas 
+através de sensoriamento remoto. São José dos Campos, INPE. 1978. 
+MENDES, R.M., VALÉRIO FILHO, M., BERTOLDO, M.A., SILVA, M.F. Estudos de limiares 
+críticos de chuva deflagradores de deslizamentos no município de São José dos Campos (Brasil). 
+In: Territorium. ed. 22, 2015, p. 119-129. 
+OLIVEIRA, T.A.; RIEDEL, P. S.; VEDOVELLO, R.; SOUZA, C. R. G.; BROLLO, M. J. Utilização 
+de técnicas de fotointerpretação na compartimentação fisiográfica do município de Cananéia, 
+SP: apoio ao planejamento territorial e urbano. Geociências  (São Paulo), v. 26, p. 55 -65, 2007. 
+Disponível em: http://www.revistageociencias.com.br/26_1/Art%206%20Thomaz.pdf 
+ONU-ISDR. Terminology in disaster risk reduction . 2017. Disponível em: 
+<https://goo.gl/a2CMDE>. 
+PARIZZI, M.G.; SEBASTIÃO, C.S.; VIANA, C.S.; PFLUEGER, M.C.; CAMPOS, L.C.; 
+CAJAZEIRO, J. M. D.; TOMICH, R.S.; GUIMARÃES, R.N.; ABREU, M.L.; SOBREIRA, F.G.; 
+REIS, R. 2010. Correlações entre chuvas e movimentos de massa no município de Belo 
+Horizonte, MG. Geografias (UFMG), 6(2): 49- 68. 
+PIERSON, L.A. The Rockfall Hazard Rating System . Report FHWA -OR-GT-92-05. Oregon 
+Department of Transportation. 1991. 
+PFAFSTETTER, O. Classificação de Bacias Hidrográficas – Metodologia de Codificação. Rio de 
+Janeiro, RJ: DNOS, 1989. 
+PINTO, H.S.; ORTOLANI, A.A.; ALFONSI, R.R. Estimativa das temperaturas médias mensais do 
+Estado de São Paulo em função da altitude e latitude. São Paulo: USP, 1972. 20p. 
+PORTO, M.F.A.; PORTO, R.L.L. Gestão de bacias hidrográficas. Estud. av., São Paulo, v. 22, 
+n. 63, p.  43-60, 2008. Disponível em: 
+<http://www.scielo.br/scielo.php?script=sci_arttext&pid=S0103-
+40142008000200004&lng=en&nrm=iso>. Acesso em 15  de junho de 2020. 
+http://dx.doi.org/10.1590/S0103-40142008000200004. 
+===== PAGE 38 =====
+36 
+ 
+ 
+ 
+ 
+PNUD - PROGRAMA DAS NAÇÕES UNIDAS PARA O DESENVOLVIMENTO. Atlas do 
+desenvolvimento humano no Brasil, 2014.  Disponível em: 
+<http://www.atlasbrasil.org.br/2013/pt/>. Acesso em: 03 de junho de 2020. 
+PRESENTATION PROCESS. Create stunning circular flow diagram easily. 2020. Disponível em: 
+<https://www.presentation-process.com/circular-flow-diagram.html>. Acesso em 23 de julho de 
+2020 
+RENNÓ, C.D.; NOBRE, A.D.; CUARTAS, L.A.; SOARES, J.V.; HODNETT, M.G.; TOMASELLA, 
+J; WATERLOO, M.J. HAND, a new terrain descriptor using SRTM -DEM: Mapping terra -firme 
+rainforest environments, in Amazonia. Remote Sensing of Environment . New York, v.112, n.9, 
+p.3469-3481, 2008. 
+ROSS, J. L. S; MOROZ, I. C. Mapa Geomorfológico do Estado de São Paulo. São Paulo , DG-
+FFLCH-USP, IPT, FAPESP, 1997. 
+ROSSI, M. Mapa Pedológico do Estado de São Paulo: revisado e ampliado. São Paulo: Instituto 
+Florestal, 2017. Disponível em:  
+https://www.infraestruturameioambiente.sp.gov.br/institutoflorestal/2017/09/mapa-pedologico-
+do-estado-de-sao-paulo-revisado-e-ampliado/ 
+ROSSINI-PENTEADO, D.; FERREIRA, C.J.; GIBERTI, P.P.C. Quantificação da vulnerabilidade 
+e dano aplicados ao mapeamento e análise de risco, escala 1:10.000, Ubatuba -SP. In: 
+SIMPÓSIO BRASILEIRO DE DESASTRES NATURAIS E TECNOLÓGIC OS, 2, 2007, Santos 
+SP. Anais... São Paulo: Associação Brasileira de Geologia de Engenharia e Ambiental, 2007. 
+CD-ROM. 
+SALAROLI, I.S. Movimentos de Massa no Município de Vitória - ES: Inventário, caracterização e 
+indicativos de um modelo comportamental. 2003. Dissertação (Mestrado) - Universidade Federal 
+do Espírito Santo, Vitória, 2003. 
+SÃO PAULO (Estado). Plano Preventivo de Defesa Civil - PPDC específico para 
+Escorregamentos nas Encostas da Serra do Mar. DECRETO N. 42.565, DE 1 DE DEZEMBRO 
+DE 1997. Disponível em: <https://goo.gl/Ypkdgl>. 
+SENTELHAS, P.C.; SANTOS, D.L. dos; MACHADO, R.E. Water deficit and water surplus maps 
+for Brazil, based on FAO Penman -Monteith potential evapotranspiration . Revista Ambiente e 
+Água, v.3, p.28-42, 2008. 
+SCS – SOIL CONSERVATION SERVICE. A Method for Estimating Volume and Rate of Runoff 
+in Small Watersheds. Washington, D.C.: U.S. Department of Agriculture, 1973. 
+SCS – SOIL CONSERVATION SERVICE. National engineering handbook . Washington D.C.: 
+U.S. Department of Agriculture, sec. 4. 1972. 
+SILVA, A.M. & ALVARES, C.A. Levantamento de informações e estruturação de um banco de 
+dados sobre a erodibilidade de classes de solos no Estado de São Paulo. Revista Geociências, 
+UNESP, São Paulo, v. 24, n. 1, p. 33-41, 2005. 
+SINDUSCON – SINDICATO DA INDÚSTRIA DA CONSTRUÇÃO CIVIL DO ESTADO DE SÃO 
+PAULO. Custo Unitário Básico da Construção Civil. 2018. Consultado em outubro de 2018. 
+Disponível em:  https://www.sindusconsp.com.br/cub/ e https://www.sindusconsp.com.br/wp-
+content/uploads/2018/11/10-Outubro-2018-Desonerado.pdf. 
+SOARES E.P. 2006. Caracterização da precipitação na região de Angra dos Reis e a sua relação 
+com a ocorrência de deslizamentos de encostas. Dissertação de Mestrado. Universidade Federal 
+do Rio de Janeiro. 145p. 
+===== PAGE 39 =====
+37 
+ 
+ 
+ 
+ 
+SOARES E.P. & MARTON E. 2006. Relação entre precipitação e deslizamentos de encostas na 
+região de Angra dos Rei s. In: CONGRESSO BRASILEIRO DE METEOROLOGIA, 14, 
+Florianópolis. Anais... Rio de Janeiro: Sociedade Brasileira de Meteorologia. Disponível em: 
+https://goo.gl/BHHFnk. Acessado em: 29 jun. 2015. 
+TATIZANA C., OGURA A.T., CERRI L.E.S., ROCHA M.C.M. 1987a. Análise de Correlação entre 
+Chuvas e Deslizamentos – Serra do Mar – Município de Cubatão. In: CONGRESSO 
+BRASILEIRO DE GEOLOGIA E ENGENHARIA, 5, São Paulo. Anais... São Paulo: Associação 
+Brasileira de Geologia de Engenharia e Ambiental, 2: 225-236. 
+TATIZANA, C., OGURA, A.T., CERRI, L.E.S., ROCHA M.C.M. 1987b. Modelamento Numérico 
+da Análise de Correlação entre Chuvas e Deslizamentos aplicados à Encosta da Serra do Mar. 
+In: CONGRESSO BRASILEIRO DE GEOLOGIA E ENGENHARIA,5, São Paulo.Anais… São 
+Paulo: Associação Brasileira de Geologia de Engenharia e Ambiental, 2: 237-248. 
+THORNTHWAITE, C.W.; MATHER, J.R. The water balance. New Jersey: Centerton, 1955. 104p. 
+(Publications in Climatology, v.8, n.1). 
+TOMINAGA, L.K.; FERREIRA, C.J.; VEDOVELLO, R.; TAVARES, R.; SANTORO, J. & SOUZA, 
+C.R. de G. Cartas de perigo a escorregamentos e de risco a pessoas e bens do Litoral Norte de 
+São Paulo: conceitos e técnicas. In: PEJON, O.; ZUQUETTE, L. (eds.): SIMPÓSIO BRASILEIRO 
+DE CARTOGRAFIA GEOTÉCNICA E GEOAMBIENTAL, 5, 2004, São Carlos . Anais... São 
+Paulo: Associação Brasileira de Geologia de Engenharia e Ambiental, 2004. CD -ROM, p. 205-
+216. 
+TOMINAGA, L; ROSSINI -PENTEADO, D; FERREIRA, CJ; VEDOVELLO, R. Mapeamento de 
+Risco a Escorregamentos na Escala 1:10.000: Abordagem Metodológica Apli cada em Ubatuba, 
+SP. In: Simpósio Nacional de Geomorfologia, VII, e Encontro Latino -Americano de 
+Geomorfologia, 2, Belo Horizonte, 01 a 08 de agosto de 2008. Anais..., Instituto de Geociências, 
+Universidade Federal de Minas Gerais, 2008. 
+TURCOTTE, R.; FORTIN, J.P.; ROUSSEAU, A.N.; MASSICOTTE, S.; VILLENEUVE, J.P. 
+Determination of the drainage structure of a watershed using a digital elevation model and a digital 
+river and lake network. Journal of Hydrology, Amsterdam, v.240, n.3, p.225-242, 2001. 
+TURNER, B.L.; NIELSEN, T.H. Influence of rainfall and ancient landslides deposits on recent 
+landslides. Geological Survey Bulletin, Washington, n.1388, 18p, 1975. 
+UNDRO - UNITED NATIONS DISASTER RELIEF ORGANIZATION. Mitigation natural disasters: 
+phenomena, effects and options. A manual for policy makers and planners . Office of the United 
+Nations Disaster Relief Coordinator, Geneva. 1991. 
+UN-ISDR – UNITED NATIONS INTERNATIONAL STRATEGY FOR DISASTER REDUCTION. 
+International Strategy for Disaster Reduc tion. 2009. Terminology on Disaster Risk Reduction . 
+Disponível em http://www.unisdr.org/we/inform/terminology 
+UN-ISDR – UNITED NATIONS INTERNATIONAL STRATEGY FOR DISASTER REDUCTION. 
+Sendai Framework for Disaster Risk Reduction - 2015 - 2030. Geneva. 2015. 
+UN-SPIDER – SPACE-BASED INFORMATION FOR DISASTER MANAGEMENT AND 
+EMERGENCY RESPONSE. Disaster Risk Management . Disponível em  http://www.un-
+spider.org/risks-and-disasters/disaster-risk-management. 
+VALENCIO, N.; SIENA, M.; MARCHEZINI, V.; GONÇALVES, J. C. Sociologia dos desastres – 
+Construção, interfaces e perspectivas no Brasil. São Carlos: RiMa Editora, 2009. 
+===== PAGE 40 =====
+38 
+ 
+ 
+ 
+ 
+VALERIANO, M.M. Dados topográficos. In: FLORENZANO, T.G. (Org.). Geomorfologia, 
+conceitos e tecnologias atuais. São Paulo: Oficina de Textos, 2008. p. 72-104. 
+VASCONCELLOS, P. FAN - Formação de Analistas de Negócios. 2019. 
+VEDOVELLO, R. Modelagem e Arquitetura de um Sistema Gerenciador de Informações 
+Geoambientais (SGIG) como Produto de Avaliações Geológico -geotécnicas. In: 10º Congresso 
+Brasileiro de Geologia de Engenharia e Ambiental, 2002, Ouro Preto, MG. 
+VEDOVELLO, R. Zoneamento geotécnicos aplicados à gestão ambiental, a partir de Unidades 
+Básicas de Compartimentação - UBSs. Rio Claro (SP); 2000. [Tese de Doutoramento - Instituto 
+de Geociências e Ciências Exatas da UNESP]. 154p. 
+VIEIRA, R. Um olhar sobre a paisagem e o lugar como expressão do comportamento frente ao 
+risco de deslizamento. 2004. 197f. Tese (Doutorado) – Departamento de Geociências, 
+Universidade Federal de Santa Catarina, UFSC, Florianópolis, 2004. 
+VILA D. A.; SCOFIELD R. A.; KULIGOWSKI R.J.; DAVENPORT J. C.; Satellite rainfall estimation 
+over South America: Evaluation of two major events . NOAA Technical Reports n. 114, US 
+Department of Commerce, Washington, D.C, June 2003. 
+WATT, W.E., & CHOW, K.C. (1985). A general expression for basin lag time . Canadian Journal 
+of Civil Engineering, 12, 294-300. 
+WORLD BANK. Melhoria da Resiliência Climática da Malha Rodoviária Federal Brasileira, maio 
+de 2019. 2019. 
+XAVIER, H. Percepção geo gráfica dos deslizamentos de encostas em áreas de risco  no 
+município de Belo Horizonte, MG. 1996. 222f. Tese (Doutorado) - Departamento de Geografia, 
+Universidade Estadual Paulista, UNESP, Rio Claro, 1996. 
+ZÊZERE, J.L.; RODRIGUES, M.L.; FERREIRA, A.B. Recent landslide activity in relation to rainfall 
+in the Lisbon region (Portugal). Geophysical Research Abstracts, v.5, 2003. 
+ 
+  
+===== PAGE 41 =====
+39 
+ 
+ 
+ 
+ 
+9 EQUIPE TÉCNICA 
+Os documentos referentes à “Anotação de Responsabilidade Técnica - ART”, para execução 
+deste projeto são apresentados no ANEXO A. 
+Geólogo Dr. Fernando Facciolla Kertzman 
+Geólogo MSc. Fernando Machado Alves 
+Engenheiro Civil Dr. José Mauro Marquez 
+Analista de Sistema Bruno Alexandre Araújo 
+Analista de Sistema Brunno Pirani Bassan 
+Geólogo MSc. Guilherme Nunes Fernandez 
+Geólogo Pedro Machado Simões 
+Geógrafo Esp. Adão Aparecido Lanzieri Modesto 
+Geógrafa MSc. Mariana Guarnier Fagundes 
+Analista de Sistema Diego dos Santos Rodrigues 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Geólogo Dr. Fernando Facciolla Kertzman 
+CREA 0601488426 
+Coordenador do Projeto 
+ 
+ 
+
+===== PAGE 42 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ANEXOS 
+  
+===== PAGE 43 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ANEXO A 
+Anotação de Responsabilidade Técnica – ART 
+ 
+  
+===== PAGE 44 =====
+4. Atividade Técnica
+2. Dados do Contrato
+5. Observações
+Lei nº 6.496, de 7 de dezembro de 1977
+CREA-SP
+ART de Obra ou Serviço
+Conselho Regional de Engenharia e Agronomia do Estado de São Paulo
+28027230200933935
+1. Responsável Técnico
+ADAO APARECIDO LANZIERI MODESTO
+Título Profissional:
+Geógrafo
+RNP:
+Registro:
+5062571782-SP
+2605315150
+Contratante:
+DEPARTAMENTO DE ESTRADAS DE RODAGEM DO ESTADO SP DER/ SP
+CPF/
+CNPJ
+:
+43.052.497/0001-02
+Avenida AVENIDA DO ESTADO 777
+N°:
+777
+Complemento:
+Cidade:
+São Paulo
+UF:
+Bairro:
+BOM RETIRO
+SP
+CEP:
+01107-901
+Vinculada à Art n°:
+20595-3
+Contrato:
+Quantidade
+Unidade
+Execução
+1
+Análise
+Plano
+Gerenciamento de 
+Risco
+229,70000
+quilômetro
+Coleta de Dados
+Processamento
+Dados e 
+Informações 
+Cartográficas
+229,70000
+quilômetro
+Após a conclusão das atividades técnicas o profissional deverá proceder a baixa desta ART
+Empresa Contratada:
+REGEA GEOLOGIA ENGENHARIA E ESTUDOS AMBIENTAIS LTDA
+Registro:
+0694810-SP
+Celebrado em:
+21/07/2020
+Valor: R$
+733.152,33
+Tipo de Contratante:
+Pessoa Jurídica de Direito Público
+Ação Institucional:
+Equipe-vinculada à 28027230200922052
+Anotação de Responsabilidade Técnica - ART
+Endereço:
+Endereço:  
+Avenida AVENIDA DO ESTADO 777
+N°: 
+777
+Complemento: 
+Bairro: 
+BOM RETIRO
+Cidade: 
+São Paulo
+UF: 
+SP
+CEP: 
+01107-901
+Data de Início: 
+03/08/2020
+Previsão de Término: 
+21/04/2021
+Coordenadas Geográficas: 
+Finalidade: 
+Ambiental 
+Código: 
+CPF/CNPJ: 
+3. Dados da Obra Serviço
+PARTICIPAÇÃO NA EQUIPE TÉCNICA DA COLETA E PROCESSAMENTO DE DADOS E DE ANALISE E GESTÃO DE RISCO.
+6. Declarações
+Acessibilidade: Declaro atendimento às regras de acessibilidade previstas nas normas técnicas da ABNT, na legislação específica e no 
+Decreto nº 5.296, de 2 de dezembro de 2004.
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 1/2
+
+===== PAGE 45 =====
+Valor ART R$
+Registrada em:
+Valor Pago R$
+Nosso Numero:
+88,78
+12/08/2020
+88,78
+28027230200933935
+Versão do sistema
+8. Assinaturas
+Declaro serem verdadeiras as informações acima
+de
+de
+Local
+data
+DEPARTAMENTO DE ESTRADAS DE RODAGEM DO ESTADO SP DER/ SP - 
+CPF/CNPJ: 43.052.497/0001-02
+ADAO APARECIDO LANZIERI MODESTO - CPF: 299.986.968-10
+SINDICATO DOS GEÓLOGOS NO ESTADO DE SÃO PAULO - SIGESP
+7. Entidade de Classe
+9. Informações
+- A autenticidade deste documento pode ser verificada no site 
+www.creasp.org.br ou www.confea.org.br
+- A presente ART encontra-se devidamente quitada conforme dados 
+constantes no rodapé-versão do sistema,  certificada pelo 
+Nosso Número
+.
+- A guarda da via assinada da ART será de responsabilidade do profissional 
+e do contratante com o objetivo de documentar o vínculo contratual.
+www.creasp.org.br
+Tel: 0800 17 18 11
+E-mail: acessar link Fale Conosco do site acima
+Impresso em: 12/08/2020 14:05:47
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 2/2
+
+===== PAGE 46 =====
+
+===== PAGE 47 =====
+
+===== PAGE 48 =====
+
+===== PAGE 49 =====
+
+===== PAGE 50 =====
+4. Atividade Técnica
+2. Dados do Contrato
+5. Observações
+Lei nº 6.496, de 7 de dezembro de 1977
+CREA-SP
+ART de Obra ou Serviço
+Conselho Regional de Engenharia e Agronomia do Estado de São Paulo
+28027230200926201
+1. Responsável Técnico
+FERNANDO MACHADO ALVES
+Título Profissional:
+Geólogo
+RNP:
+Registro:
+5062119280-SP
+2606623274
+Contratante:
+Departamento de Estradas de Rodagem do Estado de São Paulo ? DER/SP
+CPF/
+CNPJ
+:
+43.052.497/0001-02
+Avenida AVENIDA DO ESTADO 777
+N°:
+777
+Complemento:
+Cidade:
+São Paulo
+UF:
+Bairro:
+BOM RETIRO
+SP
+CEP:
+01107-901
+Vinculada à Art n°:
+20595-3
+Contrato:
+Quantidade
+Unidade
+Coordenação
+1
+Desenvolvimento
+Estudos Geotécnicos
+229700,00000
+quilômetro
+Após a conclusão das atividades técnicas o profissional deverá proceder a baixa desta ART
+Empresa Contratada:
+REGEA GEOLOGIA ENGENHARIA E ESTUDOS AMBIENTAIS LTDA
+Registro:
+0694810-SP
+Celebrado em:
+21/07/2020
+Valor: R$
+733.152,33
+Tipo de Contratante:
+Pessoa Jurídica de Direito Público
+Ação Institucional:
+Anotação de Responsabilidade Técnica - ART
+Endereço:
+Endereço:  
+Avenida AVENIDA DO ESTADO 777
+N°: 
+777
+Complemento: 
+Bairro: 
+BOM RETIRO
+Cidade: 
+São Paulo
+UF: 
+SP
+CEP: 
+01107-901
+Data de Início: 
+27/07/2020
+Previsão de Término: 
+27/04/2021
+Coordenadas Geográficas: 
+Finalidade: 
+Ambiental 
+Código: 
+CPF/CNPJ: 
+3. Dados da Obra Serviço
+CONTRATAÇÃO DE SERVIÇOS TÉCNICOS ESPECIALIZADOS PARA ELABORAÇÃO DE PLANOS DE CONTINGENCIA FRENTE A RISCOS DE EVENTOS GEODINÂMICOS EM 
+TRECHOS RODOVIÁRIOS SELECIONADOS DAS UNIDADES BÁSICAS DE ATENDIMENTO (UBAs), de CARAGUATATUBA, MOGI DAS CRUZES E ASO VICENTE NO ESTADO DE 
+SÃO PAULO. EDITAL SDP 064/2019
+6. Declarações
+Acessibilidade: Declaro atendimento às regras de acessibilidade previstas nas normas técnicas da ABNT, na legislação específica e no 
+Decreto nº 5.296, de 2 de dezembro de 2004.
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 1/2
+
+===== PAGE 51 =====
+Valor ART R$
+Registrada em:
+Valor Pago R$
+Nosso Numero:
+233,94
+11/08/2020
+233,94
+28027230200926201
+Versão do sistema
+8. Assinaturas
+Declaro serem verdadeiras as informações acima
+de
+de
+Local
+data
+Departamento de Estradas de Rodagem do Estado de São Paulo ? DER/SP 
+- CPF/CNPJ: 43.052.497/0001-02
+FERNANDO MACHADO ALVES - CPF: 212.705.008-80
+SINDICATO DOS GEÓLOGOS NO ESTADO DE SÃO PAULO - SIGESP
+7. Entidade de Classe
+9. Informações
+- A autenticidade deste documento pode ser verificada no site 
+www.creasp.org.br ou www.confea.org.br
+- A presente ART encontra-se devidamente quitada conforme dados 
+constantes no rodapé-versão do sistema,  certificada pelo 
+Nosso Número
+.
+- A guarda da via assinada da ART será de responsabilidade do profissional 
+e do contratante com o objetivo de documentar o vínculo contratual.
+www.creasp.org.br
+Tel: 0800 17 18 11
+E-mail: acessar link Fale Conosco do site acima
+Impresso em: 12/08/2020 15:20:45
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 2/2
+
+===== PAGE 52 =====
+4. Atividade Técnica
+2. Dados do Contrato
+5. Observações
+Lei nº 6.496, de 7 de dezembro de 1977
+CREA-SP
+ART de Obra ou Serviço
+Conselho Regional de Engenharia e Agronomia do Estado de São Paulo
+28027230200933009
+1. Responsável Técnico
+FERNANDO MACHADO ALVES
+Título Profissional:
+Geólogo
+RNP:
+Registro:
+5062119280-SP
+2606623274
+Contratante:
+Departamento de Estradas de Rodagem do Estado de São Paulo ? DER/SP
+CPF/
+CNPJ
+:
+43.052.497/0001-02
+Avenida AVENIDA DO ESTADO 777
+N°:
+777
+Complemento:
+Cidade:
+São Paulo
+UF:
+Bairro:
+BOM RETIRO
+SP
+CEP:
+01107-901
+Vinculada à Art n°:
+20595-3
+Contrato:
+Quantidade
+Unidade
+Coordenação
+1
+Desenvolvimento
+Estudos Geotécnicos
+229,70000
+quilômetro
+Após a conclusão das atividades técnicas o profissional deverá proceder a baixa desta ART
+Empresa Contratada:
+REGEA GEOLOGIA ENGENHARIA E ESTUDOS AMBIENTAIS LTDA
+Registro:
+0694810-SP
+Celebrado em:
+21/07/2020
+Valor: R$
+733.152,33
+Tipo de Contratante:
+Pessoa Jurídica de Direito Público
+Ação Institucional:
+Anotação de Responsabilidade Técnica - ART
+Endereço:
+Substituição retificadora à 28027230200926201
+Endereço:  
+Avenida AVENIDA DO ESTADO 777
+N°: 
+777
+Complemento: 
+Bairro: 
+BOM RETIRO
+Cidade: 
+São Paulo
+UF: 
+SP
+CEP: 
+01107-901
+Data de Início: 
+03/08/2020
+Previsão de Término: 
+21/04/2021
+Coordenadas Geográficas: 
+Finalidade: 
+Ambiental 
+Código: 
+CPF/CNPJ: 
+3. Dados da Obra Serviço
+COORDENAÇÃO DOS TRABALHOS DE ANALISE E GESTÃO DE RISCO.
+6. Declarações
+Acessibilidade: Declaro atendimento às regras de acessibilidade previstas nas normas técnicas da ABNT, na legislação específica e no 
+Decreto nº 5.296, de 2 de dezembro de 2004.
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 1/2
+
+===== PAGE 53 =====
+Valor ART R$
+Registrada em:
+Valor Pago R$
+Nosso Numero:
+0,00
+12/08/2020
+0,00
+28027230200933009
+Versão do sistema
+8. Assinaturas
+Declaro serem verdadeiras as informações acima
+de
+de
+Local
+data
+Departamento de Estradas de Rodagem do Estado de São Paulo ? DER/SP 
+- CPF/CNPJ: 43.052.497/0001-02
+FERNANDO MACHADO ALVES - CPF: 212.705.008-80
+SINDICATO DOS GEÓLOGOS NO ESTADO DE SÃO PAULO - SIGESP
+7. Entidade de Classe
+9. Informações
+- A autenticidade deste documento pode ser verificada no site 
+www.creasp.org.br ou www.confea.org.br
+- A presente ART encontra-se devidamente quitada conforme dados 
+constantes no rodapé-versão do sistema,  certificada pelo 
+Nosso Número
+.
+- A guarda da via assinada da ART será de responsabilidade do profissional 
+e do contratante com o objetivo de documentar o vínculo contratual.
+www.creasp.org.br
+Tel: 0800 17 18 11
+E-mail: acessar link Fale Conosco do site acima
+Impresso em: 12/08/2020 10:49:59
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 2/2
+
+===== PAGE 54 =====
+4. Atividade Técnica
+2. Dados do Contrato
+5. Observações
+Lei nº 6.496, de 7 de dezembro de 1977
+CREA-SP
+ART de Obra ou Serviço
+Conselho Regional de Engenharia e Agronomia do Estado de São Paulo
+28027230200933616
+1. Responsável Técnico
+GUILHERME NUNES FERNANDEZ
+Título Profissional:
+Geólogo
+RNP:
+Registro:
+5069082361-SP
+2612108491
+Contratante:
+DEPARTAMENTO DE ESTRADAS DE RODAGEM DO EST. SP - DER/SP
+CPF/
+CNPJ
+:
+43.052.497/0001-02
+Avenida AVENIDA DO ESTADO 777
+N°:
+777
+Complemento:
+Cidade:
+São Paulo
+UF:
+Bairro:
+BOM RETIRO
+SP
+CEP:
+01107-901
+Vinculada à Art n°:
+205953
+Contrato:
+Quantidade
+Unidade
+Execução
+1
+Análise
+Risco Geológico
+229,70000
+quilômetro
+Coleta de Dados
+Processamento
+Dados e 
+Informações 
+Cartográficas
+229,70000
+quilômetro
+Análise
+Plano
+Gerenciamento de 
+Risco
+229,70000
+quilômetro
+Após a conclusão das atividades técnicas o profissional deverá proceder a baixa desta ART
+Empresa Contratada:
+REGEA GEOLOGIA ENGENHARIA E ESTUDOS AMBIENTAIS LTDA
+Registro:
+0694810-SP
+Celebrado em:
+21/07/2020
+Valor: R$
+733.152,33
+Tipo de Contratante:
+Pessoa Jurídica de Direito Público
+Ação Institucional:
+Equipe-vinculada à 28027230200922052
+Anotação de Responsabilidade Técnica - ART
+Endereço:
+Endereço:  
+Avenida AVENIDA DO ESTADO 777
+N°: 
+777
+Complemento: 
+Bairro: 
+BOM RETIRO
+Cidade: 
+São Paulo
+UF: 
+SP
+CEP: 
+01107-901
+Data de Início: 
+03/08/2020
+Previsão de Término: 
+21/04/2021
+Coordenadas Geográficas: 
+Finalidade: 
+Ambiental 
+Código: 
+CPF/CNPJ: 
+3. Dados da Obra Serviço
+PARTICIPAÇÃO NA EQUIPE TÉCNICA DE COLETA E PROCESSAMENTO DE DADOS E DE ANALISE E GESTÃO DE RISCO.
+6. Declarações
+Acessibilidade: Declaro atendimento às regras de acessibilidade previstas nas normas técnicas da ABNT, na legislação específica e no 
+Decreto nº 5.296, de 2 de dezembro de 2004.
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 1/2
+
+===== PAGE 55 =====
+Valor ART R$
+Registrada em:
+Valor Pago R$
+Nosso Numero:
+88,78
+12/08/2020
+88,78
+28027230200933616
+Versão do sistema
+8. Assinaturas
+Declaro serem verdadeiras as informações acima
+de
+de
+Local
+data
+DEPARTAMENTO DE ESTRADAS DE RODAGEM DO EST. SP - DER/SP - 
+CPF/CNPJ: 43.052.497/0001-02
+GUILHERME NUNES FERNANDEZ - CPF: 380.809.198-36
+SINDICATO DOS GEÓLOGOS NO ESTADO DE SÃO PAULO - SIGESP
+7. Entidade de Classe
+9. Informações
+- A autenticidade deste documento pode ser verificada no site 
+www.creasp.org.br ou www.confea.org.br
+- A presente ART encontra-se devidamente quitada conforme dados 
+constantes no rodapé-versão do sistema,  certificada pelo 
+Nosso Número
+.
+- A guarda da via assinada da ART será de responsabilidade do profissional 
+e do contratante com o objetivo de documentar o vínculo contratual.
+www.creasp.org.br
+Tel: 0800 17 18 11
+E-mail: acessar link Fale Conosco do site acima
+Impresso em: 12/08/2020 13:58:10
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 2/2
+
+===== PAGE 56 =====
+4. Atividade Técnica
+2. Dados do Contrato
+5. Observações
+Lei nº 6.496, de 7 de dezembro de 1977
+CREA-SP
+ART de Obra ou Serviço
+Conselho Regional de Engenharia e Agronomia do Estado de São Paulo
+28027230200933205
+1. Responsável Técnico
+PEDRO MACHADO SIMOES
+Título Profissional:
+Geólogo
+RNP:
+Registro:
+5060927396-SP
+2606549120
+Contratante:
+DEPARTAMENTO DE ESTRADAS DE RODAGEM DO EST. SP - DER/SP
+CPF/
+CNPJ
+:
+43.052.497/0001-02
+Avenida AVENIDA DO ESTADO 777
+N°:
+777
+Complemento:
+Cidade:
+São Paulo
+UF:
+Bairro:
+BOM RETIRO
+SP
+CEP:
+01107-901
+Vinculada à Art n°:
+205953
+Contrato:
+Quantidade
+Unidade
+Condução de 
+equipe
+1
+Coleta de Dados
+Processamento
+Dados e 
+Informações 
+Cartográficas
+229,70000
+quilômetro
+Direção de 
+Serviço Técnico
+2
+Execução
+Geologia Urbana
+229,70000
+quilômetro
+Após a conclusão das atividades técnicas o profissional deverá proceder a baixa desta ART
+Empresa Contratada:
+REGEA GEOLOGIA ENGENHARIA E ESTUDOS AMBIENTAIS LTDA
+Registro:
+0694810-SP
+Celebrado em:
+21/07/2020
+Valor: R$
+733.152,33
+Tipo de Contratante:
+Pessoa Jurídica de Direito Público
+Ação Institucional:
+Equipe-vinculada à 28027230200922052
+Anotação de Responsabilidade Técnica - ART
+Endereço:
+Endereço:  
+Avenida AVENIDA DO ESTADO 777
+N°: 
+777
+Complemento: 
+Bairro: 
+BOM RETIRO
+Cidade: 
+São Paulo
+UF: 
+SP
+CEP: 
+01107-901
+Data de Início: 
+03/08/2020
+Previsão de Término: 
+21/04/2021
+Coordenadas Geográficas: 
+Finalidade: 
+Ambiental 
+Código: 
+CPF/CNPJ: 
+3. Dados da Obra Serviço
+PARTICIPAÇÃO NA EQUIPE TÉCNICA DE COLETA E PROCESSAMENTO DE DADOS E DE ANALISE E GESTÃO RISCO.
+6. Declarações
+Acessibilidade: Declaro atendimento às regras de acessibilidade previstas nas normas técnicas da ABNT, na legislação específica e no 
+Decreto nº 5.296, de 2 de dezembro de 2004.
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 1/2
+
+===== PAGE 57 =====
+Valor ART R$
+Registrada em:
+Valor Pago R$
+Nosso Numero:
+88,78
+12/08/2020
+88,78
+28027230200933205
+Versão do sistema
+8. Assinaturas
+Declaro serem verdadeiras as informações acima
+de
+de
+Local
+data
+DEPARTAMENTO DE ESTRADAS DE RODAGEM DO EST. SP - DER/SP - 
+CPF/CNPJ: 43.052.497/0001-02
+PEDRO MACHADO SIMOES - CPF: 253.259.978-23
+SINDICATO DOS GEÓLOGOS NO ESTADO DE SÃO PAULO - SIGESP
+7. Entidade de Classe
+9. Informações
+- A autenticidade deste documento pode ser verificada no site 
+www.creasp.org.br ou www.confea.org.br
+- A presente ART encontra-se devidamente quitada conforme dados 
+constantes no rodapé-versão do sistema,  certificada pelo 
+Nosso Número
+.
+- A guarda da via assinada da ART será de responsabilidade do profissional 
+e do contratante com o objetivo de documentar o vínculo contratual.
+www.creasp.org.br
+Tel: 0800 17 18 11
+E-mail: acessar link Fale Conosco do site acima
+Impresso em: 12/08/2020 14:01:59
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 2/2
+
+===== PAGE 58 =====
+4. Atividade Técnica
+2. Dados do Contrato
+5. Observações
+Lei nº 6.496, de 7 de dezembro de 1977
+CREA-SP
+ART de Obra ou Serviço
+Conselho Regional de Engenharia e Agronomia do Estado de São Paulo
+28027230200932650
+1. Responsável Técnico
+TOBIAS REHDER DA CUNHA PATUCI
+Título Profissional:
+Engenheiro Cartógrafo
+RNP:
+Registro:
+5070306026-SP
+2617775119
+Contratante:
+Departamento de Estradas de Rodagem do Estado de São Paulo
+CPF/
+CNPJ
+:
+43.052.497/0001-02
+Avenida AVENIDA DO ESTADO 777
+N°:
+777
+Complemento:
+Cidade:
+São Paulo
+UF:
+Bairro:
+BOM RETIRO
+SP
+CEP:
+01107-901
+Vinculada à Art n°:
+205953
+Contrato:
+Quantidade
+Unidade
+Execução
+1
+Análise
+Plano
+Gerenciamento de 
+Risco
+229,70000
+quilômetro
+Análise
+Risco Geológico
+229,70000
+quilômetro
+Coleta de Dados
+Processamento
+Dados e 
+Informações 
+Cartográficas
+229,70000
+quilômetro
+Após a conclusão das atividades técnicas o profissional deverá proceder a baixa desta ART
+Empresa Contratada:
+REGEA GEOLOGIA ENGENHARIA E ESTUDOS AMBIENTAIS LTDA
+Registro:
+0694810-SP
+Celebrado em:
+21/07/2020
+Valor: R$
+733.152,33
+Tipo de Contratante:
+Pessoa Jurídica de Direito Público
+Ação Institucional:
+Equipe-vinculada à 28027230200922052
+Anotação de Responsabilidade Técnica - ART
+Endereço:
+Endereço:  
+Avenida AVENIDA DO ESTADO 777
+N°: 
+777
+Complemento: 
+Bairro: 
+BOM RETIRO
+Cidade: 
+São Paulo
+UF: 
+SP
+CEP: 
+01107-901
+Data de Início: 
+03/08/2020
+Previsão de Término: 
+21/04/2021
+Coordenadas Geográficas: 
+Finalidade: 
+Ambiental 
+Código: 
+CPF/CNPJ: 
+3. Dados da Obra Serviço
+Participação na Equipe Técnica de Coleta e Processamento de Dados e de Análise e Gestão de Risco.
+6. Declarações
+Acessibilidade: Declaro atendimento às regras de acessibilidade previstas nas normas técnicas da ABNT, na legislação específica e no 
+Decreto nº 5.296, de 2 de dezembro de 2004.
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 1/2
+
+===== PAGE 59 =====
+Valor ART R$
+Registrada em:
+Valor Pago R$
+Nosso Numero:
+88,78
+12/08/2020
+88,78
+28027230200932650
+Versão do sistema
+8. Assinaturas
+Declaro serem verdadeiras as informações acima
+de
+de
+Local
+data
+Departamento de Estradas de Rodagem do Estado de São Paulo - 
+CPF/CNPJ: 43.052.497/0001-02
+TOBIAS REHDER DA CUNHA PATUCI - CPF: 383.425.848-28
+SINDICATO DOS GEÓLOGOS NO ESTADO DE SÃO PAULO - SIGESP
+7. Entidade de Classe
+9. Informações
+- A autenticidade deste documento pode ser verificada no site 
+www.creasp.org.br ou www.confea.org.br
+- A presente ART encontra-se devidamente quitada conforme dados 
+constantes no rodapé-versão do sistema,  certificada pelo 
+Nosso Número
+.
+- A guarda da via assinada da ART será de responsabilidade do profissional 
+e do contratante com o objetivo de documentar o vínculo contratual.
+www.creasp.org.br
+Tel: 0800 17 18 11
+E-mail: acessar link Fale Conosco do site acima
+Impresso em: 12/08/2020 14:16:07
+Resolução nº 1.025/2009 - Anexo I - Modelo A
+Página 2/2
+
+===== PAGE 60 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ANEXO B 
+Cronograma Detalhado de atividades do projeto 
+ 
+ 
+  
+===== PAGE 61 =====
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
+3/8 10/8 17/8 24/8 31/8 7/9 14/9 21/9 28/9 5/10 12/10 19/10 26/10 2/11 9/11 16/11 23/11 30/11 7/12 14/12 21/12 28/12 4/1 11/1 18/1 25/1 1/2 8/2 15/2 22/2 1/3 8/3 15/3 22/3 29/3 5/4 12/4 19/4 26/4
+7/8 14/8 21/8 28/8 4/9 11/9 18/9 25/9 2/10 9/10 16/10 23/10 30/10 6/11 13/11 20/11 27/11 4/12 11/12 18/12 25/12 1/1 8/1 15/1 22/1 29/1 5/2 12/2 19/2 26/2 5/3 12/3 19/3 26/3 2/4 9/4 16/4 23/4 30/4
+D-0 Etapa Preparatória - Plano de Trabalho Detalhado 1,43 10,00 13/08/2020
+D-0.1 Produto 1 - Elaboração do plano de trabalho detalhado 1,43 10,00 13/08/2020
+D-0.1.a Reuniões Técnicas, Oficinas e Treinamentos 0,14 1,00 06/08/2020
+D-0.1.b Estudo e estruturação do conhecimento do objeto do contrato 1,43 10,00 13/08/2020
+D-0.1.c Detalhamento das atividades que serão envolvidas no projeto e orientação da Área Técnica do 
+Contratante para a execução do projeto 1,43 10,00 13/08/2020
+D-0.1.d Incorporação das informações complementares obtidas após orientação da Área Técnica do 
+Contratante e ajuste de metodologia 1,43 10,00 13/08/2020
+D-0.1.e Submissão do Plano de Trabalho do projeto à Área Técnica do Contratante para avaliação de 
+qualidade 0,14 1,00 13/08/2020
+D-0.1.f Análise dos produtos pelo Contratante 1,71 12,00 27/08/2020
+D-0.1.g Apresentação e discussão dos produtos da Etapa Preparatória 0,14 1,00 27/08/2020
+D-0.1.h Realização de ajustes nos produtos da Etapa Preparatória 2,14 15,00 11/09/2020
+D-0.1.i Apresentação da versão final dos produtos da Etapa Preparatória 0,14 1,00 11/09/2020
+D-1 Etapa 1 - Histórico de Eventos e Desastres, Índices Meteorológicos Críticos, Análise de 
+Risco e Capacidade Institucional 17,00 119,00 03/12/2020
+D-1.1 Produto 2 - Cadastro de ocorrências de eventos geodinâmicos e desastres 7,00 49,00 18/09/2020
+D-1.1.a
+Análise e processamento dos 7.213 registros que compõem os dados oriundos do "Cadastro 
+georreferenciado de eventos geodinâmicos ocorridos no período entre 1993 e 2013 (21 anos) em 
+50 municípios das regiões metropolitanas de São Paulo e Baixada Santista e municípios de 
+Caraguatatuba, São Sebastião e Ubatuba"
+1,00 7,00 07/08/2020
+D-1.1.b Análise e processamento dos 393 registros não espacializados dos dados de 2014 a 2017 
+oriundos do "Cadastro de eventos e desastres do Estado de São Paulo" 2,00 14,00 14/08/2020
+D-1.1.c
+Levantamento e sistematização das informações oriundas do Sistema de Gestão de Atendimento 
+(SIGA) e do Sistema de Acidentes de Transporte (SAT), do DER, sobre acidentes de trânsito em 
+períodos de chuva intensa entre 2009 e 2017
+2,00 14,00 14/08/2020
+D-1.1.d
+Modelagem dos dados de registros que compõem os dados oriundos do "Cadastro 
+georreferenciado de eventos geodinâmicos ocorridos no período entre 1993 e 2013 (21 anos) em 
+50 municípios das regiões metropolitanas de São Paulo e Baixada Santista e municípios de 
+Caraguatatuba, São Sebastião e Ubatuba"
+1,14 8,00 18/09/2020
+D-1.1.e Espacialização dos registros obtidos nas subetapas D-1.1.b e D.1.1.c 3,00 21,00 21/08/2020
+D-1.1.f Trabalhos de campo para correlação e ajustes de espacialização dos dados 2,00 14,00 28/08/2020
+D-1.1.g Consolidação do Produto 2 - Cadastro de ocorrências de eventos geodinâmicos 4,00 28,00 18/09/2020
+D-1.2 Produto 3 - Modelo de correlação entre eventos e chuvas 8,00 56,00 25/09/2020
+D-1.2.a Levantamento e sistematização dos dados hidrográficos históricos 2,00 14,00 14/08/2020
+D-1.2.b Levantamento e sistematização dos dados históricos de chuvas 2,00 14,00 14/08/2020
+D-1.2.c Seleção das bases pluviométricas e hidrológicas para estabelecimento de correlações com 
+eventos geodinâmicos 2,00 14,00 14/08/2020
+D-1.2.d Definição de modelagem para correlação de chuvas com os eventos e desastres objeto do projeto 2,00 14,00 14/08/2020
+D-1.2.e Correlação dos dados históricos de chuvas x movimentos de massa e processos correlatos 2,00 14,00 21/08/2020
+D-1.2.f Correlação dos dados históricos de chuvas x inundações e processos correlatos 2,00 14,00 21/08/2020
+D-1.2.g Correlação dos dados históricos de chuvas x acidentes de trânsito em períodos de chuva intensa 2,00 14,00 21/08/2020
+D-1.2.h Determinação das envoltórias para movimentos de massa e processos correlatos e 
+estabelecimento dos índices de precipitação crítica 3,00 21,00 04/09/2020
+D-1.2.i Determinação das envoltórias para inundações e processos correlatos e estabelecimento dos 
+índices de precipitação crítica 3,00 21,00 04/09/2020
+D-1.2.j Determinação das envoltórias para acidentes de trânsito em períodos de chuva intensa e 
+estabelecimento dos índices de precipitação crítica 3,00 21,00 04/09/2020
+D-1.2.k Definição dos coeficientes de precipitação crítica (CPC) para os acidentes e eventos 
+geodinâmicos do projeto 3,00 21,00 18/09/2020
+D-1.2.l Consolidação do Produto 3 - Modelo de correlação de eventos geodinâmicos x chuvas intensas 3,00 21,00 25/09/2020
+D-1.3 Produto 4 - Análise de risco 10,00 70,00 09/10/2020
+D-1.3.a Definição de modelagem para análise e classificação do risco 2,00 14,00 14/08/2020
+D-1.3.b Validação da modelagem para análise e classificação de risco 2,00 14,00 28/08/2020
+D-1.3.c Análise, composição e normalização dos atributos relacionados ao perigo para os processos de 
+movimentos de massa estudados 2,00 14,00 28/08/2020
+D-1.3.d Análise, composição e normalização dos atributos relacionados ao perigo para os processos de 
+inundações e processos correlatos estudados 2,00 14,00 28/08/2020
+D-1.3.e Análise, composição e normalização dos atributos relacionados à vulnerabilidade para os 
+processos de movimentos de massa estudados 2,00 14,00 28/08/2020
+D-1.3.f Análise, composição e normalização dos atributos relacionados à vulnerabilidade para os 
+processos de inundações e processos correlatos estudados 2,00 14,00 28/08/2020
+D-1.3.g Análise, composição e normalização dos atributos relacionados ao dano para os processos de 
+movimentos de massa estudados 2,00 14,00 28/08/2020
+D-1.3.h Análise, composição e normalização dos atributos relacionados ao dano para os processos de 
+inundações e processos correlatos estudados 2,00 14,00 28/08/2020
+D-1.3.i Consolidação dos procedimentos de pesquisa e desenvolvimento para a classificação de risco 6,00 42,00 02/10/2020
+D-1.3.j Ponderação e cálculo dos índices e classes de perigo, vulnerabilidade, dano e risco 6,00 42,00 02/10/2020
+D-1.3.k Cartografia de risco da área de estudo 6,00 42,00 09/10/2020
+D-1.3.l Consolidação do Produto 4 - Análise de risco 6,00 42,00 09/10/2020
+D-1.4 Produto 5 - Análise do contexto institucional 13,00 91,00 30/10/2020
+D-1.4.a Revisão bibliográfica e elaboração de critérios e indicadores para análise da capacidade 
+institucional das UBAs 4,00 28,00 28/08/2020
+D-1.4.b Realização de entrevistas e preenchimento de questionários de levantamento de dados 4,00 28,00 04/09/2020
+D-1.4.c Análise da estrutura institucional das UBAs 6,00 42,00 25/09/2020
+D-1.4.d Estrutura organizacional 6,00 42,00 02/10/2020
+D-1.4.e Instrumentos de gestão 6,00 42,00 02/10/2020
+D-1.4.f Diagnóstico da capacidade institucional 8,00 56,00 30/10/2020
+D-1.4.g Consolidação do Produto 5 - Estudo da estrutura e contexto organizacional, RH e materiais das 
+UBAs 8,00 56,00 30/10/2020
+D-1.5 Elaboração do relatório consolidado da Etapa 1, abrangendo os Produtos 2, 3, 4 e 5 18,00 126,00 03/12/2020
+D-1.5.a Reuniões Técnicas, Oficinas e Treinamentos 0,14 1,00 07/08/2020
+D-1.5.b Estudo e estruturação do conhecimento do objeto do contrato 17,00 119,00 20/11/2020
+D-1.5.c Detalhamento das atividades que serão envolvidas no projeto e orientação da Área Técnica do 
+Contratante para a execução do projeto 18,00 126,00 27/11/2020
+D-1.5.d Incorporação das informações complementares obtidas após orientação da Área Técnica do 
+Contratante e ajuste de metodologia 16,00 112,00 20/11/2020
+D-1.5.e Submissão do Relatório Consolidado da Etapa 1 do projeto à Área Técnica do Contratante para 
+avaliação de qualidade 0,14 1,00 03/12/2020
+D-1.5.f Análise dos produtos pelo Contratante 1,71 12,00 17/12/2020
+D-1.5.g Apresentação e discussão dos produtos da Etapa 1 0,14 1,00 17/12/2020
+D-1.5.h Realização de ajustes nos produtos da Etapa 1 2,14 15,00 01/01/2021
+D-1.5.i Apresentação da versão final dos produtos da Etapa 1 0,14 1,00 01/01/2021
+D-2 Etapa 2 - Implantação do Sistema Automatizado de Análise, Monitoramento e Alerta 26,00 182,00 03/02/2021
+D-2.1 Produto 6 - Sistema automatizado de análise, monitoramento e alerta de risco 26,00 182,00 29/01/2021
+D-2.1.a Arquitetura e estruturação das inter-relações entre as subetapas de elaboração do sistema 2,00 14,00 14/08/2020
+D-2.1.b Elaboração, teste e validação do serviço de coleta de dados 6,00 42,00 25/09/2020
+D-2.1.c Elaboração, teste e validação do serviço de análise 5,00 35,00 30/10/2020
+D-2.1.d Elaboração, teste e validação do serviço de notificação 2,00 14,00 13/11/2020
+D-2.1.e Elaboração, teste e validação do serviço de animação 5,00 35,00 18/09/2020
+D-2.1.f Elaboração, teste e validação do serviço de gerência de planos 6,00 42,00 30/10/2020
+D-2.1.g Elaboração, teste e validação do módulo de configuração 6,00 42,00 11/12/2020
+D-2.1.h Elaboração, teste e validação do módulo de administração 5,00 35,00 18/12/2020
+D-2.1.i Elaboração, teste e validação do módulo de alerta 3,00 21,00 01/01/2021
+D-2.1.j Unificação dos serviços elaborados, teste e validação do sistema 2,00 14,00 15/01/2021
+D-2.1.k
+Consolidação do Produto 6 - Sistema automatizado de análise, monitoramento e alerta de risco de 
+escorregamentos (e movimentos de massa em geral), inundações (e processos correlatos) e 
+chuva intensa
+5,00 35,00 29/01/2021
+D-2.2 Elaboração do relatório consolidado da Etapa 2, abrangendo o Produto 6 14,00 98,00 03/02/2021
+D-2.2.a Reuniões Técnicas, Oficinas e Treinamentos 0,14 1,00 06/11/2020
+D-2.2.b Estudo e estruturação do conhecimento do objeto do contrato 12,00 84,00 22/01/2021
+D-2.2.c Detalhamento das atividades que serão envolvidas no projeto e orientação da Área Técnica do 
+Contratante para a execução do projeto 13,00 91,00 29/01/2021
+D-2.2.d Incorporação das informações complementares obtidas após orientação da Área Técnica do 
+Contratante e ajuste de metodologia 11,00 77,00 22/01/2021
+D-2.2.e Submissão do Relatório Consolidado da Etapa 2 do projeto à Área Técnica do Contratante para 
+avaliação de qualidade 0,14 1,00 03/02/2021
+D-2.2.f Análise dos produtos pelo Contratante 1,71 12,00 18/02/2021
+D-2.2.g Apresentação e discussão dos produtos da Etapa 2 0,14 1,00 18/02/2021
+D-2.2.h Realização de ajustes nos produtos da Etapa 2 2,14 15,00 05/03/2021
+D-2.2.i Apresentação da versão final dos produtos da Etapa 2 0,14 1,00 05/03/2021
+D-3 Etapa 3 - Plano de Contingência 33,00 231,00 03/04/2021
+D-3.1
+Produto 7 - Plano de contingência frente a riscos de eventos geodinâmicos (deslizamentos e 
+movimentos de massa em geral, inundações e processos correlatos e chuvas intensas) em 
+trechos rodoviários
+32,00 224,00 19/03/2021
+D-3.1.a
+Levantamento e sistematização de documentos, modelos de planos de contingência e dados 
+oriundos de entrevistas e reuniões com os gestores de planos de contingência de proteção e 
+defesa civil e do setor rodoviário
+8,00 56,00 02/10/2020
+D-3.1.b Levantamento e sistematização de documentos, modelos de planos de contingência e dados 
+oriundos de entrevistas e reuniões com as concessionárias de rodovias do Estado de São Paulo 8,00 56,00 02/10/2020
+D-3.1.c Análise dos produtos da Etapa 1 para elaboração de cenários-modelo 11,00 77,00 04/12/2020
+D-3.1.d Apresentação de cenários-modelo e definição do modelo de plano de contingência a ser adotado 
+para o projeto 2,00 14,00 11/12/2020
+D-3.1.e Análise dos Produtos oriundos das Etapas 1 e 2 e incorporação de dados ao Plano de 
+Contingência para movimentos de massa e processos correlatos 9,00 63,00 05/02/2021
+D-3.1.f Análise dos Produtos oriundos das Etapas 1 e 2 e incorporação de dados ao Plano de 
+Contingência para inundações e processos correlatos 9,00 63,00 05/02/2021
+D-3.1.g Elaboração do plano de contingência para movimentos de massa e processos correlatos 7,00 49,00 12/03/2021
+D-3.1.h Elaboração do plano de contingência para inundações e processos correlatos 7,00 49,00 12/03/2021
+D-3.1.i Consolidação do Produto 7 - Plano de contingência frente a riscos relacionados a eventos 
+geodinâmicos dos trechos rodoviários 4,00 28,00 19/03/2021
+D-3.2 Elaboração do relatório consolidado da Etapa 3, abrangendo o Produto 7 15,00 105,00 05/04/2021
+D-3.2.a Reuniões Técnicas, Oficinas e Treinamentos 0,14 1,00 01/01/2021
+D-3.2.b Estudo e estruturação do conhecimento do objeto do contrato 14,00 98,00 02/04/2021
+D-3.2.c Detalhamento das atividades que serão envolvidas no projeto e orientação da Área Técnica do 
+Contratante para a execução do projeto 15,00 105,00 05/04/2021
+D-3.2.d Incorporação das informações complementares obtidas após orientação da Área Técnica do 
+Contratante e ajuste de metodologia 13,00 91,00 02/04/2021
+D-3.2.e Submissão do Relatório Consolidado da Etapa 3 do projeto à Área Técnica do Contratante para 
+avaliação de qualidade 0,14 1,00 03/04/2021
+D-3.2.f Análise dos produtos pelo Contratante 1,71 12,00 16/04/2021
+D-3.2.g Apresentação e discussão dos produtos da Etapa 3 0,14 1,00 16/04/2021
+D-3.2.h Realização de ajustes nos produtos da Etapa 3 2,14 15,00 21/04/2021
+D-3.2.i Apresentação da versão final dos produtos da Etapa 3 0,14 1,00 21/04/2021
+D-4 Procedimentos de encerramento do contrato 5,00 35,00 21/04/2021
+D-4.1 Procedimentos de encerramento do contrato 5,00 35,00 21/04/2021
+Atividade realizada pelo Contratante
+Obs.: O cronograma está dividido em semanas. Desta forma, para que fosse possível o ajuste em relação às 52 semanas que compõem um ano. Os meses se repetem da seguinte maneira: os meses múltiplos de 3 (3, 6, 9) possuem 5 semanas, com os demais meses com 4 semanas cada.
+Data de 
+conclusão 
+prevista
+Atividade conjunta realizada por Contratada e Contratante
+Atividade realizada pela Contratada
+Entrega de produto
+1 2 3 4 5
+Meses
+6 7
+Etapa Produtos Semanas Total
+(dias)
+8 9
+===== PAGE 62 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ANEXO C 
+Súmulas das Reuniões Técnicas e Oficinas realizadas 
+ 
+  
+===== PAGE 63 =====
+ 
+ 
+GOVERNO DO ESTADO DE SÃO PAULO
+ 
+SECRETARIA DE INFRAESTRUTURA E MEIO AMBIENTE
+ 
+SUBSECRETARIA DO MEIO AMBIENTE
+ 
+I N S T I T U T O   G E O L Ó G I C O
+ 
+ 
+ 
+São Paulo, 06 de agosto de 2020
+ 
+ 
+Reunião prévia antes da entrega do Plano de Trabalho - Produto 1
+ 
+Contrato DER 20.595-3
+ 
+SÚMULA DE REUNIÃO
+ 
+Data: 
+​
+06/08/2020
+ 
+(das 09:00 às 10:00h)
+ 
+ 
+A
+reunião
+foi
+realizada
+em
+ambiente
+virtual
+às
+09:00h
+com
+a
+participação
+de
+representantes
+do
+Consórcio
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+REGEA-NIPPON KOEI LAC-GEOTEC-OPTIMUS GIS e do Instituto Geológico, conforme lista de presença anexa.
+ 
+Os seguintes pontos foram levantados e esclarecidos:
+ 
+1.
+A
+data
+fixada
+da
+Nota
+de
+Serviço
+foi
+03
+de
+agosto
+de
+2020,
+a
+partir
+da
+qual,
+serão
+contados
+os
+prazos
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+de entrega dos produtos objeto da contratação;
+ 
+ 
+2.
+Esclareceu-se
+ao
+consórcio
+que
+o
+prazo
+de
+duração
+da
+contratação
+(21/04/2021)
+irá
+ultrapassar
+o
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+prazo
+atual
+do
+contrato
+de
+empréstimo
+n°
+8272-BR
+firmado
+entre
+o
+Estado
+de
+São
+Paulo
+e
+o
+Banco
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Internacional
+para
+Reconstrução
+e
+Desenvolvimento
+—
+BIRD
+e
+que
+foi
+solicitada
+prorrogação
+do
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+referido contrato.
+ 
+3.
+Informou-se
+que
+a
+supervisão
+dos
+trabalhos
+estará
+sob
+a
+responsabilidade
+do
+Instituto
+Geológico,
+por
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+meio
+de
+Comissão
+Técnica
+constituída
+por
+Cláudio
+José
+Ferreira,
+Antonio
+Carlos
+Moretti
+Guedes
+e
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Eduardo de Andrade para a supervisão dos serviços e recebimento dos produtos.
+ 
+4.
+Destacou-se
+que
+a
+participação
+dos
+gestores
+das
+três
+UBAs,
+do
+DER,
+Caraguatatuba,
+Mogi
+das
+Cruzes
+e
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+São
+Vicente
+será
+muito
+importante,
+pois
+estas
+serão
+as
+usuárias
+finais
+dos
+serviços.
+Essa
+participação
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+será promovida pelo Instituto Geológico.
+ 
+5.
+Sugeriu-se
+que
+o
+primeiro
+produto,
+o
+Plano
+de
+Trabalho
+Detalhado
+com
+prazo
+até
+13/08/2020,
+seja
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+disponibilizado para acompanhamento, em formato digital online, a exemplo do módulo Planner.
+ 
+Súmula elaborada por: 
+​
+Cláudio José Ferreira e referendada por mensagem eletrônica pelos participantes.
+ 
+ 
+LISTA DE PRESENÇA
+ 
+ 
+PARTICIPANTE
+ 
+EMAIL
+ 
+ORGANIZAÇÃO
+ 
+Antonio Carlos Moretti Guedes
+ 
+acmguedes@sp.gov.br
+ 
+INSTITUTO GEOLÓGICO
+ 
+Cláudio José Ferreira
+ 
+cferreira@sp.gov.br
+ 
+INSTITUTO GEOLÓGICO
+ 
+Eduardo de Andrade
+ 
+eduardo@sp.gov.br
+ 
+INSTITUTO GEOLÓGICO
+ 
+Fernando Kertzman
+ 
+fernando@geotecbr.com.br
+ 
+GEOTEC
+ 
+Rua Joaquim Távora, 822 CEP 04015-011 Vila Mariana - São Paulo - SP Tel. (11) 5077-1155
+ 
+Página eletrônica 
+​
+igeologico.sp.gov.br
+​
+  e-mail: 
+​
+instituto.geologico@sp.gov.br
+ 
+===== PAGE 64 =====
+ 
+ 
+GOVERNO DO ESTADO DE SÃO PAULO
+ 
+SECRETARIA DE INFRAESTRUTURA E MEIO AMBIENTE
+ 
+SUBSECRETARIA DO MEIO AMBIENTE
+ 
+I N S T I T U T O   G E O L Ó G I C O
+ 
+ 
+ 
+José Mauro Marquez
+ 
+jmauromarquez@outlook.com
+ 
+NIPPON KOEI LAC
+ 
+Roberto Kurokawa
+ 
+roberto.kurokawa@nklac.com
+ 
+NIPPON KOEI LAC
+ 
+Brunno Pirani
+ 
+brunno.pirani@optimusgis.com.br
+ 
+OPTIMUS GIS
+ 
+Bruno Carvalho
+ 
+bruno.carvalho@optimusgis.com.br
+ 
+OPTIMUS GIS
+ 
+Davi Rodrigues
+ 
+davi.rodrigues@optimusgis.com.br
+ 
+OPTIMUS GIS
+ 
+Marcos Fedato
+ 
+marcos.fedato@optimusgis.com.br
+ 
+OPTIMUS GIS
+ 
+Michelle Lukaschek
+ 
+michelle.lukaschek@optimusgis.com.br
+ 
+OPTIMUS GIS
+ 
+Neila Ferreira
+ 
+neila.ferreira@optimusgis.com.br
+ 
+OPTIMUS GIS
+ 
+Guilherme Nunes Fernandez
+ 
+guilherme@regea.com.br
+ 
+REGEA
+ 
+Fernando Machado Alves
+ 
+fernando@regea.com.br
+ 
+REGEA
+ 
+Pedro Machado Simões
+ 
+pedro.simoes@regea.com.br
+ 
+REGEA
+ 
+ 
+ 
+ 
+Rua Joaquim Távora, 822 CEP 04015-011 Vila Mariana - São Paulo - SP Tel. (11) 5077-1155
+ 
+Página eletrônica 
+​
+igeologico.sp.gov.br
+​
+  e-mail: 
+​
+instituto.geologico@sp.gov.br
+ 
+===== PAGE 65 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ANEXO D 
+Fluxograma de atividades do projeto 
+ 
+ 
+ 
+===== PAGE 66 =====
+PRODUTO 1
+Elaboração do Plano de 
+Trabalho Detalhado
+ETAPA PREPARATÓRIA
+Plano de Trabalho 
+Detalhado
+ETAPA 1
+Histórico de Eventos e 
+Desastres, Índices 
+Meteorológicos 
+Críticos, Análise de 
+Risco e Capacidade 
+Institucional
+ETAPA 2
+Implantação do Sistema 
+Automatizado de 
+Análise, Monitoramento 
+e Alerta
+ETAPA 3
+Plano de Contingência
+PRODUTO 4
+Análise de risco
+PRODUTO 2
+Cadastro de 
+ocorrências de eventos 
+geodinâmicos e 
+desastres
+PRODUTO 5
+Análise do contexto 
+institucional
+PRODUTO 3
+Modelo de correlação 
+entre eventos e chuvas
+Relatório consolidado 
+da Etapa 1
+(Produtos 2, 3, 4 e 5)
+PRODUTO 6
+Sistema automatizado 
+de análise, 
+monitoramento e alerta 
+de risco
+Relatório consolidado 
+da Etapa 2
+(Produto 6)
+PRODUTO 7
+Plano de 
+contingência frente 
+a riscos de eventos 
+geodinâmicos 
+(deslizamentos e 
+movimentos de 
+massa em geral, 
+inundações e 
+processos 
+correlatos e chuvas 
+intensas) em trechos 
+rodoviários
+Relatório consolidado 
+da Etapa 3
+(Produto 7)
+
+===== PAGE 67 =====

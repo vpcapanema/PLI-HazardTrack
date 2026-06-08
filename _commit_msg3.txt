@@ -1,0 +1,15 @@
+remove: elimina fetch_mock e FORCE_MOCK do pipeline
+
+- core/aggregator.py: remove import fetch_mock, constante FORCE_MOCK,
+  bloco de fallback para mock, referencia em ops endpoint
+- core/merge_inpe.py: remove funcao fetch_mock (dados inventados)
+- core/ops.py: remove referencias a SAMAEG_FORCE_MOCK
+
+Politica: sem dado real do MERGE/INPE = NO_DATA.
+Nunca inventar chuva.
+
+34 testes passando.
+
+Generated with [Devin](https://cli.devin.ai/docs)
+
+Co-Authored-By: Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>

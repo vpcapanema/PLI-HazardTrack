@@ -1,5 +1,8 @@
 {
+  "total_trechos": 161,
   "total_features": 161,
+  "extensao_total_km": 1019.8,
+  "rodovias_unicas": 15,
   "rodovias": [
     "BR 101",
     "SP 039",
@@ -16,6 +19,26 @@
     "SP 131",
     "SP 148",
     "SP 150"
+  ],
+  "tipos_pista": [
+    "DUP",
+    "IMP",
+    "PAV"
+  ],
+  "tipo_pista": [
+    "DUP",
+    "IMP",
+    "PAV"
+  ],
+  "regionais": [
+    "DR 05",
+    "DR 06",
+    "DR 10"
+  ],
+  "regional": [
+    "DR 05",
+    "DR 06",
+    "DR 10"
   ],
   "tipos_rodovia": [
     "Eixo"
@@ -57,21 +80,11 @@
     "Taubaté",
     "Ubatuba"
   ],
-  "regional": [
-    "DR 05",
-    "DR 06",
-    "DR 10"
-  ],
   "administra": [
     "Concessionária",
     "DER",
     "DNIT",
     "Prefeitura"
-  ],
-  "tipo_pista": [
-    "DUP",
-    "IMP",
-    "PAV"
   ],
   "source": "DER-SP - Sistema Rodoviario Estadual (dadosabertos.sp.gov.br)",
   "crs": "EPSG:4326 (WGS84)",

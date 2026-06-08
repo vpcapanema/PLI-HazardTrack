@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="120">
+    <title>Ações Operacionais de Contingência — PLI-HazardTrack</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #003b5a;
+            --azul: #1c3d59;
+            --verde: #3ec26e;
+            --verde-escuro: #0f3a1f;
+            --gray-900: #0f172a;
+            --gray-700: #334155;
+            --gray-600: #475569;
+            --gray-500: #64748b;
+            --gray-400: #94a3b8;
+            --gray-300: #cbd5e1;
+            --gray-200: #e2e8f0;
+            --gray-100: #f1f5f9;
+            --gray-50: #f8fafc;
+            --font: 'Inter', system-ui, sans-serif;
+            --font-display: 'Poppins', sans-serif;
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.15);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Reduz proporcionalmente a fonte de toda a pagina em 20% */
+        html { font-size: 80%; }
+        body {
+            font-family: var(--font);
+            background: var(--gray-100);
+            color: var(--gray-900);
+            line-height: 1.5;
+        }
+
+        /* ---- Topbar ---- */
+        .topbar {
+            background: var(--verde-escuro);
+            color: #fff;
+            padding: 0.9rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-md);
+        }
+        .topbar .brand { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
+        .topbar .brand span { color: var(--verde); }
+        .topbar .brand small { display: block; font-family: var(--font); font-weight: 400; font-size: 0.68rem; color: rgba(255,255,255,.7); }
+        .topbar-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+        .tb-link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.4rem 0.8rem;
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 0.35rem;
+            transition: background .15s ease;
+        }
+        .tb-link:hover { background: rgba(255,255,255,.12); }
+
+        .wrap { max-width: 1680px; margin: 0 auto; padding: 1.4rem 1.25rem 3rem; }
+
+        /* ---- Layout de dashboard ---- */
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 0.7rem;
+            margin-top: 0.9rem;
+        }
+        .kpi {
+            background: #fff;
+            border-radius: 0.6rem;
+            box-shadow: var(--shadow-md);
+            padding: 0.7rem 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .kpi-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--gray-500);
+            font-weight: 600;
+        }
+        .kpi-value {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.1;
+        }
+        .kpi-value.kpi-danger { color: #b23b3b; }
+        .kpi-value.kpi-warn { color: #c0682f; }
+        .kpi-value.kpi-on { color: var(--verde); }
+        .kpi-value.kpi-off { color: var(--gray-400); }
+
+        .dash {
+            display: grid;
+            grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+        .dash-main > .section:first-child,
+        .dash-aside > .section:first-child { margin-top: 1.2rem; }
+        @media (max-width: 980px) {
+            .dash { grid-template-columns: 1fr; gap: 0; }
+        }
+
+        /* ---- Hero banner ---- */
+        .hero {
+            border-radius: 0.8rem;
+            padding: 1.4rem 1.5rem;
+            color: #fff;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::after {
+            content: "";
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,.18), rgba(0,0,0,0));
+        }
+        .hero > * { position: relative; z-index: 1; }
+        .hero-eyebrow { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; font-weight: 600; }
+        .hero-level { font-family: var(--font-display); font-size: 2rem; font-weight: 700; margin: 0.15rem 0 0.3rem; }
+        .hero-desc { font-size: 0.95rem; opacity: 0.95; max-width: 60ch; }
+        .hero-meta { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; margin-top: 0.9rem; font-size: 0.8rem; }
+        .hero-meta b { font-weight: 700; }
+        .hero-badges { display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap; }
+        .badge {
+            background: rgba(255,255,255,.2);
+            border: 1px solid rgba(255,255,255,.35);
+            padding: 0.3rem 0.7rem;
+            border-radius: 1rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .badge.off { opacity: 0.45; text-decoration: line-through; }
+
+        /* ---- Sections ---- */
+        .section { margin-top: 1.6rem; }
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.2rem;
+        }
+        .section-help { font-size: 0.82rem; color: var(--gray-600); margin-bottom: 0.85rem; }
+
+        /* ---- Cards de ação ---- */
+        .action-card {
+            background: #fff;
+            border-radius: 0.6rem;
+            box-shadow: var(--shadow-md);
+            border-left: 5px solid var(--cor, var(--verde));
+            padding: 0.5rem 0.5rem;
+        }
+        .action-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.65rem 0.7rem;
+            border-bottom: 1px solid var(--gray-100);
+        }
+        .action-row:last-child { border-bottom: none; }
+        .org-chip {
+            flex-shrink: 0;
+            min-width: 118px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--navy);
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: 0.35rem;
+            padding: 0.3rem 0.5rem;
+            text-align: center;
+        }
+        .action-text { font-size: 0.88rem; color: var(--gray-700); padding-top: 0.15rem; }
+
+        /* ---- Operação normal ---- */
+        .calm {
+            background: #fff;
+            border-radius: 0.6rem;
+            box-shadow: var(--shadow-md);
+            border-left: 5px solid var(--verde);
+            padding: 1.1rem 1.3rem;
+            font-size: 0.92rem;
+            color: var(--gray-700);
+        }
+        .calm b { color: var(--verde-escuro); }
+
+        /* ---- Tabelas de trechos ---- */
+        .trecho-group { margin-bottom: 1rem; }
+        .trecho-group h3 { font-size: 0.85rem; color: var(--gray-700); margin-bottom: 0.45rem; }
+        table.trechos {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            font-size: 0.82rem;
+        }
+        table.trechos th {
+            background: var(--navy);
+            color: #fff;
+            text-align: left;
+            padding: 0.5rem 0.7rem;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        table.trechos td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--gray-100); }
+        table.trechos tr:last-child td { border-bottom: none; }
+        table.trechos tbody tr:hover { background: var(--gray-50); }
+        .nivel-pill {
+            display: inline-block;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.68rem;
+            padding: 0.18rem 0.5rem;
+            border-radius: 1rem;
+            white-space: nowrap;
+        }
+        .empty-note { font-size: 0.82rem; color: var(--gray-500); font-style: italic; }
+
+        /* ---- Paginador das tabelas ---- */
+        .pager {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.9rem;
+            margin: 0.55rem 0 0.2rem;
+        }
+        .pager-info {
+            font-size: 0.78rem;
+            color: var(--gray-600);
+            font-weight: 500;
+            min-width: 12rem;
+            text-align: center;
+        }
+        .pager-btn {
+            font-family: var(--font);
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--navy);
+            background: #fff;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.4rem;
+            padding: 0.4rem 0.85rem;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .pager-btn:hover:not(:disabled) {
+            background: var(--gray-100);
+            border-color: var(--gray-400);
+        }
+        .pager-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* ---- Protocolo completo ---- */
+        details.proto {
+            background: #fff;
+            border-radius: 0.55rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 0.6rem;
+            overflow: hidden;
+            border-left: 5px solid var(--cor, var(--gray-300));
+        }
+        details.proto > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 0.7rem 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-weight: 600;
+        }
+        details.proto > summary::-webkit-details-marker { display: none; }
+        .proto-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+        .proto-name { font-family: var(--font-display); color: var(--navy); }
+        .proto-desc { font-size: 0.78rem; color: var(--gray-500); font-weight: 400; margin-left: auto; text-align: right; }
+        .proto-current {
+            font-size: 0.62rem;
+            background: var(--verde);
+            color: #fff;
+            border-radius: 1rem;
+            padding: 0.12rem 0.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .proto-body { padding: 0 0.5rem 0.6rem; }
+
+        .footer-note {
+            margin-top: 2rem;
+            font-size: 0.72rem;
+            color: var(--gray-500);
+            border-top: 1px solid var(--gray-200);
+            padding-top: 0.8rem;
+            line-height: 1.6;
+        }
+        @media (max-width: 640px) {
+            .org-chip { min-width: 84px; }
+            .hero-level { font-size: 1.6rem; }
+            .proto-desc { display: none; }
+        }
+    </style>
+</head>
+<body>
+    {# Paleta de alertas mais escura e fosca (menos saturada) para esta pagina #}
+    {% set cores = {0:'#3a7d5d',1:'#b08d2e',2:'#c0682f',3:'#b23b3b',4:'#7a4fa3'} %}
+    <header class="topbar">
+        <div class="brand">
+            PLI-<span>HazardTrack</span>
+            <small>SIGMA · Ações Operacionais de Contingência (PPDC)</small>
+        </div>
+        <div class="topbar-actions">
+            <a class="tb-link" href="javascript:location.reload()">Atualizar</a>
+            <a class="tb-link" href="{{ url_for('index') }}">&larr; Voltar ao mapa</a>
+        </div>
+    </header>
+
+    <div class="wrap">
+        <!-- HERO: nivel operacional vigente -->
+        <div class="hero" data-bg="{{ cores[actions.max_rd] }}">
+            <div class="hero-eyebrow">Nível operacional vigente na malha</div>
+            <div class="hero-level">{{ actions.max_nivel }}</div>
+            <div class="hero-desc">{{ actions.max_descricao }}</div>
+            <div class="hero-meta">
+                <span><b>Responsável principal:</b> {{ actions.responsavel_max }}</span>
+                {% if max_rd_name %}<span><b>Trecho mais crítico:</b> {{ max_rd_name }}</span>{% endif %}
+                <span><b>Atualizado:</b> <span data-ts="{{ timestamp_utc }}">—</span></span>
+                {% if data_status and data_status != 'ok' %}<span><b>Dados:</b> {{ data_status }}</span>{% endif %}
+            </div>
+        </div>
+
+        <!-- KPIs: aproveita a largura no topo do dashboard -->
+        <div class="kpis">
+            <div class="kpi">
+                <span class="kpi-label">Trechos monitorados</span>
+                <b class="kpi-value">{{ actions.total_pontos }}</b>
+            </div>
+            <div class="kpi">
+                <span class="kpi-label">Alerta / Alerta Máximo</span>
+                <b class="kpi-value kpi-danger">{{ actions.total_critico }}</b>
+            </div>
+            <div class="kpi">
+                <span class="kpi-label">Em Atenção</span>
+                <b class="kpi-value kpi-warn">{{ actions.total_atencao }}</b>
+            </div>
+            <div class="kpi">
+                <span class="kpi-label">Prontidão de equipes</span>
+                <b class="kpi-value {{ 'kpi-on' if actions.prontidao_necessaria else 'kpi-off' }}">{{ 'Sim' if actions.prontidao_necessaria else 'Não' }}</b>
+            </div>
+            <div class="kpi">
+                <span class="kpi-label">Vistorias em campo</span>
+                <b class="kpi-value {{ 'kpi-on' if actions.vistoria_necessaria else 'kpi-off' }}">{{ 'Sim' if actions.vistoria_necessaria else 'Não' }}</b>
+            </div>
+        </div>
+
+        <!-- DASHBOARD: ações + trechos à esquerda, protocolo à direita -->
+        <div class="dash">
+        <div class="dash-main">
+
+        <!-- O QUE FAZER AGORA -->
+        <div class="section">
+            <h2 class="section-title">O que fazer agora</h2>
+            <p class="section-help">
+                Ações imediatas previstas no protocolo PPDC para o nível
+                operacional vigente, organizadas por órgão responsável.
+            </p>
+
+            {% if actions.max_rd == 0 %}
+            <div class="calm">
+                <b>Operação normal.</b> Nenhuma ação extraordinária é exigida no
+                momento. O monitoramento automático segue ativo 24&nbsp;h pelo
+                SAMAEG; as equipes permanecem em rotina. Esta página passa a
+                destacar ações assim que qualquer trecho atingir o nível de
+                Observação ou superior.
+            </div>
+            {% else %}
+            <div class="action-card" data-cor="{{ cores[actions.max_rd] }}">
+                {% for a in actions.acoes_max_estruturadas %}
+                <div class="action-row">
+                    <span class="org-chip">{{ a.orgao or 'Geral' }}</span>
+                    <span class="action-text">{{ a.texto }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- TRECHOS QUE EXIGEM ACAO -->
+        {% if actions.pontos_criticos or actions.pontos_atencao %}
+        <div class="section">
+            <h2 class="section-title">Trechos que exigem ação</h2>
+            <p class="section-help">
+                Pontos de monitoramento com Risco Dinâmico elevado neste ciclo,
+                priorize do mais grave para o menos grave.
+            </p>
+
+            {% if actions.pontos_criticos %}
+            <div class="trecho-group">
+                <h3>Alerta / Alerta Máximo ({{ actions.total_critico }})</h3>
+                <table class="trechos">
+                    <thead>
+                        <tr><th>Trecho</th><th>Rodovia</th><th>km</th><th>Região</th><th>Nível</th><th>Chuva 24h</th><th>Acum. 96h</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for p in actions.pontos_criticos %}
+                        <tr>
+                            <td>{{ p.nome }}</td>
+                            <td>{{ p.rodovia or '—' }}</td>
+                            <td>{{ p.km if p.km is not none else '—' }}</td>
+                            <td>{{ p.regiao or '—' }}</td>
+                            <td><span class="nivel-pill" data-bg="{{ cores[p.rd] }}">{{ p.nivel }}</span></td>
+                            <td>{{ '%.1f mm'|format(p.ac24h_mm) if p.ac24h_mm is not none else '—' }}</td>
+                            <td>{{ '%.1f mm'|format(p.ac96h_mm) if p.ac96h_mm is not none else '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {% if actions.pontos_atencao %}
+            <div class="trecho-group">
+                <h3>Atenção ({{ actions.total_atencao }})</h3>
+                <table class="trechos">
+                    <thead>
+                        <tr><th>Trecho</th><th>Rodovia</th><th>km</th><th>Região</th><th>Nível</th><th>Chuva 24h</th><th>Acum. 96h</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for p in actions.pontos_atencao %}
+                        <tr>
+                            <td>{{ p.nome }}</td>
+                            <td>{{ p.rodovia or '—' }}</td>
+                            <td>{{ p.km if p.km is not none else '—' }}</td>
+                            <td>{{ p.regiao or '—' }}</td>
+                            <td><span class="nivel-pill" data-bg="{{ cores[p.rd] }}">{{ p.nivel }}</span></td>
+                            <td>{{ '%.1f mm'|format(p.ac24h_mm) if p.ac24h_mm is not none else '—' }}</td>
+                            <td>{{ '%.1f mm'|format(p.ac96h_mm) if p.ac96h_mm is not none else '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        </div><!-- /dash-main -->
+
+        <aside class="dash-aside">
+        <!-- PROTOCOLO COMPLETO -->
+        <div class="section">
+            <h2 class="section-title">Protocolo PPDC completo</h2>
+            <p class="section-help">
+                Referência dos cinco níveis operacionais e as ações de cada
+                órgão. O nível vigente aparece destacado e já expandido.
+            </p>
+
+            {% for nivel in protocolo %}
+            <details class="proto" data-cor="{{ cores[nivel.rd] }}" {{ 'open' if nivel.rd == actions.max_rd else '' }}>
+                <summary>
+                    <span class="proto-dot" data-bg="{{ cores[nivel.rd] }}"></span>
+                    <span class="proto-name">Nível {{ nivel.rd }} — {{ nivel.nivel }}</span>
+                    {% if nivel.rd == actions.max_rd %}<span class="proto-current">vigente</span>{% endif %}
+                    <span class="proto-desc">{{ nivel.descricao }}</span>
+                </summary>
+                <div class="proto-body">
+                    <div class="action-card" data-cor="{{ cores[nivel.rd] }}">
+                        {% for a in nivel.acoes %}
+                        <div class="action-row">
+                            <span class="org-chip">{{ a.orgao or 'Geral' }}</span>
+                            <span class="action-text">{{ a.texto }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </details>
+            {% endfor %}
+        </div>
+        </aside><!-- /dash-aside -->
+        </div><!-- /dash -->
+
+        <div class="footer-note">
+            Fonte: Quadro 4.2.2-2 do Produto 7 (Plano de Contingência) —
+            Relatório 2053-R04-21, Etapa 3 (DER-SP / REGEA-NIPPON, 2021).
+            Os níveis seguem a estrutura do PPDC — Plano Preventivo de Defesa
+            Civil, operado pela CEPDEC durante o período chuvoso.
+            Esta página recarrega automaticamente a cada 2 minutos.
+        </div>
+    </div>
+
+    <script>
+        // Aplica cores dinamicas (evita Jinja dentro de style="")
+        document.querySelectorAll("[data-bg]").forEach((el) => {
+            el.style.background = el.getAttribute("data-bg");
+        });
+        document.querySelectorAll("[data-cor]").forEach((el) => {
+            el.style.setProperty("--cor", el.getAttribute("data-cor"));
+        });
+
+        // Formata o timestamp UTC para horário local do operador
+        document.querySelectorAll("[data-ts]").forEach((el) => {
+            const iso = el.getAttribute("data-ts");
+            if (!iso) return;
+            const d = new Date(iso);
+            if (!isNaN(d)) {
+                el.textContent = d.toLocaleString("pt-BR", {
+                    day: "2-digit", month: "2-digit", year: "numeric",
+                    hour: "2-digit", minute: "2-digit"
+                });
+            }
+        });
+
+        // Paginacao das tabelas de trechos: 15 registros por pagina.
+        const PAGE_SIZE = 15;
+        document.querySelectorAll("table.trechos").forEach((table) => {
+            const body = table.tBodies[0];
+            if (!body) return;
+            const rows = Array.from(body.rows);
+            if (rows.length <= PAGE_SIZE) return;
+
+            const pages = Math.ceil(rows.length / PAGE_SIZE);
+            let page = 0;
+
+            const bar = document.createElement("div");
+            bar.className = "pager";
+            bar.innerHTML =
+                '<button type="button" class="pager-btn" data-prev>'
+                + "&lsaquo; Anterior</button>"
+                + '<span class="pager-info"></span>'
+                + '<button type="button" class="pager-btn" data-next>'
+                + "Pr&oacute;xima &rsaquo;</button>";
+            table.after(bar);
+
+            const info = bar.querySelector(".pager-info");
+            const prev = bar.querySelector("[data-prev]");
+            const next = bar.querySelector("[data-next]");
+
+            const render = () => {
+                const start = page * PAGE_SIZE;
+                const end = start + PAGE_SIZE;
+                rows.forEach((r, i) => {
+                    r.style.display = (i >= start && i < end) ? "" : "none";
+                });
+                info.textContent =
+                    "Página " + (page + 1) + " de " + pages
+                    + " · " + rows.length + " trechos";
+                prev.disabled = page === 0;
+                next.disabled = page >= pages - 1;
+            };
+
+            prev.addEventListener("click", () => {
+                if (page > 0) {
+                    page--;
+                    render();
+                    table.scrollIntoView({ block: "nearest" });
+                }
+            });
+            next.addEventListener("click", () => {
+                if (page < pages - 1) {
+                    page++;
+                    render();
+                    table.scrollIntoView({ block: "nearest" });
+                }
+            });
+
+            render();
+        });
+    </script>
+</body>
+</html>

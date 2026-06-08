@@ -1,0 +1,28 @@
+[MAIN]
+load-plugins=
+
+[MESSAGES CONTROL]
+disable=
+    broad-exception-caught,
+    global-statement,
+    invalid-name,
+    missing-class-docstring,
+    missing-function-docstring,
+    import-outside-toplevel,
+    unused-argument,
+    line-too-long,
+    trailing-whitespace,
+    unnecessary-comprehension,
+    too-few-public-methods,
+    too-many-locals,
+    too-many-positional-arguments
+
+[FORMAT]
+max-line-length=180
+
+[VARIABLES]
+good-names=i,j,k,ex,Run,_,f,r,e,x,y,m,n,id,ok
+
+[DESIGN]
+max-args=10
+max-locals=20

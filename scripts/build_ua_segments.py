@@ -1,59 +1,57 @@
 """
 Gera segmentos de rodovia com RA oficial a partir da malha DER/SP.
 
-Como os shapefiles das 809 UAs nao estao disponiveis (Google Drive do
-Anexo B inacessivel), esta solucao alternativa:
+Como os shapefiles das 809 UAs nao estao disponiveis (o detalhamento
+georreferenciado por UA esta no relatorio Etapa 1 / 2053-R02-20, Anexo B,
+inacessivel), esta solucao corta a malha DER/SP nos TRECHOS criticos com RA
+oficial e anexa a DISTRIBUICAO completa de RA por classe.
 
-1. Carrega a malha DER/SP oficial (LineString por trecho)
-2. Corta a malha nos trechos com RA oficial (km ini/fim dos relatorios)
-3. Para cada segmento, associa RA geo/hid + ICC da regiao
-4. Gera GeoJSON com todos os segmentos (com e sem RA)
+Fonte unica da verdade: core/ra_official.py
+  - RA_GEO_BY_SEGMENT (Tabela 3.3.3.1-3 do Produto 7 / 2053-R04-21)
+  - RA_HID_BY_SEGMENT (Tabela 3.3.3.1-4)
 
-Politica:
-- Trechos com RA oficial: segmento com ra_geo/ra_hid reais
-- Trechos sem RA: segmento mantido mas marcado como SEM_DADO
-- Nunca inventar RA para segmentos nao mapeados
+Politica (decisao: "distribuicao completa, motor decide por classe"):
+- Trecho com RA oficial: grava dist_geo/dist_hid (JSON) + ra_geo_max/ra_hid_max
+  (maior classe presente, usada para alerta de pior caso).
+- Trecho sem RA: mantido como SEM_DADO. Nunca inventar RA.
+
+Granularidade: TRECHO (km), nao UA individual. O GeoJSON e usado para o mapa;
+a fonte canonica do motor de risco e o lookup por km em core/ra_official.py.
 """
 
 import sys
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-import geopandas as gpd
-import json
+import geopandas as gpd  # noqa: E402  # pylint: disable=wrong-import-position
 
-# Malha DER/SP oficial (ja em WGS84)
+from core.ra_official import (  # noqa: E402  # pylint: disable=wrong-import-position
+    RA_GEO_BY_SEGMENT,
+    RA_HID_BY_SEGMENT,
+    _max_class,
+)
+
 DER_SHP = ROOT / "data" / "der_sistema_rodoviario" / "MALHA_RODOVIARIA.shp"
 OUTPUT_GEOJSON = ROOT / "data" / "ua_segments" / "ua_segments_ra.geojson"
+MONITORED = ("SP 055", "SP 098")
 
-# Trechos com RA oficial (do core/ra_official.py)
-RA_SEGMENTS = [
-    # (rodovia, km_ini, km_fim, ra_geo, ra_hid, regiao, uba, desc)
-    ("SP 055", 53.6, 102.0, 1, 0, 2, "UBA 06.04-CGT",
-     "Caraguatatuba-Ubatuba"),
-    ("SP 055", 114.0, 127.8, 1, 1, 3, "UBA 06.04-CGT",
-     "Sao Sebastiao (norte)"),
-    ("SP 055", 128.0, 153.0, 4, 2, 3, "UBA 05.04-SVC",
-     "Sao Sebastiao (critico)"),
-    ("SP 055", 156.0, 162.0, 4, 2, 3, "UBA 05.04-SVC",
-     "Sao Sebastiao (km 156-162)"),
-    ("SP 055", 178.1, 191.4, 4, 1, 3, "UBA 05.04-SVC",
-     "Sao Sebastiao (hidro)"),
-    ("SP 055", 191.4, 223.6, 1, 0, 4, "UBA 05.04-SVC",
-     "Santos-Bertioga"),
-    ("SP 055", 235.0, 238.0, 1, 0, 4, "UBA 05.04-SVC",
-     "Santos-Bertioga (km 235-238)"),
-    ("SP 055", 93.0, 93.0, 1, 0, 2, "UBA 06.04-CGT",
-     "Caraguatatuba-Ubatuba (hidro, km 93)"),
-    ("SP 055", 97.0, 97.0, 1, 1, 2, "UBA 06.04-CGT",
-     "Caraguatatuba-Ubatuba (hidro, km 97)"),
-    ("SP 055", 112.0, 112.0, 1, 1, 2, "UBA 06.04-CGT",
-     "Caraguatatuba-Ubatuba (hidro, km 112)"),
-    ("SP 098", 77.0, 98.0, 1, 1, 1, "UBA 10.04-MCZ",
-     "Mogi-Bertioga"),
-]
+
+def _overlap(a0, a1, b0, b1):
+    """True se os intervalos [a0,a1] e [b0,b1] se tocam (inclui pontos)."""
+    return max(a0, b0) <= min(a1, b1)
+
+
+def _find_dist(rodovia, km_ini, km_fim, table):
+    """Retorna (dist, meta) do trecho oficial que sobrepoe [km_ini,km_fim]."""
+    for (r_rod, r_km0, r_km1), data in table.items():
+        if r_rod != rodovia:
+            continue
+        if _overlap(km_ini, km_fim, r_km0, r_km1):
+            return data["dist"], data
+    return None, None
 
 
 def main():
@@ -63,99 +61,79 @@ def main():
         return
 
     gdf = gpd.read_file(DER_SHP)
-    print(f"Malha DER/SP carregada: {len(gdf)} trechos")
-    print(f"CRS: {gdf.crs}")
-
-    # Converte para WGS84 se necessario
+    print(f"Malha DER/SP carregada: {len(gdf)} trechos | CRS: {gdf.crs}")
     if gdf.crs and gdf.crs.to_epsg() != 4326:
         gdf = gdf.to_crs(epsg=4326)
-        print(f"Convertido para WGS84")
+        print("Convertido para WGS84")
 
     segments = []
     seg_id = 0
+    com_ra = 0
 
     for _, row in gdf.iterrows():
-        rodovia = row.get("Rodovia", "").strip().upper()
-        km_ini = row.get("KmInicial")
-        km_fim = row.get("KmFinal")
-
-        # Filtra apenas rodovias monitoradas
-        if rodovia not in ("SP 055", "SP 098"):
+        rodovia = (row.get("Rodovia", "") or "").strip().upper()
+        if rodovia not in MONITORED:
             continue
 
-        # Verifica se este trecho intersecta algum trecho com RA
-        matched = False
-        for (ra_rod, ra_km0, ra_km1, ra_geo, ra_hid,
-             regiao, uba, desc) in RA_SEGMENTS:
-            if rodovia == ra_rod:
-                # Verifica overlap de km
-                # Trecho da malha: [km_ini, km_fim]
-                # Trecho com RA: [ra_km0, ra_km1]
-                overlap_start = max(km_ini or 0, ra_km0)
-                overlap_end = min(km_fim or 9999, ra_km1)
-                if overlap_start < overlap_end:
-                    # Ha overlap - este trecho tem RA
-                    segments.append({
-                        "type": "Feature",
-                        "properties": {
-                            "id": f"SEG-{seg_id:04d}",
-                            "rodovia": rodovia,
-                            "km_ini": km_ini,
-                            "km_fim": km_fim,
-                            "ra_geo": ra_geo,
-                            "ra_hid": ra_hid,
-                            "ra": max(ra_geo, ra_hid),
-                            "regiao": regiao,
-                            "uba": uba,
-                            "desc": desc,
-                            "source": "regea2021",
-                        },
-                        "geometry": row.geometry.__geo_interface__,
-                    })
-                    matched = True
-                    seg_id += 1
-                    break
+        km_ini = row.get("KmInicial")
+        km_fim = row.get("KmFinal")
+        k0 = float(km_ini) if km_ini is not None else 0.0
+        k1 = float(km_fim) if km_fim is not None else 9999.0
+        if k1 < k0:
+            k0, k1 = k1, k0
 
-        if not matched:
-            # Trecho sem RA oficial
-            segments.append({
-                "type": "Feature",
-                "properties": {
-                    "id": f"SEG-{seg_id:04d}",
-                    "rodovia": rodovia,
-                    "km_ini": km_ini,
-                    "km_fim": km_fim,
-                    "ra_geo": None,
-                    "ra_hid": None,
-                    "ra": None,
-                    "regiao": None,
-                    "uba": None,
-                    "desc": "SEM_DADO",
-                    "source": "SEM_DADO",
-                },
-                "geometry": row.geometry.__geo_interface__,
-            })
-            seg_id += 1
+        dist_geo, meta_geo = _find_dist(rodovia, k0, k1, RA_GEO_BY_SEGMENT)
+        dist_hid, meta_hid = _find_dist(rodovia, k0, k1, RA_HID_BY_SEGMENT)
 
-    # Salva como GeoJSON
+        if dist_geo is None and dist_hid is None:
+            props = {
+                "id": f"SEG-{seg_id:04d}",
+                "rodovia": rodovia,
+                "km_ini": km_ini, "km_fim": km_fim,
+                "ra_geo_max": None, "ra_hid_max": None, "ra": None,
+                "dist_geo": None, "dist_hid": None,
+                "regiao": None, "uba": None,
+                "desc": "SEM_DADO", "source": "SEM_DADO",
+            }
+        else:
+            ra_geo_max = _max_class(dist_geo)
+            ra_hid_max = _max_class(dist_hid)
+            ra = max([v for v in (ra_geo_max, ra_hid_max) if v is not None])
+            meta = meta_geo or meta_hid
+            props = {
+                "id": f"SEG-{seg_id:04d}",
+                "rodovia": rodovia,
+                "km_ini": km_ini, "km_fim": km_fim,
+                "ra_geo_max": ra_geo_max, "ra_hid_max": ra_hid_max, "ra": ra,
+                # dist como JSON string (driver GeoJSON nao aceita dict)
+                "dist_geo": json.dumps(dist_geo) if dist_geo else None,
+                "dist_hid": json.dumps(dist_hid) if dist_hid else None,
+                "regiao": meta.get("regiao"),
+                "uba": meta.get("uba"),
+                "desc": meta.get("desc"),
+                "source": "regea2021",
+            }
+            com_ra += 1
+
+        segments.append({
+            "type": "Feature",
+            "properties": props,
+            "geometry": row.geometry.__geo_interface__,
+        })
+        seg_id += 1
+
     OUTPUT_GEOJSON.parent.mkdir(parents=True, exist_ok=True)
     gdf_out = gpd.GeoDataFrame.from_features(segments, crs="EPSG:4326")
     gdf_out.to_file(OUTPUT_GEOJSON, driver="GeoJSON")
 
-    # Estatisticas
-    com_ra = sum(1 for s in segments
-                 if s["properties"]["source"] == "regea2021")
-    sem_ra = sum(1 for s in segments
-                  if s["properties"]["source"] == "SEM_DADO")
     print(f"\nSegmentos gerados: {len(segments)}")
     print(f"  Com RA oficial: {com_ra}")
-    print(f"  SEM_DADO: {sem_ra}")
+    print(f"  SEM_DADO: {len(segments) - com_ra}")
     print(f"GeoJSON salvo: {OUTPUT_GEOJSON}")
 
-    # Tambem salva CSV para referencia
+    cols = ["id", "rodovia", "km_ini", "km_fim", "ra_geo_max", "ra_hid_max",
+            "ra", "dist_geo", "dist_hid", "regiao", "uba", "desc", "source"]
     csv_path = ROOT / "data" / "ua_segments" / "ua_segments_ra.csv"
-    cols = ["id", "rodovia", "km_ini", "km_fim", "ra_geo",
-            "ra_hid", "ra", "regiao", "uba", "desc", "source"]
     gdf_out[cols].to_csv(csv_path, index=False)
     print(f"CSV salvo: {csv_path}")
 

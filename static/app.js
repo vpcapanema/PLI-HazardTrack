@@ -84,7 +84,7 @@ const HAZARD_STATE = _loadHazardState();
 
 const state = {
   map: null,
-  layers: { points: null, regions: null, heat: null, roads: null },
+  layers: { hazardZones: {}, regions: null, heat: null, roads: null },
   pointMarkers: new Map(),
   pointData: new Map(),       // id -> dados completos do ponto (para heatmap)
   regionPolys: [],
@@ -94,6 +94,16 @@ const state = {
     regional: "",
     administra: "",
     rodovia: ""
+  },
+  // Animacao temporal (Linha do Tempo - Anexo C 3.4.2)
+  timeline: {
+    active: false,
+    loading: false,
+    playing: false,
+    frames: [],
+    idx: 0,
+    step: 1,
+    timer: null,
   }
 };
 
@@ -136,7 +146,15 @@ function initMap() {
     .addAttribution("OSM | CARTO | INPE/MERGE | DER-SP")
     .addTo(state.map);
 
-  state.layers.points = L.layerGroup();   // criada vazia, ligada via toggle
+  // Riscos Monitorados: cada hazard (encosta, inundacao) e uma camada propria
+  // de zonas, colorida pelo seu RD em tempo real e ligada/desligada no painel.
+  state.layers.hazardZones = {};
+  Object.entries(HAZARDS).forEach(([key, h]) => {
+    if (!h.available) return;
+    const g = L.layerGroup();
+    state.layers.hazardZones[key] = g;
+    if (HAZARD_STATE[key]) g.addTo(state.map);
+  });
   state.layers.regions = L.layerGroup();  // criada vazia, ligada via toggle
   state.layers.roads = L.layerGroup().addTo(state.map);
   // Camadas administrativas (criadas vazias; carregadas sob demanda no toggle)
@@ -180,17 +198,19 @@ async function loadSpMask() {
       fillColor: "#0b1a2f",
       fillOpacity: 0.25,
       interactive: false,
-      smoothFactor: 1.5,
+      smoothFactor: 0.3,
     });
     mask.addTo(state.map);
 
-    // Contorno fino do estado, ressaltando o limite
+    // Contorno fino do estado, ressaltando o limite. smoothFactor baixo para
+    // o Leaflet nao re-simplificar a linha no render (mantem o tracado real).
     L.polygon(sp_rings_latlng, {
       color: "#1f2937",
       weight: 1.2,
       opacity: 0.55,
       fill: false,
       interactive: false,
+      smoothFactor: 0.3,
     }).addTo(state.map);
   } catch (e) {
     console.warn("nao foi possivel carregar mascara de SP:", e);
@@ -226,9 +246,24 @@ function attachEvents() {
     state.map.fitBounds(LITORAL_BOUNDS);
   });
 
-  document.getElementById("layer-points").addEventListener("change", (e) => {
-    if (e.target.checked) state.map.addLayer(state.layers.points);
-    else state.map.removeLayer(state.layers.points);
+  // ---- Linha do Tempo (animacao 96h) ----
+  document.getElementById("btn-timeline")?.addEventListener("click", openTimeline);
+  document.getElementById("tl-close")?.addEventListener("click", closeTimeline);
+  document.getElementById("tl-play")?.addEventListener("click", tlTogglePlay);
+  document.getElementById("tl-prev")?.addEventListener("click", () => {
+    tlPause();
+    applyTimelineFrame(state.timeline.idx - state.timeline.step);
+  });
+  document.getElementById("tl-next")?.addEventListener("click", () => {
+    tlPause();
+    applyTimelineFrame(state.timeline.idx + state.timeline.step);
+  });
+  document.getElementById("tl-range")?.addEventListener("input", (e) => {
+    tlPause();
+    applyTimelineFrame(Number(e.target.value));
+  });
+  document.getElementById("tl-step")?.addEventListener("change", (e) => {
+    state.timeline.step = Math.max(1, Number(e.target.value) || 1);
   });
 
   document.getElementById("layer-regions").addEventListener("change", (e) => {
@@ -263,17 +298,19 @@ function installMapLayerControl() {
                   id="map-layer-control-toggle" aria-label="Recolher/expandir">▾</button>
         </div>
         <div class="map-layer-control-body">
-          <label class="ck"><input type="checkbox" id="layer-points"> Pontos de monitoramento</label>
+          <div class="ck-group-title">Riscos Monitorados</div>
+          <div id="hazard-toggles"></div>
+
+          <div class="ck-group-title">Outras camadas</div>
           <label class="ck"><input type="checkbox" id="layer-regions"> Limites das regiões</label>
           <label class="ck"><input type="checkbox" id="layer-heatmap"> Mapa de calor de risco</label>
-          <label class="ck"><input type="checkbox" id="layer-roads" checked> Malha rodoviária estadual</label>
-          <div id="hazard-toggles"></div>
+          <label class="ck"><input type="checkbox" id="layer-roads" checked> Malha rodoviária estadual (DER)</label>
 
           <div class="ck-group-title">Limites administrativos</div>
           <label class="ck"><input type="checkbox" id="layer-municipios"> Municípios (IGC 2021)</label>
-          <label class="ck"><input type="checkbox" id="layer-rc"> Residências de Conserva</label>
-          <label class="ck"><input type="checkbox" id="layer-uba"> Unidades Básicas de Atendimento</label>
-          <label class="ck"><input type="checkbox" id="layer-cgr"> Coordenadorias Gerais Regionais</label>
+          <label class="ck"><input type="checkbox" id="layer-rc"> Residências de Conserva (DER)</label>
+          <label class="ck"><input type="checkbox" id="layer-uba"> Unidades Básicas de Atendimento (DER)</label>
+          <label class="ck"><input type="checkbox" id="layer-cgr"> Coordenadorias Gerais Regionais (DER)</label>
         </div>
       `;
 
@@ -340,16 +377,144 @@ function attachModalEvents() {
 // ============================================================================
 
 async function refresh() {
+  // Durante a animacao temporal, o snapshot ao vivo nao recolore o mapa
+  // (a Linha do Tempo controla as cores dos trechos).
+  if (state.timeline.active) return;
   try {
     const res = await fetch(apiUrl("/api/snapshot"));
     const snap = await res.json();
     renderSnapshot(snap);
-    loadActions();
-    loadForecast();
+    // Coerencia logica: os paineis dependentes (Acoes, Previsao) so podem
+    // concluir depois que o Monitoramento (estado geral da malha) terminar
+    // de processar e renderizar os dados do ciclo.
+    const st = (snap.summary && snap.summary.data_status) || "ok";
+    if (st === "loading") {
+      renderActionsWaiting();
+      renderForecastWaiting();
+    } else if (st === "no_data") {
+      renderActionsNoData();
+      renderForecastNoData();
+    } else {
+      loadActions();
+      loadForecast();
+    }
   } catch (e) {
     console.error("Erro ao atualizar snapshot:", e);
     setStatus("Erro de conexão com o servidor", "alert");
   }
+}
+
+// ============================================================================
+// LINHA DO TEMPO (animacao 96h dos poligonos de alerta - Anexo C, 3.4.2)
+// ============================================================================
+
+function tlEl(id) {
+  return document.getElementById(id);
+}
+
+async function openTimeline() {
+  const panel = tlEl("timeline");
+  if (!panel) return;
+  panel.hidden = false;
+  if (state.timeline.frames.length) {
+    state.timeline.active = true;
+    applyTimelineFrame(state.timeline.idx);
+    return;
+  }
+  state.timeline.loading = true;
+  tlEl("tl-status").textContent = "Baixando 96 h do MERGE/INPE...";
+  tlEl("tl-play").disabled = true;
+  try {
+    const res = await fetch(apiUrl("/api/timeline"));
+    const data = await res.json();
+    if (!data.available || !Array.isArray(data.frames) || !data.frames.length) {
+      tlEl("tl-status").textContent =
+        data.reason || "Sem dados para a animação.";
+      return;
+    }
+    state.timeline.frames = data.frames;
+    state.timeline.idx = data.frames.length - 1;   // comeca no "agora"
+    state.timeline.active = true;
+    const range = tlEl("tl-range");
+    range.min = 0;
+    range.max = data.frames.length - 1;
+    range.value = state.timeline.idx;
+    range.disabled = false;
+    tlEl("tl-status").textContent = "";
+    applyTimelineFrame(state.timeline.idx);
+  } catch (e) {
+    console.error("Erro na linha do tempo:", e);
+    tlEl("tl-status").textContent = "Erro ao carregar a animação.";
+  } finally {
+    state.timeline.loading = false;
+    tlEl("tl-play").disabled = false;
+  }
+}
+
+function closeTimeline() {
+  tlPause();
+  state.timeline.active = false;
+  const panel = tlEl("timeline");
+  if (panel) panel.hidden = true;
+  refresh();   // restaura as cores ao vivo
+}
+
+function applyTimelineFrame(idx) {
+  const frames = state.timeline.frames;
+  if (!frames.length) return;
+  idx = Math.max(0, Math.min(frames.length - 1, idx));
+  state.timeline.idx = idx;
+  const frame = frames[idx];
+  const rd = frame.rd || {};
+  for (const [id, markers] of state.pointMarkers) {
+    const v = rd[id];
+    const color = Number.isInteger(v)
+      ? (NIVEL_COLOR[v] || "#64748b")
+      : "#64748b";
+    const arr = Array.isArray(markers) ? markers : [markers];
+    arr.forEach((m) => m.setStyle({ color }));
+  }
+  const range = tlEl("tl-range");
+  if (range) range.value = idx;
+  const t = frame.ts ? new Date(frame.ts) : null;
+  tlEl("tl-time").textContent = t
+    ? t.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit",
+        hour: "2-digit", minute: "2-digit" })
+    : "—";
+}
+
+function tlPlay() {
+  if (!state.timeline.frames.length) return;
+  state.timeline.playing = true;
+  tlEl("tl-play").textContent = "⏸";
+  // Se estiver no fim, reinicia do comeco
+  if (state.timeline.idx >= state.timeline.frames.length - 1) {
+    applyTimelineFrame(0);
+  }
+  state.timeline.timer = setInterval(() => {
+    const next = state.timeline.idx + state.timeline.step;
+    if (next >= state.timeline.frames.length) {
+      applyTimelineFrame(state.timeline.frames.length - 1);
+      tlPause();
+      return;
+    }
+    applyTimelineFrame(next);
+  }, 600);
+}
+
+function tlPause() {
+  state.timeline.playing = false;
+  const btn = tlEl("tl-play");
+  if (btn) btn.textContent = "▶";
+  if (state.timeline.timer) {
+    clearInterval(state.timeline.timer);
+    state.timeline.timer = null;
+  }
+}
+
+function tlTogglePlay() {
+  if (state.timeline.playing) tlPause();
+  else tlPlay();
 }
 
 function renderSnapshot(snap) {
@@ -371,11 +536,13 @@ function renderSnapshot(snap) {
     renderRegionsOnMap(snap.regions || []);
     renderRegions(snap.regions || []);
     if (state.roadGeoJSON) renderRoadsOnMap();
-    renderWorstLoading();
+    startDownloadPoll();
+    renderRdBasisNote(summary, status);
     document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
+    // Distribuicao ainda nao processada: nao exibir como "concluido".
     for (let i = 0; i <= 4; i++) {
       const el = document.getElementById("count-" + i);
-      if (el) el.textContent = (i === 0 ? (snap.points || []).length : 0);
+      if (el) el.textContent = "\u2014";
     }
     return;
   }
@@ -393,16 +560,19 @@ function renderSnapshot(snap) {
     renderRegionsOnMap(snap.regions || []);
     renderRegions(snap.regions || []);
     if (state.roadGeoJSON) renderRoadsOnMap();
+    stopDownloadPoll();
     renderWorstNoData(summary.message);
+    renderRdBasisNote(summary, status);
     document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
     for (let i = 0; i <= 4; i++) {
       const el = document.getElementById("count-" + i);
-      if (el) el.textContent = (i === 0 ? (snap.points || []).length : 0);
+      if (el) el.textContent = "\u2014";
     }
     return;
   }
 
   // ---- Estado operacional normal ----
+  stopDownloadPoll();
   const statusClasses = ["", "warn", "warn", "alert", "max"];
   const statusSuffix = status === "degraded"
     ? ` · dado parcial (${summary.missing_24h}h faltando em 24h)`
@@ -453,6 +623,8 @@ function renderSnapshot(snap) {
     removeHeatmap();
     addHeatmap();
   }
+
+  renderRdBasisNote(summary, status);
 }
 
 function setBadge(id, text, kind) {
@@ -482,19 +654,196 @@ function renderWorstNoData(message) {
   `;
 }
 
-function renderWorstLoading() {
+// Progresso do primeiro ciclo. Fase "download": janela rotativa de 5 GRIBs,
+// cada um com barra propria (passo de 1%) e contagem geral X/Y. Fase
+// "processing": lista de etapas com mensagens amistosas ate o snapshot ser
+// publicado e renderizado.
+const VISIBLE_DL = 5;
+const _dl = {
+  poll: null, anim: null, data: null, pct: {},
+  mode: null, procStart: null, doneAt: null, refreshed: false,
+};
+
+function stopDownloadPoll() {
+  if (_dl.poll) { clearInterval(_dl.poll); _dl.poll = null; }
+  if (_dl.anim) { clearInterval(_dl.anim); _dl.anim = null; }
+  _dl.data = null;
+  _dl.pct = {};
+  _dl.mode = null;
+  _dl.procStart = null;
+  _dl.doneAt = null;
+  _dl.refreshed = false;
+}
+
+function startDownloadPoll() {
+  if (_dl.poll) return;
+  _dl.mode = "download";
+  buildDownloadCard();
+  const poll = async () => {
+    try {
+      const r = await fetch(apiUrl("/api/progress"));
+      _dl.data = await r.json();
+    } catch { /* ignora erro de rede transitorio */ }
+  };
+  poll();
+  _dl.poll = setInterval(poll, 800);
+  _dl.anim = setInterval(renderDownloadFrame, 40);
+}
+
+function buildDownloadCard() {
   const card = document.getElementById("worst-card");
+  if (!card) return;
   card.classList.add("empty");
+  let rows = "";
+  for (let s = 0; s < VISIBLE_DL; s++) {
+    rows += `
+      <li class="dl-row" data-slot="${s}">
+        <div class="dl-name">&nbsp;</div>
+        <div class="dl-line">
+          <div class="dl-bar"><div class="dl-bar-fill"></div></div>
+          <span class="dl-pct">0%</span>
+        </div>
+      </li>`;
+  }
   card.innerHTML = `
-    <div class="worst-empty loading">
-      <div class="loading-spinner" aria-hidden="true"></div>
-      <div class="loading-title">Buscando dados do MERGE/INPE</div>
-      <div class="loading-msg">
-        Baixando 96 GRIBs horários do servidor INPE.
-        Isso costuma levar ~10–15 s no primeiro ciclo.
+    <div class="worst-empty loading dl-box">
+      <div class="loading-title">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        Buscando dados do MERGE/INPE
       </div>
-    </div>
-  `;
+      <ul class="dl-list">${rows}</ul>
+      <div class="dl-overall">
+        <div class="dl-overall-top">
+          <span>Baixados</span>
+          <span class="dl-overall-pct">0 / 0</span>
+        </div>
+        <div class="dl-bar dl-bar-lg">
+          <div class="dl-bar-fill dl-overall-fill"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderDownloadFrame() {
+  const card = document.getElementById("worst-card");
+  const d = _dl.data;
+  if (!card || !d) return;
+  const mode = d.active
+    ? "download"
+    : (d.phase === "processing" || d.phase === "done")
+      ? "processing"
+      : _dl.mode;
+  if (mode !== _dl.mode) {
+    _dl.mode = mode;
+    _dl.procStart = null;
+    _dl.doneAt = null;
+    if (mode === "download") buildDownloadCard();
+    else if (mode === "processing") buildProcessingCard(d);
+  }
+  if (mode === "download") renderDownloadList(d);
+  else if (mode === "processing") renderProcessing(d);
+}
+
+function renderDownloadList(d) {
+  const card = document.getElementById("worst-card");
+  const list = card.querySelector(".dl-list");
+  if (!list) return;  // card foi substituido por outro estado
+  const files = Array.isArray(d.files) ? d.files : [];
+  const total = d.total || files.length || 96;
+  const done = d.done || 0;
+  // Mostra apenas os arquivos que ainda estao baixando: ao concluir, o
+  // arquivo sai da lista e o proximo entra no lugar.
+  const visible = files
+    .filter((f) => f.status === "pending")
+    .slice(0, VISIBLE_DL);
+  list.querySelectorAll(".dl-row").forEach((row, s) => {
+    const f = visible[s];
+    const nameEl = row.querySelector(".dl-name");
+    const fill = row.querySelector(".dl-bar-fill");
+    const pctEl = row.querySelector(".dl-pct");
+    if (!f) {
+      row.classList.add("dl-hide");
+      nameEl.textContent = "";
+      fill.style.width = "0";
+      pctEl.textContent = "";
+      return;
+    }
+    row.classList.remove("dl-hide");
+    nameEl.textContent = f.name;
+    // Anima a barra do arquivo em passos de 1% (ate ~95%); ao concluir, o
+    // arquivo deixa a lista. _dl.pct e indexado por f.h (estavel).
+    let cur = _dl.pct[f.h] || 0;
+    if (cur < 95) cur = Math.min(95, cur + 1);
+    _dl.pct[f.h] = cur;
+    fill.style.width = cur + "%";
+    pctEl.textContent = Math.round(cur) + "%";
+  });
+  // Progresso geral: numero de baixados / total (sem porcentagem).
+  const ofill = card.querySelector(".dl-overall-fill");
+  const ocount = card.querySelector(".dl-overall-pct");
+  if (ofill) ofill.style.width = (total ? (done / total) * 100 : 0) + "%";
+  if (ocount) ocount.textContent = `${done} / ${total}`;
+}
+
+function buildProcessingCard(d) {
+  const card = document.getElementById("worst-card");
+  if (!card) return;
+  card.classList.add("empty");
+  const stages = Array.isArray(d.stages) ? d.stages : [];
+  const rows = stages.map((st) => `
+      <li class="pr-row" data-key="${st.key}">
+        <span class="pr-ic"></span>
+        <span class="pr-label">${escapeHtml(st.label)}</span>
+      </li>`).join("");
+  card.innerHTML = `
+    <div class="worst-empty loading dl-box">
+      <div class="loading-title">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        Processando os dados
+      </div>
+      <ul class="pr-list">${rows}</ul>
+    </div>`;
+}
+
+function renderProcessing(d) {
+  const card = document.getElementById("worst-card");
+  const ul = card.querySelector(".pr-list");
+  if (!ul) return;
+  const rows = ul.querySelectorAll(".pr-row");
+  const n = rows.length;
+  if (!n) return;
+  if (_dl.procStart == null) _dl.procStart = performance.now();
+  const dwell = 650;  // ms minimos por etapa, leitura confortavel
+  const elapsed = performance.now() - _dl.procStart;
+  // O download ja terminou (indice 0); revelamos as etapas seguintes no tempo.
+  let active = 1 + Math.floor(elapsed / dwell);
+  const reachedEnd = active >= n - 1;
+  if (active > n - 1) active = n - 1;
+  const finished = d.phase === "done";
+  rows.forEach((row, i) => {
+    let st;
+    if (i < active) st = "done";
+    else if (i === active) st = (reachedEnd && finished) ? "done" : "active";
+    else st = "pending";
+    row.classList.remove("pr-done", "pr-active", "pr-pending");
+    row.classList.add("pr-" + st);
+    const ic = row.querySelector(".pr-ic");
+    if (st === "done") {
+      ic.textContent = "\u2713";
+    } else if (st === "active") {
+      ic.innerHTML = '<span class="loading-spinner pr-spin"></span>';
+    } else {
+      ic.textContent = "";
+    }
+  });
+  // Conclui: backend publicou (done) e ja revelamos todas as etapas.
+  if (reachedEnd && finished) {
+    if (_dl.doneAt == null) _dl.doneAt = performance.now();
+    if (!_dl.refreshed && performance.now() - _dl.doneAt > 600) {
+      _dl.refreshed = true;
+      refresh();
+    }
+  }
 }
 
 function setStatus(text, cls) {
@@ -600,26 +949,42 @@ function renderRegionsOnMap(regions) {
 // ============================================================================
 
 function renderPointsOnMap(points) {
-  state.layers.points.clearLayers();
+  const groups = state.layers.hazardZones || {};
+  Object.values(groups).forEach((g) => g.clearLayers());
   state.pointMarkers.clear();
   state.pointData.clear();
 
   points.forEach((p) => {
-    const isNoData = p.source === "NO_DATA";
-    const cls = isNoData ? "rd-nd" : "rd-" + p.rd;
-    const label = isNoData ? "?" : String(p.rd);
-    const icon = L.divIcon({
-      className: "",
-      html: `<div class="point-marker ${cls}">${label}</div>`,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
-      popupAnchor: [0, -14],
-    });
-    const m = L.marker([p.lat, p.lon], { icon }).bindPopup(buildPopup(p));
-    m.addTo(state.layers.points);
-    state.pointMarkers.set(p.id, m);
     state.pointData.set(p.id, p);
+    if (!Array.isArray(p.geometry) || p.geometry.length < 2) return;
+
+    const isNoData = p.source === "NO_DATA";
+    // A zona aparece nas camadas de Riscos Monitorados (encosta/inundacao),
+    // colorida pelo RD daquele hazard em tempo real. O popup e o mesmo.
+    const lines = [];
+    Object.entries(HAZARDS).forEach(([key, h]) => {
+      if (!h.available) return;
+      const g = groups[key];
+      if (!g) return;
+      const rd = isNoData ? null : h.rdFrom(p);
+      const color = (rd == null) ? "#64748b" : (h.palette[rd] || "#64748b");
+      const pl = L.polyline(p.geometry, {
+        color,
+        weight: 5,
+        opacity: 0.9,
+      }).bindPopup(buildPopup(p));
+      pl.addTo(g);
+      lines.push(pl);
+    });
+    state.pointMarkers.set(p.id, lines);
   });
+}
+
+function raSourceLabel(src) {
+  if (!src) return "";
+  if (src.indexOf("tabela") >= 0) return "tabela oficial (Tab. 3.3.3.1-3/-4)";
+  if (src.indexOf("figura") >= 0) return "digitalizado da Fig. 3.3.3";
+  return src;
 }
 
 function buildPopup(p) {
@@ -628,7 +993,7 @@ function buildPopup(p) {
     return `
       <div class="popup-content">
         <h4>${escapeHtml(p.nome)}</h4>
-        <div class="popup-rod">${escapeHtml(p.rodovia)} · km ${p.km}</div>
+        <div class="popup-rod">${escapeHtml(p.rodovia)}${p.km != null ? " · km " + p.km : ""}</div>
         <div class="popup-rod">Região: ${escapeHtml(p.region_name || "—")}</div>
         <div class="popup-level" style="background:#64748b;color:#fff">
           Sem dado disponível
@@ -641,17 +1006,23 @@ function buildPopup(p) {
   return `
     <div class="popup-content">
       <h4>${escapeHtml(p.nome)}</h4>
-      <div class="popup-rod">${escapeHtml(p.rodovia)} · km ${p.km}</div>
+      <div class="popup-rod">${escapeHtml(p.rodovia)}${p.km != null ? " · km " + p.km : ""}</div>
       <div class="popup-rod">Região: ${escapeHtml(p.region_name || "—")}</div>
       <table>
-        <tr><td>Chuva 24h</td><td>${p.ac24h_mm} mm</td></tr>
-        <tr><td>Acum. 96h</td><td>${p.ac96h_mm} mm</td></tr>
-        <tr><td>Intensidade</td><td>${p.intensity_mmh} mm/h</td></tr>
+        <tr><td>Janela 24h (hidro)</td><td>${p.ac24h_mm} mm</td></tr>
+        ${p.fonte_chuva === "WRF" ? `<tr><td style="padding-left:10px;color:#555">= 18h obs + 6h prev</td><td style="color:#555">${p.ac18h_obs_mm} + ${p.prev6h_mm}</td></tr>` : ""}
+        <tr><td>Acum. 96h (geo)</td><td>${p.ac96h_mm} mm</td></tr>
+        ${p.fonte_chuva === "WRF" ? `<tr><td style="padding-left:10px;color:#555">= 72h obs + 24h prev</td><td style="color:#555">${p.ac72h_obs_mm} + ${p.prev24h_mm}</td></tr>` : ""}
+        <tr><td>Intensidade (obs)</td><td>${p.intensity_mmh} mm/h</td></tr>
         <tr><td>CPC</td><td>${p.cpc !== null ? p.cpc : "—"}</td></tr>
         <tr><td>Risco analisado</td><td>${p.ra !== null && p.ra !== undefined ? 'RA' + p.ra : 'SEM DADO'}</td></tr>
+        <tr><td>RA geológico</td><td>${p.ra_geo != null ? 'RA' + p.ra_geo : '—'}</td></tr>
+        <tr><td>RA hidrológico</td><td>${p.ra_hid != null ? 'RA' + p.ra_hid : '—'}</td></tr>
         <tr><td>ICC geológico</td><td>${p.icc_geo}</td></tr>
         <tr><td>ICC hidrológico</td><td>${p.icc_hid}</td></tr>
       </table>
+      ${p.ra_source ? `<div class="popup-source">RA: ${escapeHtml(raSourceLabel(p.ra_source))}</div>` : ""}
+      ${p.fonte_chuva === "OBS_ONLY" ? `<div class="popup-source" style="color:#b45309">⚠ Previsão WRF indisponível — RD com chuva observada apenas (pode subestimar).</div>` : ""}
       <div class="popup-level" style="background:${NIVEL_COLOR[p.rd]};color:${levelTextColor}">
         Nível ${p.rd} — ${NIVEL_LABEL[p.rd]}
       </div>
@@ -785,15 +1156,15 @@ async function loadRoadNetwork() {
   };
 
   try {
-    const stats = await (await fetch(apiUrl("/api/road-stats"))).json();
+    const stats = normalizeRoadStats(
+      await (await fetch(apiUrl("/api/road-stats"))).json()
+    );
     populateFilterDropdowns(stats);
 
     setSummary("Carregando malha rodoviária...");
     const gj = await (await fetch(apiUrl("/api/road-network"))).json();
-    state.roadGeoJSON = gj;
+    state.roadGeoJSON = normalizeRoadGeoJSON(gj);
     renderRoadsOnMap();
-
-    updateStatsSummary(stats);
   } catch (e) {
     console.error("Erro ao carregar malha:", e);
     setSummary("Erro ao carregar a malha");
@@ -853,7 +1224,63 @@ function attachAdminLayerEvents() {
   });
 }
 
+function normalizeRoadProperties(props) {
+  if (!props) return {};
+  return {
+    ...props,
+    rodovia: props.rodovia ?? props.Rodovia ?? "",
+    tipo_pista: props.tipo_pista ?? props.TipoPista ?? "",
+    regional: props.regional ?? props.CodRegiona ?? "",
+    administra: props.administra ?? props.Administra ?? "",
+    extensao: Number(props.extensao ?? props.Extensao ?? 0),
+    km_ini: props.km_ini ?? props.KmInicial,
+    km_fim: props.km_fim ?? props.KmFinal,
+    municipio: props.municipio ?? props.Municipio ?? "",
+    denominacao: props.denominacao ?? props.Denominaca ?? "",
+    monitored: Boolean(props.monitored),
+    region_id: props.region_id ?? null,
+    region_name: props.region_name ?? null,
+    hazards: props.hazards ?? [],
+  };
+}
+
+function normalizeRoadGeoJSON(gj) {
+  if (!gj?.features) return gj;
+  return {
+    ...gj,
+    features: gj.features.map((f) => ({
+      ...f,
+      properties: normalizeRoadProperties(f.properties),
+    })),
+  };
+}
+
+function normalizeRoadStats(stats) {
+  if (!stats || typeof stats !== "object") {
+    return {
+      total_trechos: 0,
+      extensao_total_km: 0,
+      rodovias_unicas: 0,
+      tipos_pista: [],
+      regionais: [],
+      administra: [],
+    };
+  }
+  const total = stats.total_trechos ?? stats.total_features ?? 0;
+  const rodovias = stats.rodovias_unicas
+    ?? (Array.isArray(stats.rodovias) ? stats.rodovias.length : 0);
+  return {
+    total_trechos: total,
+    extensao_total_km: Number(stats.extensao_total_km ?? 0),
+    rodovias_unicas: rodovias,
+    tipos_pista: stats.tipos_pista ?? stats.tipo_pista ?? [],
+    regionais: stats.regionais ?? stats.regional ?? [],
+    administra: stats.administra ?? [],
+  };
+}
+
 function populateFilterDropdowns(stats) {
+  const s = normalizeRoadStats(stats);
   const fillSelect = (id, values) => {
     const sel = document.getElementById(id);
     if (!sel) return;
@@ -864,18 +1291,20 @@ function populateFilterDropdowns(stats) {
       sel.appendChild(opt);
     });
   };
-  fillSelect("filter-tipo-pista", stats.tipos_pista || []);
-  fillSelect("filter-regional", stats.regionais || []);
-  fillSelect("filter-administra", stats.administra || []);
+  fillSelect("filter-tipo-pista", s.tipos_pista);
+  fillSelect("filter-regional", s.regionais);
+  fillSelect("filter-administra", s.administra);
 }
 
 function updateStatsSummary(stats) {
   const el = document.getElementById("road-stats-summary");
   if (!el) return;
+  const s = normalizeRoadStats(stats);
+  const fmt = (n) => Number(n || 0).toLocaleString("pt-BR");
   el.innerHTML =
-    `<b>${stats.total_trechos.toLocaleString("pt-BR")}</b> trechos<br>` +
-    `<b>${Math.round(stats.extensao_total_km).toLocaleString("pt-BR")}</b> km de extensão total<br>` +
-    `<b>${stats.rodovias_unicas}</b> rodovias distintas`;
+    `<b>${fmt(s.total_trechos)}</b> trechos<br>` +
+    `<b>${fmt(Math.round(s.extensao_total_km))}</b> km de extensão total<br>` +
+    `<b>${fmt(s.rodovias_unicas)}</b> rodovias distintas`;
 }
 
 function renderRoadsOnMap() {
@@ -1018,18 +1447,27 @@ function renderHazardPanel() {
       const checked = HAZARD_STATE[key] ? "checked" : "";
       return `
         <label class="ck">
-          <input type="checkbox" data-hazard="${escapeHtml(key)}" ${checked}>
+          <input type="checkbox" id="hazard-${escapeHtml(key)}"
+                 name="hazard-${escapeHtml(key)}"
+                 data-hazard="${escapeHtml(key)}" ${checked}>
           ${escapeHtml(h.label)}
         </label>
       `;
     }).join("");
-  root.innerHTML = items;
+  // Sempre mostra a secao; sem camadas disponiveis, exibe uma linha vazia.
+  root.innerHTML = items
+    || '<div class="ck ck-empty">Nenhuma camada disponível</div>';
 
   root.querySelectorAll('input[type="checkbox"][data-hazard]').forEach((cb) => {
     cb.addEventListener("change", (e) => {
       const k = e.target.getAttribute("data-hazard");
       HAZARD_STATE[k] = e.target.checked;
       saveHazardState();
+      const g = state.layers.hazardZones?.[k];
+      if (g) {
+        if (e.target.checked) g.addTo(state.map);
+        else state.map.removeLayer(g);
+      }
       renderRoadsOnMap();
       renderHazardLegend();
     });
@@ -1134,41 +1572,68 @@ async function loadActions() {
   }
 }
 
+function renderActionsWaiting() {
+  const c = document.getElementById("actions-content");
+  if (c) {
+    c.innerHTML = '<div class="actions-empty waiting">'
+      + 'Aguardando o Monitoramento processar os dados da malha\u2026</div>';
+  }
+}
+
+function renderActionsNoData() {
+  const c = document.getElementById("actions-content");
+  if (c) {
+    c.innerHTML = '<div class="actions-empty">'
+      + 'Sem dado neste ciclo \u2014 ações indisponíveis.</div>';
+  }
+}
+
 function renderActions(data) {
   const container = document.getElementById("actions-content");
   if (!container) return;
 
   const nivel = data.max_nivel || "Monitoramento";
   const cor = data.max_cor || "#22c55e";
-  const acoes = data.acoes_max || [];
-  const crit = data.pontos_criticos || [];
+  const rd = data.max_rd ?? 0;
+  const url = apiUrl("/acoes");
 
-  let html = `<div class="actions-header" style="border-left: 4px solid ${cor}; padding-left: 10px; margin-bottom: 10px;">
-    <strong style="color:${cor}; font-size: 1.1em;">${nivel}</strong>
-    <div style="font-size: .85em; color: #666;">${data.responsavel_max || ""}</div>
-  </div>`;
-
-  if (acoes.length > 0) {
-    html += `<ul class="actions-list" style="padding-left: 18px; margin: 0; font-size: .9em; line-height: 1.5;">`;
-    for (const acao of acoes) {
-      html += `<li>${acao}</li>`;
+  if (data.acoes_necessarias) {
+    // Alertas demandam acao: botao piscante que abre a pagina detalhada.
+    const partes = [];
+    if (data.total_critico) {
+      partes.push(`${data.total_critico} em Alerta`);
     }
-    html += `</ul>`;
+    if (data.total_atencao) {
+      partes.push(`${data.total_atencao} em Atenção`);
+    }
+    const sub = partes.length
+      ? partes.join(" · ")
+      : "Ação preventiva requerida";
+    container.innerHTML = `
+      <a class="acoes-btn blink" href="${url}" target="_blank"
+         rel="noopener" style="--acao-cor:${cor};">
+        <span class="acoes-btn-dot"></span>
+        <span class="acoes-btn-main">
+          <b>Ações necessárias</b>
+          <small>Nível ${rd} — ${nivel}</small>
+        </span>
+      </a>
+      <div class="acoes-sub">${sub}. Toque para abrir o plano de
+        contingência detalhado.</div>`;
+  } else {
+    // Operacao normal: estado calmo, sem piscar, com link de referencia.
+    container.innerHTML = `
+      <div class="acoes-calm">
+        <span class="acoes-calm-dot"></span>
+        <div>
+          <b>Operação normal</b>
+          <small>Monitoramento de rotina — nenhuma ação
+            extraordinária.</small>
+        </div>
+      </div>
+      <a class="acoes-btn-secondary" href="${url}" target="_blank"
+         rel="noopener">Ver protocolo de contingência</a>`;
   }
-
-  if (crit.length > 0) {
-    html += `<div style="margin-top: 10px; font-size: .85em; color: #b91c1c;">
-      <strong>Pontos criticos (${crit.length}):</strong> ${crit.map(p => p.nome).join(", ")}
-    </div>`;
-  }
-
-  if (data.vistoria_necessaria) {
-    html += `<div style="margin-top: 8px; font-size: .85em; color: #c2410c;">
-      <strong>Vistoria necessaria</strong>
-    </div>`;
-  }
-
-  container.innerHTML = html;
 }
 
 // ============================================================================
@@ -1179,38 +1644,117 @@ async function loadForecast() {
     const res = await fetch(apiUrl("/api/forecast"));
     if (!res.ok) return;
     const data = await res.json();
-    renderForecast(data.forecast || []);
+    renderForecast(data);
   } catch (e) {
     console.error("Erro ao carregar previsao:", e);
   }
 }
 
-function renderForecast(forecast) {
+function renderRdBasisNote(summary, dataStatus) {
+  const el = document.getElementById("rd-basis-note");
+  if (!el) return;
+  if (dataStatus === "loading" || dataStatus === "no_data") {
+    el.hidden = true;
+    return;
+  }
+  const basis = summary.rd_basis;
+  const forecastOk = summary.forecast_ok;
+  if (!basis && forecastOk === undefined) {
+    el.hidden = true;
+    return;
+  }
+  el.hidden = false;
+  el.className = forecastOk === false
+    ? "rd-basis-note rd-basis-warn"
+    : "rd-basis-note rd-basis-ok";
+  let html = `<strong>Base do RD:</strong> ${escapeHtml(basis || "—")}`;
+  if (forecastOk === false) {
+    html += (
+      "<br><small>Previsão WRF indisponível — RD calculado apenas com "
+      + "chuva observada (pode subestimar).</small>"
+    );
+  } else if (summary.forecast_count != null) {
+    html += (
+      `<br><small>WRF aplicado em ${summary.forecast_count} `
+      + `zona(s) neste ciclo.</small>`
+    );
+  }
+  el.innerHTML = html;
+}
+
+function renderForecastWaiting() {
+  const c = document.getElementById("forecast-content");
+  if (c) {
+    c.innerHTML = '<div class="forecast-empty waiting">'
+      + 'Aguardando a leitura do MERGE/INPE concluir\u2026</div>';
+  }
+}
+
+function renderForecastNoData() {
+  const c = document.getElementById("forecast-content");
+  if (c) {
+    c.innerHTML = '<div class="forecast-empty">'
+      + 'Sem dado neste ciclo \u2014 previsão indisponível.</div>';
+  }
+}
+
+function renderForecast(data) {
   const container = document.getElementById("forecast-content");
   if (!container) return;
 
-  const comDados = forecast.filter(f => f.ac24h_forecast_mm !== undefined);
+  const forecast = data.forecast || [];
+  const comDados = forecast.filter((f) => f.ac24h_forecast_mm !== undefined);
   if (comDados.length === 0) {
-    container.innerHTML = `<div class="forecast-empty">Previsao indisponivel</div>`;
+    container.innerHTML = `<div class="forecast-empty">Previsão WRF indisponível</div>`;
     return;
   }
 
-  const maxChuva = Math.max(...comDados.map(f => f.ac24h_forecast_mm));
-  const maxPonto = comDados.find(f => f.ac24h_forecast_mm === maxChuva);
+  const maxGeo = Math.max(...comDados.map((f) => f.ac24h_forecast_mm));
+  const maxPonto = comDados.find((f) => f.ac24h_forecast_mm === maxGeo);
+  const maxHidro = Math.max(
+    ...comDados.map((f) => f.ac6h_forecast_mm ?? 0)
+  );
 
   let html = `<div style="font-size: .9em; line-height: 1.4;">`;
-  html += `<div style="margin-bottom: 8px;"><strong>Maior acumulado previsto:</strong> ${maxChuva.toFixed(1)} mm</div>`;
-  html += `<div style="font-size: .85em; color: #666; margin-bottom: 8px;">${maxPonto?.nome || ""}</div>`;
+  html += (
+    `<div style="margin-bottom: 6px; font-size: .8em; color: #555;">`
+    + `${escapeHtml(data.source || "WRF horário CPTEC/INPE")}</div>`
+  );
+  html += (
+    `<div style="margin-bottom: 4px;">`
+    + `<strong>Maior prev. geo (+24h):</strong> ${maxGeo.toFixed(1)} mm</div>`
+  );
+  html += (
+    `<div style="margin-bottom: 4px;">`
+    + `<strong>Maior prev. hidro (+6h):</strong> ${maxHidro.toFixed(1)} mm</div>`
+  );
+  html += (
+    `<div style="font-size: .85em; color: #666; margin-bottom: 8px;">`
+    + `${escapeHtml(maxPonto?.nome || "")}</div>`
+  );
 
-  html += `<div style="max-height: 120px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 6px;">`;
+  html += (
+    `<div style="max-height: 120px; overflow-y: auto; `
+    + `border-top: 1px solid #eee; padding-top: 6px;">`
+  );
   for (const f of comDados.slice(0, 5)) {
-    html += `<div style="display:flex; justify-content:space-between; font-size: .85em; padding: 2px 0;">
-      <span>${f.nome}</span>
-      <span><b>${f.ac24h_forecast_mm.toFixed(1)} mm</b></span>
-    </div>`;
+    const vals = `${f.ac24h_forecast_mm.toFixed(1)} (+24h)`;
+    const hidro = f.ac6h_forecast_mm != null
+      ? ` · ${f.ac6h_forecast_mm.toFixed(1)} (+6h)`
+      : "";
+    html += (
+      `<div style="display:flex; justify-content:space-between; `
+      + `font-size: .85em; padding: 2px 0; gap: 8px;">`
+      + `<span>${escapeHtml(f.nome)}</span>`
+      + `<span><b>${vals}${hidro} mm</b></span>`
+      + `</div>`
+    );
   }
   if (comDados.length > 5) {
-    html += `<div style="font-size: .8em; color: #999; text-align: center;">+${comDados.length - 5} pontos</div>`;
+    html += (
+      `<div style="font-size: .8em; color: #999; text-align: center;">`
+      + `+${comDados.length - 5} zonas</div>`
+    );
   }
   html += `</div></div>`;
 

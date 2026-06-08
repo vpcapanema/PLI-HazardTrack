@@ -10,14 +10,14 @@ import secrets
 import threading
 from datetime import timedelta
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from core.aggregator import state
 from core.ops import ops_bp
-from core.actions import get_summary_actions
+from core.actions import get_summary_actions, get_protocolo_completo
 
 logging.basicConfig(
     level=logging.INFO,
@@ -54,7 +54,7 @@ CORS(app)
 
 # Atras do Nginx do host (acesso via http://IP/hazardtrack/ ou subdominio).
 # X-Forwarded-Prefix faz Flask gerar URLs ja com o prefixo correto.
-app.wsgi_app = ProxyFix(
+app.wsgi_app = ProxyFix(  # type: ignore[method-assign]
     app.wsgi_app,
     x_for=1, x_proto=1, x_host=1, x_prefix=1,
 )
@@ -124,6 +124,17 @@ def api_snapshot():
     return jsonify(state.get_snapshot())
 
 
+@app.route("/api/progress")
+def api_progress():
+    """Progresso de download dos GRIBs do MERGE/INPE (arquivo a arquivo).
+
+    Usado pela UI no primeiro ciclo para mostrar, em tempo real, cada GRIB
+    horario sendo baixado do servidor INPE (dado real, sem fallback).
+    """
+    from core.merge_inpe import get_download_progress
+    return jsonify(get_download_progress())
+
+
 @app.route("/api/road-network")
 def api_road_network():
     """Serve a malha rodoviaria DER otimizada (GeoJSON)."""
@@ -157,13 +168,46 @@ def api_actions():
     return jsonify(get_summary_actions(points))
 
 
+@app.route("/acoes")
+def acoes_page():
+    """Pagina dedicada de Acoes Operacionais de Contingencia (PPDC).
+
+    Aberta pelo botao "Acoes necessarias" do painel lateral quando o
+    nivel operacional exige acoes. Mostra, de forma detalhada e amigavel,
+    o que cada orgao deve fazer agora, os trechos que exigem atencao e o
+    protocolo PPDC completo (referencia, todos os niveis).
+    """
+    snap = state.get_snapshot()
+    points = snap.get("points", [])
+    summary = snap.get("summary", {})
+    return render_template(
+        "acoes.html",
+        actions=get_summary_actions(points),
+        protocolo=get_protocolo_completo(),
+        timestamp_utc=snap.get("timestamp_utc"),
+        data_status=summary.get("data_status"),
+        max_rd_name=summary.get("max_rd_name"),
+    )
+
+
 @app.route("/api/forecast")
 def api_forecast():
-    """Retorna previsao meteorologica para os pontos de monitoramento."""
-    from core.forecast_cptec import fetch_forecast_batch
-    points = state.get_snapshot().get("points", [])
+    """
+    Previsao WRF horaria (mesmo modulo do aggregator/RD).
+
+    Janelas alinhadas ao Produto 6 (secao 4.5.3):
+      - ac24h_forecast_mm: +24h futuras (composicao geologica)
+      - ac6h_forecast_mm:  +6h futuras (composicao hidrologica)
+    """
+    from datetime import datetime, timezone
+    from core.forecast_wrf_prec_hourly import fetch_forecast_accum_batch
+
+    snap = state.get_snapshot()
+    summary = snap.get("summary", {})
+    points = snap.get("points", [])
     coords = [(p["lat"], p["lon"]) for p in points]
-    forecast = fetch_forecast_batch(coords)
+    now_utc = datetime.now(timezone.utc)
+    forecast = fetch_forecast_accum_batch(coords, now_utc)
     out = []
     for p, f in zip(points, forecast):
         entry = {
@@ -174,18 +218,42 @@ def api_forecast():
         }
         if f is not None:
             entry.update({
-                "ac24h_forecast_mm": f.ac24h_forecast_mm,
-                "intensity_forecast_mmh": f.intensity_forecast_mmh,
-                "forecast_time": (
-                    f.forecast_time.isoformat() if f.forecast_time else None
-                ),
-                "cidade": f.cidade,
+                "ac24h_forecast_mm": f.ac24h_mm,
+                "ac6h_forecast_mm": f.ac6h_mm,
+                "intensity_forecast_mmh": round(f.ac24h_mm / 24.0, 1),
+                "forecast_time": f.run_utc.isoformat(),
                 "source": f.source,
             })
         else:
             entry["forecast"] = None
         out.append(entry)
-    return jsonify({"forecast": out, "source": "CPTEC/INPE"})
+    src = (
+        forecast[0].source
+        if forecast and forecast[0] is not None
+        else "INPE/CPTEC WRF prec (horario)"
+    )
+    return jsonify({
+        "forecast": out,
+        "source": src,
+        "rd_basis": summary.get("rd_basis"),
+        "forecast_ok": summary.get("forecast_ok"),
+        "forecast_count": summary.get("forecast_count"),
+    })
+
+
+@app.route("/api/timeline")
+def api_timeline():
+    """Animacao temporal (Linha do Tempo) - Anexo C, secao 3.4.2.
+
+    Reconstroi o RD de cada zona hora-a-hora nas ultimas 96 h (chuva
+    observada do MERGE/INPE, janela movel). Operacao cara: roda sob
+    demanda (botao Reproduzir) e usa cache curto no backend.
+    """
+    try:
+        frames = int(request.args.get("frames", 96))
+    except (TypeError, ValueError):
+        frames = 96
+    return jsonify(state.build_timeline(frames=frames))
 
 
 @app.route("/api/health")
@@ -215,7 +283,16 @@ em prod."""
         "deps": {
             "eccodes": eccodes_ok,
         },
+        "notifier": _notifier_status(),
     })
+
+
+def _notifier_status():
+    try:
+        from core.notifier import notifier
+        return notifier.get_status()
+    except Exception:
+        return {"enabled_email": False, "enabled_webhook": False}
 
 
 # ============================================================================

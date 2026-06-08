@@ -28,11 +28,37 @@
         </div>
 
         <!-- ============================================================
+             AÇÕES OPERACIONAIS DE CONTINGÊNCIA (PPDC)
+             Prioridade operacional: a ação imediata fica no topo, logo
+             abaixo do status, para que o plantonista a veja primeiro.
+             ============================================================ -->
+        <div class="panel" id="actions-panel">
+            <h2 class="panel-title">Ações Operacionais</h2>
+            <p class="panel-help">Recomendações do Plano Preventivo de Defesa Civil (PPDC) conforme o nível operacional vigente.</p>
+            <div id="actions-content" class="actions-content">
+                <div class="actions-empty">Carregando...</div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             TRECHO MAIS CRÍTICO
+             O que está puxando o nível operacional neste momento.
+             ============================================================ -->
+        <div class="panel">
+            <h2 class="panel-title">Trecho Mais Crítico</h2>
+            <p class="panel-help">Trecho com maior Risco Dinâmico no momento. Em caso de empate, prevalece a maior chuva acumulada em 96 h.</p>
+            <div id="worst-card" class="worst-card empty">
+                <div class="worst-empty">Aguardando primeira leitura...</div>
+            </div>
+        </div>
+
+        <!-- ============================================================
              DISTRIBUIÇÃO POR NÍVEL OPERACIONAL
+             Panorama de quantos trechos estão em cada nível.
              ============================================================ -->
         <div class="panel">
             <h2 class="panel-title">Distribuição de trechos rodoviários por Nível Operacional</h2>
-            <p class="panel-help">Quantidade de pontos de monitoramento em cada nível, conforme protocolo do Plano Preventivo da Defesa Civil (PPDC).</p>
+            <p class="panel-help">Quantidade de trechos monitorados em cada nível, conforme o protocolo do Plano Preventivo de Defesa Civil (PPDC).</p>
             <div class="alert-meter" id="alert-meter">
                 <div class="meter-cell" data-rd="0" title="Sem chuva relevante. Monitoramento de rotina.">
                     <span class="meter-name">Monitoramento</span>
@@ -63,18 +89,21 @@
         </div>
 
         <!-- ============================================================
-             TRECHO MAIS CRÍTICO
+             PREVISÃO WRF (motor do RD)
+             O que vem a seguir, já incorporado ao cálculo de risco.
              ============================================================ -->
-        <div class="panel">
-            <h2 class="panel-title">Trecho Mais Crítico</h2>
-            <p class="panel-help">Ponto com maior risco dinâmico no momento. Em caso de empate, prevalece a maior chuva acumulada em 96h.</p>
-            <div id="worst-card" class="worst-card empty">
-                <div class="worst-empty">Aguardando primeira leitura...</div>
+        <div class="panel" id="forecast-panel">
+            <h2 class="panel-title">Previsão WRF (motor do RD)</h2>
+            <p class="panel-help">Mesma fonte WRF horária do cálculo de risco: +24 h (geológico) e +6 h (hidrológico) sobre o MERGE observado (Produto 6, seção 4.5.3).</p>
+            <div id="rd-basis-note" class="rd-basis-note" hidden></div>
+            <div id="forecast-content" class="forecast-content">
+                <div class="forecast-empty">Carregando...</div>
             </div>
         </div>
 
         <!-- ============================================================
              REGIÕES METEOROLÓGICAS
+             Contexto e referência: como cada região é calibrada.
              ============================================================ -->
         <div class="panel">
             <h2 class="panel-title">Regiões Meteorológicas</h2>
@@ -88,10 +117,8 @@
         </div>
 
         <!-- ============================================================
-             CAMADAS DO MAPA
-             ============================================================ -->
-        <!-- ============================================================
              FILTROS DA MALHA RODOVIÁRIA
+             Ferramenta de exploração da malha no mapa.
              ============================================================ -->
         <div class="panel" id="road-filters-panel">
             <h2 class="panel-title">Filtros da Malha Rodoviária</h2>
@@ -99,39 +126,42 @@
 
             <div class="filter-group">
                 <label for="filter-tipo-pista">Tipo de pista</label>
-                <select id="filter-tipo-pista">
+                <select id="filter-tipo-pista" name="filter-tipo-pista">
                     <option value="">Todos os tipos</option>
                 </select>
             </div>
 
             <div class="filter-group">
                 <label for="filter-regional">Regional do DER</label>
-                <select id="filter-regional">
+                <select id="filter-regional" name="filter-regional">
                     <option value="">Todas as regionais</option>
                 </select>
             </div>
 
             <div class="filter-group">
                 <label for="filter-administra">Administração</label>
-                <select id="filter-administra">
+                <select id="filter-administra" name="filter-administra">
                     <option value="">Todas</option>
                 </select>
             </div>
 
             <div class="filter-group">
                 <label for="filter-rodovia">Buscar rodovia</label>
-                <input type="text" id="filter-rodovia" placeholder="ex: SP 055, SP 150">
+                <input type="text" id="filter-rodovia" name="filter-rodovia"
+                       placeholder="ex.: SP 055, SP 150">
             </div>
 
             <button id="btn-clear-filters" class="btn btn-secondary">Limpar filtros</button>
         </div>
 
         <!-- ============================================================
-             AÇÕES
+             CONTROLES DO MAPA
+             Utilitários de visualização (atualizar, animar, centralizar).
              ============================================================ -->
         <div class="panel">
-            <h2 class="panel-title">Ações</h2>
+            <h2 class="panel-title">Controles do Mapa</h2>
             <button id="btn-refresh" class="btn">Atualizar leitura agora</button>
+            <button id="btn-timeline" class="btn btn-secondary">Linha do Tempo (últimas 96 h)</button>
             <button id="btn-fit" class="btn btn-secondary">Centralizar no Estado de SP</button>
             <button id="btn-fit-litoral" class="btn btn-secondary">Centralizar no Litoral Norte</button>
         </div>
@@ -146,28 +176,6 @@
                 <a href="/ops" rel="nofollow">Operações</a>
             </div>
             <div class="ver">PLI-HazardTrack · SIGMA v0.1 — protótipo operacional</div>
-        </div>
-
-        <!-- ============================================================
-             ACOES OPERACIONAIS (PPDC / SAMAEG)
-             ============================================================ -->
-        <div class="panel" id="actions-panel">
-            <h2 class="panel-title">Acoes Operacionais</h2>
-            <p class="panel-help">Recomendacoes do Plano Preventivo de Defesa Civil (PPDC) conforme nivel operacional atual.</p>
-            <div id="actions-content" class="actions-content">
-                <div class="actions-empty">Carregando...</div>
-            </div>
-        </div>
-
-        <!-- ============================================================
-             PREVISAO 24H
-             ============================================================ -->
-        <div class="panel" id="forecast-panel">
-            <h2 class="panel-title">Previsao 24h</h2>
-            <p class="panel-help">Previsao de chuva acumulada nas proximas 24 horas (fonte: CPTEC/INPE). Usada para indicar tendencia de risco.</p>
-            <div id="forecast-content" class="forecast-content">
-                <div class="forecast-empty">Carregando...</div>
-            </div>
         </div>
     </aside>
 
@@ -186,6 +194,35 @@
         </header>
 
         <div id="map"></div>
+
+        <!-- ============================================================
+             LINHA DO TEMPO (animação 96h dos polígonos de alerta)
+             Anexo C do Produto 7, seção 3.4.2
+             ============================================================ -->
+        <div class="timeline" id="timeline" hidden>
+            <div class="timeline-head">
+                <button id="tl-play" class="tl-btn" title="Reproduzir / Pausar">▶</button>
+                <button id="tl-prev" class="tl-btn" title="Anterior">⏮</button>
+                <button id="tl-next" class="tl-btn" title="Próximo">⏭</button>
+                <span class="tl-time" id="tl-time">—</span>
+                <label class="tl-step-label">Passo
+                    <select id="tl-step">
+                        <option value="1">1 h</option>
+                        <option value="2">2 h</option>
+                        <option value="3">3 h</option>
+                        <option value="6">6 h</option>
+                    </select>
+                </label>
+                <span class="tl-status" id="tl-status"></span>
+                <button id="tl-close" class="tl-btn tl-close" title="Fechar">×</button>
+            </div>
+            <input type="range" id="tl-range" class="tl-range"
+                   min="0" max="0" value="0" step="1" disabled>
+            <div class="tl-hint">
+                Evolução do Risco Dinâmico, hora a hora, nas últimas 96 h
+                (chuva observada MERGE/INPE).
+            </div>
+        </div>
 
         <!-- ============================================================
              LEGENDAS DO MAPA (rodapé esquerdo)

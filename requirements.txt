@@ -12,3 +12,6 @@ gunicorn==23.0.0
 bcrypt==4.2.0
 psycopg[binary]==3.2.3
 psycopg-pool==3.2.4
+
+# Digitalizacao de figuras do Produto 7 (scripts/digitize_ua_figures.py)
+pymupdf==1.25.5

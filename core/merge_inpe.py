@@ -28,6 +28,7 @@ from datetime import datetime, timedelta, timezone
 from threading import Lock
 from typing import List, Optional, Tuple
 import logging
+import os
 import requests
 
 log = logging.getLogger("merge_inpe")
@@ -37,11 +38,138 @@ PUBLISH_LAG_HOURS = 3
 HTTP_TIMEOUT = (10, 60)         # (connect, read)
 # Em producao (Render free: 0.5 CPU / 512MB RAM) reduzimos os workers para
 # nao estourar memoria nem saturar CPU. Pode ser sobreposto via env.
-import os as _os
-DEFAULT_WORKERS = int(_os.environ.get("SAMAEG_WORKERS", "4"))
+DEFAULT_WORKERS = int(os.environ.get("SAMAEG_WORKERS", "4"))
 
 # eccodes MEMFS nao e thread-safe: serializa o decode entre threads.
 _ECCODES_LOCK = Lock()
+
+# Progresso de download em tempo real (lido pela UI no primeiro ciclo).
+# Reflete o batch de GRIBs em andamento, arquivo a arquivo.
+_PROGRESS_LOCK = Lock()
+_PROGRESS: dict = {
+    "active": False,
+    "total": 0,
+    "done": 0,
+    "ok": 0,
+    "fail": 0,
+    "target": None,
+    "started_at": None,
+    "files": [],
+    "_index": {},
+    # Fase do ciclo: "download" (baixando GRIBs), "processing"
+    # (agregando/calculando) ou "done" (snapshot publicado).
+    "phase": "idle",
+    "stage": None,
+}
+
+# Etapas do ciclo com mensagens amistosas, na ordem de execucao. A UI usa
+# isto para descrever o que o servidor esta fazendo apos o download.
+_STAGE_ORDER = ["download", "aggregate", "forecast", "risk", "publish"]
+_STAGE_LABELS = {
+    "download": "Baixando os dados de chuva do INPE (MERGE)",
+    "aggregate": "Organizando a chuva observada das ultimas 96 horas",
+    "forecast": "Consultando a previsao de chuva (WRF / CPTEC)",
+    "risk": "Calculando o risco de cada trecho da rodovia",
+    "publish": "Atualizando o painel e o mapa de risco",
+}
+
+
+def _progress_start(target_hour: datetime, hours: list) -> None:
+    """Inicializa o rastreador para um novo batch de download."""
+    files = []
+    for h, dt in hours:
+        files.append({
+            "h": h,
+            "ts": dt.isoformat(),
+            "name": _hourly_url(dt).rsplit("/", 1)[-1],
+            "status": "pending",
+        })
+    files.sort(key=lambda f: f["h"])
+    with _PROGRESS_LOCK:
+        _PROGRESS.update({
+            "active": True,
+            "total": len(files),
+            "done": 0,
+            "ok": 0,
+            "fail": 0,
+            "target": target_hour.isoformat(),
+            "started_at": datetime.now(timezone.utc).isoformat(),
+            "files": files,
+            "_index": {f["h"]: f for f in files},
+            "phase": "download",
+            "stage": "download",
+        })
+
+
+def _progress_mark(h: int, ok: bool) -> None:
+    """Marca o status de um arquivo (ok/fail) ao concluir o worker."""
+    with _PROGRESS_LOCK:
+        f = (_PROGRESS.get("_index") or {}).get(h)
+        if f is not None and f["status"] == "pending":
+            f["status"] = "ok" if ok else "fail"
+            _PROGRESS["done"] += 1
+            if ok:
+                _PROGRESS["ok"] += 1
+            else:
+                _PROGRESS["fail"] += 1
+
+
+def _progress_finish() -> None:
+    """Encerra o batch de progresso (download concluido)."""
+    with _PROGRESS_LOCK:
+        _PROGRESS["active"] = False
+
+
+def progress_stage(key: str) -> None:
+    """Marca a etapa de processamento atual (pos-download) para a UI."""
+    with _PROGRESS_LOCK:
+        _PROGRESS["phase"] = "processing"
+        _PROGRESS["stage"] = key
+
+
+def progress_done() -> None:
+    """Encerra o ciclo: snapshot publicado e renderizado."""
+    with _PROGRESS_LOCK:
+        _PROGRESS["active"] = False
+        _PROGRESS["phase"] = "done"
+        _PROGRESS["stage"] = None
+
+
+def _build_stages(phase: str, stage) -> list:
+    """Monta a lista de etapas com status done/active/pending para a UI."""
+    cur = _STAGE_ORDER.index(stage) if stage in _STAGE_ORDER else -1
+    out = []
+    for i, key in enumerate(_STAGE_ORDER):
+        if phase == "done":
+            st = "done"
+        elif i < cur:
+            st = "done"
+        elif i == cur:
+            st = "active"
+        else:
+            st = "pending"
+        out.append({"key": key, "label": _STAGE_LABELS[key], "status": st})
+    return out
+
+
+def get_download_progress() -> dict:
+    """Snapshot do progresso de download para a UI (copia segura)."""
+    with _PROGRESS_LOCK:
+        return {
+            "active": _PROGRESS["active"],
+            "total": _PROGRESS["total"],
+            "done": _PROGRESS["done"],
+            "ok": _PROGRESS["ok"],
+            "fail": _PROGRESS["fail"],
+            "target": _PROGRESS["target"],
+            "started_at": _PROGRESS["started_at"],
+            "files": [dict(f) for f in _PROGRESS["files"]],
+            "phase": _PROGRESS["phase"],
+            "stage": _PROGRESS["stage"],
+            "stages": _build_stages(
+                _PROGRESS["phase"], _PROGRESS["stage"]
+            ),
+        }
 
 
 def _hourly_url(dt: datetime) -> str:
@@ -56,6 +184,11 @@ class RainSample:
     lat: float
     lon: float
     intensity_mmh: float
+    # Acumulados parciais (seguidos do PDF):
+    # - geológico: 72h observadas (MERGE) + 24h previstas (WRF) = 96h total
+    # - hidrológico: 18h observadas (MERGE) + 6h previstas (WRF) = 24h total
+    ac72h_mm: float
+    ac18h_mm: float
     ac24h_mm: float
     ac96h_mm: float
     timestamp_utc: str
@@ -64,6 +197,10 @@ class RainSample:
     files_ok: int = 0
     missing_24h: int = 0
     missing_96h: int = 0
+    # Serie horaria bruta do ponto (mm por hora; indice 0 = hora mais
+    # recente). Populada apenas quando fetch_real_batch(with_series=True),
+    # usada para reaproveitar os dados do ciclo na Linha do Tempo.
+    series: Optional[list] = None
 
 
 # ---------------------------------------------------------------------------
@@ -72,8 +209,8 @@ class RainSample:
 
 def _eccodes_available() -> bool:
     try:
-        import eccodes  # noqa: F401
-        return True
+        import eccodes as _eccodes
+        return _eccodes is not None
     except Exception:
         return False
 
@@ -160,19 +297,15 @@ def _process_hour(dt: datetime,
         data = None  # noqa: F841 - solta a referencia para o GC
 
 
-def fetch_real_batch(points: list,
-                     now_utc: Optional[datetime] = None,
-                     hours_back: int = 96,
-                     workers: int = DEFAULT_WORKERS) -> Optional[list]:
-    """
-    Stream paralelo de 96 GRIB2 horarios direto do INPE.
-    Retorna lista de RainSample na mesma ordem de `points` (ou None se eccodes indisponivel).
+def _fetch_series(points: list,
+                  now_utc: Optional[datetime] = None,
+                  hours_back: int = 96,
+                  workers: int = DEFAULT_WORKERS):
+    """Stream paralelo de GRIB2 horarios; retorna a serie horaria bruta.
 
-    Cada RainSample carrega tres metricas extras de qualidade do batch (iguais para
-    todos os pontos, replicadas por conveniencia da API):
-      - files_ok          numero total de horas lidas com sucesso (0..96)
-      - missing_24h       horas faltando na janela 0..23h
-      - missing_96h       horas faltando na janela 0..95h
+    Returns (target_hour, series, hour_ok, files_ok) onde
+    series[i][h] = chuva (mm) do ponto i, h horas antes de target_hour.
+    Retorna None se eccodes indisponivel ou se nenhum GRIB foi lido.
     """
     if not _eccodes_available():
         log.warning("eccodes nao disponivel; chamador deve usar MOCK")
@@ -197,6 +330,7 @@ def fetch_real_batch(points: list,
     )
 
     progress_every = max(1, hours_back // 6)  # ~6 marcos no log
+    _progress_start(target_hour, hours)
 
     with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
         futures = {ex.submit(_process_hour, dt, lats, lons_360): h for h, dt in hours}
@@ -209,6 +343,7 @@ def fetch_real_batch(points: list,
                 log.debug("worker falhou em h=%d: %s", h, e)
                 samples = None
             done += 1
+            _progress_mark(h, samples is not None)
             if samples is None:
                 if done % progress_every == 0:
                     log.info("MERGE progress %d/%d (ok=%d)", done, hours_back, files_ok)
@@ -222,24 +357,56 @@ def fetch_real_batch(points: list,
             if done % progress_every == 0:
                 log.info("MERGE progress %d/%d (ok=%d)", done, hours_back, files_ok)
 
+    _progress_finish()
+
     if files_ok == 0:
         log.warning("nenhum GRIB MERGE foi lido com sucesso")
         return None
+
+    return target_hour, series, hour_ok, files_ok
+
+
+def fetch_real_batch(points: list,
+                     now_utc: Optional[datetime] = None,
+                     hours_back: int = 96,
+                     workers: int = DEFAULT_WORKERS,
+                     with_series: bool = False) -> Optional[list]:
+    """
+    Stream paralelo de 96 GRIB2 horarios direto do INPE.
+    Retorna lista de RainSample na mesma ordem de `points` (ou None se eccodes indisponivel).
+
+    Cada RainSample carrega tres metricas extras de qualidade do batch (iguais para
+    todos os pontos, replicadas por conveniencia da API):
+      - files_ok          numero total de horas lidas com sucesso (0..96)
+      - missing_24h       horas faltando na janela 0..23h
+      - missing_96h       horas faltando na janela 0..95h
+
+    Com `with_series=True`, cada RainSample.series carrega a serie horaria
+    bruta do ponto (reaproveitada pela Linha do Tempo, sem novo download).
+    """
+    res = _fetch_series(points, now_utc, hours_back, workers)
+    if res is None:
+        return None
+    target_hour, series, hour_ok, files_ok = res
 
     missing_24h = sum(1 for ok in hour_ok[:24] if not ok)
     missing_96h = sum(1 for ok in hour_ok[:96] if not ok)
     log.info(
         "MERGE streaming: %d/%d arquivos lidos para %d pontos (faltando 24h=%d, 96h=%d)",
-        files_ok, hours_back, n, missing_24h, missing_96h
+        files_ok, len(hour_ok), len(points), missing_24h, missing_96h
     )
 
     out = []
     ts = target_hour.isoformat()
     for i, (lat, lon) in enumerate(points):
         s = series[i]
+        ac18h = sum(s[:18])
+        ac72h = sum(s[:72])
         out.append(RainSample(
             lat=lat, lon=lon,
             intensity_mmh=round(s[0], 2),
+            ac72h_mm=round(ac72h, 2),
+            ac18h_mm=round(ac18h, 2),
             ac24h_mm=round(sum(s[:24]), 2),
             ac96h_mm=round(sum(s[:96]), 2),
             timestamp_utc=ts,
@@ -247,8 +414,26 @@ def fetch_real_batch(points: list,
             files_ok=files_ok,
             missing_24h=missing_24h,
             missing_96h=missing_96h,
+            series=[round(v, 2) for v in s] if with_series else None,
         ))
     return out
+
+
+def fetch_hourly_series(points: list,
+                        now_utc: Optional[datetime] = None,
+                        hours_back: int = 192,
+                        workers: int = DEFAULT_WORKERS):
+    """Serie horaria bruta por ponto para a animacao temporal (Linha do Tempo).
+
+    Baixa `hours_back` GRIB2 horarios (default 192 = 96 quadros + janela
+    movel de 96h) e devolve (target_hour, series), onde series[i][h] e a
+    chuva (mm) do ponto i, h horas antes de target_hour. None se indisponivel.
+    """
+    res = _fetch_series(points, now_utc, hours_back, workers)
+    if res is None:
+        return None
+    target_hour, series, _hour_ok, _files_ok = res
+    return target_hour, series
 
 
 def fetch_real(lat: float, lon: float,

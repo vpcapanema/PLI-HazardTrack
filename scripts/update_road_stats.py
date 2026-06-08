@@ -2,8 +2,9 @@
 Atualiza estatisticas da malha rodoviaria oficial.
 """
 
+import csv
 import json
-import pandas as pd
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -11,26 +12,56 @@ ROOT = Path(__file__).resolve().parent.parent
 csv_path = ROOT / "data" / "malha_der" / "malha_der_oficial.csv"
 stats_path = ROOT / "static" / "data" / "malha_der_stats.json"
 
+
+def _uniq(records, col):
+    return sorted({r[col] for r in records if r.get(col)})
+
+
+def _sum_float(records, col):
+    total = 0.0
+    for row in records:
+        val = row.get(col)
+        if not val:
+            continue
+        try:
+            total += float(val)
+        except ValueError:
+            continue
+    return total
+
+
 if not csv_path.exists():
     print(f"CSV nao encontrado: {csv_path}")
-    exit(1)
+    sys.exit(1)
 
-df = pd.read_csv(csv_path)
+with open(csv_path, encoding="utf-8", newline="") as f:
+    rows = list(csv.DictReader(f))
+
+cols = rows[0].keys() if rows else []
+rodovias = _uniq(rows, "Rodovia")
+ext_km = _sum_float(rows, "Extensao") if "Extensao" in cols else 0.0
+tipos_pista = _uniq(rows, "TipoPista") if "TipoPista" in cols else []
+regionais = _uniq(rows, "CodRegiona") if "CodRegiona" in cols else []
 
 stats = {
-    "total_features": len(df),
-    "rodovias": sorted(df['Rodovia'].unique().tolist()),
-    "tipos_rodovia": sorted(df['TipoRodovi'].dropna().unique().tolist()) if 'TipoRodovi' in df.columns else [],
-    "municipios": sorted(df['Municipio'].dropna().unique().tolist()) if 'Municipio' in df.columns else [],
-    "regional": sorted(df['CodRegiona'].dropna().unique().tolist()) if 'CodRegiona' in df.columns else [],
-    "administra": sorted(df['Administra'].dropna().unique().tolist()) if 'Administra' in df.columns else [],
-    "tipo_pista": sorted(df['TipoPista'].dropna().unique().tolist()) if 'TipoPista' in df.columns else [],
+    "total_trechos": len(rows),
+    "total_features": len(rows),
+    "extensao_total_km": round(ext_km, 1),
+    "rodovias_unicas": len(rodovias),
+    "rodovias": rodovias,
+    "tipos_pista": tipos_pista,
+    "tipo_pista": tipos_pista,
+    "regionais": regionais,
+    "regional": regionais,
+    "tipos_rodovia": _uniq(rows, "TipoRodovi") if "TipoRodovi" in cols else [],
+    "municipios": _uniq(rows, "Municipio") if "Municipio" in cols else [],
+    "administra": _uniq(rows, "Administra") if "Administra" in cols else [],
     "source": "DER-SP - Sistema Rodoviario Estadual (dadosabertos.sp.gov.br)",
     "crs": "EPSG:4326 (WGS84)",
-    "data_atualizacao": "2025"
+    "data_atualizacao": "2025",
 }
 
-with open(stats_path, 'w', encoding='utf-8') as f:
+with open(stats_path, "w", encoding="utf-8") as f:
     json.dump(stats, f, ensure_ascii=False, indent=2)
 
 print(f"Estatisticas atualizadas: {stats_path}")

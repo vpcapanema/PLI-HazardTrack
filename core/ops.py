@@ -123,7 +123,7 @@ def _safe_version(modname: str) -> Optional[str]:
 def _registered_routes() -> List[Dict[str, Any]]:
     out = []
     for rule in current_app.url_map.iter_rules():
-        methods = sorted(m for m in rule.methods if m not in {"HEAD", "OPTIONS"})
+        methods = sorted(m for m in (rule.methods or set()) if m not in {"HEAD", "OPTIONS"})
         out.append({
             "rule": str(rule),
             "endpoint": rule.endpoint,

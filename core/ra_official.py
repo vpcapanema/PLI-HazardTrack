@@ -10,7 +10,7 @@ NENHUM valor foi inventado. Trechos nao listados nao possuem dados
 oficiais de RA neste relatorio e devem ser marcados como SEM_DADO.
 """
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, cast
 
 # ---------------------------------------------------------------------------
 # DADOS OFICIAIS DO RELATORIO - Tabela 3.3.3.1-3 (Geologico)
@@ -95,14 +95,17 @@ RA_HID_BY_SEGMENT = {
         "desc": "Sao Sebastiao (hidro): predominancia RAHID1 (30/32)"
     },
     # SP-055 / UBA 05.04-SVC / Regiao 4 (Santos-Bertioga) km 191,4-223,6
-    # RAHID0: 75, RAHID1: 67, RAHID2: 1, RAHID3: 3, RAHID4: -
-    # Total: 146 unidades. Moda: RAHID0 (75 unidades = 51,4%)
+    # FONTE: Tabela 3.3.3.1-4 (linha "191,400 223,600"):
+    #   RA HID0=4, RA HID1=67, RA HID2=1, RA HID3=3, RA HID4=-
+    #   (O valor 75 que estava aqui era o RD HID0 do cenario proposto,
+    #    NAO o RA HID0 - bug corrigido.)
+    # Total: 75 unidades. Moda: RAHID1 (67 = 89,3%). Classe maxima: RAHID3.
     ("SP 055", 191.4, 223.6): {
-        "moda": 0,
-        "dist": {0: 75, 1: 67, 2: 1, 3: 3, 4: 0},
+        "moda": 1,
+        "dist": {0: 4, 1: 67, 2: 1, 3: 3, 4: 0},
         "uba": "UBA 05.04-SVC",
         "regiao": 4,
-        "desc": "Santos-Bertioga (hidro): predominancia RAHID0 (75/146)"
+        "desc": "Santos-Bertioga (hidro): predominancia RAHID1 (67/75)"
     },
     # SP-055 / UBA 06.04-CGT / Regiao 2 (Caraguatatuba-Ubatuba) km ~93
     # RAHID0: 7, RAHID1: -, RAHID2: -, RAHID3: -, RAHID4: -
@@ -134,6 +137,20 @@ RA_HID_BY_SEGMENT = {
         "regiao": 2,
         "desc": "Caraguatatuba-Ubatuba (hidro, km 112): RAHID1 (5/8)"
     },
+    # SP-098 / UBA 10.04-MCZ / Regiao 1 (Mogi-Bertioga) km 77-98
+    # FONTE: Tabela 3.3.3.1-4 (linha "SP-098 ... Mogi-Bertioga"):
+    #   RA HID0=60, RA HID1=59, RA HID2=5, RA HID3=2, RA HID4=-
+    #   (Estava AUSENTE no mapeamento - adicionado.)
+    # Total: 126 unidades. Moda: RAHID0 (60 = 47,6%). Classe maxima: RAHID3.
+    # Obs.: o texto do P7 cita "nao ha trecho critico hidrologico" para MCZ,
+    # mas a Tabela 3.3.3.1-4 lista a distribuicao de RA HID da rodovia.
+    ("SP 098", 77.0, 98.0): {
+        "moda": 0,
+        "dist": {0: 60, 1: 59, 2: 5, 3: 2, 4: 0},
+        "uba": "UBA 10.04-MCZ",
+        "regiao": 1,
+        "desc": "Mogi-Bertioga (hidro): RAHID0 (60/126), maxima RAHID3"
+    },
 }
 
 
@@ -159,12 +176,12 @@ def get_ra_for_point(
         # Busca em trechos geologicos mapeados
         for (r_rod, r_km0, r_km1), data in RA_GEO_BY_SEGMENT.items():
             if rodovia_norm == r_rod and r_km0 <= km <= r_km1:
-                ra_geo = data["moda"]
+                ra_geo = cast(int, data["moda"])
                 # Busca hidrologico no mesmo trecho se disponivel
-                ra_hid = None
+                ra_hid: Optional[int] = None
                 for (h_rod, h_km0, h_km1), h_data in RA_HID_BY_SEGMENT.items():
                     if h_rod == rodovia_norm and h_km0 <= km <= h_km1:
-                        ra_hid = h_data["moda"]
+                        ra_hid = cast(int, h_data["moda"])
                         break
                 # Se nao houver dado hidrologico para este trecho,
                 # usa o geologico como fallback (ambos processos estao
@@ -176,3 +193,76 @@ def get_ra_for_point(
 
     # Fora de cobertura: SEM_DADO (nao inventar)
     return (None, None, "SEM_DADO")
+
+
+def _max_class(dist: Optional[dict]) -> Optional[int]:
+    """Maior classe de RA com pelo menos 1 Unidade de Analise (>0)."""
+    if not dist:
+        return None
+    presentes = [c for c, n in dist.items() if n and n > 0]
+    return max(presentes) if presentes else None
+
+
+def get_ra_dist_for_point(
+    rodovia: Optional[str],
+    km: Optional[float],
+) -> dict:
+    """
+    Retorna a DISTRIBUICAO completa de RA (geo e hid) do trecho que contem
+    o km informado, extraida diretamente das Tabelas 3.3.3.1-3 e 3.3.3.1-4
+    do Produto 7 (2053-R04-21).
+
+    Diferente de get_ra_for_point (que colapsa para a moda), este retorno
+    preserva a contagem de Unidades de Analise por classe, permitindo que o
+    motor de risco calcule o Risco Dinamico por classe e adote o pior caso
+    (decisao do usuario: "distribuicao completa, motor decide por classe").
+
+    Returns: dict com chaves:
+        dist_geo: {0..4: n} ou None
+        dist_hid: {0..4: n} ou None
+        ra_geo_max / ra_hid_max: maior classe presente (>0) ou None
+        ra_geo_moda / ra_hid_moda: classe mais frequente ou None
+        regiao, uba, desc, source
+    """
+    rodovia_norm = (rodovia or "").strip().upper()
+    out = {
+        "dist_geo": None, "dist_hid": None,
+        "ra_geo_max": None, "ra_hid_max": None,
+        "ra_geo_moda": None, "ra_hid_moda": None,
+        "regiao": None, "uba": None, "desc": None,
+        "source": "SEM_DADO",
+    }
+    if km is None:
+        return out
+
+    geo_hit = None
+    for (r_rod, r_km0, r_km1), data in RA_GEO_BY_SEGMENT.items():
+        if rodovia_norm == r_rod and r_km0 <= km <= r_km1:
+            geo_hit = data
+            break
+
+    hid_hit = None
+    for (h_rod, h_km0, h_km1), h_data in RA_HID_BY_SEGMENT.items():
+        if rodovia_norm == h_rod and h_km0 <= km <= h_km1:
+            hid_hit = h_data
+            break
+
+    if geo_hit is None and hid_hit is None:
+        return out
+
+    ref = geo_hit or hid_hit
+    out["regiao"] = ref.get("regiao")
+    out["uba"] = ref.get("uba")
+    out["desc"] = ref.get("desc")
+
+    if geo_hit is not None:
+        out["dist_geo"] = dict(geo_hit["dist"])
+        out["ra_geo_max"] = _max_class(geo_hit["dist"])
+        out["ra_geo_moda"] = cast(int, geo_hit["moda"])
+    if hid_hit is not None:
+        out["dist_hid"] = dict(hid_hit["dist"])
+        out["ra_hid_max"] = _max_class(hid_hit["dist"])
+        out["ra_hid_moda"] = cast(int, hid_hit["moda"])
+
+    out["source"] = f"regea2021:dist:{rodovia_norm}:km{km}:{ref.get('uba')}"
+    return out

@@ -40,14 +40,10 @@ _GEOJSON = (
 
 
 def _load_segments():
-    """Carrega segmentos do GeoJSON (lazy import geopandas)."""
-    try:
-        import geopandas as gpd
-        from shapely.geometry import Point
-    except ImportError:
+    """Carrega segmentos do GeoJSON. Usa geopandas/shapely do topo."""
+    if not _HAS_GEO or gpd is None or Point is None:
         log.warning(
-            "geopandas/shapely nao instalado. "
-            "UA segments nao carregado."
+            "geopandas/shapely nao instalado. UA segments nao carregado."
         )
         return None, None
 
@@ -66,66 +62,96 @@ def _load_segments():
     return gdf, Point
 
 
-def get_ra_by_location(
-    lat: float, lon: float, rodovia: Optional[str] = None,
-    max_distance_m: float = 500.0
-) -> Tuple[Optional[int], Optional[int], str]:
-    """
-    Retorna (ra_geo, ra_hid, source) para um ponto (lat, lon).
+def _nearest_segment(lat, lon, rodovia, max_distance_m):
+    """Retorna a linha do segmento mais proximo dentro de max_distance_m."""
+    gdf, point_cls = _load_segments()
+    if gdf is None or point_cls is None:
+        return None
 
-    Busca o segmento da malha DER/SP mais proximo do ponto.
-    Se estiver dentro de max_distance_m, retorna o RA do segmento.
-    Caso contrario, retorna (None, None, "SEM_DADO").
-
-    Args:
-        lat, lon: coordenadas WGS84
-        rodovia: opcional, filtra por rodovia (ex: "SP 055")
-        max_distance_m: distancia maxima em metros para match
-
-    Returns:
-        (ra_geo, ra_hid, source)
-    """
-    gdf, Point = _load_segments()
-    if gdf is None or Point is None:
-        return (None, None, "SEM_DADO")
-
-    pt = Point(lon, lat)
+    pt = point_cls(lon, lat)
     gdf_proj = gdf.to_crs(epsg=3857)  # Web Mercator para distancia em metros
     pt_proj = gpd.GeoSeries([pt], crs="EPSG:4326").to_crs(epsg=3857)[0]
-
-    # Calcula distancia a cada segmento
     gdf_proj["dist"] = gdf_proj.distance(pt_proj)
 
-    # Filtra por rodovia se informada
     if rodovia:
         rod_norm = rodovia.strip().upper()
         gdf_proj = gdf_proj[gdf_proj["rodovia"] == rod_norm]
 
     if gdf_proj.empty:
-        return (None, None, "SEM_DADO")
+        return None
 
-    # Encontra o mais proximo
     nearest = gdf_proj.loc[gdf_proj["dist"].idxmin()]
-    dist_m = nearest["dist"]
+    if nearest["dist"] > max_distance_m:
+        return None
+    return nearest
 
-    if dist_m > max_distance_m:
+
+def _to_int(v):
+    import math
+    if v is None:
+        return None
+    try:
+        if isinstance(v, float) and math.isnan(v):
+            return None
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_dist(v):
+    """Le coluna dist_geo/dist_hid (JSON string) -> {int: int} ou None."""
+    if v is None or (isinstance(v, float)):  # NaN vem como float
+        return None
+    try:
+        import json
+        d = json.loads(v) if isinstance(v, str) else v
+        out = {int(k): int(n) for k, n in d.items() if n and int(n) > 0}
+        return out or None
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
+def get_ra_by_location(
+    lat: float, lon: float, rodovia: Optional[str] = None,
+    max_distance_m: float = 500.0
+) -> Tuple[Optional[int], Optional[int], str]:
+    """
+    Retorna (ra_geo, ra_hid, source) para um ponto (lat, lon), usando a maior
+    classe presente no segmento mais proximo (pior caso). Compatibilidade.
+    """
+    nearest = _nearest_segment(lat, lon, rodovia, max_distance_m)
+    if nearest is None:
         return (None, None, "SEM_DADO")
 
-    ra_geo = nearest.get("ra_geo")
-    ra_hid = nearest.get("ra_hid")
+    ra_geo = _to_int(nearest.get("ra_geo_max"))
+    ra_hid = _to_int(nearest.get("ra_hid_max"))
     src = nearest.get("source", "SEM_DADO")
-    desc = nearest.get("desc", "")
-    uba = nearest.get("uba", "")
-
     if src == "regea2021":
-        detail = f"{uba}:{desc}" if uba else desc
-        src = f"ua_segments:{detail}"
+        uba = nearest.get("uba", "") or ""
+        desc = nearest.get("desc", "") or ""
+        src = f"ua_segments:{uba}:{desc}" if uba else f"ua_segments:{desc}"
+    return (ra_geo, ra_hid, src)
 
-    import math
-    return (
-        int(ra_geo) if (ra_geo is not None and not math.isnan(ra_geo))
-        else None,
-        int(ra_hid) if (ra_hid is not None and not math.isnan(ra_hid))
-        else None,
-        src
-    )
+
+def get_ra_dist_by_location(
+    lat: float, lon: float, rodovia: Optional[str] = None,
+    max_distance_m: float = 500.0
+):
+    """
+    Retorna a distribuicao completa de RA do segmento mais proximo:
+        (dist_geo, dist_hid, ra_geo_max, ra_hid_max, source)
+    Usado como fallback espacial quando o lookup por km nao cobre o ponto.
+    """
+    nearest = _nearest_segment(lat, lon, rodovia, max_distance_m)
+    if nearest is None:
+        return (None, None, None, None, "SEM_DADO")
+
+    dist_geo = _parse_dist(nearest.get("dist_geo"))
+    dist_hid = _parse_dist(nearest.get("dist_hid"))
+    ra_geo = _to_int(nearest.get("ra_geo_max"))
+    ra_hid = _to_int(nearest.get("ra_hid_max"))
+    src = nearest.get("source", "SEM_DADO")
+    if src == "regea2021":
+        uba = nearest.get("uba", "") or ""
+        src = f"ua_segments:{uba}" if uba else "ua_segments"
+    return (dist_geo, dist_hid, ra_geo, ra_hid, src)

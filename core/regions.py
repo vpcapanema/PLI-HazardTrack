@@ -13,7 +13,7 @@ Cada regiao tem:
 """
 
 from dataclasses import dataclass, field
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, cast
 from pathlib import Path
 import json
 import logging
@@ -183,7 +183,17 @@ def load_regions(shapefile_path: Optional[Path] = None) -> List[Region]:
             log.warning("Falha ao ler %s, seguindo: %s", path, e)
 
     log.info("Usando poligonos retangulares aproximados (sem shapefile oficial encontrado)")
-    return [Region(**r) for r in APPROXIMATE_REGIONS]
+    return [
+        Region(
+            id=cast(int, r["id"]),
+            nome=cast(str, r["nome"]),
+            rodovia=cast(str, r["rodovia"]),
+            k_geo=cast(float, r["k_geo"]),
+            cpc_breaks=cast(List[float], r["cpc_breaks"]),
+            hid24h_breaks=cast(List[float], r["hid24h_breaks"]),
+            polygon=cast(List[Tuple[float, float]], r["polygon"])
+        ) for r in APPROXIMATE_REGIONS
+    ]
 
 
 def find_region_for_point(lat: float, lon: float, regions: List[Region]) -> Optional[Region]:

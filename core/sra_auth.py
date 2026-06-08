@@ -104,6 +104,8 @@ class SraAuthBackend:
         if self._pool is None:
             with self._pool_lock:
                 if self._pool is None:
+                    if self._dsn is None:
+                        return None
                     self._pool = ConnectionPool(
                         conninfo=self._dsn,
                         min_size=1,
@@ -121,6 +123,8 @@ class SraAuthBackend:
             return {"configured": False, "ok": False, "error": "env nao definida"}
         try:
             pool = self._get_pool()
+            if pool is None:
+                return {"configured": False, "ok": False, "error": "pool nao disponivel"}
             with pool.connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("SELECT 1 AS ok")
@@ -155,6 +159,8 @@ class SraAuthBackend:
 
         try:
             pool = self._get_pool()
+            if pool is None:
+                return None
             with pool.connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(_AUTH_QUERY, (email, OPS_ROLE))
@@ -170,7 +176,7 @@ class SraAuthBackend:
         try:
             ok = bcrypt.checkpw(
                 password.encode("utf-8"),
-                row["password_hash"].encode("utf-8"),
+                row["password_hash"].encode("utf-8"),  # type: ignore[call-overload]
             )
         except Exception as e:
             log.error("ops auth: erro no bcrypt: %s", e)
@@ -180,12 +186,12 @@ class SraAuthBackend:
             log.info("ops auth falha: senha invalida email=%s", email)
             return None
 
-        log.info("ops auth ok: id=%s email=%s", row["id"], email)
+        log.info("ops auth ok: id=%s email=%s", row["id"], email)  # type: ignore[call-overload]
         return {
-            "id": row["id"],
-            "email": row["email"],
-            "nome": row["nome"],
-            "role": row["role"],
+            "id": row["id"],  # type: ignore[call-overload]
+            "email": row["email"],  # type: ignore[call-overload]
+            "nome": row["nome"],  # type: ignore[call-overload]
+            "role": row["role"],  # type: ignore[call-overload]
         }
 
 

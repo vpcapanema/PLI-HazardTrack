@@ -22,3 +22,13 @@ test_merge.py
 tests
 README.md
 PLI-HazardTrack.code-workspace
+AGENTS.md
+
+# Dev / geracao offline (nao usados em runtime)
+ferramentas/
+data/Tema30_Resiliencia/
+data/**/pdf-forge-exports/
+data/**/extracted-pdfs/
+
+# Shapefile bruto — malha servida via static/data/malha_der.geojson
+data/der_sistema_rodoviario/

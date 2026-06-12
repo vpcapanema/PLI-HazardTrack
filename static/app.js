@@ -415,10 +415,34 @@ function installMapLayerControl() {
 // MODAIS (ajuda e glossário)
 // ============================================================================
 
+function fillApiModalUrls() {
+  const paths = {
+    "api-url-live": "/api/public/ua-layers?hazard=geo",
+    "api-url-all": "/api/public/ua-layers",
+    "api-url-geo": "/api/public/ua-layers?hazard=geo",
+    "api-url-hidro": "/api/public/ua-layers?hazard=hidro",
+    "api-url-alerts": "/api/public/ua-layers?min_rd=3",
+  };
+  const origin = window.location.origin || "";
+  Object.entries(paths).forEach(([id, path]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = origin + apiUrl(path);
+  });
+  const ex = document.getElementById("api-fetch-example");
+  if (ex) {
+    const sample = origin + apiUrl("/api/public/ua-layers?hazard=geo");
+    ex.textContent =
+      `const res = await fetch("${sample}");\n` +
+      "const geojson = await res.json();\n" +
+      "console.log(geojson.metadata.timestamp_utc, geojson.features.length);";
+  }
+}
+
 function attachModalEvents() {
   const openModal = (id) => {
     const m = document.getElementById(id);
     if (m) {
+      if (id === "modal-api") fillApiModalUrls();
       m.hidden = false;
       document.body.style.overflow = "hidden";
     }
@@ -435,6 +459,10 @@ function attachModalEvents() {
   document.getElementById("link-glossary")?.addEventListener("click", (e) => {
     e.preventDefault();
     openModal("modal-glossary");
+  });
+  document.getElementById("link-api")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openModal("modal-api");
   });
 
   // Fechar pelo X

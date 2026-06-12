@@ -184,6 +184,7 @@
             <div class="footer-links">
                 <a href="#" id="link-help">Como ler o mapa?</a>
                 <a href="#" id="link-glossary">Glossário</a>
+                <a href="#" id="link-api">API pública</a>
                 <a href="/ops" rel="nofollow">Operações</a>
             </div>
             <div class="ver">PLI-HazardTrack · protótipo operacional</div>
@@ -437,6 +438,95 @@
                     <dt>PPDC</dt>
                     <dd>Plano Preventivo de Defesa Civil. Nomenclatura dos cinco níveis operacionais e das ações recomendadas no painel “Ações Operacionais”.</dd>
                 </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL: API pública (integração externa)
+         ============================================================ -->
+    <div class="modal-backdrop" id="modal-api" hidden>
+        <div class="modal modal-wide" role="dialog" aria-labelledby="modal-api-title">
+            <header class="modal-header">
+                <h2 id="modal-api-title">API pública — camadas de UA</h2>
+                <button class="modal-close" data-close-modal aria-label="Fechar">×</button>
+            </header>
+            <div class="modal-body">
+                <p class="modal-intro">
+                    Endpoint aberto para outras aplicações consumirem as
+                    <b>809 Unidades de Análise</b> com geometria e monitoramento
+                    em tempo real (RD, chuva, RA e atributos DER).
+                    Resposta em <b>GeoJSON</b> (<code>application/geo+json</code>).
+                </p>
+
+                <h3>URL base (esta instalação)</h3>
+                <p class="modal-code-line">
+                    <code id="api-url-live" class="modal-code-block">—</code>
+                </p>
+                <p class="modal-note">
+                    Atualize a cada ~30 s. Compatível com Leaflet, Mapbox,
+                    QGIS, ArcGIS Online e qualquer cliente HTTP/GeoJSON.
+                </p>
+
+                <h3>Endpoints</h3>
+                <table class="modal-table">
+                    <tr>
+                        <th>Todas as UAs (geo + hidro)</th>
+                        <td><code id="api-url-all">—</code></td>
+                    </tr>
+                    <tr>
+                        <th>Encosta (RD geológico)</th>
+                        <td><code id="api-url-geo">—</code></td>
+                    </tr>
+                    <tr>
+                        <th>Inundação (RD hidrológico)</th>
+                        <td><code id="api-url-hidro">—</code></td>
+                    </tr>
+                    <tr>
+                        <th>Somente alertas (RD ≥ 3)</th>
+                        <td><code id="api-url-alerts">—</code></td>
+                    </tr>
+                </table>
+
+                <h3>Parâmetros de consulta</h3>
+                <table class="modal-table">
+                    <tr>
+                        <th><code>hazard</code></th>
+                        <td><code>geo</code>, <code>hidro</code> ou <code>all</code> (padrão)</td>
+                    </tr>
+                    <tr>
+                        <th><code>min_rd</code></th>
+                        <td>Filtro 0–4 — retorna UAs com RD ≥ valor (ex.: <code>3</code>)</td>
+                    </tr>
+                    <tr>
+                        <th><code>at</code></th>
+                        <td>Data/hora ISO 8601 UTC — snapshot histórico (ex.: <code>2023-02-19T12:00:00Z</code>)</td>
+                    </tr>
+                </table>
+
+                <h3>Propriedades de cada feature</h3>
+                <table class="modal-table">
+                    <tr><th>Identificação</th><td><code>id</code>, <code>rodovia</code>, <code>km</code>, <code>regiao</code>, <code>region_name</code>, <code>municipio</code></td></tr>
+                    <tr><th>Risco</th><td><code>ra</code>, <code>rd</code>, <code>rd_geo</code>, <code>rd_hid</code>, <code>nivel</code>, <code>hazard</code></td></tr>
+                    <tr><th>Chuva</th><td><code>ac96h_mm</code>, <code>ac24h_mm</code>, <code>intensity_mmh</code>, <code>cpc</code>, <code>icc_geo</code>, <code>icc_hid</code></td></tr>
+                    <tr><th>DER</th><td><code>cgr</code>, <code>uba_codigo</code>, <code>uba_nome</code>, <code>residencia_conserva</code></td></tr>
+                </table>
+
+                <h3>Metadados (<code>metadata</code>)</h3>
+                <p>
+                    O objeto raiz inclui <code>timestamp_utc</code>,
+                    <code>data_status</code> (<code>ok</code>, <code>loading</code>,
+                    <code>no_data</code>), contagem por nível e
+                    <code>feature_count</code>.
+                </p>
+
+                <h3>Exemplo (JavaScript)</h3>
+                <pre class="modal-pre" id="api-fetch-example">—</pre>
+
+                <p class="modal-note">
+                    CORS liberado (<code>Access-Control-Allow-Origin: *</code>).
+                    Cache HTTP: 30 s. Não requer autenticação.
+                </p>
             </div>
         </div>
     </div>

@@ -84,6 +84,7 @@ mesmo para 24+ pontos de monitoramento.
 
 - `GET /` - interface
 - `GET /api/snapshot` - estado atual completo (JSON)
+- `GET /api/public/ua-layers` - UAs em GeoJSON (monitoramento tempo real; `?hazard=geo|hidro|all`, `?min_rd=3`)
 - `POST /api/refresh` - forca atualizacao manual
 - `GET /api/health` - health check
 
@@ -97,8 +98,30 @@ mesmo para 24+ pontos de monitoramento.
 | 3 | vermelho | Alerta |
 | 4 | roxo | Alerta Maximo |
 
-## Deploy (Render)
+## Deploy (Docker / Render)
 
-- `render.yaml` configurado (Python 3.11.9, gunicorn).
-- Start: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120`
+### Imagem Docker (producao)
+
+Requisitos: **Docker Desktop** em execucao.
+
+```cmd
+build-docker.bat
+```
+
+Ou manualmente:
+
+```cmd
+docker build -t pli-hazardtrack:prod -t pli-hazardtrack:latest .
+docker run --rm -p 5050:5050 -e PORT=5050 pli-hazardtrack:prod
+```
+
+Health check: `GET /api/health`
+
+A imagem inclui `libeccodes`, as 809 UAs (`data/ua_zones/`), malha DER
+(`static/data/`) e roda com **gunicorn** na porta `$PORT` (padrao 5050).
+
+### Render
+
+- `render.yaml` configurado (`runtime: docker`, `dockerfilePath: ./Dockerfile`).
+- Start: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 180`
 - Health check: `/api/health`

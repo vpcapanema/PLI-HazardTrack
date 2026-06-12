@@ -21,6 +21,7 @@ from core.aggregator import state
 from core.ops import ops_bp
 from core.actions import get_summary_actions, get_protocolo_completo
 from core.merge_ingest import ingest
+from core.ua_public_feed import build_ua_layers_geojson
 from core.zones import get_zones_geo
 
 logging.basicConfig(
@@ -280,7 +281,6 @@ def api_forecast():
       - ac24h_forecast_mm: +24h futuras (composicao geologica)
       - ac6h_forecast_mm:  +6h futuras (composicao hidrologica)
     """
-    from datetime import datetime, timezone
     from core.forecast_wrf_prec_hourly import fetch_forecast_accum_batch
 
     snap = state.get_snapshot()
@@ -335,6 +335,47 @@ def api_timeline():
     except (TypeError, ValueError):
         frames = 96
     return jsonify(state.build_timeline(frames=frames))
+
+
+@app.route("/api/public/ua-layers")
+def api_public_ua_layers():
+    """Feed publico GeoJSON das UAs com RD e chuva em tempo real.
+
+    Query params:
+      hazard=geo|hidro|all   (default all)
+      min_rd=0..4            filtra UAs com RD >= min_rd
+      at=ISO8601             snapshot historico (UTC)
+    """
+    snap = _snapshot_for_request()
+    hazard = request.args.get("hazard", "all")
+    min_rd_raw = request.args.get("min_rd")
+    min_rd = None
+    if min_rd_raw is not None and str(min_rd_raw).strip() != "":
+        try:
+            min_rd = int(min_rd_raw)
+        except ValueError:
+            return jsonify({
+                "type": "FeatureCollection",
+                "metadata": {
+                    "error": "Parametro min_rd invalido (use 0..4).",
+                },
+                "features": [],
+            }), 400
+        if min_rd < 0 or min_rd > 4:
+            return jsonify({
+                "type": "FeatureCollection",
+                "metadata": {
+                    "error": "Parametro min_rd fora do intervalo 0..4.",
+                },
+                "features": [],
+            }), 400
+
+    body = build_ua_layers_geojson(snap, hazard=hazard, min_rd=min_rd)
+    resp = jsonify(body)
+    resp.headers["Content-Type"] = "application/geo+json; charset=utf-8"
+    resp.headers["Cache-Control"] = "public, max-age=30"
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
 
 
 @app.route("/api/health")

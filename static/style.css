@@ -2140,6 +2140,46 @@ body {
   color: var(--pli-accent);
 }
 
+.modal-wide {
+  max-width: min(720px, calc(100vw - 2rem));
+}
+
+.modal-code-block {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.45;
+  word-break: break-all;
+  background: var(--gray-100);
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.35rem;
+  color: var(--pli-navy);
+}
+
+.modal-code-line {
+  margin: 0.35rem 0 0.65rem;
+}
+
+.modal-pre {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  background: var(--gray-100);
+  color: var(--pli-navy);
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.35rem;
+  overflow-x: auto;
+  margin: 0.35rem 0 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.modal-table code {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--pli-accent);
+}
+
 /* ============================================================================
    LINHA DO TEMPO (animacao 96h)
    ============================================================================ */

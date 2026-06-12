@@ -188,6 +188,9 @@ body {
   color: var(--sidebar-bege-dim);
   line-height: 1.4;
   margin-bottom: 0.85rem;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
 }
 
 .panel-note {
@@ -199,6 +202,9 @@ body {
   background: rgba(255,255,255,.03);
   border-left: 2px solid var(--pli-verde);
   border-radius: 0.22rem;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
 }
 
 .panel-note code {
@@ -211,6 +217,23 @@ body {
 }
 
 .panel-note sup { font-size: 0.55em; }
+
+/* Textos explicativos da sidebar — parágrafo justificado */
+.sidebar .rd-basis-note,
+.sidebar .rd-basis-note small,
+.sidebar .actions-empty,
+.sidebar .forecast-empty,
+.sidebar .acoes-sub,
+.sidebar .acoes-calm small,
+.sidebar .dl-subtitle,
+.sidebar .dl-batch-hint,
+.sidebar .dl-activity,
+.sidebar .no-data-msg,
+.sidebar .worst-empty {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+}
 
 /* ============================================================================
    DISTRIBUIÇÃO POR NÍVEL OPERACIONAL
@@ -834,7 +857,6 @@ body {
 /* Card "sem dado" no painel "Trecho Mais Crítico" */
 .worst-empty.no-data {
   padding: 0.8rem 0.5rem;
-  text-align: left;
 }
 .worst-empty.no-data .no-data-title {
   color: #b3261e;
@@ -858,7 +880,6 @@ body {
 /* Card "carregando" - primeiro ciclo */
 .worst-empty.loading {
   padding: 0.9rem 0.5rem 0.7rem;
-  text-align: left;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;

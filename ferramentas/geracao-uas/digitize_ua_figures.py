@@ -102,10 +102,7 @@ def _hist_match(zones, channel, dist):
 def apply_hybrid(all_zones):
     """Onde a zona cai em trecho critico mapeado, calibra o RA digitalizado
     pelas proporcoes oficiais (Tabelas 3.3.3.1-3/-4). Fora, mantem a figura."""
-    from pathlib import Path
-    import sys
-    root = Path(__file__).resolve().parents[2]
-    rel = root / "ferramentas" / "relatorios-plano-contingencia"
+    rel = ROOT / "ferramentas" / "relatorios-plano-contingencia"
     if str(rel) not in sys.path:
         sys.path.insert(0, str(rel))
     from ra_official import RA_GEO_BY_SEGMENT, RA_HID_BY_SEGMENT

@@ -7,7 +7,7 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 
 csv_path = ROOT / "data" / "malha_der" / "malha_der_oficial.csv"
 stats_path = ROOT / "static" / "data" / "malha_der_stats.json"

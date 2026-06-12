@@ -1,0 +1,2911 @@
+--- PAGE 1 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Serviços de Consultoria 
+Preço Global 
+
+--- PAGE 2 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Sumário 
+Prefácio. 	
+04 
+1. Contrato 	
+06 
+II.Condições Gerais do Contrato 	
+9 
+A. Disposições Gerais 	
+9 
+1. Definições 	
+9 
+2. Relacionamento entre as Partes 	
+10 
+3. Legislação Aplicável 	
+10 
+4. Idioma 	
+10 
+5. Títulos 	
+10 
+6. Comunicações 	
+11 
+7. Local 1 1 
+8. Autoridade do Membro Líder 	
+11 
+9. Representantes autorizados 	
+11 
+10. Práticas corruptas e fraudulentas 	
+11 
+B. Início, Conclusão, Modificação e Rescisão do Contrato 	
+11 
+11. Vigência do Contrato 	
+11 
+12. Rescisão do Contrato por Falta de Entrada em Vigor 	
+11 
+13. Início dos serviços 	
+12 
+14. Encerramento do Contrato 	
+12 
+15. Totalidade do Acordo 	
+12 
+16. Modificações ou Variações 	
+12 
+17. Força Maior 	
+12 
+18. Suspensão 	
+13 
+19. Rescisão 	
+14 
+C. Obrigações do Consultor 	
+16 
+20. Disposições Gerais 	
+16 
+21. Conflito de Interesses 	
+17 
+22. Confidencialidade 	
+18 
+23. Responsabilidade do Consultor 	
+18 
+CTTSDP064/2019/ECO 	
+2158 
+
+--- PAGE 3 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+24. Seguro a ser obtido pelo Consultor 	
+18 
+25. Contas, Inspeção e Auditoria 	
+18 
+26. Obrigações de apresentar relatórios 	
+19 
+27. Direitos de propriedade do Cliente nos relatórios e registros 	
+19 
+2& Equipamentos, Veículos e Materiais 	
+19 
+D. Especialistas do Consultor e Subconsultores 	
+19 
+29. Descrição de Especialistas principais 	
+19 
+30. Substituição Especialistas Principais 	
+20 
+31. Remoção de Especialistas ou Subconsultores 	
+20 
+E. Obrigações do Cliente 	
+20 
+32. Assistência e Isenções 	
+20 
+33. Acesso ao Local do Projeto 	
+21 
+34. Mudança na Legislaçao Aplicável Relativa a Impostos e Taxas 	
+21 
+35. Serviços, instalações e bens do Cliente 	
+21 
+36. Equipe de Contrapartida 	
+22 
+37. Obrigação de pagamento 	
+22 
+F.. Pagamentos ao Consultor  
+	
+22 
+38. Preço do Contrato 	
+22 
+39. Impostos e Direitos 	
+22 
+40. Moeda de Pagamento 	
+22 
+41. Forma de Cobrança e de Pagamento 	
+22 
+42. Juros sobre Pagamentos Atrasados 	
+23 
+G. Equidade e Boa-Fé 	
+24 
+43. Boa-Fé 	
+24 
+11. Resolução de Conflitos 
+	
+24 
+44. Solução Amigável 	
+24 
+45. Solução de controvérsias 	
+24 
+Anexo 1: Política do Banco Mundial - Práticas Corruptas e Fraudulentas 	
+25 
+DI.Condições Especiais do Contrato 	
+27 
+IV.Apêndices 	
+35 
+Apêndice A - Termos de Referência 	
+35 
+Apêndice B - Equipe Principal 	
+36 
+Apêndice C - Discriminação do Preço do Contrato 	
+Erro! Indicador não definido. 
+CTTSDP064/2019/ECO 	
+3/58 
+
+--- PAGE 4 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Prefácio 
+1. O Contrato consiste em quatro partes: Contrato a ser assinado pelo Cliente e o Consultor, as 
+Condições Gerais do Contrato (CG), incluindo Anexo 1 (Política do Banco Mundial - Fraude e 
+Corrupção); as Condições Especiais do Contrato (CE) e os Apêndices. 
+2. As Condições Gerais do Contrato, incluindo o Anexo 1, não devem ser modificadas. As 
+Condições Especiais do Contrato que contenham cláusulas específicas para cada Contrato têm o 
+objetivo de complementar, mas não substituir ou de outro modo contradizer, as Condições Gerais. 
+CTTSDP064/2019/ECO 	
+4/58 
+
+--- PAGE 5 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+CONTRATO DE SERVIÇOS DE CONSULTORIA 
+Preço Global 
+Nome do Projeto: Projeto de Transporte Sustentável de São Paulo! Programa de Transporte, 
+Logística e Meio Ambiente 
+Contrato de Empréstimo N° 8272-BR 
+Contrato N°20.595-3 
+Entre o 
+Departamento de Estradas de Rodagem do Estado de São Paulo — DER/SP 
+e 
+CONSÓRCIO REGEA — NIPPON KOEI LAC — GEOTEC — OPITMUS GIS 
+CTTSDP064/2019/ECO 	
+5/58 
+
+--- PAGE 6 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+CONTRATO N° 20.595-3 	
+DATA: 21/07/20 
+PROTOCOLOIDER/2087634/2019 
+Fundamentos Jurídicos: Contrato de empréstimo n° 8272-BR firmado entre o Estado de São 
+Paulo e o Banco Internacional para Reconstrução e Desenvolvimento — BIRD; § 5 0  do Artigo 42 
+da Lei Federal n° 8.666 de 21/06/1993 e emendas posteriores bem como outras legislações 
+pertinentes a matéria. 
+Dotação: Do ponto de vista orçamentário, os recursos orçamentários para atender as despesas 
+deste contrato estão previstos no projeto PROGRAMA DE TRABALHO: 26782.1606.2392.0000, 
+FONTE DE RECURSO: 047502065. NATUREZA DA DESPESA: 44.90.35. Os pagamentos de 
+despesas referentes a exercícios subsequentes constam do Plano Plurianual 2020-2023 e da 
+proposta orçamentária setorial a ser convertida em lei Orçamentária Anual, nos termos do artigo 50 
+e parágrafos da Lei Complementar n° 101/2000. 
+OBJETO: Contratação de serviços técnicos especializados para elaboração de Planos de 
+Contingência frente a riscos de eventos geodinâmicos em trechos rodoviários selecionados 
+das Unidades Básicas de Atendimento (UBAs), de Caraguatatuba, Mogi das Cruzes e São 
+Vicente. 
+Este CONTRATO (doravante denominado o "Contrato") é celebrado no 21/07/2020, entre, de 
+um lado, o Departamento de Estradas de Rodagem do Estado de São Paulo — DER/SP 
+(doravante denominado o "Cliente"), Autarquia vinculada à Secretaria de Logística e Transportes, 
+doravante denominado simplesmente DER/SP, com sede na Avenida do Estado, n° 777, na Cidade 
+de São Paulo, Estado de São Paulo, inscrito no Cadastro Nacional da Pessoa Jurídica - CNPJ do 
+Ministério da Fazenda sob n° 43.052.497/0001-02, neste ato representado pelo Sr. Paulo Cesar 
+Tagliavini, Superintendente, pela competência estabelecida na Portaria SUP/DER-069-19/09/2018, 
+que poderá ser consultada no site www.der.susgov.br e por outro lado, o CONSÓRCIO REGEA 
+— NIPPON KOEI LAC — GEOTEC — OPTTMUS GIS, inscrito no Cadastro Nacional da Pessoa 
+Jurídica — CNPJ do Ministério da Fazenda sob n°37.663.059/0001-70, formado pelas seguintes 
+empresas, cada uma das quais será responsável conjunta e solidariamente perante o Contratante 
+por todas as obrigações do Consultor neste Contrato, a saber, REGEA GEOLOGIA, 
+ENGENHARIA E ESTUDOS AMBIENTAIS LTDA. inscrita no Cadastro Nacional de Pessoa 
+Jurídica do Ministério da Fazenda — CNPJ, sob n°. 07.105.914/0001-66, com sede na Rua Moacir 
+Miguel da Silva, 633 — Jardim Bonfiglioli, na cidade de São Paulo, Estado de São Paulo, NIPPON 
+KOEI LATIN AMERICA-CARIBBEAN CO., LTD., inscrita no Cadastro Nacional de Pessoa 
+Jurídica do Ministério da Fazenda — CNPJ, sob n°. 08.957.262/0001-50, com sede em 4 Kojimachi 
+5-chome, Chiyoda-Ku, Tóquio 1028539, Japão, NIPPON KOEI LAC DO BRASIL LTDA., 
+inscrita no Cadastro Nacional de Pessoa Jurídica do Ministério da Fazenda — CNPJ, sob n°. 
+CTTSDP06412019/ECO 	
+6158 
+
+--- PAGE 7 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+08.871.349/0001-00, com sede na Rua Claudio Soares, 72 - salas 302 e 303 — Pinheiros — na 
+cidade de São Paulo, Estado de São Paulo; GEOTEC CONSULTORIA AMBIENTAL LTDA., 
+inscrita no Cadastro Nacional de Pessoa Jurídica do Ministério da Fazenda — CNPJ, sob n°. 
+03.063.067/0001-63, com sede na Rua Machado Bittencourt, 361, cj. 104, Vila Clementina na 
+cidade de São Paulo, Estado de São Paulo e OPTIMUS GIS — CONSULTORIA 
+EMPRESARIAL LTDA., inscrita no Cadastro Nacional de Pessoa Jurídica do Ministério da 
+Fazenda — CNPJ, sob n°. 12.224.640/0001-64, com sede na Avenida Doutor Nelson D' avila, n° 
+1837, salas 701 e 702, Jardim São Dimas, na cidade de São José dos Campos, Estado de São Paulo 
+(doravante denominado "Consultor" ou "Empresa Consultora", neste ato representado pela Sr. 
+EIITI KUROKAWA, RG n" 4.709.823-5-SSP/SP, CPF/MF 157.447.106-63 que assina como 
+Representante Legal do Consórcio, conforme documentos arquivados no DER/SP, com anuência 
+da Secretaria de Estado do Meio Ambiente, conforme fls. n° 377 e anverso do Protocolo n° 
+DER/2087634/2019. 
+CONSIDERANDO QUE 
+(a) o Cliente tenha solicitado ao Consultor o fornecimento de determinados serviços de 
+consultoria conforme definidos neste Contrato (doravante denominados "Serviços"); 
+(b) o Consultor, tendo declarado ao Cliente possuir as habilidades profissionais necessárias, 
+conhecimento especializado e recursos técnicos, concordou em prestar os Serviços nos 
+termos e condições definidos neste Contrato; 
+(c) o Cliente recebeu um empréstimo do Banco Internacional de Reconstrução e 
+Desenvolvimento (BIRD): em relação ao custo dos Serviços e pretende aplicar uma 
+parte dos resultados deste empréstimo em pagamentos elegíveis sob este Contrato, 
+sabendo que: (i) os pagamentos por parte do Banco Mundial serão efetuados apenas a 
+pedido do Cliente e com a aprovação do Banco Mundial; (ii) tais pagamentos estarão 
+sujeitos, em todos os aspectos, aos termos e condições do acordo de empréstimo, 
+incluindo as proibições de retirada da conta de empréstimo para efetuar qualquer 
+pagamento a pessoas ou entidades, ou para qualquer importação de mercadorias, se tal 
+pagamento ou importação, quando de conhecimento do Banco Mundial, for proibido por 
+decisão do Conselho de Segurança das Nações Unidas descrito no Capítulo VII da Carta 
+das Nações Unidas; e (iii) nenhuma parte, a não ser o Cliente, deverá obter quaisquer 
+direitos do acordo de empréstimo ou fazer alguma solicitação de recursos de 
+empréstimo; 
+AS PARTES têm por justo e acordado o seguinte: 
+1. 	
+Os seguintes documentos anexos serão considerados como parte integrante deste Contrato: 
+(a) As Condições Gerais do Contrato (inclusive o Mexo 1 "Política do Banco - Fraude e 
+Corrupção"); 
+CTTSDP064/2019/ECO 	
+7/58 
+
+--- PAGE 8 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+(b) As Condições Especiais do Contrato; 
+(c) Apêndices: 
+Apêndice A: Termos de referência 
+Apêndice B: Especialistas Principais 
+Apêndice C: Discriminação de Preços do Contrato 
+No caso de qualquer inconsistência entre os documentos, a seguinte ordem de prioridade 
+deve prevalecer. as Condições Especiais do Contrato; as Condições Gerais do Contrato, 
+incluindo Anexo 1; Apêndice A; Apêndice B; Apêndice C; Apêndice D. Qualquer 
+referência a este Contrato deve incluir, onde o contexto permitir, uma referência a seus 
+Apêndices. 
+2. 	
+Os direitos e obrigações do Cliente e do Consultor serão aqueles estabelecidos no 
+Contrato, em particular: 
+(a) o Consultor prestará os Serviços de acordo com as disposições do Contrato; e 
+(b) o Cliente efetuará os pagamentos ao Consultor de acordo com as disposições do 
+Contrato. 
+3. 	
+Lavrado em via única na Equipe de Licitações e Contratos da Diretoria de Engenharia do 
+Departamento de Estradas de Rodagem do Estado de São Paulo, lido e achado conforme 
+pelas partes. 
+Eí4Cilj 
+ 
+EM TESTEMUNHO DO QUE, as Partes assinam o presente Contrato em seus respectivos nomes, 
+no dia e ano acima indicados. 
+Para e em nome de CONSÓRCIO REGEA — NEPPON KOEI LAC — GEOTEC — OPTINIUS 
+GIS 
+OKAWA 
+Procurador 
+CONDIÇÕES GERAIS DO CONTRATO 
+CTTSDP084/2019/ECO 	
+8/58 
+
+--- PAGE 9 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+A. DISPOSIÇÕES GERAIS 
+1. Definições 	 1.1. A menos que o contexto exija de outra forma, as expressões e termos 
+abaixo terão, para a finalidade do contrato, os seguintes significados: 
+(a) "Diretrizes Aplicáveis" são as Diretrizes para Seleção e Contratação 
+de Consultores em Empréstimos do BIRD e os Créditos e Subsídios 
+da AR) por parte dos Mutuários do Banco Mundial, datados de 
+janeiro de 2011. 
+"Legislação Aplicável" significa as leis e quaisquer outros 
+instrumentos que tenham força de lei no país do Cliente ou em 
+qualquer outro país especificado nas Condições Especiais do 
+Contrato (CE), que possam ser aprovadas e estar em vigor 
+periodicamente. 
+(c) "Banco" significa o Banco Internacional de Reconstrução e 
+Desenvolvimento 
+(BIRD) e a Associação Internacional de 
+Desenvolvimento (AID). 
+(d) "Mutuário" significa o Governo, órgão do Governo ou outra entidade 
+que assine o contrato de financiamento com o Banco. 
+(e) "Cliente" significa a agência executora que assina o Contrato para os 
+Serviços com o Consultor Selecionado. 
+(f) 
+"Consultor" significa uma empresa de consultoria ou entidade 
+legalmente constituída selecionada pelo Cliente para fornecer os 
+Serviços nos termos do Contrato assinado. 
+(g) "Contrato" significa o acordo obrigatório por escrito, assinado entre o 
+Cliente e o Consultor e que inclui todos os documentos anexos 
+listados no parágrafo 1 da Minuta do Contrato (as Condições Gerais 
+(CO), as Condições Especiais (CE) e os Apêndices). 
+(h) 
+"Dia" significa um dia útil, salvo disposição em contrário. 
+(i) "Data de vigência" significa a data em que este Contrato passa a 
+vigorar e ter efeito de acordo com a Cláusula CO 11. 
+(j) 
+"Especialistas" significa coletivamente os "Especialistas Principais", 
+"Especialistas de Apoio" ou qualquer funcionário do Consultor, 
+Subconsultor ou membro(s) do consórcio designado pelo Consultor 
+para executar os Serviços ou qualquer parte deles nos termos do 
+Contrato. 
+(k) "Moeda estrangeira" significa qualquer moeda que não seja a moeda 
+do país do Cliente. 
+(1) "CO" significa as Condições Gerais do Contrato. 
+(m) "Governo" significa o governo do país do Cliente. 
+(n) "Consórcio" significa urna associação com ou sem personalidade 
+CTTSDP064/2019/ECO 	
+9/58 
+
+--- PAGE 10 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+jurídica diferente daquela dos seus membros, de mais de uma 
+entidade onde um membro tem autoridade para realizar todos os 
+negócios por e em nome de todo e qualquer membro do consórcio e 
+onde os membros do consórcio são conjunta e solidariamente 
+responsáveis perante o Cliente pela execução do Contrato. 
+(o) "Especialista(s) Principagis)" significa um profissional individual 
+cujas habilidades, qualificações, conhecimento e experiência são 
+críticos para a execução dos Serviços nos termos do Contrato e cujo 
+Curriculum Vitae (CV) foi levado em consideração na avaliação 
+técnica da proposta do Consultor. 
+(p) "Moeda local" significa a moeda do país do Cliente. 
+(q) "Especialista(s) de Apoio" significa um profissional fornecido pelo 
+Consultor ou seu Subconsultor para executar os Serviços ou alguma 
+parte deles nos termos do Contrato. 
+(r) 
+"Parte" significa o Cliente ou o Consultor, conforme o caso, e 
+"Partes" abrange ambos. 
+(s) "CE" significa as Condições Especiais do Contrato, por meio das 
+quais as Condições Gerais podem ser modificadas ou 
+complementadas, mas não substituídas. 
+(t) "Serviços" significa o trabalho a ser executado pelo Consultor de 
+acordo com este Contrato, conforme a descrição no Apêndice A deste 
+Contrato. 
+(u) "Subconsultores" significa uma entidade para quem/a qual o Consultor 
+subcontrata qualquer parte dos Serviços enquanto permanece o único 
+responsável pela execução do Contrato. 
+(v) "Terceiro" significa qualquer pessoa ou entidade que não seja o 
+Governo, o Cliente, o Consultor ou o Subconsultor. 
+2. Relacionamento 
+2.1. 	
+Nenhuma disposição neste documento deve ser interpretada como 
+entre as Partes 
+determinante de uma relação de patrão e empregado ou de chefe e 
+subordinado entre o Cliente e o Consultor. Nos termos deste Contrato, o 
+Consultor 	
+dispõe 	
+de 	
+total 	
+controle 	
+sobre 	
+os 	
+Especialistas 	
+e 	
+os 
+Subconsultores, se houver, que estiverem executando os Serviços e 
+assumirá plena responsabilidade pelos trabalhos desempenhados por eles 
+ou em seu nome. 
+3. Legislação Aplicável 
+3.1. 	
+Este Contrato, seu significado e interpretação, e a relação entre as 
+Partes devem ser regidos pela Legislação Aplicável. 
+4. Idioma 
+4.1. 	
+Este Contrato foi assinado no idioma especificado nas Condições 
+Especiais, que será obrigatório e regerá todas as questões referentes ao seu 
+significado ou interpretação. 
+5. Títulos 
+5.1. 	
+Os títulos não deverão limitar, alterar ou afetar o significado deste 
+Contrato. 
+CTTSDP064/2019/ECO 	
+10/58 
+
+--- PAGE 11 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+6. Comunicações 
+6.1. Qualquer comunicação exigida ou permitida a ser divulgada ou feita 
+nos termos deste Contrato deverá ser por escrito no idioma especificado na 
+Cláusula CG 4. Considera-se válida qualquer comunicação, solicitação ou 
+autorização quando houver sido entregue pessoalmente a um representante 
+autorizado da Parte a quem a comunicação for dirigida, ou mediante o seu 
+envio para o endereço da referida Parte especificado nas CE. 
+6.2. Uma Parte pode alterar o seu endereço para recebimento de 
+notificações, de acordo com este Contrato, mediante comunicação à outra 
+Parte sobre a mudança do endereço indicado nas Condições Especiais. 
+7. Local 	
+7.1. Os Serviços serão executados nos locais indicados no Apêndice A 
+destas CG, e quando o local de uma tarefa específica não for assim 
+estabelecido, esta será realizada em localidade aprovada pelo Cliente, seja 
+no país do Governo ou em outro local. 
+8. Autoridade do 
+Membro Líder 
+9. Representantes 
+autorizados 
+8.1. Se o Consultor consistir em um Consórcio, os membros autorizam a 
+entidade especificada nas Condições Especiais a atuar em seu nome no 
+exercício de todos os direitos e obrigações do Consultor junto ao Cliente, 
+nos termos deste Contrato, incluindo, sem limitação, o recebimento de 
+instruções e pagamentos do Cliente. 
+9.1. Os funcionários indicados nas CE poderão tomar qualquer medida 
+que o Cliente ou o Consultor deva ou possa adotar, bem como poderão 
+assinar qualquer documento que possa ou deva ser assinado pelo Cliente ou 
+pelo Consultor, de acordo com este Contrato. 
+10. Práticas corruptas e 10.1. O Banco Mundial exige conformidade com a sua política 
+fraudulentas 	relacionada a práticas corruptas e fraudulentas conforme definido no 
+Anexo 1 das CG. 
+a. Comissões e 	10.2. O Cliente requer que o Consultor divulgue quaisquer comissões, 
+honorários 
+gratificações ou honorários que possam ter sido pagos ou que devam ser 
+pagos a agentes ou a qualquer outra parte com relação ao processo de 
+seleção ou execução do Contrato. As informações divulgadas devem 
+incluir pelo menos o nome e o endereço do agente ou da outra parte, o 
+montante e a moeda, e a finalidade da comissão, gratificações ou 
+honorários. Qualquer problema na divulgação de tais comissões, 
+gratificações ou honorários pode resultar na rescisão do Contrato e/ou em 
+sanções por parte do Banco. 
+B. INICIO, CONCLUSÃO, MODIFICAÇÃO E RESCISÃO DO CONTRATO 
+11. Vigência do 	11.1. Este Contrato entrará em vigor e efeito na data ("Data de 
+Contrato 	
+vigência") em que o Cliente notificar o Consultor, instruindo-o a dar inicio 
+à execução dos Serviços. Essa notificação deverá confirmar que foram 
+atendidas as condições para entrada em vigor, se houver, relacionadas nas 
+a. 
+12. Rescisão do 	12.1. Após a assinatura pelas Partes, se este Contrato não entrar em vigor 
+Contrato por Falta 	
+dentro do prazo especificado nas CE, qualquer uma das Partes pode 
+CTTSDP064/2019/ECO 	
+11/58 
+
+--- PAGE 12 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+de Entrada em 	
+declarar este Contrato anulado e sem efeito, mediante comunicação por 
+Vigor 	
+escrito à outra Parte, com antecedência mínima de 22 (vinte e dois) dias. 
+No caso de tal afirmação por uma das Partes, nenhuma delas poderá fazer 
+qualquer reivindicação à outra Parte relacionada ao Contrato. 
+13. Inicio dos serviços 	
+13.1. O Consultor confirmará a disponibilidade dos Especialistas 
+Principais e dará início aos Serviços em no máximo o número de dias após 
+a Data de Entrada em Vigor especificada nas CG. 
+14. Encerramento do 	
+14.1. Exceto quando rescindido em data anterior, de acordo com a 
+Contrato 	 Cláusula CG 19, este Contrato estará encerrado no final do prazo após a 
+Data de Vigência, conforme especificado nas CE. 
+15. Totalidade do 	
+15.1. Este Contrato contém todos os acordos, condições e disposições 
+Acordo 	
+ajustadas pelas Partes. Nenhum agente ou representante de qualquer das 
+Partes dispõe de autoridade para fazer, nem as Partes estarão sujeitas ou 
+serão responsáveis por qualquer declaração, representação, promessa ou 
+acordo que não tenha sido estabelecido neste Contrato. 
+16. Modificações ou 	
+16.1. Qualquer modificação ou variação nos termos e condições deste 
+Variações 	 Contrato, incluindo qualquer alteração ou mudança no escopo dos 
+Serviços, poderá ser feita somente por meio de acordo por escrito entre as 
+Partes. 
+16.2. Quando as modificações ou variações forem substanciais, será 
+necessário obter o prévio consentimento do Banco. 
+17. Força Maior 
+a. 	
+Definição 	
+17.1. Para a finalidade deste Contrato, "Força Maior" significa um evento 
+que está fora do controle razoável de urna Parte, não é previsível nem pode 
+ser evitado e que, nas circunstâncias, toma impossível ou é tão 
+impraticável que pode ser considerado razoavelmente impossível o 
+cumprimento, nessas circunstâncias, de suas obrigações estabelecidas 
+neste Contrato. Essas situações abrangem, mas não se limitam a guerras, 
+rebeliões, distúrbios civis, terremotos, incêndios, explosões, tempestades, 
+enchentes ou outras condições climáticas adversas, greves de trabalhadores 
+e patronais, ou outras ações sindicais, confisco ou qualquer outra medida 
+tomada por órgãos governamentais. 
+17.2. Força Maior não inclui (i) qualquer evento provocado por 
+negligência ou ação intencional de uma Parte ou de seus Especialistas, 
+Subconsultores, agentes ou empregados nem (ü) qualquer acontecimento 
+que uma Parte diligente pudesse ter previsto no momento da assinatura 
+deste Contrato e ter evitado ou solucionado durante o cumprimento de suas 
+obrigações estabelecidas neste instrumento contratual. 
+17.3. Não constitui motivo de Força Maior a insuficiência de fundos ou 
+falta de qualquer pagamento previsto neste Contrato. 
+OTTSDP064/2019/ECO 	
+12158 
+
+--- PAGE 13 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+b. 
+Não constitui 	
+17.4.0 descumprimento de qualquer das obrigações de uma Parte 
+violação do 	
+estabelecidas neste Contrato não será considerado violação ou negligência, 
+contrato 	
+se esse descumprimento resultar de um evento de Força Maior, desde que 
+a Parte afetada por esse evento tenha tomado todas as precauções 
+razoáveis, o devido cuidado ou medidas alternativas legítimas com o 
+objetivo de cumprir os termos e condições deste Contrato. 
+c. 
+Medidas a 	
+17.5. A Parte afetada por um evento de Força Maior deverá continuar a 
+serem 	
+executar suas obrigações determinadas pelo Contrato, na medida do 
+adotadas 	
+possível, e tomar todas as providências razoáveis para minimizar as 
+conseqüências de qualquer evento de Força Maior. 
+17.6. A Parte afetada por um evento de Força Maior deverá notificar 
+prontamente a outra Parte sobre tal acontecimento e, em qualquer caso, no 
+prazo máximo de 14 (quatorze) dias seguintes à ocorrência de tais 
+acontecimentos, apresentando evidências de sua natureza e causa e, da 
+mesma forma, deverá notificar por escrito a volta às condições normais tão 
+logo seja possível. 
+17.7. Qualquer prazo em que uma Parte deva concluir qualquer ação ou 
+tarefa, de acordo com este Contrato, será estendido por um período igual 
+àquele durante o qual a referida Parte não pôde executá-la devido a um 
+evento de Força Maior. 
+17.8. Durante o período de sua incapacidade para executar os Serviços 
+devido a um evento de Força Maior, o Consultor, instruído pelo Cliente, 
+deverá: 
+(a) interromper os trabalhos e, nesse caso, o Consultor será 
+reembolsado pelos custos adicionais e necessários que tenha 
+assumido de forma razoável e, se for exigido pelo Cliente, ao 
+reativar os Serviços; ou 
+(b) continuar com os Serviços até o ponto que for possível, e neste 
+caso o Consultor deverá continuar a ser pago conforme os 
+termos deste Contrato e será reembolsado pelos custos 
+adicionais incorridos de forma razoável e necessária. 
+17.9. No caso de desacordo entre as Partes quanto à existência ou à 
+extensão do evento de Força Maior, o fato deverá ser solucionado de 
+acordo com as Cláusulas das CO 44 e 45. 
+18. Suspensão 	18.1. O Cliente pode interromper todos os pagamentos ao Consultor 
+previstos neste Contrato, mediante aviso de suspensão por escrito ao 
+CTTSDP064/20191EC0 	
+13/58 
+
+--- PAGE 14 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Consultor, se este deixar de cumprir qualquer de suas obrigações 
+estabelecidos neste instrumento contratual, inclusive a execução dos 
+Serviços, desde que o aviso de suspensão (i) especifique a natureza do 
+descumprimento, e (ii) solicite ao Consultor a correção das falhas 
+detectadas no prazo máximo de 30 (trinta) dias, contados a partir do 
+recebimento pelo Consultor da notificação. 
+19. Rescisão 
+a. 	
+Pelo Cliente 
+19.1. Este Contrato pode ser rescindido por qualquer das Partes de 
+acordo com as disposições definidas a seguir: 
+19.1.1. O Cliente pode rescindir este Contrato no caso de 
+ocorrência de qualquer dos eventos especificados nos parágrafos (a) a 
+(O desta Cláusula. Em tal ocorrência, o Cliente deverá dar um aviso 
+de rescisão por escrito de ao menos trinta (30) dias corridos ao 
+Consultor no caso dos eventos referenciados nos itens (a) a (d); um 
+aviso por escrito de ao menos sessenta (60) dias corridos no caso do 
+evento referido no parágrafo (e); e um aviso por escrito de pelo 
+menos cinco (5) dias corridos no caso do evento referido no item (0: 
+(a) 
+Se o Consultor deixar de corrigir uma falha no desempenho das 
+suas obrigações aqui previstas, conforme especificado em um 
+aviso de suspensão de acordo com a Cláusula CO 18; 
+(b) 
+Se o Consultor (ou se ele consistir mais de uma entidade, se 
+qualquer de seus membros) entrar em processo de insolvência 
+ou de falência ou estabelecer qualquer acordo com seus 
+credores para reduzir a sua dívida ou lançar mão de alguma lei 
+que beneficie os devedores ou ainda entrar em processo de 
+liquidação ou em concordata compulsória ou voluntária; 
+(c) 
+Se o Consultor deixar de cumprir qualquer decisão final 
+resultante de um procedimento de arbitragem conforme a 
+Cláusula CG 45.1: 
+(d) 
+Se, por motivo de Força Maior, o Consultor não puder executar 
+uma parte essencial dos Serviços durante um período não 
+inferior a 60 (sessenta) dias; 
+(e) 
+Se o Cliente, sob seu exclusivo critério e por qualquer razão, 
+decidir rescindir este Contrato; 
+(t) 	
+Se o Consultor deixar de confirmar a disponibilidade dos 
+Especialistas principais conforme exigência da Cláusula CO 
+13. 
+19.1.2 Ademais, se o Cliente determinar que o Consultor envolveu-se 
+em práticas corruptas, fraudulentas, colusivas, coercitivas ou 
+obstrutivos ao competir por um Contrato ou executá-lo, o Cliente 
+C7TSDP064/2019/ECO 	
+14/58 
+
+--- PAGE 15 ---
+b. 
+Pelo 
+Consultor 
+c. 
+Cessação dos 
+Direitos e 
+Obrigações 
+d. 
+Cessação dos 
+Serviços 
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+poderá, 14 (quatorze) dias após enviar notificação por escrito ao 
+Consultor, rescindir o Contrato com o Consultor. 
+19.1.3. O Consultor pode rescindir este Contrato, por meio de um 
+aviso por escrito ao Cliente de pelo menos trinta (30) dias corridos, 
+no caso de ocorrência de qualquer evento especificado nos parágrafos 
+(a) a (d) desta Cláusula. 
+(a) 
+Se o Cliente deixar de pagar qualquer montante devido ao 
+Consultor de acordo com este contrato e não sujeito a disputa de 
+acordo com a Cláusula CG 45.1 dentro de quarenta e cinco (45) 
+dias corridos após o recebimento de aviso por escrito do 
+Consultor de que esse pagamento está em mora. 
+(b) 
+Se, por motivo de Força Maior, o Consultor não puder executar 
+uma parte essencial dos Serviços durante um período não 
+inferior a 60 (sessenta) dias. 
+(c) 
+Se o Cliente deixar de cumprir qualquer decisão final resultante 
+de um procedimento de arbitragem conforme a Cláusula CO 
+45.1. 
+(d) 
+Se o Cliente descumprir de modo substancial as suas obrigações 
+previstas neste Contrato e não corrigir a sua conduta no prazo de 
+45 (quarenta e cinco) dias (ou um período maior que o 
+Consultor pode ter subsequentemente aprovado por escrito) a 
+partir do recebimento pelo Cliente da notificação do Consultor 
+especificando o descumprimento. 
+19.1.4. Após a rescisão deste Contrato de acordo com as 
+Cláusulas CGC 12 ou CGC 19 deste documento, ou após a 
+expiração deste Contrato de acordo com a Cláusula CO 14, todos os 
+direitos e obrigações das Partes aqui especificadas cessarão, exceto 
+(i) os direitos e obrigações que possam ter se acumulado na data da 
+rescisão ou expiração, (ii) a obrigação de confidencialidade 
+determinada na Cláusula CO 22, (iii) a obrigação do Consultor de 
+permitir a inspeção, cópia e auditoria de suas contas e seus registros 
+definida na Cláusula CO 25, e (iv) qualquer direito que urna das 
+Partes possa ter de acordo com a Legislação Aplicável. 
+19.1.5. Após a rescisão deste Contrato por aviso de qualquer das 
+Partes para a outra conforme as Cláusulas CO 19a ou CO 19b, o 
+Consultor deverá, imediatamente após o envio ou recebimento desse 
+aviso, seguir todas as etapas necessárias para encerrar os Serviços de 
+forma oportuna e ordenada, e deverá fazer todo o esforço possível 
+para manter as despesas para este fim em um mínimo. Com  relação 
+CTTSDP06412019/ECO 	
+15/58 
+
+--- PAGE 16 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+aos documentos preparados pelo Consultor e aos equipamentos e 
+materiais fornecidos pelo Cliente, o Consultor deverá proceder 
+conforme determinado, respectivamente, pelas Cláusulas CG 27 ou 
+CO 28. 
+e. Pagamento na 
+Rescisão do 
+Contrato 
+19.1.6. Após a rescisão deste Contrato, o Cliente deverá fazer os 
+seguintes pagamentos ao Consultor: 
+(a) pagamento dos Serviços realizados satisfatoriamente antes da 
+data de entrada em vigor da rescisão; e 
+(b) no caso de rescisão em conformidade com os parágrafos (d) e 
+(e) da Cláusula CG 19.1.1, o reembolso de qualquer custo 
+razoável incidental para a rescisão imediata e organizada deste 
+Contrato, incluindo o custo da viagem de volta dos 
+Especialistas. 
+C. OBRIGAÇÕES DO CONSULTOR 
+20. Disposições Gerais 
+a. Padrão de 	
+20.1 O Consultor deverá desempenhar e executar os Serviços com toda a 
+Desempenho 	
+devida diligência, eficiência e economia, de acordo com os padrões e as 
+práticas profissionais aceitas de modo geral, observar sólidas práticas de 
+gestão, empregar a tecnologia apropriada e equipamentos, maquinário, 
+materiais e métodos seguros e eficazes. O Consultor deverá sempre agir, 
+com respeito a qualquer assunto relativo a este Contrato ou aos Serviços, 
+como um consultor fiel ao Cliente, e deverá sempre apoiar e proteger os 
+interesses legítimos do Cliente em todas as negociações com terceiros. 
+20.2. O Consultor deverá contratar e fornecer Especialistas e 
+Subconsultores qualificados conforme exigido para executar os Serviços. 
+20.3. O Consultor pode subcontratar parte dos Serviços até certo ponto e 
+com os Especialistas Principais e Subconsultores aprovados previamente 
+pelo Cliente. Não obstante essa aprovação, o Consultor deverá manter total 
+responsabilidade pelos Serviços. 
+h. Legislação 
+Aplicável aos 
+Serviços 
+20.4. O Consultor deverá realizar os Serviços de acordo com o Contrato e 
+a Legislação Aplicável e seguir todas as etapas possíveis para garantir que 
+todos os seus Especialistas e Subconsultores cumpram a Legislação 
+Aplicável. 
+20.5. Durante a execução do Contrato, o Consultor deverá cumprir as 
+proibições relativas à importação de bens e serviços no país do Cliente 
+quando 
+CTTSDP064/2019/ECO 	
+16/58 
+
+--- PAGE 17 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+a. 
+O Consultor e 
+seus Associados 
+não poderão 
+participar de 
+certas 
+atividades 
+b. 
+Proibição de 
+Atividades 
+Confinantes 
+(a) por uma questão legal ou normas oficiais, o país do Mutuário 
+proibir o estabelecimento de relações comerciais com aquele 
+país; ou 
+(b) em conformidade com uma decisão do Conselho de Segurança 
+das Nações Unidas tomada de acordo com o Capítulo VII da 
+Carta das Nações Unidas, o País do Mutuário proibir qualquer 
+importação de bens daquele país ou quaisquer pagamentos a 
+qualquer país, pessoa ou entidade daquele país. 
+20.6. O Cliente deverá notificar o Consultor por escrito dos costumes 
+locais relevantes e o Consultor deverá, após essa notificação, respeitar tais 
+costumes. 
+O Consultor deverá priorizar os interesses do Cliente sem considerar a 
+possibilidade de qualquer trabalho futuro e evitar estritamente conflitos 
+com outros contratos ou com os seus próprios interesses corporativos. 
+21.1.1 O pagamento do Consultor de acordo com a CG F 
+(Cláusulas CG 38 a 42) deverá constituir o único pagamento do 
+Consultor em relação a este Contrato e, conforme a Cláusula CO 
+21.1.3, o Consultor não deverá aceitar em seu próprio benefício 
+nenhuma comissão comercial, desconto ou pagamento similar em 
+conexão com as atividades relativas a este Contrato ou no 
+desempenho das suas obrigações aqui previstas, e o Consultor deverá 
+usar seus maiores esforços para garantir que todos os Subconsultores, 
+bem como os Especialistas e respectivos agentes, também não 
+recebam qualquer pagamento adicional. 
+21.1.2 Outrossim, se o Consultor for responsável, como parte dos 
+Serviços, por assessorar o Cliente na aquisição de bens, obras ou 
+serviços, o Consultor deverá cumprir as diretrizes de aquisição 
+aplicáveis do Banco e sempre exercer tal responsabilidade visando os 
+melhores interesses do Cliente. Quaisquer descontos ou comissões 
+obtidos pelo Consultor durante essas atividades de aquisição 
+reverterão em favor do Cliente. 
+21.1.3 O Consultor concorda que, durante a execução deste 
+Contrato e após o seu encerramento, ele e qualquer de suas entidades 
+associadas, bem como quaisquer Subconsultores e as entidades 
+afiliadas a esses subconsultores, estarão desqualificados para o 
+fornecimento de bens, obras e serviços resultantes ou diretamente 
+relacionados aos Serviços de Consultoria prestados na preparação ou 
+implementação do projeto, salvo disposição em contrário. 
+21.1.4 O Consultor não deverá se envolver e não levará os seus 
+Especialistas, bem como os seus Subconsultores a participar direta 
+ou indiretamente de atividade comercial ou profissional que possa 
+21. Conflito de 
+Interesses 
+a. 
+O Consultor 
+não deve se 
+beneficiar de 
+comissões, 
+descontos etc. 
+CITSDP064/2019/ECO 	
+17/58 
+
+--- PAGE 18 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+conflitar com as tarefas que lhes foram atribuídas de acordo com o 
+Contrato. 
+d. Dever restrito 
+de divulgar 
+atividades 
+conflitantes 
+22. Confidencialidade 
+23. Responsabilidade do 
+Consultor 
+21.1.5 O Consultor tem a obrigação e deverá garantir que 
+Especialistas e Subconsultores também tenham a obrigação de 
+divulgar qualquer situação de conflito real ou potencial que impacte 
+sua capacidade de servir aos melhores interesses do seu Cliente ou 
+que possa ser interpretada como tal. A não divulgação dessas 
+situações pode levar à desqualificação do Consultor ou à rescisão do 
+seu Contrato. 
+22.1 Exceto mediante consentimento prévio por escrito do Cliente, o 
+Consultor e os seus Especialistas nunca poderão revelar a qualquer pessoa 
+ou entidade qualquer informação confidencial obtida durante a execução 
+dos Serviços nem tornar públicas as recomendações formuladas ao longo 
+ou resultantes dos Serviços. 
+23.1 	
+Sujeita a disposições adicionais, se houver, definidas nas CE, a 
+responsabilidade do Consultor prevista neste Contrato será determinada pela 
+Legislação Aplicável. 
+24. Seguro a ser obtido 
+pelo Consultor 
+25. Contas, Inspeção e 
+Auditoria 
+24.1 O Consultor (i) contratará e manterá, e fará com que os 
+Subconsultores contratem e mantenham, às suas próprias expensas (ou dos 
+Subconsultores, conforme o caso), nos termos e condições aprovados pelo 
+Cliente, um seguro contra riscos e com as coberturas especificadas nas CE, 
+e (ii) a pedido do Cliente, fornecerá as comprovações necessárias da 
+obtenção e manutenção do seguro, assim como do pagamento dos prêmios 
+vigentes. O Consultor deverá garantir que esse seguro está em vigor antes 
+do início dos Serviços, conforme definido na Cláusula CG 13. 
+25.1 O Consultor deverá manter e envidar todos os esforços possíveis 
+para assegurar que seus Subconsultores mantenham contas e registros 
+precisos e sistemáticos em relação aos Serviços e em tal forma e detalhes 
+que identifiquem claramente as mudanças de data e de custos pertinentes. 
+25.2 O Consultor deverá permitir e incentivar que seus Subconsuhores 
+permitam, que o Banco e/ou pessoas indicadas pelo Banco inspecione o 
+local Wou todas as suas contas e registros referentes à execução do 
+Contrato e ao envio da Proposta para o fornecimento dos Serviços e 
+submeta tais contas e registros à auditoria por auditores indicados pelo 
+Banco se este assim o exigir. O Consultor deve dar a devida atenção à 
+Cláusula CG 10 que dispõe, inter alia, que atos que objetivem impedir 
+concretamente o exercício dos direitos de inspeção e auditoria do Banco, 
+nos termos da Cláusula CG 25.2 constituem uma prática proibida sujeita à 
+rescisão contratual (bem como à determinação de inelegibilidade de acordo 
+CTTS0P064/2019/ECO 	
+18/58 
+
+--- PAGE 19 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+26. Obrigações de 
+apresentar relatórios 
+27. Direitos de 
+propriedade do 
+Cliente nos relatórios 
+e registros 
+2& Equipamentos, 
+Veículos e Materiais 
+com os procedimentos de sanções do Banco). 
+26.1 O Consultor deverá apresentar ao Cliente os relatórios e 
+documentos indicados no Apêndice A deste Contrato na forma, quantidade 
+e prazos fixados no referido Apêndice. 
+27.1 A menos que seja indicado de outro modo nas CE, todos os 
+relatórios e dados relevantes, bem como informações como mapas, 
+diagramas, planos, bancos de dados, outros documentos e software, 
+registros de apoio ou materiais compilados ou preparados pelo Consultor 
+para o Cliente durante o Serviço deverão ser confidenciais e tornar-se 
+propriedade absoluta do Cliente. O Consultor deverá, no máximo na 
+rescisão ou expiração deste Contrato, entregar todos esses documentos ao 
+Cliente, juntamente com um inventário detalhado desses documentos. O 
+Consultor poderá reter uma cópia desses documentos, dados e/ou software, 
+mas não deverá usá-la para fins que não estejam relacionados a este 
+Contrato sem aprovação prévia por escrito do Cliente. 
+27.2 Se forem necessários ou apropriados acordos de licença entre o 
+Consultor e terceiros para fins de desenvolvimento dos planos, desenhos, 
+especificações, projetos, bancos de dados, outros documentos e software, o 
+Consultor deverá obter a aprovação prévia por escrito do Cliente para esses 
+acordos e o Cliente terá o direito, a seu critério, de exigir a recuperação das 
+despesas relativas ao desenvolvimento do(s) programa(s) em questão. Outras 
+restrições sobre o uso futuro desses documentos e software, se houver, serão 
+especificados nas CE. 
+28.1 Equipamentos, veículos e materiais colocados à disposição do 
+Consultor pelo Cliente, ou adquiridos pelo Consultor com recursos integrais 
+ou parciais fornecidos pelo Cliente serão de propriedade do Cliente e 
+deverão ser identificados de modo adequado. Quando da rescisão ou 
+encerramento deste Contrato, o Consultor apresentará ao Cliente o 
+inventário dos referidos equipamentos, veículos e materiais, e os entregará 
+de acordo com as suas instruções. Enquanto estiver de posse dos 
+equipamentos, veículos e materiais, o Consultor deverá providenciar o 
+seguro desses itens, às expensas do Cliente, no valor equivalente à sua total 
+substituição, salvo determinação em contrário e por escrito do Cliente. 
+29. Descrição de 
+CTTSDP064/2019/ECO 
+28.2 Qualquer equipamento ou material trazido para o País do Cliente 
+pelo Consultor ou seus Especialistas tanto para uso pessoal ou no projeto, 
+permanecerá de propriedade do Consultor ou dos Especialistas, conforme 
+aplicável. 
+D. ESPECIALISTAS DO CONSULTOR E SUBCONSULTORES 
+29.1 Os cargos, as funções, as qualificações mínimas e a carga de 
+19/56 
+
+--- PAGE 20 ---
+Especialistas 
+principais 
+30. Substituição 
+Especialistas 
+Principais 
+I 	
+31. Remoção de 
+Especialistas ou 
+Subconsultores 
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+trabalho de cada um dos Especialistas Principais do Consultor, estimados 
+para execução dos serviços, estão descritos no Apêndice 13. 
+30.1 Exceto quando o Cliente estabelecer de outro modo, não serão 
+admitidas alterações nos Especialistas Principais. 
+30.2 Se, por qualquer motivo fora do controle razoável do Consultor, 
+como morte ou doença, entre outras, for necessário substituir qualquer 
+Especialista Principal, o Consultor deverá apresentar solicitação por 
+escrito. Nesse caso, o Consultor deverá apresentar imediatamente como 
+substituto outro profissional com qualificação equivalente ou superior e 
+com a mesma faixa de remuneração. 
+31.1 Se o Cliente descobrir que algum dos Especialistas ou 
+Subconsultores incorreu em conduta indevida ou foi acusado de ter 
+cometido um ato criminoso, ou se o Cliente determinar que o Especialista 
+ou Subconsultor do Consultor se envolveu em práticas corruptas, 
+fraudulentas, colusivas, coercitivas ou obstrutivas durante a execução dos 
+Serviços, o Consultor deverá, por solicitação por escrito do Cliente, 
+providenciar um substituto. 
+31.2 Caso algum Especialista Principal, Especialista de Apoio ou 
+Subconsultor seja considerado pelo Cliente como incompetente ou incapaz 
+no cumprimento das tarefas atribuídas, o Cliente, especificando os motivos 
+correspondentes, pode solicitar que o Consultor providencie um substituto. 
+31.3 Os substitutos dos Especialistas ou Subconsultores removidos 
+deverão ter melhores qualificações e experiência e serem aceitáveis para o 
+Cliente. 
+31.4 O Consultor deverá arcar com todos os custos oriundos ou relativos 
+a qualquer remoção e/ou substituição de tais Especialistas. 
+E. OBRIGAÇÕES DO CLIENTE 
+32. Assistência e Isenções 
+32.1 A menos que especificado de outra forma nas CE, o Cliente deverá 
+envidar todos os seus esforços para: 
+(a) Auxiliar o Consultor na obtenção dos vistos de trabalho e outros 
+documentos necessários para permitir que o Consultor preste os 
+Serviços. 
+(b) Auxiliar o Consultor na pronta obtenção, para que os Especialistas e, 
+se for apropriado, os seus dependentes elegíveis recebam 
+prontamente todos os vistos de entrada e saída, de residência e 
+licença para efetuar câmbio, bem como quaisquer outros documentos 
+necessários à sua estadia no país do Cliente enquanto executam os 
+CTTSDP064/2019/ECO 	
+20/58 
+
+--- PAGE 21 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Serviços previstos neste Contrato. 
+(c) Facilitar a pronta liberação pela alfândega de qualquer bem 
+necessário aos Serviços e dos objetos pessoais dos Especialistas e de 
+seus dependentes elegíveis. 
+(c) Fornecer aos funcionários, agentes e representantes do Governo todas 
+as instruções e informações necessárias ou pertinentes à imediata e 
+eficiente execução dos Serviços. 
+(d) Isente o Consultor, a Equipe e quaisquer Subconsultores contratados 
+pelo Consultor para executar os Serviços de qualquer exigência de 
+registro ou licença referente ao exercício da profissão ou ao 
+estabelecimento individual ou como entidade corporativa no país do 
+Cliente de acordo com a Legislação Aplicável daquele país. 
+(e) Conceder ao Consultor, a qualquer Subconsultor ou às Equipes de 
+ambos, o privilégio, de acordo com a Legislação Aplicável no país do 
+Cliente, de trazer para o país do Cliente valores razoáveis em moeda 
+estrangeira para a finalidade dos Serviços ou para seu uso pessoal, 
+bem como de retirar quaisquer montantes ganhos pela Equipe na 
+execução dos Serviços. 
+33. Acesso ao Local do 
+Projeto 
+34. Mudança na 
+Legislaçao Aplicável 
+Relativa a Impostos e 
+Taxas 
+35. Serviços, instalações 
+e bens do Cliente 
+(1) Fornecer ao Consultor qualquer outra assistência prevista nas CE. 
+33.1 O Cliente garante que o Consultor terá acesso livre e gratuito ao 
+local do projeto, necessário à execução dos Serviços. O Cliente será 
+responsável por quaisquer danos a esses lugares ou aos bens neles contidos, 
+que sejam resultantes do referido acesso, e indenizará o Consultor e cada 
+Especialista no que diz respeito à responsabilidade por tais danos, a menos 
+que tenham sido causados por falta ou negligência do Consultor, de 
+quaisquer Subconsultores ou dos Especialistas de ambos. 
+34.1 Se, após a data deste Contrato, houver alguma alteração na 
+legislação aplicável no país do Cliente com relação a impostos e direitos 
+que aumente ou diminua o custo incorrido pelo Consultor na realização dos 
+Serviços, a remuneração e as despesas reembolsáveis pagáveis de outro 
+modo ao Consultor neste Contrato devem ser aumentadas ou diminuídas de 
+modo adequado pelo acordo entre as Partes neste instrumento, e os ajustes 
+correspondentes deverão ser feitos para o valor do preço do Contrato 
+especificado na Cláusula CG 38.1. 
+35.1 O Cliente colocará à disposição do Consultor e da Equipe, para a 
+finalidade dos Serviços a serem realizados e livres de qualquer encargo, os 
+serviços, as instalações e os bens descritos nos Termos de Referência 
+(Apêndice A), durante os períodos e no modo especificados no Apêndice 
+C7TSDP064/2019/ECO 	
+21/58 
+
+--- PAGE 22 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+A. 
+36. Equipe de 
+Contrapartida 
+37. Obrigação de 
+pagamento 
+36.1 Se for especificado no Apêndice A deste Contrato, o Cliente 
+deverá colocar à disposição do Consultor, gratuitamente, os profissionais e 
+a equipe de apoio de contrapartida, que será designada pelo Cliente com a 
+assessoria do Consultor. 
+36.2 As equipes de profissionais e de apoio de contrapartida, excluídos 
+os funcionários de ligação do Cliente, deverão trabalhar sob a orientação 
+exclusiva do Consultor. Se qualquer membro da equipe de contrapartida 
+não executar de modo adequado qualquer tarefa compatível com o seu 
+cargo, que lhe seja atribuída pelo Consultor, este poderá solicitar a sua 
+substituição e o Cliente não deverá se negar sem razão a tomar as 
+providências necessárias para atender a esse pedido. 
+37.1 Em consideração aos Serviços realizados pelo Consultor neste 
+Contrato, o Cliente deve efetuar tais pagamentos ao Consultor pelos 
+produtos especificados no Apêndice A e da forma descrita pela cláusula 
+CGC F a seguir. 
+F. PAGAMENTOS AO CONSULTOR 
+38. Preço do Contrato 	
+38.1 O preço do Contrato é fixo e está determinado na CE. A 
+discriminação do preço do Contrato é fornecida no Apêndice C. 
+38.2 Qualquer mudança no preço do Contrato especificado na Cláusula 
+38.1 só pode ser feita se as Partes tiverem concordado com o escopo 
+revisado dos Serviços de acordo com a Cláusula CG 16 e modificado por 
+escrito os Termos de Referência no Apêndice A. 
+39. Impostos e Direitos 
+39.1 O Consultor, os Subcorasultores e os Especialistas são responsáveis 
+por cumprir todas as obrigações fiscais decorrentes do Contrato, exceto 
+quando definido de outro modo na CE. 
+39.2 Como exceção para o estabelecido acima e o definido na CE, todos 
+os impostos indiretos locais identificáveis (detalhados e finalizados nas 
+negociações do Contrato) são reembolsados ao Consultor ou pagos pelo 
+Cliente em nome do Consultor. 
+40. Moeda de Pagamento 40.1 Todos os pagamentos previstos neste Contrato deverão ser feitos 
+nas moedas do Contrato. 
+41. Forma de Cobrança e 41.1 O total de pagamentos no âmbito deste Contrato não deverá 
+de Pagamento 	
+exceder o preço do Contrato especificado na Cláusula CEC 38.1. 
+41.2 Os pagamentos previstos neste Contrato deverão ser feitos em 
+prestações de preço global relativas aos produtos especificados no 
+CTTSDP064/2019/ECO 	
+22/58 
+
+--- PAGE 23 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Apêndice A. Os pagamentos serão feitos de acordo com o cronograma de 
+pagamentos estabelecido nas CE. 
+41.2.1 Adiantamento: A menos que seja indicado de outro modo 
+nas CE, será efetuado um pagamento antecipado mediante uma 
+garantia bancária para pagamento antecipado aceitável para o Cliente 
+com valor (ou valores) e na moeda (ou moedas) especificados nas 
+CE. Essa garantia (i) deverá permanecer válida até que o 
+adiantamento tenha sido totalmente compensado e (ii) deverá ocorrer 
+na forma definida no Apêndice I), ou em qualquer outra forma 
+aprovado por escrito pelo Cliente. Os adiantamentos serão pagos pelo 
+Cliente em parcelas iguais contra as prestações de preço global 
+especificadas nas CE até que tais adiantamentos tenham sido 
+totalmente pagos. 
+41.2.2 	
+Os Pagamentos das Parcelas de Preço Global. O Cliente 
+deverá pagar ao Consultor no prazo de sessenta (60) dias após o 
+recebimento, por parte do Cliente, dos produtos e da fatura para o 
+respectivo pagamento da parcela de preço global. O pagamento 
+pode ser retido se o Cliente não aprovar os produtos enviados como 
+satisfatórios e, nesse caso, o Cliente deverá fornecer comentários para 
+o Consultor dentro do mesmo período de sessenta (60) dias. O 
+Consultor deverá imediatamente fazer as correções necessárias e, em 
+seguida, o processo deverá ser repetido. 
+41.2.3 	
+O Pagamento Final. O pagamento final previsto nesta 
+Cláusula deverá ser feito somente depois que o relatório final 1 tiver sido 
+enviado pelo Consultor e aprovado como satisfatório pelo Cliente. Os 
+Serviços deverão então ser considerados concluídos e finalmente aceitos 
+pelo Cliente. A última parcela do preço global será considerada 
+aprovada para pagamento pelo Cliente no prazo de noventa (90) dias 
+corridos após o recebimento do relatório final pelo Cliente, a menos que 
+ele, nesse período de noventa (90) dias corridos, envie um aviso por 
+escrito ao Consultor especificando em detalhes as deficiências nos 
+Serviços, o relatório final. O Consultor deverá imediatamente fazer as 
+correções necessárias e, em seguida, o processo deverá ser repetido. 
+41.2.4 Todos os pagamentos neste Contrato devem ser efetuados nas 
+contas do Consultor especificadas nas CE. 
+41.2.4 	
+Com exceção do pagamento final descrito em 41 23 acima, 
+os pagamentos não representam a aceitação de todos os Serviços nem 
+eximem o Consultor de quaisquer obrigações aqui descritas. 
+42. Juras sobre 	42.1 Se o Cliente tiver pagamentos atrasados com mais de quinze (15) 
+0ITSDP06412019/ECO 	
+23158 
+
+--- PAGE 24 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Pagamentos 
+Atrasados 
+dias após a data de vencimento definida na Cláusula CO 41.2.2, deverão ser 
+pagos juros ao Consultor sobre qualquer montante devido, e não pago, em 
+tal data de vencimento para cada dia de atraso na taxa anual definida nas 
+CE. 
+G. EQUIDADE E BOA-FÉ 
+43. Boa-Fé 	
+43.1 As Partes comprometem-se a agir de boa-fé com relação aos 
+direitos das duas Partes neste Contrato e a adotar todas as medidas 
+razoáveis para garantir a realização dos objetivos deste Contrato. 
+H. RESOLUÇÃO DE CONFLITOS 
+44. Solução Amigável 	
+44.1 As Partes devem procurar resolver qualquer controvérsia de forma 
+amigável por meio de consulta mútua. 
+45. Solução de 
+controvérsias 
+44.2 Se uma Parte não concordar com qualquer ação ou inação da outra 
+Parte, aquela que tenha discordado poderá apresentar por escrito à outra 
+Parte uma Notificação de Controvérsia, detalhando as razões do conflito. A 
+Parte que receber a Notificação da Controvérsia a levará em consideração e 
+responderá por escrito até 14 (quatorze) dias após o recebimento. Se essa 
+Parte não responder até quatorze (14) dias, ou se a controvérsia não puder 
+ser resolvida de forma amigável até quatorze (14) dias após a resposta da 
+Parte, a Cláusula CO 49.1 deverá ser aplicada. 
+45.1 Qnnlquer conflito resultante deste Contrato, que não possa ser 
+solucionado de forma amigável pelas Partes, será submetido a processo 
+judicial/arbitral de acordo com as disposições especificadas nas CE. 
+CTTSDP064/2019/ECO 	
+24/58 
+
+--- PAGE 25 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+II. Condições Gerais 
+Anexo 1: Política do Banco Mundial - Práticas Corruptas e 
+Fraudulentas 
+"Fraude e Corrupção 
+1.23 É a política do Banco exigir de todos os Mutuários (inclusive dos beneficiários de 
+empréstimos do Banco), consultores e seus agentes (sejam eles declarados ou não), 
+subcontratados, sub consultores, prestadores de serviço e fornecedores, além de todo funcionário a 
+eles vinculado, que mantenham os mais elevados padrões de ética durante a seleção e execução de 
+contratos financiados pelo Banco'. De acordo com essa política, o Banco: 
+(a) define, para fins dessa disposição, as expressões abaixo da seguinte forma: 
+(i) "prática corrupta" significa oferecer, entregar, receber ou solicitar, direta ou 
+indiretamente, qualquer coisa de valor com a intenção de influenciar indevidamente as 
+ações de terceiros', 
+(i) 
+"prática fraudulenta" significa qualquer ato, falsificação ou omissão de fatos que, de 
+forma intencional ou irresponsável, induza ou tente induzir uma parte a erro, para obter 
+benefício financeiro ou de qualquer outra ordem, ou com a intenção de evitar o 
+cumprimento de uma obrigação; 3; 
+"prática colusiva" significa uma combinação entre duas ou mais partes visando 
+alcançar um objetivo indevido, inclusive influenciar indevidamente as ações de outra 
+parte;4; 
+I Nesse contexto, será imprópria qualquer ação realizada por um consultor ou por qualquer dos seus 
+funcionários, seus agentes ou seus subconsultores, subempreiteiros, prestadores de serviço, fornecedores 
+e/ou seus empregados, no intuito de influenciar o processo de seleção ou a execução do contrato para 
+obter uma vantagem indevida é imprópria. 
+2 Para a finalidade deste subparágrafo, "terceiros" refere-se a um funcionário público que atue no 
+processo de seleção ou na execução do contrato. Neste contexto, `funcionário público" inclui a equipe do 
+Banco Mundial e os funcionários de outras organizações que examinam ou tomam decisões sobre a 
+seleção. 
+3 Para a finalidade deste subparágrafo, "Parte" refere-se a um funcionário público; os termos "beneficio" 
+e "obrigação" são relativos ao processo de seleção ou à execução do contrato; e "ato ou omissão" tem 
+como objetivo influenciar o processo de seleção ou a execução do contrato. 
+4 Para os fins deste parágrafo, "parte" refere-se aos participantes do processo de aquisição ou seleção 
+(inclusive funcionários públicos) que tentam por si mesmos ou por intermédio de outra pessoa ou entidade 
+que não participe do processo de aquisição ou seleção simular a concorrência ou estabelecer preços em 
+níveis artificiais e não competitivos ou ter acesso as propostas financeiras e outras condições. 
+
+--- PAGE 26 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+(iv) "prática coercitiva" significa prejudicar ou causar dano ou ameaçar prejudicar ou 
+causar dano, direta ou indiretamente, qualquer parte ou a sua propriedade para 
+influenciar indevidamente as ações de uma Parte', 
+(v) 
+"prática obstrutiva" significa 
+(aa) defiberadamente destruir, falsificar, alterar ou ocultar provas em investigações ou 
+fazer declarações falsas a investigadores, com o objetivo de impedir 
+materialmente uma investigação do Banco de alegações de prática corrupta, 
+fraudulenta, coercitiva ou colusiva; e/ou ameaçar, perseguir ou intimidar qualquer 
+parte interessada, para impedi-la de mostrar seu conhecimento sobre assuntos 
+relevantes à investigação ou ao seu prosseguimento, ou 
+(bb) atos que tenham como objetivo impedir materialmente o exercício dos direitos do 
+Banco de promover inspeção e auditoria; 
+(b) rejeitará a recomendação de outorga se determinar que o consultor recomendado para a 
+outorga do contrato, ou algum membro da sua equipe, seus agentes ou seus subconsultores, 
+subempreiteiros, prestadores de serviço, fornecedores e/ou algum empregado destes se 
+envolveu, de forma direta ou indireta, em práticas corruptas, fraudulentas, colusivas, 
+coercitivas ou obstrutivas ao concorrer para o contrato em questão; 
+(c) declarará viciado o processo de seleção e cancelará a parte do Empréstimo alocado para um 
+contrato se, a qualquer momento, concluir que os representantes do Mutuário ou de um 
+beneficiário do Empréstimo se envolveram em práticas corruptas, fraudulentas, colusivas, 
+coercitivas ou obstrutivas, durante o processo de seleção ou de execução do contrato em 
+questão, sem que o Mutuário tenha adotado medidas oportunas e adequadas, satisfatórias ao 
+Banco, para resolver essas práticas quando ela ocorrer, inclusive ao não informar ao Banco 
+de modo oportuno no momento que tomou conhecimentos dessas práticas; 
+(d) 
+sancionará uma firma ou pessoa física a qualquer tempo, de acordo com procedimentos 
+vigentes de sanções do Banco', inclusive declarando-a inelegível indefinidamente ou por prazo 
+determinado para: (i) a outorga de um contrato financiado pelo Banco, e (ii) ser designa.d& como 
+5 Para a finalidade deste subparágrafo, "parte" refere-se a um participante do processo de seleção ou da 
+execução do contrato. 
+6 Uma firma ou uma pessoa física pode ser declarado inelegível para outorga de um contrato financiado 
+pelo Banco após (i) a conclusão do processo de sanções do Banco, conforme seus procedimentos de 
+sanções, incluindo nomeadamente: impedimento cruzado, conforme acordado com outras Instituições 
+Financeiras Internacionais, incluindo Bancos Multilaterais de Desenvolvimento e procedimentos de 
+sanções por fraude e corrupção e (ii) em conseqüência de suspensão temporária ou suspensão temporária 
+preventiva relacionada a procedimento de sanções em andamento. Ver nota de rodapé 12 e parágrafo 8 do 
+Apêndice 1 das Diretrizes de Consultores, datadas de janeiro de 2011. 
+7 Um subconsultor, fornecedor, ou prestador de serviços designado é qualquer que (i) foi incluído pelo 
+consultor na sua proposta porque traz experiência especifica e conhecimentos específicos ou cruciais que 
+são considerados na avaliação técnica da proposta do consultor para os serviços em questão; ou (ii) 
+designado pelo Mutuário. 
+CTTSDP06412019/ECO 	
+26158 
+
+--- PAGE 27 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+subconsultor, consultor, fabricante, fornecedor ou prestador de serviços de uma outra fuma 
+elegível a quem tenha sido outorgado um contrato financiado pelo Banco. 
+P 
+CTTSDP064/2019/ECO 	
+27/58 
+
+--- PAGE 28 ---
+Número da 
+Oáusula CG 
+Emendas, Suplementos e Cláusulas nas Condições Gerais de Contrato 
+1.1(b) e 3.1 
+Este Contrato deve ser regido pelas leis do Brasil. 
+4.1 
+O idioma é: Português. 
+6.1 e 6.2 
+Os endereços são: 
+Cliente: Departamento de Estradas de Rodagem do Estado de São Paulo 
+— DER/SP 
+UCPR-SP — Unidade de Coordenação de Programas Rodoviários 
+Avenida do Estado, 777 - 2° andar — sala 2123 
+CEP 01107-000 
+Cidade: São Paulo 
+Estado: São Paulo 
+País: Brasil 
+Telefone: +55 113311.2285 
+Fax: +55 11 3311.2286 
+Consultor. Consórcio Regea-Nippon Koei Lac—Geotec—Optimus Gis 
+Rua Cláudio Soares, 72, Salas 301 a 303 — Pinheiros — CEP. 
+05422-030 
+São Paulo/SP 
+A/C de: Eiiti Kurokawa 
+Fax: (11) 3735-5172 
+E-mail: eiiti.lcurokawa@nklac.com  
+8.1 
+O Membro Líder em nome do Consórcio é N1PPON KOEI LAC, 
+Sr. Eiiti Kurokawa 
+9.1 
+Os Representantes Autorizados são: 
+Para o Cliente: Paulo Cesar Tagliavini- Superintendente 
+Pano Consultor: Eiiti Kurokawa - Representante Legal. 
+11.1 
+As condições de vigência são as seguintes: Não se aplica. 
+CTTSDP064/2019/ECO 	
+28/58 
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Condições Especiais do Contrato 
+
+--- PAGE 29 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+12.1 
+Não se aplica. 
+13.1 
+Inicio das Serviços: 
+A data prevista para o início dos serviços de consultoria será em até 05 
+(cinco) dias úteis a partir da emissão da Primeira Nota de Serviço fornecida 
+dentro de 30 (trinta) dias a partir da data de celebração do contrato. 
+Confirmação da disponibilidade dos Especialistas Principais para iniciar o 
+Serviço deve ser enviada ao Cliente por escrito, na forma de Declaração 
+assinada por cada Especialista Principal. 
+14.1 
+Término do Contrato: 
+A vigência do contrato deve ser de 9 (nove) meses. 
+20.7 
+O Consultor nacional deverá manter, durante toda a execução do contrato, 
+situação regular para com as Fazendas Federal, Estadual e Municipal, 
+Seguridade Social, FGTS e Justiça do Trabalho em compatibilidade com as 
+obrigações por ele assumidas. 
+21 b. 
+O Cliente se reserva o direito de determinar caso a caso se o Consultor deve 
+ser desqualificado do fornecimento de bens, obras ou serviços de não 
+consultoria devido a um conflito de uma natureza descrita na Cláusula CG 
+21.1.3. 
+Sim X 	Não 
+23.1 
+A Responsabilidade do Consultor será a delineado pela legislação brasileira. 
+24.1 
+A cobertura de seguro contra os riscos deve ser feita como a seguir: 
+(a) Seguro de responsabilidade profissional, com cobertura mínima de 
+11$ 733.152,33 (setecentos e trinta e três mil, cento e cinquenta e dois 
+reais e trinta e três centavos). 
+27.1 
+Adicionalmente as informações porventura cedidas à CONTRATADA, 
+exclusivamente para o cumprimento do objeto dos serviços previstos no 
+Termo de Referência, pertencem ao Estado de São Paulo. Ao final dos 
+serviços, toda e qualquer cópia digital do material cedido pela contratante 
+deverá ser apagada dos computadores e mídias de armazenamento das 
+instalações da Contratada, ficando proibido o uso, cessão, empréstimo, do 
+todo ou em pane, para quaisquer outros fins pela empresa contratada, sob 
+pena de incidência das sanções administrativas e penais cabíveis na forma da 
+legislação vigente. 
+CTISDP064/2019/ECO 	
+29/58 
+
+--- PAGE 30 ---
+27.2 
+O Consultor não deve usar quaisquer produtos para finalidades não 
+relacionadas a este Contrato sem a prévia aprovação por escrito do Cliente. 
+38.1 
+O preço do Contrato é: R$ 733.152,33 (setecentos e trinta e três mil, 
+cento e cinquenta e dois reais e trinta e três centavos) incluído de 
+impostos locais indiretos. 
+Quaisquer impostos indiretos locais passíveis de cobrança em relação a este 
+Contrato para os Serviços fornecidos pelo Consultor devem "ser 
+reembolsados pelo Cliente ao Consultor. 
+O montante de tais impostos é R$ 36.657,62 (trinta e seis mil, seiscentos e 
+cinquenta e sete mil e sessenta e dois centavos). 
+39.1 e 39.2 
+O Cliente reembolsará o Consultor, os Subconsultores e os Especialistas 
+quaisquer impostos indiretos, encargos, taxas, tributos e outras imposições 
+aplicadas ao Consultor, aos Subconsukores e Especialistas nos termos da 
+legislação aplicável no país do Cliente em relação a: 
+(a) quaisquer pagamentos efetuados ao Consultor, Subconsultores e 
+Especialistas (exceto nacionais ou residentes permanentes do país do 
+Cliente), juntamente com a realização dos Serviços; 
+(b) quaisquer equipamentos, materiais e suprimentos trazidos para o país 
+do Cliente pelo Consultor ou Subconsultores com o objetivo de realizar 
+os Serviços e que, após terem sido trazidos para tais territórios, serão 
+mais tarde retirados por eles; 
+(c) quaisquer equipamentos importados, com o objetivo de realizar os 
+Serviços e pagos com os recursos financeiros fornecidos pelo Cliente e 
+que são tratados como bens do Cliente; 
+(d) quaisquer bens trazidos para o país do Cliente pelo Consultor, 
+quaisquer Subconsultores ou Especialistas (exceto nacionais ou 
+residentes permanentes do país do Cliente), ou pelos dependentes 
+legais daqueles Especialistas para seu uso pessoal e que serão 
+posteriormente redrados por eles ao partirem do país do Cliente, desde 
+que: 
+(i) o Consultor, Subconsultores e Especialistas cumpram os 
+procedimentos normais de alfândega do pais do Cliente na 
+importação de bens para o país do Cliente; e 
+(ii) se 	
+o 	
+Consultor, 	
+Subconsultores 	
+ou Especialistas 	
+não 
+retirarem, mas descartarem quaisquer bens no país do Cliente 
+CTTSDP064/2019/ECO 	
+30/58 
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+
+--- PAGE 31 ---
+que tenham sido beneficiados com isenção de impostos e direitos 
+aduaneiros, o Consultor, Subconsultores ou Especialistas, 
+conforme o caso, (a) assumirão os impostos e direitos aduaneiros 
+de acordo com as regulamentações do país do Cliente, ou (b) 
+reembolsarão o Cliente caso este os tenha pagado no momento 
+em que os bens em questão foram trazidos pano país do Cliente. 
+41.2 	
+O cronograma de pagamento: 
+O pagamento será efetuado em 4 (QUATRO) parcelas, sendo que cada qual 
+será paga no prazo de 30 (trinta) dias, contados do recebimento da Nota 
+Fiscal no órgão pagador, emitida após o recebimento definitivo de cada 
+etapa, observados o Cronograma de Execução e medições, em conformidade 
+ao Termo de Referência. 
+1°. pagamento: 5% (cinco por cento) do valor total do contrato, cujo 
+montante alcança o valor de R$ 36.657,62 (trinta e seis mil, seiscentos e 
+cinquenta e sete reais e sessenta e dois centavos), conforme Termo de 
+Referência [na entrega e homologação do Plano de Trabalho Detalhado, 
+ou seja, o Produto 1, da Etapa Preparatória, em até 10 (dez) dias 
+corridos contados a partir da data da Primeira Nota de Serviço]. 
+2°. pagamento: 40% (quarenta por cento) do valor total do contrato, cujo 
+montante alcança o valor de R.$ 293.260,93 (duzentos e noventa e três mil, 
+duzentos e sessenta reais e noventa e três centavos), conforme Termo de 
+Referência [na entrega e homologação do Relatório Técnico e de 
+Atividades e do Banco de Dados Geográficos com os Produtos 2, 3, 4, 5 
+da Etapa 1, em até 4 (quatro) meses, contados a partir da data da Primeira 
+Nota de Serviço]. 
+3°. pagamento: 30% (trinta por cento) do valor total do contrato, cujo 
+montante alcança o valor de R$ 219.945,70 (duzentos e dezenove mil, 
+novecentos e quarenta e cinco reais e setenta centavos), conforme Termo 
+de Referência [na entrega e homologação do Relatório Técnico e de 
+Atividades com o Produto 6 da Etapa 2, em até 6 (seis) meses, contados a 
+partir da data da Primeira Nota de Serviço]. 
+4°. pagamento:  25% (vinte e cinco por cento) do valor total do contrato, cujo 
+montante alcança o valor de R$ 183.288,08 (cento e oitenta e três mil, 
+duzentos e oitenta e oito reais e oito centavos), conforme Termo de 
+Referência [na entrega e homologação do Relatório Técnico e de 
+Atividades com o Produto 7 da Etapa 3, em até 8 (oito) meses, contados a 
+partir da data da Primeira Nota de Serviço]. 
+O pagamento será feito mediante crédito aberto em conta corrente em nome 
+dos componentes do Consórcio no Banco do Brasil S/A. 
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+C1TSDP064/2019/ECO 	
+31/58 
+
+--- PAGE 32 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+As notas fiscais/faturas que apresentarem incorreções serão devolvidas à 
+CONTRATADA e seu vencimento ocorrerá em 30 dias após a data de sua 
+apresentação válida. 
+Constitui condição para a realização do pagamento a inexistência de 
+registros em nome do Consultor no "Cadastro Informativo dos Créditos Não 
+Quitados de órgãos e Entidades Estaduais do Estado de São Paulo — CAD1N 
+ESTADUAL", o qual deverá ser consultado por ocasião da realização do 
+pagamento. 
+41.2.1 
+Não se aplica. 
+41.2.4 
+As contas são: 
+para moeda local: Banco do Brasil 
+NIPPON KOEI LATIN AMERICA - CARIBBEAN CO., LTD. 
+Conforme Termo de Constituição de Consórcio, a parcela de faturamento 
+referente a Nippon Koei Lati» America — Caribbean Co., Ltd e o seu 
+recebimento será centralizado pela Nippon Koei Lac do Brasil. 
+NIPPON KOEI LAC DO BRASIL LTDA. 
+Agência: 0385-9 
+Conta Corrente: 60741-X 
+REGEA GEOLOGIA, ENGENHARIA E ESTUDOS AMBIENTAIS 
+LTDA. 
+Agência: 5962-5 
+Conta Corrente: 40.6554 
+GEOTEC CONSULTORIA AMBIENTAL LTDA. 
+Agência: 1200-9 
+Conta Corrente: 139-2 
+OP1IMUS G1S — CONSULTORIA EMPRESARIAL LTDA. 
+Agência: 2513-5 
+Conta Corrente: 108270-1 
+42.1 
+Nos termos do Decreto n° 32.117, de 10/08/90, que estabelece a forma de 
+aplicação da taxa da UFESP para correção monetária por atraso de 
+pagamento. 
+45.1 
+As controvérsias serão resolvidas por arbitragem de acordo com as 
+seguintes disposições: 
+1. 	
+Seleção de Árbitros. 	
+Cada controvérsia enviada por urna Parte à 
+CTTSDP064/2019/ECO 	
+32158 
+
+--- PAGE 33 ---
+arbitragem deve ser ouvida por um único árbitro ou por um painel de 
+arbitragem composto de três (3) árbitros, de acordo com as seguintes 
+disposições: 
+(a) Quando as Partes concordarem que o objeto da disputa refere-se 
+a um assunto técnico, poderão ajustar a indicação de um só 
+árbitro ou, caso não haja consenso sobre a identidade deste até 
+30 (trinta) dias depois que a outra Parte tiver recebido a proposta 
+de um nome pela Parte que iniciou o processo, qualquer das 
+Partes poderá solicitar à Federação Internacional de Engenheiros 
+Consultores (H)IC) de Lausanne, Suíça, uma relação com cinco 
+candidatos no mínimo e, uma vez recebida essa lista, as Partes 
+eliminarão altenaadamente os nomes nela contidos até restar 
+apenas um, que será o do único árbitro responsável pela solução 
+do conflito. Caso o último candidato não tenha sido selecionado 
+dessa maneira no prazo de 60 (sessenta) dias a contar da data de 
+recebimento da lista, a Federação Internacional de Engenheiros 
+Consultores (F1DIC) de Lausanne, Suíça, apontará, por 
+solicitação de qualquer uma das Partes, um único árbitro para 
+resolver tal disputa, com base na lista apresentada ou de outro 
+modo. 
+( 3) Quando as Partes não concordarem que a disputa refere-se a uma 
+questão técnica, o Cliente e o Consultor indicarão separadamente 
+um árbitro, e esses dois árbitros designarão uni terceiro árbitro 
+que presidirá o tribunal de arbitragem. Se os árbitros indicados 
+pelas Partes não obtiverem sucesso na escolha de um terceiro 
+árbitro no prazo de 30 (trinta) dias contados a partir da data da 
+designação do último dos dois árbitros, a pedido de qualquer das 
+Partes, o terceiro árbitro será indicado pelo Secretário-Geral da 
+Corte Permanente de Arbitragem, de Haia. 
+(c) Se, em uma disputa sujeita à Cláusula CE 8.2.1 (b), uma Parte 
+não indicar um árbitro no prazo de 30 (trinta) dias após a outra 
+Parte ter designado o outro árbitro, a Parte que fez a designação 
+poderá solicitar ao Secretário-Geral da Corte Permanente de 
+Arbitragem, de Haia, que aponte um único árbitro, a quem 
+caberá solucionar a disputa. 
+2. Normas de procedimento. Exceto conforme estabelecido neste 
+Contrato, o processo de arbitragem será conduzido de acordo 
+com as normas para essa finalidade estabelecidas pela Comissão 
+das Nações Unidas para o Direito Comercial Internacional 
+(UNCITRAL), que estejam em vigor na data deste Contrato. 
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+CTISDP064/2019/ECO 	
+33158 
+
+--- PAGE 34 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+3. 	
+Substituição de árbitros. Se, por qualquer razão, uni árbitro não 
+puder desempenhar suas funções, será apontado um substituto da 
+mesma forma adotada para indicação do árbitro original. 
+4.  
+5.  
+Nacionalidade e Qualificações de Árbitros. 	
+O árbitro único ou o 
+terceiro árbitro indicado de acordo com os parágrafos 1(a) até 1(c) 
+acima, deverá ser um especialista em questões jurídicas ou técnicas 
+internacionalmente reconhecido e com vasta experiência na matéria em 
+disputa, não podendo ser natural do país de origem do Consultor, nem 
+do país de origem de nenhum de seus Membros ou Partes, nem do país 
+do Governo. Para a finalidade desta Cláusula, "país de origem" 
+significa: 
+(a) 
+o país de incorporação do Consultor ou de qualquer de seus 
+Membros ou Partes; ou 
+(b) o país onde está situado o local de negócios principal do 
+Consultor ou de qualquer dos seus Membros ou Partes; ou 
+(c) 
+o país de nacionalidade da maioria dos acionistas do Consultor 
+ou de qualquer dos seus Membros ou Partes; ou 
+(d) 
+o país de nacionalidade dos Subconsultores envolvidos, quando a 
+disputa se referir a um subcontrato. 
+Disposições gerais. Em qualquer processo de arbitragem nos termos 
+deste Contrato: 
+(a) exceto quando as Partes acordarem de outra forma, esses 
+procedimentos serão realizados no Brasil; 
+(b) 
+o idioma português será o idioma oficial para todos os fins; e 
+(c) 
+a decisão do único árbitro ou da maioria dos árbitros (ou do 
+terceiro 	
+árbitro 	
+não 	
+havendo 	
+essa 	
+maioria) 	
+será final e 
+obrigatória, aplicável por qualquer tribunal da jurisdição 
+competente, renunciando as Partes, por meio deste instrumento, a 
+qualquer objeção ou reivindicação de imunidade em relação ao 
+cumprimento de tal decisão. 
+OTTSDP064/2019/ECO 	
+34/58 
+
+--- PAGE 35 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+IV. 	
+Apêndices 
+APÊNDICE A - TERMOS DE REFERÊNCIA 
+TERMO DE REFERÊNCIA PARA CONTRATAÇÃO DE PESSOA JURÍDICA PARA PRESTAÇÃO DE 
+SERVIÇOS TÉCNICOS ESPECIAUZADOS PARA ELABORAÇÃO DE PLANOS DE CONTINGÊNCIA 
+FRENTE A RISCOS DE EVENTOS GEODINÂMICOS EM TRECHOS RODOVIÁRIOS SELECIONADOS 
+DAS UNIDADES BÁSICAS DE ATENDIMENTO (UBAs) DO DEPARTAMENTO DE ESTRADAS DE 
+RODAGEM DO ESTADO DE SÃO PAULO (DER-SP) DE CARAGUATATUBA, MOGI DAS CRUZES E 
+SÃO VICENTE. 
+CITSDP064/2019/ECO 	
+35/58 
+
+--- PAGE 36 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+1. INTRODUÇÃO 
+1.1. 	
+O Estado de São Paulo tem liderado políticas pioneiras e responsáveis 
+para gerenciar seus desafios de desenvolvimento que, mais que 
+frequentemente, têm tido demonstração de efeitos para outros estados 
+e outros países. Um dos destaques foi a instituição da Polftica Estadual 
+de Mudanças Climáticas - PEMC (Lei Estadual N 2 13.798/2009) que 
+estabelece um compromisso de longo prazo do Estado com relação aos 
+desafios das mudanças climáticas. 
+1.2. 	
+Uma das ambições do Estado de São Paulo é promover um 
+desenvolvimento mais equilibrado, igualdade de oportunidades, criação 
+de emprego e sustentabilidade ambiental, além de promover-se como 
+um centro financeiro e logístico para o continente e uma referência 
+para o empreendimento comercial no hemisfério sul, assumindo seus 
+compromissos relacionados com a agenda de Mudanças Climáticas, 
+tendo como base três importantes pilares: 
+1.2.1. 	
+Aumentar a competitividade dos diferentes setores econômicos 
+através da melhoria da eficiência e segurança no transporte, em 
+particular apoiando o projeto e implantação do Plano de 
+Desenvolvimento da Logística e do Transporte (PDLT), que visa 
+promover serviço de qualidade em transporte, mobilidade de 
+pessoas e produtos, e uma melhor logística e competitividade 
+das economias regional e nacional, compatibilizando-os com o 
+desenvolvimento sustentável; 
+1.2.2. 	
+Melhorar a sustentabilidade através de um melhor 
+gerenciamento ambiental, em particular apoiando a Avaliação 
+Ambiental Estratégica (ME) e o Zoneamento Ecológico e 
+Econômico (ZEE), respectivamente para avaliar os impactos 
+ambientais e socioeconômicos das atividades econômicas e 
+regulamentar os investimentos econômicos para que o 
+crescimento continue sustentável; 
+1.2.3. 	
+Criar um contexto multissetorial para resiliência, apoiando em 
+particular a implantação do Gerenciamento de Risco de 
+Desastres do Programa de Prevenção de Desastres Naturais e 
+Redução de Riscos Geológicos (PDN), instituído pelo Decreto 
+Estadual 57.512/2011. Esta política pública visa aumentar a 
+resiliência do Estado a riscos de desastres naturais em resposta 
+aos danos e custos resultantes. 
+1.3. 	
+Neste contexto, o Estado de São Paulo assinou Contrato de Empréstimo 
+com o Banco Internacional para Reconstrução e Desenvolvimento 
+(BIRD) para execução do Projeto de Transporte Sustentável de São 
+CTTSDP064/2019/ECO 	
+36/58 
+
+--- PAGE 37 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Paulo (P127723) - Programa de Transporte, Logística e Meio Ambiente 
+(https://goo.gl/aac86C),  que será executado pelo Departamento de 
+Estradas de Rodagem do Estado de São Paulo (DER-SP), com a 
+assistência de outras entidades participantes: Secretaria de Logística e 
+Transportes (SLT), Secretaria de Planejamento e Gestão (SPG), 
+Secretaria do Meio Ambiente (SMA) e Companhia Ambiental do Estado 
+de São Paulo (CETESB). 
+1.4. 	
+Este Projeto tem o objetivo de contribuir para a melhoria do transporte 
+do Estado e da eficiência logística e segurança e ao mesmo tempo 
+aumentar a capacidade do Estado de São Paulo no gerenciamento 
+ambiental e risco de desastres. 
+1.5. 	
+O Projeto compreende uma operação de US$ 429 milhões financiados 
+por um empréstimo de US$ 300 milhões do Banco Mundial e US$ 129 
+milhões de fundos de contrapartida do Estado. O Projeto inclui os três 
+componentes descritos a seguir: 
+1.5.1. 	
+Componente 1: Melhoria da eficiência e segurança do 
+transporte e logística; 
+1.5.2. 	
+Componente 2: Fortalecimento do planejamento sustentável 
+ambiental e de uso da terra e capacidade de gerenciamento 
+territorial; 
+1.5.3. 	
+Componente 3: Aumento da resiliência do Estado para 
+desastres naturais. 
+1.6. 	
+A Secretaria do Meio Ambiente do Estado de São Paulo, juntamente 
+com a CETESB são responsáveis pela execução dos componentes 2 e 3. 
+1.7. 	
+O Componente 3 do Projeto, denominado "Aumento da resiliência do 
+Estado para desastres naturais", visa dar suporte ao desenvolvimento 
+de ações com foco na Gestão de Riscos de Desastres (GRD), as quais 
+incluem a execução de estudos para identificação, gestão e redução de 
+riscos no âmbito específico do setor de logística e transportes e o 
+incremento da capacidade institucional no tema da GRD. De forma 
+geral, busca-se o estabelecimento de uma plataforma multissetorial 
+para suporte à formulação e implementação de políticas públicas que 
+promovam o aumento da resiliência do Estado de São Paulo frente à 
+ocorrência de desastres naturais, que acarretam perda de vidas e danos 
+à propriedade e à cadeia econômica como um todo. O componente 
+inclui dois subcomponentes: 
+1.7.1. 	
+Subcomponente 3.1 - Integração do gerenciamento de risco de 
+desastres no Setor de Transportes, incluindo o desenvolvimento 
+de planos integrados de resposta a desastres (planos 
+OTTSDP064/20191E00 	
+37/58 
+
+--- PAGE 38 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+operacionais e de contingência) para o setor de transportes em 
+Unidades Básicas de Atendimento (UBA) selecionadas. 
+1.7.2. 	
+Subcomponente 3.2 - Melhoria da política de gerenciamento de 
+risco de desastres e capacidade institucional. 
+2. JUSTIFICATIVAS 
+2.1. 	
+O Programa de Transporte, Logística e Meio Ambiente tem como 
+objetivo geral melhorar as condições do sistema rodoviário e a logística 
+de integração com o sistema hidroviário, contribuindo para o 
+desenvolvimento econômico e social do Estado de São Paulo. O 
+propósito principal é reduzir o custo de transporte e aumentar a 
+segurança de trânsito na malha rodoviária sob a responsabilidade do 
+Departamento de Estradas de Rodagem do Estado de São Paulo (DER-
+SP). 
+2.2. 	
+Não obstante a melhoria estrutural das rodovias, almejada por este 
+programa e outros, o sistema rodoviário do Estado de São Paulo vêm 
+sendo atingido continuamente por eventos geodinâmicos perigosos, 
+tais como deslizamentos e movimentos de massa em geral (incluindo 
+erosão de solo, queda de blocos rochosos, erosão e solapamento de 
+margens fluviais, entre outros), inundações e fenômenos correlatos 
+(incluindo enchentes e enxurradas), chuvas intensas, vendavais, granizo 
+e raios. A ocorrência de tais processos acarreta prejuízos sociais e 
+económicos incluindo danos diretos e indiretos à malha rodoviária e à 
+infraestrutura de logística e transportes. 
+2.3. 	
+A região da Serra do Mar, no seu trecho entre a Baixada Santista e 
+Litoral Norte, apresenta grande importância quanto à dinâmica 
+populacional, econômica e ambiental, acolhendo em seu trecho de 
+cerca de 180 km de comprimento por 10 km de largura que se estende 
+de Santos ao limite do estado, em Ubatuba, centros urbanos 
+residenciais que atingem cerca de 1.200.000 moradores residentes, 
+poios industriais, dentre os quais o Polo Industrial de Cubatão, o maior 
+do Brasil, portos, tais como o Porto de Santos e o Porto de São 
+Sebastião, ampla infraestrutura linear, dada por rodovias e dutovias e 
+as maiores áreas de preservação permanente de Mata Atlântica do 
+Brasil. 
+2.4. 	
+As características fisiográficas da região, dada pela ocorrência de relevo 
+de escarpas que marcam a transição abrupta da região de planaltos 
+para a região costeira, fazem com que a ocorrência de processos 
+geodinâmicos perigosos sejam frequentes, com grande impacto, quer 
+seja aos núcleos habitacionais, quer seja aos poios industriais e à 
+infraestrutura linear. 
+C1TSDP064/2019/ECO 	
+38/58 
+
+--- PAGE 39 ---
+SECRETARIA DE LOGISTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+2.5. 	
+A garantia da segurança do tráfego das principais rodovias que servem à 
+região é fundamental para seu desenvolvimento e redução de danos e 
+prejuízos à população e aos bens e serviços existentes. Neste contexto, 
+torna-se crftica a implantação de planos de contingência, que em 
+conjunto com os demais instrumentos de gestão rodoviária, inclusive 
+pianos mais amplos de gestão de risco, permitam prevenir, preparar e 
+mitigar os impactos de eventos geodinâmicos às rodovias, objeto do 
+presente projeto. 
+2.6. 	
+A implantação dos referidos planos de contingência insere-se no 
+contexto de desenvolvimento dos demais temas do Componente 3, 
+"Aumento da resiliência do Estado para desastres naturais", a saber: 1) 
+cadastro de eventos perigosos e desastres, 2) mapeamento de risco 
+multiescalar, 3) sistema de monitoramento de risco de deslizamentos (e 
+movimentos de massa em geral) e inundações (e processos correlatos) 
+e 4) plataforma gerenciadora de informações de risco do projeto. 
+3. OBJETO DA CONTRATAÇÃO 
+3.1. 	
+Constitui objeto do presente TERMO DE REFERÊNCIA, a contratação de 
+serviços de pessoa jurídica para elaboração de planos de contingência 
+frente a riscos relacionados a eventos geodinâmicos (deslizamentos e 
+movimentos de massa em geral, inundações e processos correlatos e 
+chuva intensa); de trechos das rodovias SP-055 e SP-098, sob 
+responsabilidade das Unidades Básicas de Atendimento (UBA) de 
+Caraguatatuba, Mogi das Cruzes e São Vicente, do Departamento de 
+Estradas de Rodagem do Estado de São Paulo (DER-SP). 
+3.2. 	
+A abrangência geográfica dos serviços compreende as bacias 
+hidrográficas cortadas pelos seguintes trechos rodoviários de interesse 
+(Figura 1): 
+3.2.1. 	
+SP-055 - km 53,600 até km 248,100, sob jurisdição da UBA São 
+Vicente e UBA Caraguatatuba, totalizando 194,5 km, nos 
+municípios de Ubatuba, Caraguatatuba, São Sebastião, Bertioga 
+e Santos; 
+3.2.2. 	
+SP-098 - km 62,900 até km 98,100, sob jurisdição da UBA Mogi 
+das Cruzes, totalizando 35,2 km, nos municípios de Mogi das 
+Cruzes, Biritiba- Mirim e Bertioga. 
+3.3. 	
+Deverão ser definidas faixas de intervenção e apresentação das 
+análises, a partir do eixo das rodovias de larguras variáveis, conforme 
+características geomorfológicas e geológicas de cada trecho rodoviário, 
+tendo como referência faixas de 1 km a partir do eixo da rodovia. 
+CTrSDP064/2019/ECO 	
+39/58 
+
+--- PAGE 40 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Figura 1. Localização dos trechos rodoviários de interesse (linhas vermelhas) e marcos 
+quilométricos citados (triângulos lilás). 
+4. OBJETIVOS DA CONTRATAÇÃO 
+4.1. 	
+O objetivo geral da contratação é reduzir os danos e prejuízos de 
+eventos geodinâmicos (deslizamentos e movimentos de massa em 
+geral, inundações e processos correlatos e chuva intensa) nos trechos 
+das rodovias objeto do estudo, sob responsabilidade das Unidades 
+Básicas de Atendimento (UBA) de Caraguatatuba, Mogi das Cruzes e São 
+Vicente, do Departamento de Estradas de Rodagem do Estado de São 
+Paulo(DER-SP). 
+4.2. 	
+Os objetivos específicos da contratação são: 
+4.2.1. 	
+Obter um panorama da ocorrência de eventos geodinâmicos e 
+seus impactos (Histórico de Eventos e Desastres); 
+4.2.2. 	
+Obter um modelo de correlação entre índices pluviométricos 
+(índices Crfticos ou Desencadeadores de Desastres) e eventos 
+geodinâmicos para a área de abrangência geográfica dos 
+serviços indicada no item 3.2); 
+4.2.3. 	
+Analisar o risco de ocorrência de eventos geodinâmicos 
+(deslizamentos e movimentos de massa em geral, inundações e 
+processos correlatos e chuva intensa) nos trechos rodoviários 
+objeto dos estudos, levando em conta as variáveis, perigo, 
+CTTSDP064/2019/ECO 	
+40/58 
+
+--- PAGE 41 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+vulnerabilidade da rodovia e exposição dos usuários (Análise de 
+Risco); 
+4.2.4. 	
+Avaliar a capacidade institucional das UBAs para a gestão de 
+risco de desastres (Análise do Contexto Institucional); 
+4.2.5. 	
+Implantar sistema automatizado de análise, monitoramento e 
+alerta de riscos por meio da customização de plataforma 
+computacional capaz de coletar informações em tempo real de 
+chuva, proveniente de satélite (GOES16), radar e pluviômetros 
+disponíveis na Internet (Sistema de Monitoramento); 
+4.2.6. 	
+Elaborar Planos de Contingência de Riscos relacionados a 
+eventos geodinámicos (deslizamentos e movimentos de massa 
+em geral, inundações e processos correlatos e chuva intensa) 
+para os trechos rodoviários em análise, visando sua 
+implantação pelas UBAs, Caraguatatuba, Mogi das Cruzes e São 
+Vicente, do Departamento de Estradas de Rodagem (DER) 
+(Plano de Contingência). 
+5. CRONOGRAMA, ETAPAS DE TRABALHO E PRODUTOS 
+5.1. 	
+O objeto deste Termo de Referência será executado e concluído num 
+prazo máximo de nove meses (Tabela 1), contados a partir da data 
+fixada da Nota de Serviço, conforme as etapas, os produtos e 
+respectivos prazos de entrega discriminados a seguir. 
+5.2. 	
+Etapa preparatória - A CONTRATADA deverá apresentar Plano de 
+Trabalho Detalhado (Produto 1), descrevendo o planejamento dos 
+serviços, incluindo procedimentos operacionais e atividades a serem 
+executadas, de forma a atender aos objetivos, às especificações 
+técnicas e aos requisitos de qualidade e controle de execução 
+constantes deste Termo de Referência. Prazo: até 1/3 mês, contados a 
+partir da data fixada na Nota de Serviço. 
+5.1. 	
+Etapa 1 - Histórico de Eventos e Desastres, índices Meteorológicos Críticos, 
+Análise de Risco e Capacidade Institucional. Prazo: até quatro meses, 
+contados a partir da data fixada na Nota de Serviço. A CONTRATADA deverá 
+apresentar Relatório Técnico e de Atividades e Banco de Dados Geográficos 
+com os seguintes produtos: 
+5.1.1. 	
+Produto 2 - Cadastro de ocorrências de eventos geodinâmicos e 
+desastres. Deverá ser elaborado Plano de Informação, em formato 
+vetorial (pontos ou polígonos), de ocorrências de eventos 
+geodinámicos (deslizamentos e movimentos de massa em geral, 
+inundações e processos correlatos e chuva intensa) e seus impactos 
+CTTSDP08412019/ECO 	
+41/58 
+
+--- PAGE 42 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+(tais como acidentes de trânsito, interrupção da via, erosão do 
+pavimento, avaria no sistema de drenagem entre outros); 
+5.1.2. 	
+Produto 3 - Modelo de correlação entre eventos e chuvas. Deve ser 
+elaborado modelo de correlação entre eventos de deslizamentos e 
+movimentos de massa em geral, inundações e processos correlatos 
+e chuva intensa e índices pluviométricos críticos ou 
+desencadeadores de desastres; 
+5.1.3. 	
+Produto 4 - Análise de Risco. Deverão ser elaborados Planos de 
+Informação, em formato vetorial, de perigo de deslizamentos (e 
+movimentos de massa em geral), inundações (e processos 
+correlatos) e chuvas intensas, índice de vulnerabilidade do trecho 
+rodoviário, índice de exposição dos usuários e índice de risco de 
+processos geodinâmicos dos trechos rodoviários; 
+5.1.4. 	
+Produto 5 - Análise do Contexto Institucional. Deve ser elaborado 
+estudo da estrutura e contexto organizacional e dos recursos 
+humanos e materiais de cada UBA objeto do trabalho para fins de 
+análise da capacidade institucional para implantação dos Planos de 
+Contingência. 
+5.2. 	
+Etapa 2 - Implantação de Sistema Automatizado de Análise, Monitoramento 
+e Alerta. Prazo: até seis meses, contados a partir da data fixada na Nota de 
+Serviço. A CONTRATADA deverá implantar o sistema e apresentar Relatório 
+Técnico e de Atividades com o seguinte produto. 
+5.2.1. 	
+Produto 6 - Sistema automatizado de análise, monitoramento e 
+alerta de risco. Deverá ser implantado sistema automatizado de 
+análise, monitoramento e alerta de risco de deslizamentos (e 
+movimentos de massa em geral), inundações (e processos 
+correlatos) e chuvas intensas, com base na plataforma de 
+monitoramento, análise e alerta, TerraMA2, do Instituto Nacional 
+de Pesquisas Espaciais (INPE) ou similar. 
+5.3. 	
+Etapa 3 - Elaboração de Planos de Contingência. Prazo: até oito meses, 
+contados a partir da data focada na Nota de Serviço. A CONTRATADA deverá 
+apresentar Relatório Técnico e de Atividades, incluindo o seguinte produto. 
+5.3.1. 	
+Produto 7 - Planos de contingência frente a riscos de eventos 
+geodinâmicos (deslizamentos e movimentos de massa em geral, 
+inundações e processos correlatos e chuvas intensas) em trechos 
+rodoviários especificados no item 3.2, sob responsabilidade das 
+UBAs Mogi das Cruzes, São Vicente e Caraguatatuba, integrando na 
+forma de sistema de informações geográficas os produtos 2 a 6 
+discriminados anteriormente. 
+CTTSDP064/2019/ECO 	
+42/58 
+
+--- PAGE 43 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+Tabela 1. Cronograma dos trabalhos. 
+ETAPAS/PRODUT 
+Prazo de execução 
+1 
+2 
+3 
+4 
+5 
+5 
+7 
+8 
+ETAPA PREPARATÓRIA - Produto 1 (Plano de 
+Trabalho 
+X 
+ETAPA 1- Produtos 2-5 (Cadastro de eventos, Modelo 
+de 
+X 
+X 
+X 
+ETAPA 2- Produto 6 (Sistema de 
+X 
+X 
+ETAPA 3 - Produto 7 (Plano de 
+X 
+X 
+Procedimentos de encerramento do 
+X 
+6. MÉTODOS E ESPECIFICAÇÕES TÉCNICAS 
+6.1. 	
+No Plano de Trabalho (Produto 1), a CONTRATADA deverá prever a 
+realização de reuniões técnicas e oficinas de trabalho com a 
+CONTRATANTE, em especial antes do início e após a entrega de cada 
+produto previsto, visando a preparação e planejamento da execução 
+das atividades, incluindo o detalhamento e a compatibilidade conceituai 
+e prática dos procedimentos a serem adotados, bem como a 
+apresentação dos resultados. 
+6.2. 	
+Cadastro de ocorrências de eventos geodinâmicos e desastres (Produto 
+2). 
+6.2.1. 	
+Devem ser sistematizadas em plano de informação geográfico 
+em formato shapefile, as ocorrências de eventos geodinâmicos 
+(deslizamentos e movimentos de massa em geral, inundações e 
+processos correlatos, chuva intensa, etc) e seus impactos no 
+período entre 1993-2017, nas bacias hidrográficas dos trechos 
+rodoviários e nas faixas de intervenção de larguras variáveis, 
+tendo como referência faixas de lkm de distância a partir do 
+eixo da rodovia, a partir do eixo das rodovias, conforme 
+características geomorfológicas e geológicas de cada trecho 
+rodoviário. A organização do cadastro de eventos e desastres 
+CITSDP064/2019/ECO 	
+43/58 
+
+--- PAGE 44 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+tem como objetivo a seleção de eventos críticos passíveis de 
+correlação com índices pluviométricos (conforme Produto 3). 
+Os seguintes procedimentos deverão ser realizados: 
+6.2.1.1. 	
+Recortar para a área de interesse do projeto as informações 
+já georreferenciadas em formato shapefile e tabular (cerca 
+de 7.213 registros) referentes ao projeto 
+"Cadastro 
+georreferenciado de eventos geodinâmicos ocorridos no 
+período entre 1993 e 2013 (21 anos), em 50 municípios das 
+regiões metropolitanas de Soo Paulo e Baixada Santista e 
+municípios de Caraguatatuba, São Sebastião e Ubatuba" 
+(insumo a ser disponibilizado pela CONTRATANTE). 
+6.2.1.2. 	
+Recortar e georreferenciar para a área de interesse do 
+projeto, as informações para o período 2014-2017, do 
+"Cadastro de Eventos e Desastres do Estado de São Paulo, 
+do Instituto Geológico" (insumo a ser disponibilizado pela 
+CONTRATANTE), de natureza tabular, não espacial, com 
+cerca de 393 registros para os municípios da área de 
+interesse (Bertioga, Biritiba- Mirim, Caraguatatuba, Mogi 
+das Cruzes, Santos, São Sebastião e Ubatuba). O 
+georreferenciamento deverá ser feito preferencialmente a 
+partir de rotinas de geolocalização com base no plano de 
+informação Base de Logradouros do Estado de São Paulo 
+(insumo a ser disponibilizado pela CONTRATANTE) ou por 
+meio da página de acesso público WEB ROTAS, do DER. 
+6.2.1.3. 	
+Levantar, sistematizar e georreferenciar os acidentes de 
+trânsito e demais ocorrências nas vias ocorridos em 
+períodos de chuvas intensas, entre 2009-2017, nos trechos 
+rodoviários de interesse, a partir de consulta aos bancos de 
+dados de acesso público, via Internet, do Sistema de Gestão 
+de Atendimento (SIGA) e Sistema de Acidentes de 
+Transporte (SAT), ambos do DER. 
+6.2.1.4. 	
+Não se espera um levantamento e georreferenciamento das 
+ocorrências de eventos e desastres com base em 
+levantamentos extensivos de campo, mas apenas 
+verificações pontuais, se necessário, dos principais eventos 
+geodinâmicos de interesse para o estabelecimento da 
+correlação com índices pluviométricos críticos. 
+6.3. 	
+Modelo de correlação entre eventos e chuvas (Produto 3). 
+6.3.1. A CONTRATADA deverá apresentar um modelo de correlação 
+entre índices pluviométricos críticos e os fenômenos de 
+CUSDP064/2019/ECO 	
+44/58 
+
+--- PAGE 45 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+deslizamentos (e movimentos de massa em geral), inundações 
+(e processos correlatos) e chuva intensa para a área de 
+interesse. 
+6.3.2. 	
+O modelo deve ser elaborado considerando a literatura 
+cientifica e experiências similares, como por exemplo os 
+trabalhos de Tatizana et ah (1987a, b), Cerni (1993), Cerni et ah 
+(1993), Macedo et ah (1999), Soares (2006), Soares & Marton 
+(2006), Parizzi et ah (2010), DRM (2015) e Ferreira et ah (2015). 
+6.4. 	
+Análise de Risco (Produto 4). 
+6.4.1. A CONTRATADA deverá elaborar planos de informação em 
+formato vetorial do perigo de deslizamentos (e movimentos de 
+massa em geral), inundações (e processos correlatos) e chuva 
+intensa, vulnerabilidade do trecho rodoviário, exposição dos 
+usuários e risco. 
+6.4.2. 	
+Para a análise de perigo de deslizamentos (e movimentos de 
+massa em geral), inundações (e processos correlatos) e chuva 
+intensa deverão ser recortadas para a área de interesse do 
+projeto informações secundárias de acesso público de perigo e 
+suscetibilidade, a exemplo dos planos de informação em 
+formato shapefile das unidades territoriais básicas (um), 
+contendo os índices de perigo deslizamento e inundação do 
+Litoral Norte e do Estado de São Paulo e mapas de 
+suscetibilidade de deslizamento e inundação (insumos a serem 
+disponibilizados pela CONTRATANTE), entre outros. 
+6.4.2.1. 	
+Não se espera que os serviços produzam de forma inédita 
+novo mapeamento de perigos por meio de levantamentos 
+extensivos de campo ou por sensores remotos. Verificações 
+de campo ou por meio de sensores remotos devem ser 
+pontuais para eximir eventuais dúvidas das análises 
+resultantes das informações secundárias. 
+6.4.2.2. 	
+Adota-se a seguinte definição de perigo: processo, 
+fenômeno ou atividade humana que pode causar a perda 
+de vida, ferimentos ou outros impactos à saúde, danos à 
+propriedade, distúrbios sociais e económicos ou a 
+degradação ambiental (ONU-ISDR, 2017). 
+6.4.3. 	
+Para a análise de Vulnerabilidade das rodovias deverá ser 
+caracterizada a vulnerabilidade dos trechos das rodovias em 
+análise, por meio da seleção de critérios, tais como: forma do 
+traçado, inclinação, tipo e estado de conservação do 
+CITSDP064/2019/ECO 	
+45/58 
+
+--- PAGE 46 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+pavimento, existência de drenagem e seu estado de 
+conservação, estrutura de gestão existente, entre outros. 
+6.4.3.1. 	
+A vulnerabilidade dos trechos rodoviários deverá ser 
+definida a partir de trabalhos de campo e/ou interpretação 
+de imagens sensoriamento remoto 
+6.4.3.2. 	
+Adota-se a seguinte definição de vulnerabilidade: condições 
+determinadas por fatores ou processos físicos, sociais 
+econômicos e ambientais que aumentam a suscetibilidade 
+de um indivíduo, uma comunidade, bens ou sistemas aos 
+impactos dos perigos (ONU-ISDR, 2017). 
+6.4.4. 	
+Para a análise da Exposição dos usuários dos trechos das 
+rodovias em estudo deverá ser caracterizada por meio da 
+seleção de critérios, tais como: volume diário médio e tipo de 
+veículos e tipos de carga, entre outros. 
+6.4.4.1. 	
+Não se espera a geração de dados inéditos para os serviços 
+contratados. Os critérios de exposição dos usuários deverão 
+ser obtidos e quantificados a partir de dados secundários 
+disponibilizados publicamente no portal na Internet do DER 
+ou outras fontes disponíveis. 
+6.4.4.2. 	
+Adota-se a seguinte definição de Exposição: situação de 
+pessoas, infraestrutura, moradias, capacidades produtivas e 
+outros bens humanos tangíveis localizados em áreas 
+perigosas. Medidas da exposição podem incluir o número 
+de pessoas ou tipos de bens na área (ONU-ISDR, 2017). 
+6.4.5. 	
+Os trechos das rodovias da área de interesse deverão ser 
+mapeados por meio da interpretação de imagens de alta 
+resolução de disponibilidade pública ou a ser fornecida pelo 
+INSTITUTO GEOLÓGICO na escala 1:1.000 em formato de 
+polígono, ao qual devem ser relacionadas as informações de 
+vulnerabilidade e exposição e efetuada a intersecção com os 
+planos de perigo para a geração das unidades de análise de 
+risco e de monitoramento. 
+6.5. 	
+Levantamento da estrutura organizacional e os recursos humanos e 
+materiais de cada UBA objeto do trabalho (Produto 5) 
+6.5.1. 	
+Deverão ser levantados e sistematizados por meio da análise de 
+documentos e entrevistas com gestores das UBAs a estrutura 
+organizacional e os recursos humanos e materiais de cada UBA 
+objeto do trabalho visando caracterizar a capacidade 
+institucional para a gestão de risco. 
+CTTSDP064/20191ECO 	
+46/58 
+
+--- PAGE 47 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+6.5.1.1. 	
+Tem-se como referência a realização de três visitas a cada 
+uma das UBAS para realização desta tarefa. 
+6.5.2. 	
+Ficará a cargo da CONTRATANTE o contato preliminar entre a 
+CONTRATADA e os gestores das UBAs. 
+6.6. 	
+Customização de Sistema automatizado de análise, monitoramento e 
+alerta (Produto 6). 
+6.6.1. A CONTRATADA deverá produzir uma customização da 
+plataforma de monitoramento, análise e alerta, TerraMA2, em 
+sua versão mais atual, do Instituto Nacional de Pesquisas 
+Espaciais (INPE) ou similar. O sistema deve integrar serviços 
+geográficos e de modelagem, com base de acesso em tempo 
+real a dados geoambientais (meteorológicos, 
+climáticos,atmos-féricos, hidrológicos, geotécnicos, sócio-
+demográficos, etc.) disponíveis em qualquer servidor conectado 
+a internet, e que podem ser lidos, processados e aplicados ao 
+monitoramento e alerta de riscos relacionados a eventos 
+geodinámicos externos. 
+6.6.2. 	
+O produto deve ser entregue na forma de programas 
+executáveis em 32 e 64 bits para ambiente Windows instalados 
+em ambiente desktop e disponibilizado em ambiente WEB 
+plenamente operacional em servidores do Instituto Geológico e 
+do Departamento de Estradas de Rodagem (DER). 
+6.6.3. 	
+O Sistema deve se basear no conceito de serviços (SOA — 
+Service Oriented Architecture), onde um serviço é uma 
+funcionalidade independente, sem estado, que aceita uma ou 
+mais requisições e retorna um ou mais resultados. Os módulos 
+e serviços devem usar uma Base de Dados Geográficos para a 
+troca de informações geográficas. Os dados da base devem ser 
+armazenados no formato padrão OGC (Open Geospatial 
+Consortium) e devem incluir dados hidrometeorológicos, planos 
+de risco, espaços celulares e planos de informação adicionais 
+necessários para a execução das análises e definição de alertas 
+a serem fornecidos pela contratante ou disponibilizados por 
+servidores remotos. A arquitetura do sistema deve prever os 
+seguintes serviços: 
+6.6.3.1. 	
+Serviço de Coleta de Dados: responsável pela aquisição dos 
+dados hidrometeorológicos disponibilizados por servidores 
+remotos, buscando periodicamente arquivos, dentre os 
+quais se distinguem: a) previsões: como por exemplo, 
+valores de precipitação, umidade relativa do ar, direção e 
+CTTSDP064/2019/ECO 	
+47/58 
+
+--- PAGE 48 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+magnitude do vento; e b) observações, como por exemplo, 
+precipitação estimada por satélite e radares, descargas 
+elétricas, focos de queimadas; 
+6.6.3.2. 	
+Serviço de Análise: responsável pelo cruzamento entre as 
+informações hidrometeorológicas, planos de risco e planos 
+adicionais para determinação da ocorrência de zonas de 
+alerta; 
+6.6.3.3. 	
+Serviço de Notificação: responsável pelo envio de 
+mensagens e relatórios contendo informações a respeito 
+das alterações nos níveis de risco detectados pelo módulo 
+de análise. Deve permitir o cadastramento de usuários para 
+receberem os relatórios de alteração, enviados através de 
+correio eletrônico e boletins; 
+6.6.3.4. 	
+Serviço de Animação: responsável pela geração de um 
+conjunto de imagens que agrupadas formam uma animação 
+de fontes de dados de Previsão e Observação; 
+6.6.3.5. 	
+Serviços de Gerência de Planos: executa a serviços para 
+manipulação de planos de informação na base de dados 
+geográficos, como a inclusão de novos planos e listagem de 
+planos existentes; 
+6.6.3.6. 	
+Módulo de Configuração: responsável por permitir a 
+configuração do sistema. Estas configurações devem incluir 
+como os dados são obtidos dos servidores externos, 
+definições dos planos de risco e adicionais, a definição dos 
+tipos de análise seus modelos, definição dos usuários e 
+análises para estes, e definição de boletins que serão 
+enviados; 
+6.6.3.7. 	
+Módulo de Administração: responsável por permitir a 
+configuração de cada serviço do sistema. Estas 
+configurações devem incluir o endereço e a porta de cada 
+serviço, o local em que as imagens com o resultado das 
+análises serão armazenadas, definição do banco de dados, 
+local de armazenamento dos dados coletados, configuração 
+do servidor de email, definição dos arquivos de log e outras 
+informações. 
+6.6.3.8. 	
+Mdulo de Alerta: responsável pela apresentação de alertas 
+quando uma situação de risco é detectada pelo módulo de 
+análise. Deve ser previsto o alerta tanto por email como por 
+mensagem nos sistemas de gerenciamento do Instituto 
+Geológico e Departamento de Estradas de Rodagem. 
+CTTSDP064/2019/ECO 	
+48158 
+
+--- PAGE 49 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+6.6.4. 	
+O ambiente computacional deve ser composto de no mínimo 
+um servidor de páginas WEB, um gerenciador de banco de 
+dados, um aplicativo geográfico e um servidor de mapas no 
+padrão OGC. Deve ser entregue documentação (relatório 
+técnico) contendo uma descrição e análise das atividades 
+desenvolvidas e instruções de instalação e manipulação de 
+todas as interfaces do sistema. O ambiente computacional 
+deverá prever a entrada de novos dados, a fim de se atualizar as 
+bases de dados. Deverá ser previsto treinamento para técnicos 
+da contratante ou por ela indicada para instalação e manuseio 
+do sistema. 
+6.6.5. 	
+Não se espera o desenvolvimento de um novo sistema 
+automatizado de análise, monitoramento e alerta, mas apenas 
+a customização de sistemas existentes, a exemplo da 
+plataforma TERRAMA2. 
+6.7. 	
+Plano de Contingência frente a riscos relacionados a eventos 
+geodinâ micos dos trechos rodoviários em análise (Produto 7). 
+6.7.1. 	
+Deverão ser levantados e sistematizados por meio da análise de 
+documentos e entrevistas com gestores de planos de 
+contingência de proteção e defesa civil e do setor rodoviário 
+modelos de planos de contingência, a exemplo da Subsecretaria 
+de Proteção e Defesa Civil - SUPDEC, que coordena o Plano 
+Preventivo de Defesa Civil específico para Escorregamentos nas 
+Encostas da Serra do Mar (SÃO PAULO, 1997), as equipes 
+municipais de Proteção e Defesa Civil e planos de contingência 
+das concessionárias de rodovias do Estado de São Paulo. 
+6.7.2. Com base nas informações levantadas e nos dados de eventos e 
+desastres, análise de risco, capacidade institucional e 
+customização do sistema de análise, monitoramento e alerta 
+deve ser apresentado plano de contingência estruturado com 
+base em um sistema de informações geográficas, integrando os 
+Produtos 2 a 6, discriminados anteriormente, e as ações 
+correspondentes de cada nível do Plano de Contingência. 
+6.7.3. 	
+Deve ser entregue documentação (Relatório Técnico) contendo 
+uma descrição e análise das atividades desenvolvidas, incluindo, 
+a exemplo de BRASIL (2012), os seguintes itens: 
+6.7.3.1. 	
+Introdução: descreve a competência legal para a elaboração 
+do plano (se for o caso), relacionando os participantes do 
+processo de planejamento, enumerando quem receberá 
+cópias do plano e orientando quanto ao seu uso e 
+C7TSDP064/2019/ECO 	
+49/58 
+
+--- PAGE 50 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+atualização. Itens: documento de aprovação, página de 
+assinaturas, registro de alterações, registro de cópias 
+distribuídas, sumário. 
+6.7.3.2. 	
+Finalidade: breve descrição dos resultados esperados com o 
+plano, ou seja, para que serve. 
+6.7.3.3. 	
+Situação e Pressupostos: a quais ameaças ou perigos se 
+refere o plano, caracterização das áreas sujeitas ao plano. 
+Descrição dos cenários de risco que foram identificados na 
+avaliação de risco. 
+6.7.3.4. 	
+Operações: abordagem geral para a Contingência: 
+organização local dos órgãos e estruturas de resposta; 
+dispositivos de monitoramento, alerta e alarme e 
+acionamento; condições de ativação do plano de 
+contingência; níveis de atuação e implicações; sequência 
+geral de ação antes, durante e depois da contingência; 
+procedimentos de coordenação, comando e controle. 
+6.7.3.5. 	
+Atribuição de Responsabilidades: detalhar atribuições de 
+cada órgão envolvido. Registrar como as agências e 
+instituições envolvidas na resposta aos desastres serão 
+organizadas, na medida em que forem acionadas, definindo 
+quem organizará as ações, quais as responsabilidades de 
+cada organização, quais as linhas de comunicação e de 
+autoridade. 
+6.7.3.6. 	
+Administração e logística: neste espaço são descritos quais 
+os recursos materiais e financeiros serão necessários, como 
+tais recursos serão mobilizados junto ao governo, às 
+organizações não governamentais e às agências voluntárias, 
+como será fornecido o suporte administrativo e logístico, 
+indicando convênios, termos de cooperação, realocação de 
+pessoal dos órgãos envolvidos, procedimentos gerais para 
+compra, locação ou contratação de recursos e orientações 
+para o registro, uso e prestação de contas de recursos 
+financeiros. 
+6.7.3.7. 	
+Relacionamento com outros Planos: articulação com outros 
+planos existentes de agência governamentais e não 
+governamentais. 
+6.7.3.8. 	
+Instruções para Uso do Plano: indicar por exemplo onde o 
+plano será utilizado, instalações e percursos, estabelecendo 
+um fluxograma. 
+C7TSDP064/2019/ECO 	
+50/58 
+
+--- PAGE 51 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+6.7.3.9. 	
+Instruções para Manutenção do Plano: estabelecer quem 
+terá a responsabilidade pela atualização do plano e seus 
+anexos. Inclui: melhoria, periodicidade e modalidades de 
+exercícios e treinamentos, procedimentos para avaliação 
+das emergências e responsabilidade para obtenção de 
+informações; atualização da Análise de Riscos, revisão e 
+complementação do plano. 
+7. ACOMPANHAMENTO E RECEBIMENTO DOS SERVIÇOS 
+7.1. 	
+A supervisão dos trabalhos estará sob a responsabilidade do Instituto 
+Geológico, que nomeará um Gestor ou Comissão Técnica para a 
+supervisão dos serviços e recebimento dos produtos. 
+7.2. 	
+Com o objetivo de proceder a análise da qualidade e do andamento dos 
+serviços prestados, serão realizadas reuniões periódicas entre a 
+CONTRATADA e a Comissão Técnica do Instituto Geológico, como 
+previsto no item 6 ou a qualquer momento, conforme necessidade 
+apontada pela CONTRATADA ou pela CONTRATANTE. 
+7.3. A CONTRATADA fica obrigada a fornecer todos os elementos de seu 
+conhecimento e competência, que sejam necessários ao 
+desenvolvimento e acompanhamento dos trabalhos, bem como 
+permitir aos técnicos do Instituto Geológico a verificação da preparação 
+dos Produtos contratados. 
+7.4. 	
+Os Produtos, em cada uma de suas fases, serão recebidos em caráter 
+provisório, observando o cronograma de execução descrito no item 5, 
+detalhado no Plano de Trabalho constante do Produto 1. 
+7.5. 	
+O recebimento definitivo dos Produtos, em cada uma de suas etapas, 
+dar-se-á após avaliação de qualidade, pelo Gestor ou Comissão Técnica 
+do Instituto Geológico, num prazo de até 10 (dez) dias úteis após o 
+recebimento provisório ou da data de entrega das correções efetuadas 
+quando for o caso. 
+7.6. 	
+Uma vez verificada a execução satisfatória dos serviços, e em 
+conformidade com o disposto na Lei Estadual n 2 6.544/89, artigos 70 e 
+71, e Lei Federal n 2 8.666/93, e 73 e 74, será emitido Termo de 
+Recebimento Definitivo dos Serviços e autorizada a emissão da Nota 
+Fiscal ou documento equivalente, para fins de pagamento 
+respectivamente à etapa. 
+7.7. 	
+Havendo rejeição dos Produtos referentes a cada uma das etapas, no 
+todo ou em parte, a CONTRATADA deverá refazê-Ios, corrigi-los ou 
+ajustá-los, conforme o caso, em primeira instância, em prazo de 15 dias 
+corridos a partir da data de conclusão da avaliação de qualidade. 
+CTTSDP064/2019/ECO 	
+51/58 
+
+--- PAGE 52 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+7.8. 	
+Caso as correções e ajustes, a serem procedidos pela CONTRATADA, 
+sejam ainda considerados insatisfatórios, em caráter excepcional, e a 
+critério da CONTRATANTE, poderão ser efetuados novas correções e 
+ajustes em prazo de 15 dias corridos, a partir da data de conclusão da 
+avaliação de qualidade. 
+7.9. 	
+Na impossibilidade de serem refeitos os serviços e/ou os produtos 
+rejeitados, ou na hipótese de não serem os mesmos executados, em 
+cumprimento ao objeto deste Termo de Referência, será descontado da 
+importância devida à CONTRATADA as parcelas respectivas das etapas 
+não executadas e sem prejuízo da aplicação das sanções cabíveis, valor 
+calculado pela razão direta (pra rata) em porcentagem do serviço não 
+realizado ou rejeitado em relação ao previsto, aferido pelo Gestor ou 
+Comissão Técnica do Instituto Geológico que se manifestará (ão) por 
+meio de parecer consubstanciado acerca dos serviços efetivamente 
+executados e serviços não executados ou cuja qualidade dos produtos 
+seja considerada insatisfatória. 
+7.10. O recebimento dos produtos e a aceitação dos serviços atestam o 
+cumprimento das exigências contratuais, mas não afastam a 
+responsabilidade técnica ou civil da CONTRATADA, que permanece 
+regida pela legislação pertinente. 
+7.11. Todos os produtos terão garantia quanto aos serviços executados, 
+sendo que eventuais erros, omissões ou problemas nos produtos, 
+identificados no prazo de um ano, deverão ser corrigidos pela 
+CONTRATADA, mesmo após o aceite definitivo da CONTRATANTE. 
+8. PROPRIEDADE DOS DADOS E PRODUTOS 
+8.1. 	
+As informações levantadas e todo o material produzido pertencem ao 
+Governo do Estado de São Paulo, tendo como depositário dos produtos 
+gerados, o Instituto Geológico. Cabe à CONTRATADA tomar as 
+providências parta garantia de preservação da propriedade dos dados 
+bem como dos direitos de propriedade intelectual, durante e após a 
+execução dos serviços, sob pena de incidência das sanções 
+administrativas, civis e penais cabíveis. 
+8.2. 	
+A divulgação, por quaisquer meios, tanto do trabalho desenvolvido pela 
+CONTRATADA ou qualquer prestador de serviço, quanto dos produtos 
+só poderá ocorrer por meio do Instituto Geológico ou mediante sua 
+expressa autorização. 
+8.3. 	
+As informações porventura cedidas à CONTRATADA, exclusivamente 
+para o cumprimento do objeto dos serviços previstos neste Termo de 
+Referência, pertencem ao Governo do Estado de São Paulo. Ao final dos 
+serviços, toda e qualquer cópia digital do material cedido pela 
+CTTSDP064/2019/ECO 	
+52/59 
+
+--- PAGE 53 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+CONTRATANTE deverá ser apagada dos computadores e mídias de 
+armazenamento das instalações da CONTRATADA, ficando proibido o 
+uso, cessão, empréstimo, do todo ou em parte, para quaisquer outros 
+fins pela empresa CONTRATADA, sob pena de incidência das sanções 
+administrativas e penais cabíveis na forma da legislação vigente. 
+9. 
+EQUIPE CHAVE 
+9.1. 	
+A empresa deverá compor Equipe Técnica Chave constituída por seis 
+profissionais de nível superior, sendo: 
+9.1.1. 	
+01 (um) Coordenador de Projeto (Responsável Técnico) com 
+formação de nível superior (curso de graduação) em Geologia, 
+Geografia ou Engenharia, nível Sênior. 
+9.1.2. 	
+01 (um) Especialista com formação de nível superior em 
+Geologia, Geografia ou Engenharia, nível Sênior. 
+9.1.3. 	
+01 (um) Especialista com formação de nível superior em 
+Geologia, Geografia ou Engenharia, nível Júnior. 
+9.1.4. 	
+01 (um) Especialista com formação de nível superior em Análise 
+de Sistemas, nível Sênior. 
+9.1.5. 	
+01 (um) Especialista com formação de nível superior em Análise 
+de Sistemas, nível Pleno. 
+9.1.6. 	
+01 (um) Especialista com formação de nível superior em 
+Engenharia ou Arquitetura com especialização em modelagem 
+de Transportes como conhecimento em Segurança Viária, nível 
+Pleno. 
+9.2. 	
+Outrossim, a critério da empresa, a execução dos serviços, no todo ou 
+em parte, poderá estar apoiada por número maior de profissionais, 
+limitada a no máximo seis técnicos auxiliares, que comporão a Equipe 
+de Apoio. 
+9.3. 	
+Os profissionais componentes da Equipe Técnica Chave deverão ter 
+escolaridade e experiência compatíveis às atividades descritas no 
+escopo dos serviços indicados nos Itens 3, 4 e 5 do Termo de 
+Referência. 
+10. 
+DISPOSIÇÕES GERAIS 
+10.1. Serão de responsabilidade da empresa CONTRATADA todas as despesas 
+relativas à execução dos serviços, incluindo mão de obra e encargos 
+decorrentes, ferramentas, equipamentos, materiais, eventuais serviços 
+de terceiros de qualquer espécie, taxas e emolumentos, transportes, 
+deslocamentos, alojamento e segurança da equipe executora, e tudo o 
+CTTSDP064/2019/ECO 	
+53/58 
+
+--- PAGE 54 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+mais que necessário for para a completa e satisfatória execução do 
+objeto do presente Termo de Referência. 
+10.2. A CONTRATANTE não se responsabiliza por equipamentos ou bens da 
+CONTRATADA deixados no local da execução dos serviços, bem como 
+por eventuais danos sofridos pelos funcionários da CONTRATADA 
+durante os levantamentos a serem realizados. 
+10.3. As medições, recebimento dos produtos e pagamentos decorrentes 
+ocorrerão conforme o cronograma de execução previsto no item 5, 
+detalhado no Plano de Trabalho constante do Produto 1. 
+10.4. Caberá à CONTRATANTE oficializar os gestores públicos e privados 
+sobre a finalidade do objeto deste Termo de Referência, mediante 
+solicitação da CONTRATADA, identificando os técnicos da CONTRATADA 
+responsáveis por eventuais levantamentos de dados e visitas técnicas. 
+10.5. insumos fornecidos pela CONTRATANTE. Os planos de informação e 
+arquivos tabulares, a seguir relacionados serão fornecidos pela 
+CONTRATANTE e deverão ser utilizados como base para obtenção de 
+atributos e análises quando pertinente: 
+10.5.1. Cadastro georreferenciado de eventos geodinâmicos ocorridos 
+no período entre 1993 e 2013 (21 anos), em 50 municípios das 
+regiões metropolitanas de São Paulo e Baixada Santista e 
+municípios de Caraguatatuba, São Sebastião e Ubatuba, em 
+formato shapefile e planilha eletrônica; 
+10.5.2. Cadastro de Eventos e Desastres do Estado de São Paulo, do 
+Instituto Geológico, no período 2014-2017, para os municípios 
+de Bertioga, Biritiba-Mirim, Caraguatatuba, Mogi das Cruzes, 
+Santos, São Sebastião e Ubatuba, em formato shapefile e 
+planilha eletrônica; 
+10.5.3. Unidades Territoriais Básicas (UTB) do Litoral Norte, contendo 
+os índices de perigo deslizamento e inundação, em formato 
+shapefile; 
+10.5.4. Unidades Territoriais Básicas (UTB) do Estado de São Paulo, 
+contendo os índices de perigo deslizamento e inundação, em 
+formato shapefile; 
+10.5.5. Cartas de Suscetibilidade a Movimentos Gravitacionais de 
+Massa e inundações dos municípios de Bertioga, Biritiba-Mirim, 
+Caraguatatuba, Mogi das Cruzes, Santos, São Sebastião e 
+Ubatuba, em formato shapefile. 
+CTTSDP064/2019/ECO 	
+54/58 
+
+--- PAGE 55 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+10.5.6. Base de Logradouros do Estado de São Paulo, em formato 
+shapefile; 
+10.5.7. Coleção de imagens de satélite de alta resolução, produzidas 
+pela Digital Globe, pelos sensores WorldView-1, WorldView-2, 
+WorldView-3, WorldView-4 e GeoEye-1, do período 2016-2018. 
+REFERÊNCIAS BIBLIOGRÁFICAS 
+ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS (ABNT). 150 31000 Gestão de riscos — Princípios 
+e diretrizes (Risk management – Principies and guidelines). 2009. 
+ARMANI, G.; TAVARES, R.; BRIGATTI, N. Climatologia. In: FERREIRA C.J. [coord]. Diretrizes para a 
+regeneração socioambiental de áreas degradadas por mineração de saibro (caixas de 
+empréstimo), Ubatuba, SP. Relatório Técnico 3, FAPESP (processo FAPESP 03/07182-5) inédito, p. 
+119-142, 2007. 
+BRASIL (DEPARTAMENTO 	
+NACIONAL 	
+DE 	
+INFRAESTRUTURA 	
+DE 
+TRANSPORTES).Manual para implementação de planos de ação de emergência para 
+atendimento a sinistros envolvendo o transporte rodoviário de produtos perigosos. 2005. 142p. 
+(IPR. Publ., 716). Disponível em: https://goo.gl/sF&Pg  . Acesso em 06 set 2017. 
+BRASIL (MINISTÉRIO DA INTEGRAÇÃO). Manual de orientações para a produção do plano 
+municipal de contingência - PLAMCON. Secretaria Nacional de Defesa Civil. 2012. Disponível em: 
+https://goo.glau8acH. Acesso  em: 04 set 2017. 
+CERRI, L.E.S. 1993. Riscos geológicos associados a escorregamentos: uma proposta para a 
+prevenção de acidentes. Tese de doutorado, Universidade Estadual Paulista Júlio de Mesquita 
+Filho, UNESP. 
+CERRI, L.E.S.; MACEDO, E.S.; OGURA, A.T.; NUNES, C.M.; CARNEIRO, S.R.; MODESTO, R.P. 
+1990. Plano 
+preventivo de defesa Civil para a minimização das consequências de escorregamentos em 
+municípios da Baixada Santista e Litoral Norte do Estado de São Paulo. In: SIMPÓSIO LATINO-
+AMERICANO SOBRE RISCO GEOLÓGICO URBANO, 1, São Paulo. Anais... São Paulo: Associação 
+Brasileira de Geologia de Engenharia, 1: 396-408. 
+DRM (Departamento de Recursos Naturais). 2015. Correlação chuvas x escorregamentos no 
+Estado do Rio de Janeiro no mês de março de 2015. Relatório Técnico. Disponível em: 
+https://goo.g1hyDp8U . Acessado  em: 29 jun 2015. 
+FERREIRA, C.J. ROSSINI-PENTEADO, D.; SOUZA, C.R.G.; ROCHA, G.A. SOUZA, L., GUEDES, A.C.M. 
+2015. 
+Integração de mapeamento de risco e índices pluviométricos no monitoramento e alerta de risco 
+de escorregamentos planares no Litoral Norte do Estado de São Paulo. Revista Brasileira de 
+Geologia de Engenharia e Ambiental, v.5 (1): 37-53. Disponível em: https://goo.gl/mqv6QG  . 
+Acesso em: 30 mai 2017. 
+CTTSDP064/2019/ECO 	
+55/58 
+
+--- PAGE 56 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+MACEDO, E.S.; OGURA, A.T., SANTORO J. 1999. Defesa Civil e escorregamentos: o plano 
+preventivo do litoral paulista. In: CONGRESSO BRASILEIRO DE GEOLOGIA E ENGENHARIA, 9, São 
+Pedro. Anais... São Paulo: Associação Brasileira de Geologia de Engenharia e Ambiental. 
+ONU-ISDR. Terminology in disaster risk reduction. 2017. Disponível em: https://goo.gl/a2CMDE . 
+Acesso em: 30 mai 2017. 
+PARIZZI, M.G.; SEBASTIÃO, C.S.; VIANA, C.S.; PFWEGER, M.C.; CAMPOS, L.C.; CAJAZEIRO, J. M. D.; 
+TOMICH, R.S.; GUIMARÃES, R.N.; ABREU, M.L.; SOBREIRA, F.G.; REIS, R. 2010. Correlações entre 
+chuvas e movimentos de massa no município de Belo Horizonte, MG. Geografias (UFMG), 6(2): 
+49- 68. 
+SÃO PAULO (Estado). Plano Preventivo de Defesa Civil - PPDC específico para Escorregamentos 
+nas Encostas da Serra do Mar. DECRETO N. 42.565, DE 1 DE DEZEMBRO DE 1997. Disponível em: 
+https://goo.g1/Ypkdgl . Acesso em 31 mai 2017. 
+SOARES E.P. 2006. Caracterização da precipitação na região de Angra dos Reis e a sua relação 
+com a ocorrência de deslizamentos de encostas. Dissertação de Mestrado. Universidade 
+Federal do Rio de Janeiro. 145p. 
+SOARES E.P. & MARTON E. 2006. Relação entre precipitação e deslizamentos de encostas na 
+região de Angra dos Reis. In: CONGRESSO BRASILEIRO DE METEOROLOGIA, 14, Florianópolis. 
+Anais... Rio de Janeiro: Sociedade 	
+Brasileira de Meteorologia. Disponível em: 
+https://goo.gl/BHHFrik Acessado em: 29 jun. 2015. 
+TATIZANA C., OGURA A.T., CERRI L.E.S., ROCHA M.C.M. 1987a. Análise de Correlação 
+entre Chuvas e Deslizamentos — Serra do Mar — Município de Cubatão. In: CONGRESSO 
+BRASILEIRO DE GEOLOGIA E ENGENHARIA, 5, São Paulo. Anais... São Paulo: Associação Brasileira 
+de Geologia de Engenharia e Ambiental, 2: 225-236. 
+TATIZANA, C., OGURA, A.T., CERRI, L.E.S., ROCHA M.C.M. 1987b. Modelamento Numérico da 
+Análise de Correlação entre Chuvas e Deslizamentos aplicados à Encosta da Serra do Mar. In: 
+CONGRESSO BRASILEIRO DE GEOLOGIA E ENGENHARIA,5, São Paulo.Anais... São Paulo: 
+Associação Brasileira de Geologia de Engenharia e Ambiental, 2: 237-248. 
+VILA D. A.; SCOFIELD R. A.; KULIGOWSKI RJ.; DAVENPORT J. C.; Satellite rainfall estimation over 
+South America: Evaluation of two major events. NOAA Technical Reports n. 114, US Department 
+of Commerce, Washington, D.C, June 2003. 
+C1TSDP064/2019/EC0 	
+56/58 
+
+--- PAGE 57 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+APÊNDICE B - EQUIPE PRINCIPAL 
+4N-Psk 	
+r- 
+Kl - COORDENADOR 
+FERNANDO KERTZMAN 
+K2 - ESPECIALISTA SUPERIOR SÊNIOR 
+FERNANDO MACHADO ALVES 
+K3 - ESPECIALISTA SUPERIOR JUNIOR 
+GUILHERME NUNES FERNANDEZ 
+K4 - ESPECIALISTA SUPERIOR SÊNIOR 
+BRUNO ALEXANDRE A. CARVALHO 
+K5 - ESPECIALISTA SUPERIOR PLENO 
+BRUNNO PIFtANI BASSAN 
+K6 - ESPECIALISTA SUPERIOR PLENO 
+JOSE MAURO MARQUE 
+Os CVs atualizados e assinados pelos respectivos Especialistas enquandram-se anexados à 
+proposta técnica apresentada pelo Consórcio. 
+C1TSDP064/2019/ECO 	
+57/58 
+
+--- PAGE 58 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+APÊNDICE C - DISCRIMINAÇÃO DO PREÇO DO CONTRATO (SEM IMPOSTOS) 
+FIN-3 DISCRIMINAÇÕES DAS REMUNERAÇÕES 
+cE,7104,14.-0,2 
+EQUIPE CHAVE 
+K1 - COORDENADOR 
+FERNANDO KERTZMAN 
+32.918,72 
+4,50 
+148.134,24 
+K2 - ESPECIALISTA SUPERIOR SÊNIOR 
+FERNANDO MACHADO ALVES 
+22.073,39 
+4,00 
+88.293,56 
+K3 - ESPECIALISTA SUPERIOR JUNIOR 
+GUILHERME NUNES 
+FERNANDEZ 
+12.075,34 
+4,00 
+48.301,36 
+K4 - ESPECIALISTA SUPERIOR SÊNIOR 
+BRUNO ALEXANDRE A. 
+CARVALHO 
+12.753,72 
+6,00 
+76.522,32 
+1(5 - ESPECIALISTA SUPERIOR PLENO 
+BRUNNO PIRANI BASSAN 
+11.145,90 
+6,00 
+66.875,40 
+1(6 - ESPECIALISTA SUPERIOR PLENO 
+JOSE MAURO MARQUEZ 
+12.075,34 
+4,00 
+48.301,36 
+476.428,24 
+EQUIPE DE APOIO 
+Ni - ESPECIALISTA SUPERIOR PLENO 
+PEDRO MACHADO SIMÕES 
+12.075,34 
+3,50 
+42.263,69 
+N2 - ESPECIALISTA SUPERIOR PLENO 
+ADÃO APARECIDO L 
+MODESTO 
+12.075,34 
+3,50 
+42.263,69 
+N3 - ESPECIALISTA SUPERIOR PLENO 
+MARIANA GUARNIER 
+FAGUNDES 
+12.075,34 
+3,50 
+42.263,69 
+N4 - ESPECIALISTA SUPERIOR PLENO 
+DIEGO DOS SANTOS 
+RODRIGUES 
+11.145,90 
+6,00 
+66.875,40 
+193.666,47 
+FIN4 DESPESAS REEMBOLSÁVEIS 
+TIPO 
+UNIDADE 
+CUSTO 
+UNIT. 
+QTD 
+TOTAL 
+DESPESAS HOTEL/ALIMENTAÇÃO 
+UNIDADE 
+350,00 
+8,00 
+2.800,00 
+ALUGUEL VEÍCULO/MANUTENÇÃO 
+/COMBUSTÍVEL 
+MÊS 
+3.800,00 
+2,00 
+7.600,00 
+AQUISIÇÃO DE EQUIPAMENTOS 
+/COMPUTADORES 
+UNIDADE 
+4.000,00 
+1,00 
+4.000,00 
+MATERIAL DE CONSUMO 
+MÊS 
+1.000,00 
+6,00 
+6.000,00 
+DESPESDAS COMUNICAÇÃO 
+MÊS 
+1.000,00 
+6,00 
+6.000,00 
+26.400,00 
+CTTSDP064/2019/ECO 	
+58158 
+
+--- PAGE 59 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+ANEXO LC-01 — TERMO DE CIÊNCIA E DE NOTIFICAÇÃO 
+(CONTRATOS) 
+CONTRATANTE: DEPARTAMENTO DE ESTRADAS DE RODAGEM DO ESTADO DE SÃO PAULO. 
+CONTRATADO: CONSÓRCIO REGEA — NIPPON KOEILAC — GEOTEC — OPTIMUS GIS, inscrito no Cadastro 
+Nacional da Pessoa Jurídica — CNPJ do Ministério da Fazenda sob n ° 37.663.059/0001-70, formado pelas seguintes 
+empresas, cada uma das quais será responsável conjunta e solidariamente perante o Contratante por todas as 
+obrigações do Consultor neste Contrato, a saber, REGEA GEOLOGIA, ENGENHARIA E ESTUDOS AMBIENTAIS 
+LTDA. inscrita no Cadastro Nacional de Pessoa Jurídica do Ministério da Fazenda — CNPJ, sob n°. 
+07.105.914/0001-66, com sede na Rua Moacir Miguel da Silva, 633 — Jardim Bonfiglioli, na cidade de São Paulo, 
+Estado de São Paulo, NIPPON KOEILATIN AMERICA-CARIBBEAN CO., LTD., inscrita no Cadastro Nacional de 
+Pessoa Jurídica do Ministério da Fazenda — CNPJ, sob n°. 08.957.262/0001-50, com sede em 4 Kojimachi 5-chome, 
+Chiyoda-Ku, Tóquio 1028539, Japão, NIPPON KOEI LAC DO BRASIL LTDA., inscrita no Cadastro Nacional de 
+Pessoa Jurídica do Ministério da Fazenda — CNPJ, sob n°. 08.871.349/0001-00, com sede na Rua Claudio Soares, 
+72 - salas 302 e 303 — Pinheiros — na cidade de São Paulo, Estado de São Paulo; GEOTEC CONSULTORIA 
+AMBIENTAL LTDA., inscrita no Cadastro Nacional de Pessoa Jurídica do Ministério da Fazenda — CNPJ, sob no. 
+03.063.067/0001-63, com sede na Rua Machado Bittencourt, 361, cj. 104, Vila Clementina, na cidade de São Paulo, 
+Estado de São Paulo e OPTIMUS GIS — CONSULTORIA EMPRESARIAL LTDA., inscrita no Cadastro Nacional de 
+Pessoa Jurídica do Ministério da Fazenda — CNPJ, sob n°. 12.224.640/0001-64, com sede na Avenida Doutor 
+Nelson D'avila, n° 1837, salas 701 e 702 Jardim São Dimas, na cidade de São José dos Campos, Estado de São 
+Paulo. 
+Objeto: Contratação de serviços técnicos especializados para elaboração de Planos de Contingência frente a 
+riscos de eventos geodinâmicos em trechos rodoviários selecionados das Unidades Básicas de 
+Atendimento (UBAs), de Caraguatatuba, Mogi das Cruzes e São Vicente. 
+ADVOGADO (5) /N° OAB :(*) 
+Pelo presente TERMO, nós, abaixo identificados: 
+1. Estamos CIENTES de que: 
+a) 
+O ajuste acima referido estará sujeito á análise e julgamento pelo Tribunal de Contas do Estado de São 
+Paulo, cujo trâmite processual ocorrerá pelo sistema eletrônico; 
+b) 
+Poderemos ter acesso ao processo, tendo vista e extraindo cópias das manifestações de interesse, 
+Despacho e Decisões, mediante regular cadastramento no Sistema de Processo Eletrônico, conforme 
+dados abaixo indicados, em consonância com o estabelecido na Resolução n°01/2011 do TECESP; 
+c) 
+Além de disponíveis no processo eletrônico todos os Despachos e decisões que vierem a ser tomados, 
+relativamente ao aludido processo, serão publicados no Diário Oficial do Estado, Cademo Do Poder 
+Legislativo, parte do Tribunal de Contas do Estado de São Paulo, em conformidade com o artigo 90 da Lei 
+Complementar n° 709, de 14 janeiro de 1993, iniciando-se, a partir de então, a contagem dos prazos 
+processuais, conforme regras do Código de Processo Civil; 
+C1TSDP064/2019 	
+1/3 
+
+--- PAGE 60 ---
+E-MAIL PESSOAL: ct liavini'erra.com. 
+TELEFONE(S): (011)3311-1401/1 
+ASSINATURA: 
+Pela CONTRATADA: 
+NOME: Eiiti Kurokawa 
+CARGO: - Representante Legal do Consórcio. 
+CTTSDP064/2019 	
+2/3 
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+d) Qualquer alteração de endereço - residencial ou eletrônico - ou telefones de contato, deverá ser 
+comunicaria pelo interessado, peticionando no processo. 
+2. Damo-nos por NOTIFICADO para: 
+a) 
+O acompanhamento dos atos do processo até seu julgamento final e consequente publicação; 
+b) 
+Se for o caso e de nosso interesse nos prazos e nas formas legais e regimentais, exercer o direito de 
+defesa, interpor recursos e o que mais couber. 
+LOCAL E DATA: São Paulo, 
+21 
+de 	
+julho 	
+de 2020. 
+GESTOR DO ÓRGÃO/ENTIDADE: 
+Nome: Paulo Cesar Tagliavini 
+CARGO: Superintendente 
+CPF: 656.689.958-87 - RO: 6.247.101- SSP/SP 
+DATA DE NASCIMENTO: 25/10/1950 
+ENDEREÇO RESIDENCIAL COMPLETO: Rua Edgar Gerson Barbosa, ng 314 - Apto 21 - São Bernardo do 
+Campo/SP -CEP-09732-520 
+E-MAIL INSTITUCIONAL: pctagliaviniedensp.gov.br  
+E-MAIL PESSOAL:  octaoliaviniaterra.com.br  
+TELEFONE(S): (011)3311-1401/1402 
+ASSINATURA: 	
+ 
+Resoonsávels Que assinaram o alua  
+Pelo CONTRATANTE: 
+Nome: Paulo Cesar Tagliavini 
+CARGO: Superintendente 
+CPF: 656.689.958-87 - RG: 6.247.101- SSP/SP 
+DATA DE NASCIMENTO: 25/10/1950 
+ENDEREÇO RESIDENCIAL COMPLETO: Rua Edgar Gerson Barbosa, n 9 314 - Apto 21 - São Bernardo do 
+Campo/SP -CEP-09732-520 
+E-MAIL INSTITUCIONAL: pctagliavinieder.sp.g.v.br  
+
+--- PAGE 61 ---
+E-MAIL PESSOAL: eii1i.ku 
+TELEFONE(S): (11)99800-0 
+ASSINATURA: 
+enklac.com 
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+CPF/MF: 157.447.106-63 	
+RG: 4.709.823-5-SSP/SP 
+DATA DE NASCIMENTO: 02108/1951 
+ENDEREÇO RESIDENCIAL COMPLETO: Rua Irmã Glorie Maria, 75 —Jaguaré - Cep: 05334-070/SP 
+E-MAIL INSTITUCIONAL: comerciatbrenklac.com  
+CTTSDP064/2019 	
+3/3 
+
+--- PAGE 62 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+DECLARAÇÃO DE DOCUMENTOS À DISPOSIÇÃO DO TRIBUNAL 
+CONTRATANTE: DEPARTAMENTO DE ESTRADAS DE RODAGEM DO ESTADO DE SÃO PAULO. 
+CONTRATADA: CONSÓRCIO REGEA — NIPPON KOEILAC — GEOTEC — OPTIMUS GIS, formado 
+pelas seguintes empresas, a saber 
+REGEA GEOLOGIA, ENGENHARIA E ESTUDOS AMBIENTAIS LTDA. inscrita no Cadastro 
+Nacional de Pessoa Jurídica do Ministério da Fazenda — CNPJ, sob n°. 07.105.914/0001-66, 
+NIPPON KOEILATIN AMERICA-CARIBBEAN CO., LTD., inscrita no Cadastro Nacional de Pessoa 
+Jurídica do Ministério da Fazenda — CNPJ, sob n°. 08.957.262/0001-50, 
+NIPPON KOEILAC DO BRASIL LTDA., inscrita no Cadastro Nacional de Pessoa Jurídica do 
+Ministério da Fazenda — CNPJ, sob n°. 08.871.349/0001-00, 
+GEOTEC CONSULTORIA AMBIENTAL LTDA., inscrita no Cadastro Nacional de Pessoa Jurídica do 
+Ministério da Fazenda — CNPJ, sob n°. 03.063.067/0001-63, e 
+OPTIMUS GIS — CONSULTORIA EMPRESARIAL LTDA., inscrita no Cadastro Nacional de Pessoa 
+Jurídica do Ministério da Fazenda — CNPJ, sob n°. 12.224.640/0001-64. 
+CONTRATO N.° 20.595-3 
+DATA DA ASSINATURA: 21/07/2020 
+VIGÊNCIA: 09 (nove) meses. 
+OBJETO: Contratação de serviços técnicos especializados para elaboração de Planos de 
+Contingência frente a riscos de eventos geodinâmicos em trechos rodoviários selecionados 
+das Unidades Básicas de Atendimento (UBAs), de Caraguatatuba, Mogi das Cruzes e São 
+Vicente. 
+VALOR: R$ 733.152,33 (setecentos e trinta e três mil, cento e cinquenta e dois reais e trinta e 
+três centavos). 
+Declaramos, sob as penas da Lei, que os demais documentos originais, atinentes à correspondente 
+licitação, em especial, os a seguir relacionados, encontram-se no respectivo processo administrativo 
+arquivado na origem à disposição do Tribunal de Contas do Estado de São Paulo, e serão remetidos 
+quando requisitados: 
+a) memorial descritivo dos trabalhos e respectivo cronograma físico-financeiro; 
+b) orçamento detalhado em planilhas que expressem a composição de todos os seus custos unitários; 
+1 
+
+--- PAGE 63 ---
+SECRETARIA DE LOGÍSTICA E TRANSPORTES 
+DEPARTAMENTO DE ESTRADAS DE RODAGEM 
+c) previsão de recursos orçamentários que assegurem o pagamento das obrigações decorrentes dos 
+serviços a serem executados no exercício financeiro em curso, de acordo com o respectivo 
+cronograma; 
+d) comprovação no Plano Plurianual de que o produto dos serviços foi contemplado em suas metas; 
+e) as plantas e projetos de engenharia e arquitetura 
+São Paulo, 21 de julho de 2020. 
+1 
+Paulo Ces Tagliavini 
+u ntendente 
+2 

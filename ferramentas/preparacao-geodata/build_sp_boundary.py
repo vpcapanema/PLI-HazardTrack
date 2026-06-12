@@ -11,7 +11,7 @@ from pathlib import Path
 import json
 import urllib.request
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "static" / "data" / "sp_state.geojson"
 
 # Servico oficial IBGE: malha do estado SP (codigo 35), qualidade intermediaria.

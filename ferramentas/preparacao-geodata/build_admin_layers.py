@@ -19,7 +19,7 @@ from pathlib import Path
 import geopandas as gpd
 import json
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / "static" / "data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 

@@ -9,7 +9,7 @@ Conversao: EPSG:4326 (WGS84) para compatibilidade com o sistema
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 import geopandas as gpd

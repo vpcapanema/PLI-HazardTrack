@@ -155,10 +155,7 @@ def rd_distribution(
 def _as_dist(
     dist: Optional[Dict[int, int]], scalar: Optional[int]
 ) -> Optional[Dict[int, int]]:
-    """
-    Unifica entrada: prioriza a distribuicao completa; se ausente, usa o RA
-    escalar como uma distribuicao de 1 unidade {ra: 1} (compatibilidade).
-    """
+    """Distribuicao por trecho ou RA escalar da UA (1 unidade)."""
     if dist:
         return {int(k): int(v) for k, v in dist.items() if v and v > 0}
     if scalar is not None:
@@ -168,7 +165,7 @@ def _as_dist(
 
 def evaluate_point(lat: float, lon: float, region: Optional[Region],
                    ac96h: float, intensity: float, ac24h: float,
-                   ra: Optional[int] = None, ra_geo: Optional[int] = None,
+                   ra_geo: Optional[int] = None,
                    ra_hid: Optional[int] = None,
                    ra_geo_dist: Optional[Dict[int, int]] = None,
                    ra_hid_dist: Optional[Dict[int, int]] = None) -> RiskResult:
@@ -180,25 +177,20 @@ def evaluate_point(lat: float, lon: float, region: Optional[Region],
         ac96h: chuva acumulada nas ultimas 96 horas (mm)
         intensity: chuva na ultima hora (mm/h)
         ac24h: chuva acumulada nas ultimas 24 horas (mm)
-        ra: Risco Analisado compativel (0..4) ou None (SEM_DADO).
-        ra_geo: Risco Analisado Geologico escalar (0..4). Se None, usa `ra`.
-        ra_hid: Risco Analisado Hidrologico escalar (0..4). Se None, usa `ra`.
+        ra_geo: RAGEO da UA (0..4) ou None (SEM_DADO no canal geo)
+        ra_hid: RAHID da UA (0..4) ou None (SEM_DADO no canal hid)
         ra_geo_dist: distribuicao {classe: n_unidades} de RA GEO do trecho
             (Tabela 3.3.3.1-3). Quando presente, tem prioridade sobre ra_geo.
         ra_hid_dist: idem para RA HID (Tabela 3.3.3.1-4).
 
-    Politica de decisao (escolha do usuario: "distribuicao completa, motor
-    decide por classe"): o RD do trecho e o PIOR CASO entre as classes de RA
-    presentes (>=1 unidade). Isso evita sub-alertar trechos heterogeneos onde
-    a moda e baixa mas existem UAs de risco muito alto. Tambem expomos a
-    distribuicao de UAs por nivel de RD (rd_geo_dist/rd_hid_dist).
+    Politica: RAGEO e RAHID sao independentes (Produto 7). Nao ha fallback
+    entre canais nem campo RA generico. Sem dado em ambos -> SEM_DADO.
 
     Returns:
         RiskResult com todas as variaveis calculadas
     """
-    # Unifica RA: distribuicao tem prioridade; senao usa escalar; senao `ra`
-    dist_geo = _as_dist(ra_geo_dist, ra_geo if ra_geo is not None else ra)
-    dist_hid = _as_dist(ra_hid_dist, ra_hid if ra_hid is not None else ra)
+    dist_geo = _as_dist(ra_geo_dist, ra_geo)
+    dist_hid = _as_dist(ra_hid_dist, ra_hid)
 
     if region is None:
         # Fora de cobertura: retorna estado neutro
@@ -245,7 +237,7 @@ def evaluate_point(lat: float, lon: float, region: Optional[Region],
         ra_presente.append(max(dist_geo.keys()))
     if dist_hid:
         ra_presente.append(max(dist_hid.keys()))
-    ra_max = max(ra_presente) if ra_presente else ra
+    ra_max = max(ra_presente) if ra_presente else None
 
     # Quantas UAs estao no nivel de RD de pior caso
     unidades_pior = (

@@ -5,9 +5,8 @@ Scripts, relatorios e artefatos de apoio **fora do backend operacional**
 carregado em tempo de execucao da aplicacao.
 
 Os **dados gerados** que o sistema consome permanecem em `data/` (por exemplo
-`data/ua_zones/ua_zones.geojson`, malha DER, regioes).
-
-## Pastas por tema
+`data/ua_polygons/ua_polygons.geojson`, `data/ua_zones/ua_geo.geojson`,
+malha DER, regioes).
 
 | Pasta | Conteudo |
 |-------|----------|
@@ -25,4 +24,5 @@ python ferramentas/geracao-uas/build_ua_polygons.py
 python ferramentas/geracao-uas/assign_ra_to_uas.py
 ```
 
-Saida operacional: `data/ua_zones/ua_zones.geojson` (809 poligonos com RA).
+Saida operacional: `data/ua_polygons/ua_polygons.geojson` (fonte) e
+`data/ua_zones/ua_geo.geojson` + `ua_hidro.geojson` (runtime).

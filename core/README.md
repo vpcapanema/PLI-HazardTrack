@@ -9,7 +9,7 @@ tabelas estaticas extraidas dos relatorios (ver `ferramentas/`).
 | Modulo | Funcao |
 |--------|--------|
 | `aggregator.py` | Orquestra ciclo: chuva MERGE, previsao WRF, RD por UA |
-| `zones.py` | Carrega `data/ua_zones/ua_zones.geojson` (809 UAs) |
+| `zones.py` | Carrega `ua_geo.geojson` + `ua_hidro.geojson` (809 UAs) |
 | `regions.py` | Poligonos das 4 regioes DER-SP |
 | `risk.py` | CPC, ICC, matriz RA×ICC → RD |
 | `merge_inpe.py` | Ingestao MERGE/INPE (streaming GRIB2) |
@@ -29,7 +29,8 @@ tabelas estaticas extraidas dos relatorios (ver `ferramentas/`).
 
 ## Dados consumidos (em `data/`)
 
-- `ua_zones/ua_zones.geojson` — unidade operacional do mapa e do aggregator
+- `ua_polygons/ua_polygons.geojson` — fonte canonica (geometria + RA)
+- `ua_zones/ua_geo.geojson` + `ua_hidro.geojson` — malha operacional do mapa
 - `der_sistema_rodoviario/` — malha DER oficial
 - `regioes_pli/` — regioes climatico-geologicas
 

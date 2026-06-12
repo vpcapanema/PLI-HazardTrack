@@ -9,7 +9,7 @@ ser atualizadas. Nao fazem parte do ciclo de refresh da aplicacao.
 | Script | Entrada | Saida em `data/` |
 |--------|---------|------------------|
 | `process_der_shapefile.py` | `der_sistema_rodoviario/MALHA_RODOVIARIA.shp` | `malha_der/malha_der_oficial.geojson` |
-| `build_road_network.py` | malha DER + regioes PLI | rede filtrada para monitoramento |
+| `build_road_network.py` | malha DER oficial + regioes PLI | `static/data/malha_der.geojson` (estado inteiro, flag `monitored`) |
 | `build_regions_shp.py` | poligonos aproximados / fontes | `regioes_pli/` |
 | `build_sp_boundary.py` | shapefile estado SP | contorno para mapa |
 | `build_admin_layers.py` | municipios, sedes DER | camadas administrativas |

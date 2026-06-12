@@ -13,7 +13,7 @@ bcrypt==4.2.0
 psycopg[binary]==3.2.3
 psycopg-pool==3.2.4
 
-# Digitalizacao de figuras do Produto 7 (scripts/digitize_ua_polygons.py)
+# Leitura de figuras do Produto 7 (assign_ra_to_uas, build_ua_polygons)
 pymupdf==1.25.5
 scikit-image>=0.24.0
 scipy>=1.11.0

@@ -21,7 +21,7 @@ from core.aggregator import state
 from core.ops import ops_bp
 from core.actions import get_summary_actions, get_protocolo_completo
 from core.merge_ingest import ingest
-from core.zones import ZONES_GEO
+from core.zones import get_zones_geo
 
 logging.basicConfig(
     level=logging.INFO,
@@ -88,7 +88,7 @@ def _bootstrap():
 
     log.info("SAMAEG-PLI iniciando...")
 
-    coords = [(p["lat"], p["lon"]) for p in ZONES_GEO]
+    coords = [(p["lat"], p["lon"]) for p in get_zones_geo()]
     ingest.configure(coords)
     ingest.start()
 
@@ -187,7 +187,7 @@ def api_progress():
 
 @app.route("/api/road-network")
 def api_road_network():
-    """Serve a malha rodoviaria DER otimizada (GeoJSON)."""
+    """Serve a malha rodoviaria DER completa (GeoJSON otimizado para mapa)."""
     from flask import send_from_directory
     static_data = os.path.join(os.path.dirname(__file__), "static", "data")
     return send_from_directory(static_data, "malha_der.geojson",
@@ -222,8 +222,27 @@ def _snapshot_points(snap: Dict[str, Any]) -> List[Dict[str, Any]]:
 @app.route("/api/actions")
 def api_actions():
     """Retorna acoes operacionais por nivel para o snapshot atual."""
-    snap = state.get_snapshot()
+    snap = _snapshot_for_request()
     return jsonify(get_summary_actions(_snapshot_points(snap)))
+
+
+def _snapshot_for_request():
+    """Snapshot ao vivo ou historico (?at= ISO UTC)."""
+    at_raw = request.args.get("at")
+    if at_raw:
+        as_of = _parse_snapshot_at(at_raw)
+        if as_of is None:
+            return {
+                "summary": {
+                    "data_status": "no_data",
+                    "historical": True,
+                    "message": "Parametro 'at' invalido.",
+                },
+                "points_geo": [],
+                "points_hidro": [],
+            }
+        return state.compute_snapshot_at(as_of)
+    return state.get_snapshot()
 
 
 @app.route("/acoes")
@@ -235,9 +254,11 @@ def acoes_page():
     o que cada orgao deve fazer agora, os trechos que exigem atencao e o
     protocolo PPDC completo (referencia, todos os niveis).
     """
-    snap = state.get_snapshot()
+    snap = _snapshot_for_request()
     points = _snapshot_points(snap)
     summary = snap.get("summary", {})
+    historical = bool(summary.get("historical"))
+    consulted_at = summary.get("consulted_at") or snap.get("timestamp_utc")
     return render_template(
         "acoes.html",
         actions=get_summary_actions(points),
@@ -245,6 +266,8 @@ def acoes_page():
         timestamp_utc=snap.get("timestamp_utc"),
         data_status=summary.get("data_status"),
         max_rd_name=summary.get("max_rd_name"),
+        historical=historical,
+        consulted_at=consulted_at,
     )
 
 

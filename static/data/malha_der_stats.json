@@ -1,84 +1,37 @@
 {
-  "total_trechos": 161,
-  "total_features": 161,
-  "extensao_total_km": 1019.8,
-  "rodovias_unicas": 15,
-  "rodovias": [
-    "BR 101",
-    "SP 039",
-    "SP 043",
-    "SP 055",
-    "SP 061",
-    "SP 066",
-    "SP 088",
-    "SP 092",
-    "SP 098",
-    "SP 099",
-    "SP 102",
-    "SP 125",
-    "SP 131",
-    "SP 148",
-    "SP 150"
-  ],
+  "total_trechos": 4583,
+  "extensao_total_km": 20744.413,
+  "rodovias_unicas": 839,
   "tipos_pista": [
     "DUP",
     "IMP",
     "PAV"
   ],
-  "tipo_pista": [
-    "DUP",
-    "IMP",
-    "PAV"
+  "tipos_rodovia": [
+    "Acesso",
+    "Eixo",
+    "Interligação"
   ],
   "regionais": [
+    "DR 01",
+    "DR 02",
+    "DR 03",
+    "DR 04",
     "DR 05",
     "DR 06",
-    "DR 10"
+    "DR 07",
+    "DR 08",
+    "DR 09",
+    "DR 10",
+    "DR 11",
+    "DR 12",
+    "DR 13",
+    "DR 14"
   ],
-  "regional": [
-    "DR 05",
-    "DR 06",
-    "DR 10"
-  ],
-  "tipos_rodovia": [
-    "Eixo"
-  ],
-  "municipios": [
-    "Arujá",
-    "Bertioga",
-    "Biritiba Mirim",
-    "Caraguatatuba",
-    "Cubatão",
-    "Guararema",
-    "Guarujá",
-    "Ilhabela",
-    "Itanhaém",
-    "Itaquaquecetuba",
-    "Itariri",
-    "Jacareí",
-    "Jambeiro",
-    "Miracatu",
-    "Mogi das Cruzes",
-    "Mongaguá",
-    "Natividade da Serra",
-    "Paraibuna",
-    "Pedro de Toledo",
-    "Peruíbe",
-    "Poá",
-    "Praia Grande",
-    "Redenção da Serra",
-    "Ribeirão Pires",
-    "Salesópolis",
-    "Santos",
-    "Suzano",
-    "São Bernardo do Campo",
-    "São José dos Campos",
-    "São Luís do Paraitinga",
-    "São Paulo",
-    "São Sebastião",
-    "São Vicente",
-    "Taubaté",
-    "Ubatuba"
+  "jurisdicoes": [
+    "Estadual",
+    "Federal",
+    "Municipal"
   ],
   "administra": [
     "Concessionária",
@@ -86,7 +39,22 @@
     "DNIT",
     "Prefeitura"
   ],
-  "source": "DER-SP - Sistema Rodoviario Estadual (dadosabertos.sp.gov.br)",
-  "crs": "EPSG:4326 (WGS84)",
-  "data_atualizacao": "2025"
+  "bbox": [
+    -53.05548756314513,
+    -25.059498313451225,
+    -44.166338020652184,
+    -19.84726508583349
+  ],
+  "monitored_count": 101,
+  "monitored_km": 750.719,
+  "monitored_by_region": {
+    "SÃ£o SebastiÃ£o": 30,
+    "Caraguatatuba-Ubatuba": 13,
+    "Santos-Bertioga": 9,
+    "Mogi-Bertioga": 49
+  },
+  "hazards_default": [
+    "instabilidade_encosta",
+    "inundacao"
+  ]
 }

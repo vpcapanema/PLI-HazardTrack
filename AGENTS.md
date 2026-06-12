@@ -11,7 +11,7 @@ para rodovias da Regiao do Litoral Norte de Sao Paulo (DER-SP).
 ## Arquitetura
 - `app.py` - Flask backend + scheduler
 - `core/risk.py` - Calculo de Risco Dinamico (RD = RA x ICC)
-- `core/zones.py` - Carrega 809 UAs de `data/ua_zones/ua_zones.geojson`
+- `core/zones.py` - Carrega 809 UAs de `data/ua_zones/ua_geo.geojson` e `ua_hidro.geojson` (fonte: `data/ua_polygons/ua_polygons.geojson`)
 - `core/aggregator.py` - Agrega dados de chuva + risco
 - `core/merge_inpe.py` - Download/decode MERGE/INPE (ThreadPool + ProcessPool)
 - `core/merge_ingest.py` - Ingest continuo em background + cache RAM incremental

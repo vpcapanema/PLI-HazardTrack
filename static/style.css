@@ -298,6 +298,29 @@ body {
   box-shadow: -3px 0 0 0 currentColor inset;
 }
 
+.meter-cell--blink {
+  animation: alertSidebarPulse 1.3s ease-in-out infinite;
+}
+
+.meter-cell--blink[data-rd="3"] {
+  --alert-glow: rgba(239, 68, 68, 0.55);
+}
+
+.meter-cell--blink[data-rd="4"] {
+  --alert-glow: rgba(168, 85, 247, 0.55);
+}
+
+@keyframes alertSidebarPulse {
+  0%, 100% {
+    background: rgba(255,255,255,.04);
+    box-shadow: none;
+  }
+  50% {
+    background: rgba(255,255,255,.14);
+    box-shadow: 0 0 12px 1px var(--alert-glow, rgba(239, 68, 68, 0.45));
+  }
+}
+
 /* ============================================================================
    TRECHO MAIS CRÍTICO
    ============================================================================ */
@@ -308,6 +331,30 @@ body {
   padding: 0.6rem;
   border-left: 3px solid var(--rd-0);
   transition: border-color 0.3s ease;
+}
+
+.worst-card.worst-card--blink {
+  animation: worstCardPulse 1.3s ease-in-out infinite;
+}
+
+@keyframes worstCardPulse {
+  0%, 100% {
+    background: rgba(255,255,255,.05);
+    box-shadow: none;
+  }
+  50% {
+    background: rgba(255,255,255,.12);
+    box-shadow: 0 0 16px 2px rgba(239, 68, 68, 0.35);
+  }
+}
+
+.worst-level.worst-level--blink {
+  animation: worstLevelPulse 1.3s ease-in-out infinite;
+}
+
+@keyframes worstLevelPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); box-shadow: 0 0 10px rgba(0,0,0,.25); }
 }
 
 .worst-card.empty {
@@ -1253,29 +1300,103 @@ body {
   position: absolute;
   bottom: 1rem;
   left: 1rem;
-  background: white;
-  padding: 0.85rem 1rem;
-  border-radius: 0.55rem;
-  box-shadow: var(--shadow-lg);
   z-index: 500;
   display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
   max-width: calc(100% - 2rem);
-  border: 1px solid var(--gray-200);
+  pointer-events: none;
 }
 
-.legend-block { min-width: 150px; }
+.legend-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.legend-block {
+  pointer-events: auto;
+  background: white;
+  border-radius: 0.55rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray-200);
+  width: max-content;
+  max-width: min(22rem, calc(100vw - 2rem));
+  overflow: hidden;
+  transition: max-width 0.28s ease, width 0.28s ease;
+}
+
+.legend-block.collapsed {
+  width: 2.15rem;
+  max-width: 2.15rem;
+}
+
+.legend-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  padding: 0.55rem 0.45rem 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--gray-200);
+  min-height: 2.15rem;
+}
+
+.legend-block.collapsed .legend-head {
+  border-bottom: none;
+  padding: 0.35rem;
+  justify-content: center;
+  align-items: center;
+  min-height: 2.15rem;
+}
+
+.legend-block.collapsed .legend-title,
+.legend-block.collapsed .legend-body {
+  display: none;
+}
 
 .legend-title {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--pli-navy);
-  margin-bottom: 0.45rem;
-  border-bottom: 1px solid var(--gray-200);
-  padding-bottom: 0.3rem;
+  line-height: 1.35;
+  margin: 0;
+  border: none;
+  padding: 0;
+  padding-right: 0.15rem;
+}
+
+.legend-toggle {
+  flex: 0 0 auto;
+  order: 2;
+  background: rgba(0, 59, 90, 0.08);
+  border: 1px solid var(--gray-200);
+  color: var(--pli-navy);
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s ease, transform 0.18s ease;
+}
+
+.legend-toggle:hover {
+  background: rgba(0, 59, 90, 0.14);
+}
+
+.legend-body {
+  padding: 0.55rem 0.75rem 0.65rem;
 }
 
 .legend-rows {
@@ -1385,8 +1506,8 @@ body {
 .rd-pill.rd-4  { background: #e02825; }
 .rd-pill.rd-nd { background: #94a3b8; }
 
-/* Legenda dinamica do mapa: ocupa mesma area da legenda estatica */
-#hazard-legend { display: contents; }
+/* Legenda dinamica: pilha vertical de blocos independentes */
+#hazard-legend { display: flex; flex-direction: column; gap: 0.45rem; }
 
 /* ============================================================================
    PAINEL FLUTUANTE - CAMADAS DO MAPA (canto superior esquerdo do mapa)
@@ -1487,6 +1608,22 @@ body {
 
 .leaflet-container { font-family: var(--font); }
 
+.leaflet-interactive.ua-alert-blink {
+  animation: uaMapPulse 1.3s ease-in-out infinite;
+}
+
+@keyframes uaMapPulse {
+  0%, 100% {
+    stroke-opacity: 0.72;
+    fill-opacity: 0.42;
+  }
+  50% {
+    stroke-opacity: 1;
+    fill-opacity: 0.78;
+    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.65));
+  }
+}
+
 .point-marker {
   display: flex;
   align-items: center;
@@ -1582,12 +1719,172 @@ body {
   font-style: italic;
 }
 
+/* Popup UA — mesmo padrão visual do modal "Como ler o mapa" */
+.leaflet-popup.ua-popup-wrap .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 0.55rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--gray-200);
+}
+
+.leaflet-popup.ua-popup-wrap .leaflet-popup-content {
+  margin: 0;
+  width: 320px !important;
+  max-width: min(360px, calc(100vw - 2rem));
+  line-height: 1.45;
+}
+
+.leaflet-popup.ua-popup-wrap .leaflet-popup-tip {
+  box-shadow: var(--shadow-md);
+}
+
+.ua-popup-header {
+  background: linear-gradient(135deg, var(--pli-navy) 0%, var(--pli-azul) 100%);
+  color: #fff;
+  padding: 0.75rem 0.95rem 0.8rem;
+}
+
+.ua-popup-header h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #fff;
+}
+
+.ua-popup-region {
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.88);
+  letter-spacing: 0.02em;
+}
+
+.ua-popup-risk {
+  margin-top: 0.22rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #fff;
+}
+
+.ua-popup-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-top: 0.28rem;
+}
+
+.ua-popup-trecho {
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.ua-popup-ra {
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.ua-popup-id {
+  margin-top: 0.28rem;
+  font-size: 0.68rem;
+  opacity: 0.72;
+  letter-spacing: 0.2px;
+}
+
+.ua-popup-sub {
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  opacity: 0.88;
+  line-height: 1.35;
+}
+
+.ua-popup-body {
+  padding: 0.85rem 0.95rem 0.95rem;
+  background: #fff;
+  color: var(--gray-800);
+}
+
+.ua-popup-section {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--pli-navy);
+  margin: 0.65rem 0 0.45rem;
+}
+
+.ua-popup-section:first-child {
+  margin-top: 0;
+}
+
+.ua-popup-table {
+  margin: 0.35rem 0 0.65rem !important;
+  font-size: 0.78rem !important;
+}
+
+.ua-popup-table th {
+  width: 42%;
+  font-size: 0.72rem !important;
+}
+
+.ua-popup-meta {
+  font-size: 0.74rem;
+  color: var(--gray-500);
+  margin: 0 0 0.45rem;
+}
+
+.ua-popup-note {
+  background: rgba(243, 156, 18, 0.08);
+  border-left: 3px solid var(--rd-2);
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.35rem;
+  font-size: 0.74rem;
+  color: var(--gray-700);
+  margin: 0.45rem 0;
+  line-height: 1.4;
+}
+
+.ua-popup-level {
+  display: inline-block;
+  padding: 0.35rem 0.7rem;
+  border-radius: 0.35rem;
+  font-weight: 700;
+  font-size: 0.76rem;
+  margin-top: 0.55rem;
+  letter-spacing: 0.2px;
+}
+
+.ua-popup-level--nd {
+  background: #64748b;
+  color: #fff;
+}
+
+.ua-popup-foot {
+  font-size: 0.68rem;
+  color: var(--gray-400);
+  margin: 0.45rem 0 0;
+  font-style: italic;
+  line-height: 1.35;
+}
+
 /* ============================================================================
    RESPONSIVE
    ============================================================================ */
 
 @media (max-width: 1024px) {
-  .legend { flex-direction: column; gap: 0.85rem; }
+  .legend-block {
+    max-width: min(20rem, calc(100vw - 2rem));
+  }
 }
 
 @media (max-width: 900px) {
@@ -2052,4 +2349,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .acoes-btn.blink, .acoes-btn-dot { animation: none; }
+  .meter-cell--blink, .worst-card--blink, .worst-level--blink { animation: none; }
+  .leaflet-interactive.ua-alert-blink { animation: none; }
+  .legend-block { transition: none; }
 }

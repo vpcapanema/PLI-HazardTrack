@@ -58,6 +58,27 @@ const HAZARDS = {
 // Estado das camadas, persistido em localStorage (controle do usuario).
 // Default: todas as disponiveis ligadas; o que o usuario alterar fica salvo.
 const HAZARD_STORAGE_KEY = "pli_hazardtrack.hazard_layers.v1";
+const LEGEND_COLLAPSE_KEY = "pli_hazardtrack.legend_collapsed.v1";
+
+function _loadLegendCollapsed() {
+  try {
+    const raw = localStorage.getItem(LEGEND_COLLAPSE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveLegendCollapsed() {
+  try {
+    localStorage.setItem(
+      LEGEND_COLLAPSE_KEY,
+      JSON.stringify(LEGEND_COLLAPSED)
+    );
+  } catch { /* ignora */ }
+}
+
+const LEGEND_COLLAPSED = _loadLegendCollapsed();
 
 function _loadHazardState() {
   const defaults = Object.fromEntries(
@@ -141,6 +162,7 @@ function init() {
   attachEvents();
   renderHazardPanel();
   renderHazardLegend();
+  initLegendToggles();
   loadRoadNetwork();
   refresh();
   setInterval(() => {
@@ -773,6 +795,7 @@ function renderSnapshot(snap) {
       const el = document.getElementById("count-" + i);
       if (el) el.textContent = by[i] || 0;
     }
+    applyMeterHighlight(summary, maxRd);
     renderRdBasisNote(summary, status);
     return;
   }
@@ -849,9 +872,7 @@ function renderSnapshot(snap) {
     const el = document.getElementById("count-" + i);
     if (el) el.textContent = by[i] || 0;
   }
-  document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
-  const activeCell = document.querySelector(`.meter-cell[data-rd="${maxRd}"]`);
-  if (activeCell) activeCell.classList.add("active");
+  applyMeterHighlight(summary, maxRd);
 
   // Trecho mais crítico
   renderWorst(snap);
@@ -916,7 +937,9 @@ function renderSnapshotNoData(snap, summary, ts) {
   stopDownloadPoll();
   renderWorstNoData(summary.message);
   renderRdBasisNote(summary, "no_data");
-  document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
+  document.querySelectorAll(".meter-cell").forEach((c) => {
+    c.classList.remove("active", "meter-cell--blink");
+  });
   for (let i = 0; i <= 4; i++) {
     const el = document.getElementById("count-" + i);
     if (el) el.textContent = "\u2014";
@@ -926,6 +949,7 @@ function renderSnapshotNoData(snap, summary, ts) {
 function renderWorstNoData(message) {
   const card = document.getElementById("worst-card");
   card.classList.add("empty");
+  card.classList.remove("worst-card--blink");
   card.innerHTML = `
     <div class="worst-empty no-data">
       <div class="no-data-title">Chuva indisponível</div>
@@ -1356,15 +1380,16 @@ function renderWorst(snap) {
     return;
   }
 
-  card.classList.remove("empty");
+  card.classList.remove("empty", "worst-card--blink");
   card.style.borderLeftColor = NIVEL_COLOR[worst.rd];
 
   const levelTextColor = worst.rd === 1 ? "#0f172a" : "#ffffff";
+  const levelBlink = shouldBlinkAlert(worst.rd) ? " worst-level--blink" : "";
 
   card.innerHTML = `
     <div class="worst-name">${escapeHtml(worst.nome)}</div>
     <div class="worst-rod">${escapeHtml(worst.rodovia)} · km ${worst.km} · ${escapeHtml(worst.region_name || "—")}</div>
-    <span class="worst-level" style="background:${NIVEL_COLOR[worst.rd]};color:${levelTextColor}">
+    <span class="worst-level${levelBlink}" style="background:${NIVEL_COLOR[worst.rd]};color:${levelTextColor}">
       Nível ${worst.rd} — ${NIVEL_LABEL[worst.rd]}
     </span>
     <div class="worst-stats">
@@ -1383,6 +1408,9 @@ function renderWorst(snap) {
     </div>
     ${renderWorstSparkline(worst.history || [])}
   `;
+  if (shouldBlinkAlert(worst.rd)) {
+    card.classList.add("worst-card--blink");
+  }
 }
 
 // ============================================================================
@@ -1460,74 +1488,193 @@ function renderPointsOnMap(snap) {
       const isPoly = p.geometry_type === "polygon" && p.geometry.length >= 3;
       const rd = isNoData ? null : h.rdFrom(p);
       const color = (rd == null) ? "#64748b" : (h.palette[rd] || "#64748b");
+      const blinkCls = shouldBlinkAlert(rd) ? " ua-alert-blink" : "";
+      const pathClass = (isPoly ? "ua-polygon" : "ua-polyline") + blinkCls;
       const style = {
         color, weight: isPoly ? 2 : 5, opacity: 0.9,
         fillColor: color, fillOpacity: isPoly ? 0.55 : 0,
+        className: pathClass,
       };
       const layer = isPoly
-        ? L.polygon(p.geometry, style).bindPopup(buildPopup(p, hazardKey))
-        : L.polyline(p.geometry, style).bindPopup(buildPopup(p, hazardKey));
+        ? L.polygon(p.geometry, style).bindPopup(
+          buildPopup(p, hazardKey),
+          { className: "ua-popup-wrap", maxWidth: 360, minWidth: 280 }
+        )
+        : L.polyline(p.geometry, style).bindPopup(
+          buildPopup(p, hazardKey),
+          { className: "ua-popup-wrap", maxWidth: 360, minWidth: 280 }
+        );
       layer.addTo(g);
       state.pointMarkers.set(markerKey, [layer]);
     });
   });
 }
 
-function raSourceLabel(src) {
-  if (!src) return "";
-  if (src.indexOf("tabela") >= 0) return "tabela oficial (Tab. 3.3.3.1-3/-4)";
-  if (src.indexOf("figura") >= 0) return "digitalizado da Fig. 3.3.3";
-  return src;
+function fixText(str) {
+  if (str == null || str === undefined) return "";
+  const s = String(str);
+  if (!/Ã|â€|\uFFFD/.test(s)) return s;
+  try {
+    return decodeURIComponent(escape(s));
+  } catch {
+    return s;
+  }
+}
+
+/** Número com vírgula decimal (padrão BR) para popups e tooltips. */
+function formatNum(value, decimals = 1) {
+  if (value == null || value === "") return "—";
+  const n = Number(value);
+  if (Number.isNaN(n)) return "—";
+  if (decimals == null) {
+    return String(n).replace(".", ",");
+  }
+  return n.toFixed(decimals).replace(".", ",");
+}
+
+function formatKm(km) {
+  return formatNum(km, 1);
+}
+
+function formatKmRange(kmIni, kmFim) {
+  const a = kmIni != null && kmIni !== "" ? formatKm(kmIni) : "—";
+  const b = kmFim != null && kmFim !== "" ? formatKm(kmFim) : "—";
+  return `km ${a}–${b}`;
+}
+
+function raClassLabel(hazardKey, p) {
+  const isGeo = hazardKey === "encosta" || p.hazard === "geo";
+  const ra = isGeo ? (p.ra_geo ?? p.ra) : (p.ra_hid ?? p.ra);
+  const kind = isGeo ? "geológico" : "hidrológico";
+  if (ra === null || ra === undefined) {
+    return `RA ${kind} = sem dado`;
+  }
+  return `RA ${kind} = ${ra}`;
+}
+
+function popupHeaderHtml(p, hazardKey) {
+  const regionName = escapeHtml(fixText(p.region_name || "—"));
+  const channelLabel = escapeHtml(
+    fixText(HAZARDS[hazardKey]?.label || hazardKey || "")
+  );
+  const rod = fixText(p.rodovia || "");
+  const trecho = rod && p.km != null && p.km !== ""
+    ? `${escapeHtml(rod)} km ${formatKm(p.km)}`
+    : (rod ? escapeHtml(rod) : "—");
+  const raLine = escapeHtml(raClassLabel(hazardKey, p));
+  return `
+    <header class="ua-popup-header">
+      <div class="ua-popup-region">Região: ${regionName}</div>
+      <div class="ua-popup-risk">${channelLabel}</div>
+      <div class="ua-popup-meta-row">
+        <span class="ua-popup-trecho">${trecho}</span>
+        <span class="ua-popup-ra">${raLine}</span>
+      </div>
+    </header>`;
+}
+
+function popupRainRows(p, hazardKey) {
+  const isGeo = hazardKey === "encosta" || p.hazard === "geo";
+  if (isGeo) {
+    let rows = `<tr><th>Acum. 96h (geo)</th><td>${formatNum(p.ac96h_mm)} mm</td></tr>`;
+    if (p.fonte_chuva === "WRF") {
+      rows += `<tr><th>Composição</th><td>${formatNum(p.ac72h_obs_mm)} mm obs. + ${formatNum(p.prev24h_mm)} mm prev.</td></tr>`;
+    }
+    return rows;
+  }
+  let rows = `<tr><th>Janela 24h (hidro)</th><td>${formatNum(p.ac24h_mm)} mm</td></tr>`;
+  if (p.fonte_chuva === "WRF") {
+    rows += `<tr><th>Composição</th><td>${formatNum(p.ac18h_obs_mm)} mm obs. + ${formatNum(p.prev6h_mm)} mm prev.</td></tr>`;
+  }
+  return rows;
+}
+
+function formatUbaDisplay(p) {
+  const code = fixText(p.uba_codigo || p.uba);
+  const nome = fixText(p.uba_nome);
+  if (code && nome && code !== nome) {
+    return `${escapeHtml(code)} — ${escapeHtml(nome)}`;
+  }
+  return escapeHtml(code || nome || "—");
+}
+
+function popupDerSection(p) {
+  const cgr = fixText(p.regional_cgr || p.regional);
+  const rc = fixText(p.residencia_conserva || p.rc);
+  const uba = formatUbaDisplay(p);
+  const missing = !cgr && !rc && uba === "—";
+  if (missing) {
+    return `
+      <p class="ua-popup-note">
+        Unidades DER (CGR, UBA e Residência de Conserva) não identificadas
+        automaticamente para o trecho desta UA.
+      </p>`;
+  }
+  return `
+    <table class="modal-table ua-popup-table">
+      <tr>
+        <th>CGR (Coord. Geral Regional)</th>
+        <td><b>${escapeHtml(cgr || "—")}</b></td>
+      </tr>
+      <tr>
+        <th>UBA (atendimento)</th>
+        <td><b>${uba}</b></td>
+      </tr>
+      <tr>
+        <th>Residência de Conserva</th>
+        <td>${escapeHtml(rc || "—")}</td>
+      </tr>
+      ${p.municipio ? `<tr><th>Município</th><td>${escapeHtml(fixText(p.municipio))}</td></tr>` : ""}
+    </table>`;
 }
 
 function buildPopup(p, hazardKey) {
   const isNoData = p.source === "NO_DATA";
-  const channelLabel = HAZARDS[hazardKey]?.label || hazardKey || "";
+  const header = popupHeaderHtml(p, hazardKey);
+
   if (isNoData) {
     return `
-      <div class="popup-content">
-        <h4>${escapeHtml(p.nome)}</h4>
-        <div class="popup-rod">${escapeHtml(channelLabel)}</div>
-        <div class="popup-rod">${escapeHtml(p.rodovia)}${p.km != null ? " · km " + p.km : ""}</div>
-        <div class="popup-rod">Região: ${escapeHtml(p.region_name || "—")}</div>
-        <div class="popup-level" style="background:#64748b;color:#fff">
-          Sem dado disponível
+      <div class="ua-popup">
+        ${header}
+        <div class="ua-popup-body">
+          <h3 class="ua-popup-section">Unidades DER do trecho</h3>
+          ${popupDerSection(p)}
+          <div class="ua-popup-level ua-popup-level--nd">Sem dado disponível</div>
+          <p class="ua-popup-foot">Fonte MERGE/INPE indisponível neste ciclo.</p>
         </div>
-        <div class="popup-source">Fonte MERGE/INPE indisponível neste ciclo.</div>
-      </div>
-    `;
+      </div>`;
   }
+
   const levelTextColor = p.rd === 1 ? "#0f172a" : "#ffffff";
+  const palette = HAZARDS[hazardKey]?.palette || NIVEL_COLOR;
   const isGeo = hazardKey === "encosta" || p.hazard === "geo";
-  const rainRows = isGeo
-    ? `<tr><td>Acum. 96h (geo)</td><td>${p.ac96h_mm} mm</td></tr>
-       ${p.fonte_chuva === "WRF" ? `<tr><td style="padding-left:10px;color:#555">= 72h obs + 24h prev</td><td style="color:#555">${p.ac72h_obs_mm} + ${p.prev24h_mm}</td></tr>` : ""}`
-    : `<tr><td>Janela 24h (hidro)</td><td>${p.ac24h_mm} mm</td></tr>
-       ${p.fonte_chuva === "WRF" ? `<tr><td style="padding-left:10px;color:#555">= 18h obs + 6h prev</td><td style="color:#555">${p.ac18h_obs_mm} + ${p.prev6h_mm}</td></tr>` : ""}`;
   const iccRow = isGeo
-    ? `<tr><td>ICC geológico</td><td>${p.icc_geo}</td></tr>`
-    : `<tr><td>ICC hidrológico</td><td>${p.icc_hid}</td></tr>`;
+    ? `<tr><th>ICC geológico</th><td>${formatNum(p.icc_geo, 0)}</td></tr>`
+    : `<tr><th>ICC hidrológico</th><td>${formatNum(p.icc_hid, 0)}</td></tr>`;
+  const warnWrf = p.fonte_chuva === "OBS_ONLY"
+    ? `<p class="ua-popup-note">Previsão WRF indisponível — cálculo usa só chuva observada (pode subestimar).</p>`
+    : "";
+
   return `
-    <div class="popup-content">
-      <h4>${escapeHtml(p.nome)}</h4>
-      <div class="popup-rod">${escapeHtml(channelLabel)}</div>
-      <div class="popup-rod">${escapeHtml(p.rodovia)}${p.km != null ? " · km " + p.km : ""}</div>
-      <div class="popup-rod">Região: ${escapeHtml(p.region_name || "—")}</div>
-      <table>
-        ${rainRows}
-        <tr><td>Intensidade (obs)</td><td>${p.intensity_mmh} mm/h</td></tr>
-        <tr><td>CPC</td><td>${p.cpc !== null ? p.cpc : "—"}</td></tr>
-        <tr><td>Risco analisado</td><td>${p.ra !== null && p.ra !== undefined ? 'RA' + p.ra : 'SEM DADO'}</td></tr>
-        ${iccRow}
-      </table>
-      ${p.ra_source ? `<div class="popup-source">RA: ${escapeHtml(raSourceLabel(p.ra_source))}</div>` : ""}
-      ${p.fonte_chuva === "OBS_ONLY" ? `<div class="popup-source" style="color:#b45309">⚠ Previsão WRF indisponível — RD com chuva observada apenas (pode subestimar).</div>` : ""}
-      <div class="popup-level" style="background:${(HAZARDS[hazardKey]?.palette || NIVEL_COLOR)[p.rd]};color:${levelTextColor}">
-        Nível ${p.rd} — ${NIVEL_LABEL[p.rd]}
+    <div class="ua-popup">
+      ${header}
+      <div class="ua-popup-body">
+        <h3 class="ua-popup-section">Unidades DER do trecho</h3>
+        ${popupDerSection(p)}
+        <h3 class="ua-popup-section">Chuva e risco</h3>
+        <table class="modal-table ua-popup-table">
+          ${popupRainRows(p, hazardKey)}
+          <tr><th>Intensidade (obs.)</th><td>${formatNum(p.intensity_mmh)} mm/h</td></tr>
+          <tr><th>CPC</th><td>${p.cpc !== null ? formatNum(p.cpc) : "—"}</td></tr>
+          ${iccRow}
+        </table>
+        ${warnWrf}
+        <div class="ua-popup-level"
+             style="background:${palette[p.rd]};color:${levelTextColor}">
+          Nível ${p.rd} — ${NIVEL_LABEL[p.rd]}
+        </div>
       </div>
-      <div class="popup-source">${escapeHtml(p.source || "")}</div>
-    </div>
-  `;
+    </div>`;
 }
 
 // ============================================================================
@@ -1780,12 +1927,11 @@ function renderRoadsOnMap() {
       const p = feat.properties || {};
       const baseStyle = styleForRoadFeature(p);
       const tipTitle = p.monitored
-        ? `<b>${escapeHtml(p.rodovia || "?")}</b> · ${escapeHtml(p.region_name || "")}<br>` +
-          `Malha de apoio · km ${p.km_ini}–${p.km_fim}`
-        : `<b>${escapeHtml(p.rodovia || "?")}</b><br>` +
-          `Fora da cobertura · km ${p.km_ini}–${p.km_fim}`;
+        ? `<b>${escapeHtml(fixText(p.rodovia || "?"))}</b> · ${escapeHtml(fixText(p.region_name || ""))}<br>` +
+          `Malha de apoio · ${formatKmRange(p.km_ini, p.km_fim)}`
+        : `<b>${escapeHtml(fixText(p.rodovia || "?"))}</b><br>` +
+          `Fora da cobertura · ${formatKmRange(p.km_ini, p.km_fim)}`;
       layer.bindTooltip(tipTitle, { sticky: true, direction: "top" });
-      layer.bindPopup(buildRoadPopup(p));
       layer.on("mouseover", () =>
         layer.setStyle({ ...baseStyle, weight: (baseStyle.weight || 2) + 2, opacity: 1 })
       );
@@ -1812,49 +1958,6 @@ function renderRoadsOnMap() {
         `<b>${monitoredShown}</b> cobertos`;
     }
   }
-}
-
-function buildRoadPopup(p) {
-  const denom = p.denominacao ? `<small>${escapeHtml(p.denominacao)}</small>` : "";
-  let monitoringBlock;
-  if (p.monitored) {
-    monitoringBlock = `
-      <div class="popup-monitor">
-        <div class="popup-monitor-row">
-          <span class="popup-monitor-label">Região</span>
-          <b>${escapeHtml(p.region_name || "—")}</b>
-        </div>
-        <div class="popup-monitor-off">
-          Malha de apoio cartográfico. O alerta operacional é exibido
-          nas UAs (polígonos de encosta e inundação).
-        </div>
-      </div>
-    `;
-  } else {
-    monitoringBlock = `
-      <div class="popup-monitor popup-monitor-off">
-        <b>Trecho fora da cobertura atual.</b><br>
-        O método em uso (REGEA-NIPPON 2021) só calibra envoltórias críticas
-        para 4 regiões do litoral. Sem alertas calculados aqui.
-      </div>
-    `;
-  }
-  return `
-    <div class="popup-content">
-      <h4>${escapeHtml(p.rodovia || "?")} ${denom}</h4>
-      <div class="popup-rod">${escapeHtml(p.municipio || "")} · ${escapeHtml(p.regional || "")}</div>
-      ${monitoringBlock}
-      <table>
-        <tr><td>Quilômetro inicial</td><td>${p.km_ini ?? "—"}</td></tr>
-        <tr><td>Quilômetro final</td><td>${p.km_fim ?? "—"}</td></tr>
-        <tr><td>Extensão</td><td>${p.extensao ? p.extensao.toFixed(2) + " km" : "—"}</td></tr>
-        <tr><td>Tipo de via</td><td>${escapeHtml(p.tipo || "—")}</td></tr>
-        <tr><td>Tipo de pista</td><td>${escapeHtml(p.tipo_pista || "—")}</td></tr>
-        <tr><td>Administração</td><td>${escapeHtml(p.administra || "—")}</td></tr>
-        <tr><td>Residência DER</td><td>${escapeHtml(p.residencia || "—")}</td></tr>
-      </table>
-    </div>
-  `;
 }
 
 // ============================================================================
@@ -1922,23 +2025,62 @@ function renderHazardLegend() {
     return;
   }
 
-  const blocks = activeEntries.map(([, h]) => `
-    <div class="legend-block">
-      <div class="legend-title">${h.legendTitle || escapeHtml(h.label)}</div>
-      <div class="legend-rows">
-        ${h.palette.map((c, i) => `
-          <div class="legend-item">
-            <span class="line" style="border-top:${ROAD_WEIGHTS[i]}px solid ${c}"></span>
-            ${i} — ${escapeHtml(NIVEL_LABEL[i])}
-          </div>
-        `).join("")}
-        <div class="legend-item"><span class="line line-rd-nd"></span>Monitorado · sem dado</div>
-        <div class="legend-item"><span class="line line-out"></span>Fora da área de monitoramento</div>
+  const blocks = activeEntries.map(([key, h]) => {
+    const collapsed = !!LEGEND_COLLAPSED[key];
+    const toggleChar = collapsed ? "\u25B8" : "\u25C2";
+    return `
+    <div class="legend-block${collapsed ? " collapsed" : ""}"
+         data-legend-key="${key}">
+      <div class="legend-head">
+        <div class="legend-title">${h.legendTitle || escapeHtml(h.label)}</div>
+        <button type="button" class="legend-toggle"
+                aria-expanded="${collapsed ? "false" : "true"}"
+                aria-label="${collapsed ? "Expandir legenda" : "Recolher legenda"}"
+                title="${collapsed ? "Expandir" : "Recolher"}">${toggleChar}</button>
       </div>
-    </div>
-  `).join("");
+      <div class="legend-body">
+        <div class="legend-rows">
+          ${h.palette.map((c, i) => `
+            <div class="legend-item">
+              <span class="line" style="border-top:${ROAD_WEIGHTS[i]}px solid ${c}"></span>
+              ${i} — ${escapeHtml(NIVEL_LABEL[i])}
+            </div>
+          `).join("")}
+          <div class="legend-item"><span class="line line-rd-nd"></span>Monitorado · sem dado</div>
+          <div class="legend-item"><span class="line line-out"></span>Fora da área de monitoramento</div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
 
   root.innerHTML = blocks;
+}
+
+function initLegendToggles() {
+  const root = document.getElementById("hazard-legend");
+  if (!root || root.dataset.toggleBound) return;
+  root.dataset.toggleBound = "1";
+  root.addEventListener("click", (e) => {
+    const btn = e.target.closest(".legend-toggle");
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const block = btn.closest(".legend-block");
+    if (!block) return;
+    const key = block.dataset.legendKey;
+    const collapsed = block.classList.toggle("collapsed");
+    btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    btn.setAttribute(
+      "aria-label",
+      collapsed ? "Expandir legenda" : "Recolher legenda"
+    );
+    btn.title = collapsed ? "Expandir" : "Recolher";
+    btn.textContent = collapsed ? "\u25B8" : "\u25C2";
+    if (key) {
+      LEGEND_COLLAPSED[key] = collapsed;
+      saveLegendCollapsed();
+    }
+  });
 }
 
 function attachRoadFilterEvents() {
@@ -2032,12 +2174,46 @@ function escapeHtml(str) {
 }
 
 
+function shouldBlinkAlert(rd) {
+  return rd >= 3;
+}
+
+function applyMeterHighlight(summary, maxRd) {
+  const by = activeByLevel(summary);
+  document.querySelectorAll(".meter-cell").forEach((c) => {
+    c.classList.remove("active", "meter-cell--blink");
+    const rd = Number(c.dataset.rd);
+    if (rd === maxRd) c.classList.add("active");
+    if (shouldBlinkAlert(rd) && (by[rd] || 0) > 0) {
+      c.classList.add("meter-cell--blink");
+    }
+  });
+}
+
+function actionsPageUrl() {
+  if (state.historyMode && state.historyAtIso) {
+    return apiUrl(
+      "/acoes?at=" + encodeURIComponent(state.historyAtIso)
+    );
+  }
+  return apiUrl("/acoes");
+}
+
+function actionsApiUrl() {
+  if (state.historyMode && state.historyAtIso) {
+    return apiUrl(
+      "/api/actions?at=" + encodeURIComponent(state.historyAtIso)
+    );
+  }
+  return apiUrl("/api/actions");
+}
+
 // ============================================================================
 // ACOES OPERACIONAIS (PPDC)
 // ============================================================================
 async function loadActions() {
   try {
-    const res = await fetch(apiUrl("/api/actions"));
+    const res = await fetch(actionsApiUrl());
     if (!res.ok) return;
     const data = await res.json();
     renderActions(data);
@@ -2069,10 +2245,11 @@ function renderActions(data) {
   const nivel = data.max_nivel || "Monitoramento";
   const cor = data.max_cor || "#22c55e";
   const rd = data.max_rd ?? 0;
-  const url = apiUrl("/acoes");
+  const url = actionsPageUrl();
+  const blinkClass = shouldBlinkAlert(rd) ? " blink" : "";
 
   if (data.acoes_necessarias) {
-    // Alertas demandam acao: botao piscante que abre a pagina detalhada.
+    // Alertas demandam acao: botao piscante quando nivel >= 3.
     const partes = [];
     if (data.total_critico) {
       partes.push(`${data.total_critico} em Alerta`);
@@ -2084,7 +2261,7 @@ function renderActions(data) {
       ? partes.join(" · ")
       : "Situação exige atenção preventiva";
     container.innerHTML = `
-      <a class="acoes-btn blink" href="${url}" target="_blank"
+      <a class="acoes-btn${blinkClass}" href="${url}" target="_blank"
          rel="noopener" style="--acao-cor:${cor};">
         <span class="acoes-btn-dot"></span>
         <span class="acoes-btn-main">

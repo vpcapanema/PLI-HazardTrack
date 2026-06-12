@@ -13,11 +13,11 @@ Insumos (todos oficiais):
 5. CONTAGEM: Tabela 3.3-1 - numero oficial de UAs por regiao, municipio
    e escala (total 809).
 
-As figuras NAO desenham as divisas individuais entre UAs vizinhas de
-mesma escala. Dentro de cada trecho homogeneo (municipio x escala), as
-divisas internas sao INTERPOLADAS uniformemente para reproduzir a
-contagem oficial da Tabela 3.3-1. Cada divisa carrega sua proveniencia:
-'tabela_2-1', 'figura_escala' ou 'interpolada'.
+Metodo geometrico (rev. buffer unificado):
+1. Buffer UNICO continuo por rodovia monitorada (SP 098, SP 055).
+2. Secciona o buffer nos km oficiais (Tab. 2-1, Fig. 3.3-2..5, Tab. 3.3-1)
+   com extensao media por UA conforme o relatorio.
+3. Cada UA = recorte do buffer unico (sem sobreposicao artificiosa).
 
 RA NAO e atribuido aqui (etapa seguinte, figuras 3.3.3-x).
 
@@ -215,29 +215,71 @@ def _clean_geom(geom):
     return geom
 
 
-def resolve_overlaps(feats, chain):
-    """UAs vizinhas: trecho mais a jusante cede area sobreposta."""
-    feats.sort(key=lambda f: f["km_ini"])
-    for j in range(1, len(feats)):
-        gj = _clean_geom(feats[j]["geometry"])
-        for i in range(j):
-            gi = _clean_geom(feats[i]["geometry"])
-            if feats[j]["km_ini"] - feats[i]["km_fim"] > 0.05:
-                continue
-            if not gi.intersects(gj):
-                continue
-            gj = _clean_geom(gj.difference(gi))
-            if gj.is_empty:
-                break
-        feats[j]["geometry"] = gj
-    return feats
-
-
 def _buffer_along_axis(coords):
     if len(coords) < 2:
         return None
-    poly = LineString(coords).buffer(BUFFER_M, cap_style=2, join_style=2)
+    poly = LineString(coords).buffer(
+        BUFFER_M, cap_style=2, join_style=2,
+    )
     return _clean_geom(poly) if poly is not None and not poly.is_empty else None
+
+
+def _chain_runs(chain, km0, km1, max_gap_m=MAX_AXIS_GAP_M):
+    """Quebra o eixo em trechos contiguos (sem cordas > max_gap_m)."""
+    sel = [(km, x, y) for km, x, y in chain if km0 <= km <= km1 + 1e-9]
+    if len(sel) < 2:
+        return []
+    runs = []
+    cur = [sel[0]]
+    for i in range(1, len(sel)):
+        _, x0, y0 = sel[i - 1]
+        _, x1, y1 = sel[i]
+        if _dist_m_xy(x0, y0, x1, y1) > max_gap_m:
+            if len(cur) >= 2:
+                runs.append([(x, y) for _, x, y in cur])
+            cur = [sel[i]]
+        else:
+            cur.append(sel[i])
+    if len(cur) >= 2:
+        runs.append([(x, y) for _, x, y in cur])
+    return runs
+
+
+def build_unified_corridor(chain, km0, km1):
+    """Buffer unico (uniao) de toda a extensao monitorada da rodovia."""
+    runs = _chain_runs(chain, km0, km1)
+    parts = [_buffer_along_axis(r) for r in runs]
+    parts = [p for p in parts if p is not None and not p.is_empty]
+    if not parts:
+        return None
+    if len(parts) == 1:
+        return parts[0]
+    return _clean_geom(unary_union(parts))
+
+
+def _slice_corridor(unified, chain, km_lo, km_hi):
+    """Recorta o buffer unificado entre dois km (divisas no meio)."""
+    if unified is None or unified.is_empty:
+        return None
+    runs = _chain_runs(chain, km_lo, km_hi)
+    if not runs:
+        return None
+    parts = []
+    for coords in runs:
+        slice_buf = LineString(coords).buffer(
+            BUFFER_M, cap_style=2, join_style=2,
+        )
+        slice_buf = _clean_geom(slice_buf)
+        if slice_buf is None or slice_buf.is_empty:
+            continue
+        part = _clean_geom(unified.intersection(slice_buf))
+        if part is not None and not part.is_empty:
+            parts.append(part)
+    if not parts:
+        return None
+    if len(parts) == 1:
+        return parts[0]
+    return _clean_geom(unary_union(parts))
 
 
 def sample_escala(chain, arr, gref, search_px=3):
@@ -400,8 +442,8 @@ def distribute(counts, runs):
     return plan
 
 
-def cut_polygons(chain, plan, municipio):
-    """Subdivide cada run em n UAs; cortes no meio entre vizinhas."""
+def cut_polygons(unified, chain, plan, municipio):
+    """Secciona o buffer unificado conforme extensao oficial (Tab. 3.3-1)."""
     specs = []
     for esc, a, b, n in plan:
         width = (b - a) / n
@@ -423,18 +465,17 @@ def cut_polygons(chain, plan, municipio):
         km_hi = spec["km_fim"] if idx == len(specs) - 1 else (
             (spec["km_fim"] + specs[idx + 1]["km_ini"]) / 2
         )
-        coords = extract_axis_coords(chain, km_lo, km_hi)
-        poly = _buffer_along_axis(coords)
-        if poly is None:
+        poly = _slice_corridor(unified, chain, km_lo, km_hi)
+        if poly is None or poly.is_empty:
             continue
         feats.append(spec | dict(geometry=poly))
 
     return feats
 
 
-def finalize_region_uas(feats, chain):
-    """Limpa geometrias e remove sobreposicao residual na regiao."""
-    feats = resolve_overlaps(feats, chain)
+def finalize_region_uas(feats):
+    """Limpa geometrias residuais (sem resolver sobreposicao — evitada
+    pelo recorte do buffer unico)."""
     kept = []
     for f in feats:
         geom = _clean_geom(f["geometry"])
@@ -442,6 +483,13 @@ def finalize_region_uas(feats, chain):
             continue
         kept.append(f | dict(geometry=geom))
     return kept
+
+
+# Extensao monitorada por rodovia (buffer unico antes do seccionamento)
+ROAD_MONITORING = {
+    "SP 098": (62.9, 98.1),
+    "SP 055": (53.6, 248.1),
+}
 
 
 def main():
@@ -453,10 +501,26 @@ def main():
     print(f"Buffer: {BUFFER_M:.0f} m por lado "
           f"(~{2 * BUFFER_M:.0f} m total, 1/3 da faixa oficial)\n")
 
+    # 1) Buffer unificado por rodovia monitorada
+    unified_roads = {}
+    road_chains = {}
+    for rodovia, (rk0, rk1) in ROAD_MONITORING.items():
+        chain = build_axis_chain(gdf, rodovia, rk0, rk1)
+        road_chains[rodovia] = chain
+        unified_roads[rodovia] = build_unified_corridor(chain, rk0, rk1)
+        if unified_roads[rodovia] is None:
+            print(f"AVISO: buffer unificado vazio para {rodovia}")
+        else:
+            print(f"Buffer unificado {rodovia} km {rk0}-{rk1}: OK")
+
     for rid, cfg in REGIONS.items():
-        chain = build_axis_chain(gdf, cfg["rodovia"], cfg["km0"], cfg["km1"])
-        if len(chain) < 2:
-            print(f"Regiao {rid}: eixo vazio")
+        rodovia = cfg["rodovia"]
+        chain = road_chains.get(rodovia) or build_axis_chain(
+            gdf, rodovia, cfg["km0"], cfg["km1"],
+        )
+        unified = unified_roads.get(rodovia)
+        if unified is None or len(chain) < 2:
+            print(f"Regiao {rid}: eixo/buffer indisponivel")
             continue
         arr = get_map_image(doc, cfg["page_bnd"], cfg["bnd_idx"])
         gref = georef(arr, cfg["E"], cfg["N"])
@@ -471,7 +535,7 @@ def main():
             runs = runs_by_escala(chain, escalas, m0, m1)
             runs = absorb_foreign_runs(runs, set(counts))
             plan = distribute(counts, runs)
-            feats = cut_polygons(chain, plan, municipio)
+            feats = cut_polygons(unified, chain, plan, municipio)
             # primeira divisa do municipio vem da Tabela 2-1
             if feats:
                 feats[0]["divisa_ini"] = "tabela_2-1"
@@ -497,7 +561,7 @@ def main():
                     regiao=rid, rodovia=cfg["rodovia"],
                     ext_oficial_media_m=round(ofic_m, 0),
                 ))
-        reg_feats = finalize_region_uas(reg_feats, chain)
+        reg_feats = finalize_region_uas(reg_feats)
         n_reg = len(reg_feats)
         print(f"Regiao {rid}: {n_reg} UAs\n")
         features.extend(reg_feats)

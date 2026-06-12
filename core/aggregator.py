@@ -18,7 +18,13 @@ import time
 from threading import Lock
 
 from .regions import load_regions, find_region_for_point, Region
-from .zones import ZONES_GEO, ZONES_HIDRO
+from .text_encoding import fix_text
+from .zones import (
+    get_zones_geo,
+    get_zones_hidro,
+    reload_zones_if_changed,
+    zones_disk_token,
+)
 from .merge_inpe import (
     progress_stage,
     progress_done,
@@ -136,12 +142,12 @@ def _process_zone(
     })
 
     return {
-        "id": p["id"], "nome": p["nome"],
-        "rodovia": p["rodovia"], "km": p["km"],
+        "id": p["id"], "nome": fix_text(p.get("nome")),
+        "rodovia": fix_text(p.get("rodovia")), "km": p["km"],
         "lat": p["lat"], "lon": p["lon"],
         "hazard": hazard,
         "region_id": result.region_id,
-        "region_name": result.region_name,
+        "region_name": fix_text(result.region_name),
         "ac96h_mm": result.ac96h_mm, "ac24h_mm": result.ac24h_mm,
         "intensity_mmh": result.intensity_mmh,
         "ac72h_obs_mm": rain.ac72h_mm,
@@ -163,6 +169,16 @@ def _process_zone(
         "geometry_type": p.get("geometry_type", "polyline"),
         "source": rain.source,
         "history": list(hist),
+        "rc": fix_text(p.get("rc")),
+        "residencia_conserva": fix_text(
+            p.get("residencia_conserva") or p.get("rc")
+        ),
+        "uba": fix_text(p.get("uba")),
+        "uba_codigo": fix_text(p.get("uba_codigo")),
+        "uba_nome": fix_text(p.get("uba_nome")),
+        "regional": fix_text(p.get("regional")),
+        "regional_cgr": fix_text(p.get("regional_cgr")),
+        "municipio": fix_text(p.get("municipio")),
         "_rd": rd,
     }
 
@@ -221,8 +237,10 @@ class State:
         self.regions: List[Region] = load_regions()
         # Duas malhas mono-canal (809 UAs cada). Chuva amostrada uma vez
         # por centróide (points_geo); hidro reutiliza o mesmo índice.
-        self.points_geo = ZONES_GEO
-        self.points_hidro = ZONES_HIDRO
+        reload_zones_if_changed(force=True)
+        self.points_geo = get_zones_geo()
+        self.points_hidro = get_zones_hidro()
+        self._zones_token = zones_disk_token()
 
         # Telemetria operacional
         self.started_at = datetime.now(timezone.utc)
@@ -288,6 +306,31 @@ class State:
             ]
         }
 
+    def _maybe_reload_zones(self) -> bool:
+        """Atualiza templates e geometria no snapshot se GeoJSON mudou."""
+        token = zones_disk_token()
+        if token == self._zones_token:
+            return False
+        reload_zones_if_changed(force=True)
+        self.points_geo = get_zones_geo()
+        self.points_hidro = get_zones_hidro()
+        self._zones_token = token
+        geo_tpl = {p["id"]: p for p in self.points_geo}
+        hid_tpl = {p["id"]: p for p in self.points_hidro}
+        for key, tpl in (("points_geo", geo_tpl), ("points_hidro", hid_tpl)):
+            pts = self.snapshot.get(key) or []
+            for pt in pts:
+                src = tpl.get(pt.get("id"))
+                if not src:
+                    continue
+                pt["geometry"] = src["geometry"]
+                pt["geometry_type"] = src.get("geometry_type", "polyline")
+                pt["lat"] = src["lat"]
+                pt["lon"] = src["lon"]
+                pt["nome"] = src["nome"]
+        log.info("Snapshot: geometria UA atualizada apos reload do disco")
+        return True
+
     def update(self):
         """Roda um ciclo completo de atualizacao."""
         now = _resolve_now()
@@ -348,6 +391,7 @@ class State:
         Retorna True se publicou snapshot (ok/degraded/no_data); False se
         o ingest ainda esta populando o cache (mantem loading na UI).
         """
+        self._maybe_reload_zones()
         # Caminho de producao: SOMENTE MERGE/INPE real. with_series=True
         # guarda a serie horaria para a Linha do Tempo reaproveitar.
         coords = [(p["lat"], p["lon"]) for p in self.points_geo]
@@ -708,6 +752,7 @@ class State:
 
     def get_snapshot(self) -> Dict[str, Any]:
         with self._lock:
+            self._maybe_reload_zones()
             return dict(self.snapshot)
 
     def build_timeline(

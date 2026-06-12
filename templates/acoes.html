@@ -403,6 +403,38 @@
             .hero-level { font-size: 1.6rem; }
             .proto-desc { display: none; }
         }
+
+        /* ---- Consulta histórica (alertas pretéritos) ---- */
+        .historical-banner {
+            background: linear-gradient(135deg, #7c2d12 0%, #9a3412 45%, #c2410c 100%);
+            color: #fff;
+            border-radius: 0.65rem;
+            padding: 1.35rem 1.5rem 1.45rem;
+            margin-bottom: 1.1rem;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid rgba(255,255,255,.22);
+        }
+        .historical-banner h2 {
+            font-family: var(--font-display);
+            font-size: 1.45rem;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 0.55rem;
+        }
+        .historical-banner p {
+            font-size: 0.95rem;
+            line-height: 1.55;
+            max-width: 72rem;
+        }
+        .historical-banner strong {
+            font-weight: 700;
+        }
+        .historical-banner-date {
+            margin-top: 0.75rem;
+            font-size: 0.82rem;
+            opacity: 0.92;
+        }
+        .historical-banner-date b { font-weight: 600; }
     </style>
 </head>
 <body>
@@ -420,9 +452,34 @@
     </header>
 
     <div class="wrap">
+        {% if historical %}
+        <div class="historical-banner" role="alert">
+            <h2>Consulta histórica — alertas pretéritos</h2>
+            <p>
+                Esta página reproduz o que o sistema registrava na data escolhida.
+                Serve apenas como <strong>referência e registro</strong> do que
+                ocorreu na época. <strong>Nenhuma ação operacional precisa ser
+                tomada agora</strong> com base nesta consulta — o cenário atual
+                pode ser diferente.
+            </p>
+            {% if consulted_at %}
+            <p class="historical-banner-date">
+                <b>Data e hora consultadas:</b>
+                <span data-ts="{{ consulted_at }}">—</span>
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+
         <!-- HERO: nivel operacional vigente -->
         <div class="hero" data-bg="{{ cores[actions.max_rd] }}">
-            <div class="hero-eyebrow">Nível operacional vigente na malha</div>
+            <div class="hero-eyebrow">
+                {% if historical %}
+                Nível operacional registrado na data consultada
+                {% else %}
+                Nível operacional vigente na malha
+                {% endif %}
+            </div>
             <div class="hero-level">{{ actions.max_nivel }}</div>
             <div class="hero-desc">{{ actions.max_descricao }}</div>
             <div class="hero-meta">

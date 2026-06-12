@@ -8,8 +8,8 @@ Risco Analisado (RA) GEO/HID a partir do Relatorio 2053-R04-21
 
 | Artefato gerado | Caminho | Consumido por |
 |-----------------|---------|---------------|
-| Poligonos UA (809) | `data/ua_polygons/ua_polygons.geojson` | etapa intermediaria |
-| Malha operacional | `data/ua_zones/ua_zones.geojson` | `core/zones.py` → `core/aggregator.py` → mapa |
+| Fonte canonica (809 UAs) | `data/ua_polygons/ua_polygons.geojson` | pipeline de geracao |
+| Malha operacional | `data/ua_zones/ua_geo.geojson` + `ua_hidro.geojson` | `core/zones.py` → mapa |
 
 ## Scripts (ordem de uso)
 
@@ -51,13 +51,6 @@ python ferramentas/geracao-uas/assign_ra_to_uas.py
 | `build_ua_segments.py` | Segmentos DER com RA por trecho critico (alternativa pre-UAs) |
 | `ua_segments_loader.py` | Leitor espacial do GeoJSON de segmentos (legacy) |
 | `_diag_polys.py` | Sobrepoe poligonos nas figuras 3.3-x para inspecao visual |
-
-### Depreciados (nao usar em producao)
-
-| Arquivo | Motivo |
-|---------|--------|
-| `digitize_ua_figures.py` | Mesclava trechos com mesmo RA |
-| `digitize_ua_polygons.py` | Segmentacao por imagem; contagem incorreta |
 
 ## Figuras de diagnostico
 

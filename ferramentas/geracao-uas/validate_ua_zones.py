@@ -1,5 +1,5 @@
 """
-Valida as zonas digitalizadas (data/ua_zones/ua_zones.geojson) contra as
+Valida as UAs (data/ua_polygons/ua_polygons.geojson) contra as
 distribuicoes oficiais das Tabelas 3.3.3.1-3 (GEO) e 3.3.3.1-4 (HID),
 agregadas por regiao.
 
@@ -25,7 +25,7 @@ from ra_official import (  # noqa: E402  # pylint: disable=wrong-import-position
     RA_HID_BY_SEGMENT,
 )
 
-GJ = ROOT / 'data' / 'ua_zones' / 'ua_zones.geojson'
+GJ = ROOT / 'data' / 'ua_polygons' / 'ua_polygons.geojson'
 
 
 def table_by_region(segmap):

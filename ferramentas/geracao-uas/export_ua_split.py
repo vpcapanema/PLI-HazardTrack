@@ -1,11 +1,14 @@
-"""Exporta ua_zones unificado em ua_geo.geojson e ua_hidro.geojson."""
+"""Exporta ua_polygons.geojson em ua_geo.geojson e ua_hidro.geojson."""
 import sys
 from pathlib import Path
 
 import geopandas as gpd
 
 ROOT = Path(__file__).resolve().parents[2]
-IN_UNIFIED = ROOT / "data" / "ua_zones" / "ua_zones.geojson"
+sys.path.insert(0, str(ROOT))
+
+from core.ua_der_enrich import enrich_geodataframe  # noqa: E402
+
 IN_POLYGONS = ROOT / "data" / "ua_polygons" / "ua_polygons.geojson"
 OUT_DIR = ROOT / "data" / "ua_zones"
 OUT_GEO = OUT_DIR / "ua_geo.geojson"
@@ -14,6 +17,8 @@ OUT_HIDRO = OUT_DIR / "ua_hidro.geojson"
 BASE_COLS = [
     "id", "regiao", "rodovia", "municipio", "km", "km_ini", "km_fim",
     "escala", "extensao_m", "ext_oficial_media_m", "divisa_ini", "fonte",
+    "cgr", "regional_cgr", "regional", "rc", "residencia_conserva",
+    "uba", "uba_codigo", "uba_nome",
 ]
 
 GEO_DROP = [
@@ -50,6 +55,7 @@ def _prep(gdf, hazard: str) -> gpd.GeoDataFrame:
 
 def export_split(gdf: gpd.GeoDataFrame) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    gdf = enrich_geodataframe(gdf)
     _prep(gdf, "geo").to_file(OUT_GEO, driver="GeoJSON")
     _prep(gdf, "hidro").to_file(OUT_HIDRO, driver="GeoJSON")
     print(f"Salvo: {OUT_GEO} ({len(gdf)} UAs encosta)")
@@ -57,11 +63,12 @@ def export_split(gdf: gpd.GeoDataFrame) -> None:
 
 
 def main():
-    src = IN_UNIFIED if IN_UNIFIED.exists() else IN_POLYGONS
-    if not src.exists():
-        print(f"Fonte nao encontrada: {src}")
+    if not IN_POLYGONS.exists():
+        print(f"Fonte nao encontrada: {IN_POLYGONS}")
+        print("Rode build_ua_polygons.py e assign_ra_to_uas.py primeiro.")
         sys.exit(1)
-    gdf = gpd.read_file(src)
+    print(f"Fonte: {IN_POLYGONS.name}")
+    gdf = gpd.read_file(IN_POLYGONS)
     export_split(gdf)
 
 

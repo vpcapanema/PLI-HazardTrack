@@ -2,25 +2,68 @@
 Unidades de Analise (UAs) = unidade operacional do sistema.
 
 Duas malhas separadas (Produto 7 — processos independentes):
-  data/ua_zones/ua_geo.geojson    — encosta (RAGEO por UA)
-  data/ua_zones/ua_hidro.geojson — inundação (RAHID por UA)
+  data/ua_polygons/ua_polygons.geojson — fonte canonica (geometria + RA)
+  data/ua_zones/ua_geo.geojson         — encosta (RAGEO por UA)
+  data/ua_zones/ua_hidro.geojson       — inundação (RAHID por UA)
 
-Geradas por ferramentas/geracao-uas/assign_ra_to_uas.py.
+Geradas por ferramentas/geracao-uas/ (build_ua_polygons + assign_ra_to_uas).
 O centróide amostra chuva MERGE/INPE; o polígono é a tradução visual
 do alerta no mapa.
+
+Recarrega do disco quando os arquivos GeoJSON são regenerados (mtime).
 """
 
 from pathlib import Path
 import json
 import logging
 
+from core.text_encoding import fix_text
 from shapely.geometry import shape
 
 log = logging.getLogger("zones")
 
+DER_PROP_KEYS = (
+    "cgr", "regional_cgr", "regional", "rc", "residencia_conserva",
+    "uba", "uba_codigo", "uba_nome",
+)
+
+
+def _der_from_props(props: dict) -> dict:
+    """Atributos DER gravados no GeoJSON da UA (intersecao com camadas)."""
+    rc = fix_text(props.get("rc") or props.get("residencia_conserva"))
+    cgr = fix_text(props.get("cgr") or props.get("regional_cgr"))
+    return {
+        "cgr": cgr,
+        "regional_cgr": cgr,
+        "regional": fix_text(props.get("regional")),
+        "rc": rc,
+        "residencia_conserva": rc,
+        "uba": fix_text(props.get("uba")),
+        "uba_codigo": fix_text(props.get("uba_codigo")),
+        "uba_nome": fix_text(props.get("uba_nome")),
+    }
+
 _DATA = Path(__file__).resolve().parent.parent / "data" / "ua_zones"
 _GEOJSON_GEO = _DATA / "ua_geo.geojson"
 _GEOJSON_HIDRO = _DATA / "ua_hidro.geojson"
+
+_cache = {
+    "geo": [],
+    "hidro": [],
+    "token": (0.0, 0.0),
+}
+
+
+def _file_mtime(path: Path) -> float:
+    try:
+        return path.stat().st_mtime
+    except OSError:
+        return 0.0
+
+
+def zones_disk_token() -> tuple:
+    """Par (mtime geo, mtime hidro) para detectar alteracao no disco."""
+    return (_file_mtime(_GEOJSON_GEO), _file_mtime(_GEOJSON_HIDRO))
 
 
 def _to_int(v):
@@ -90,8 +133,8 @@ def _load_hazard_zones(path: Path, hazard: str):
         ra_key = "ra_geo" if hazard == "geo" else "ra_hid"
         zone = {
             "id": zid,
-            "nome": f"{rodovia}{km_txt} (R{regiao}){suffix}",
-            "rodovia": rodovia,
+            "nome": fix_text(f"{rodovia}{km_txt} (R{regiao}){suffix}"),
+            "rodovia": fix_text(rodovia) if rodovia else rodovia,
             "km": km,
             "regiao": regiao,
             "lat": lat,
@@ -104,7 +147,9 @@ def _load_hazard_zones(path: Path, hazard: str):
             ),
             "geometry": ring,
             "geometry_type": geometry_type,
+            "municipio": fix_text(props.get("municipio")),
         }
+        zone.update(_der_from_props(props))
         if hazard == "geo":
             zone["ra_geo"] = ra
             zone["ra_hid"] = None
@@ -116,8 +161,33 @@ def _load_hazard_zones(path: Path, hazard: str):
     return out
 
 
-ZONES_GEO = _load_hazard_zones(_GEOJSON_GEO, "geo")
-ZONES_HIDRO = _load_hazard_zones(_GEOJSON_HIDRO, "hidro")
+def reload_zones_if_changed(force: bool = False) -> bool:
+    """Recarrega GeoJSON se os arquivos mudaram no disco."""
+    token = zones_disk_token()
+    if not force and token == _cache["token"]:
+        return False
+    _cache["geo"] = _load_hazard_zones(_GEOJSON_GEO, "geo")
+    _cache["hidro"] = _load_hazard_zones(_GEOJSON_HIDRO, "hidro")
+    _cache["token"] = token
+    log.info(
+        "Malha UA recarregada do disco (geo=%d hidro=%d)",
+        len(_cache["geo"]), len(_cache["hidro"]),
+    )
+    return True
 
-# Compatibilidade legada (testes / imports antigos)
+
+def get_zones_geo() -> list:
+    reload_zones_if_changed()
+    return _cache["geo"]
+
+
+def get_zones_hidro() -> list:
+    reload_zones_if_changed()
+    return _cache["hidro"]
+
+
+# Carga inicial + compatibilidade com imports existentes
+reload_zones_if_changed(force=True)
+ZONES_GEO = _cache["geo"]
+ZONES_HIDRO = _cache["hidro"]
 ZONES = ZONES_GEO + ZONES_HIDRO

@@ -103,7 +103,7 @@ Acesso original: `http://db.optimusgis.com.br:2180/SGI-Riscos-DER/`.
 | Plataforma | TerraMA2 + ArcGIS, IIS/Windows | Flask + Leaflet, Docker/Linux, Render |
 | Chuva observada | Hidroestimador (GOES) + DAEE | MERGE/CPTEC/INPE (GRIB2 via eccodes) |
 | Previsao | WRF/INPE | WRF prec horario (`forecast_wrf_prec_hourly.py`) |
-| Unidade operacional | 809 UAs oficiais (UTB/SR) | Zonas aproximadas (`ua_zones.geojson`) |
+| Unidade operacional | 809 UAs oficiais (UTB/SR) | `ua_polygons.geojson` + split geo/hidro |
 | Disparo de acoes | Por ICC | Por RD (pior caso) em `core/actions.py` |
 | Animacao 96 h | Sim | Nao implementado |
 | Canais de alerta | E-mail + sistemas IG/DER | E-mail + webhook (Slack/Telegram) |
@@ -120,8 +120,8 @@ Acesso original: `http://db.optimusgis.com.br:2180/SGI-Riscos-DER/`.
 ### Prioridade ALTA
 
 - [ ] **G1 - Shapefile oficial das 809 UAs (UTB / Setores de Risco).**
-  Atualmente o sistema usa zonas aproximadas (`data/ua_zones.geojson`)
-  em vez dos poligonos oficiais (Contratos DER 20.088-8 e 20.292-7, IG
+  Atualmente o sistema usa UAs geradas por buffer unificado da malha DER
+  (`data/ua_polygons/ua_polygons.geojson`) em vez dos poligonos oficiais (Contratos DER 20.088-8 e 20.292-7, IG
   2020). Impacto: granularidade e precisao do RA por unidade.
   Acao: obter o shapefile oficial do DER/IG e substituir as zonas.
 

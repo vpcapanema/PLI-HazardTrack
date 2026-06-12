@@ -21,13 +21,66 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from core.regions import load_regions  # noqa: E402
 
-SHP_IN = ROOT / "data" / "malha_der" / "MALHA_RODOVIARIA.shp"
+SHP_IN = ROOT / "data" / "der_sistema_rodoviario" / "MALHA_RODOVIARIA.shp"
 OUT_DIR = ROOT / "static" / "data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Hazards cobertos pelo metodo REGEA-NIPPON 2021. Em todo trecho monitorado.
 # Quando vier shapefile RA por tipo, isto vira uma lista variavel por feature.
 DEFAULT_HAZARDS = ["instabilidade_encosta", "inundacao"]
+
+def fix_text(value):
+    """Re-export local para scripts de preparacao."""
+    from core.text_encoding import fix_text as _fix
+    return _fix(value)
+
+
+def _save_geojson_utf8(gdf, path: Path):
+    """Salva GeoJSON em UTF-8 (evita mojibake no Windows)."""
+    import json
+    from shapely.geometry import mapping
+
+    features = []
+    for _, row in gdf.iterrows():
+        geom = row.geometry
+        if geom is None or geom.is_empty:
+            continue
+        props = {}
+        for col in gdf.columns:
+            if col == "geometry":
+                continue
+            val = row[col]
+            if val is None:
+                props[col] = None
+                continue
+            try:
+                import pandas as pd
+                if pd.isna(val):
+                    props[col] = None
+                    continue
+            except Exception:
+                pass
+            if isinstance(val, str):
+                val = fix_text(val)
+            elif hasattr(val, "item"):
+                try:
+                    val = val.item()
+                except Exception:
+                    pass
+            props[col] = val
+        features.append({
+            "type": "Feature",
+            "properties": props,
+            "geometry": mapping(geom),
+        })
+    path.write_text(
+        json.dumps(
+            {"type": "FeatureCollection", "features": features},
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
 
 print(f"Lendo {SHP_IN}")
 gdf = gpd.read_file(SHP_IN)
@@ -117,7 +170,7 @@ for idx, geom in gdf["geometry"].items():
     rid, rname = _classify(geom)
     if rid is not None:
         gdf.at[idx, "region_id"] = int(rid)
-        gdf.at[idx, "region_name"] = rname
+        gdf.at[idx, "region_name"] = fix_text(rname)
         gdf.at[idx, "monitored"] = True
         gdf.at[idx, "hazards"] = list(DEFAULT_HAZARDS)
         monitored_count += 1
@@ -152,11 +205,11 @@ out_full = OUT_DIR / "malha_der_full.geojson"
 out_opt = OUT_DIR / "malha_der.geojson"
 
 print(f"Salvando completo em {out_full}")
-gdf.to_file(out_full, driver="GeoJSON")
+_save_geojson_utf8(gdf, out_full)
 print(f"  {out_full.stat().st_size / 1024 / 1024:.1f} MB")
 
 print(f"Salvando otimizado em {out_opt}")
-gdf_opt.to_file(out_opt, driver="GeoJSON")
+_save_geojson_utf8(gdf_opt, out_opt)
 print(f"  {out_opt.stat().st_size / 1024 / 1024:.1f} MB")
 
 # 7) Estatisticas para a UI

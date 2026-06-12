@@ -142,7 +142,8 @@ class TestEvaluatePoint(unittest.TestCase):
         # region=None -> tudo zerado, nivel "Monitoramento"
         r = evaluate_point(
             lat=0.0, lon=0.0, region=None,
-            ac96h=200.0, intensity=30.0, ac24h=180.0, ra=4
+            ac96h=200.0, intensity=30.0, ac24h=180.0,
+            ra_geo=4, ra_hid=4,
         )
         self.assertIsNone(r.region_id)
         self.assertEqual(r.rd, 0)
@@ -152,7 +153,8 @@ class TestEvaluatePoint(unittest.TestCase):
         region = _region(0)  # Regiao 1
         r = evaluate_point(
             lat=-23.7, lon=-46.1, region=region,
-            ac96h=0.0, intensity=0.0, ac24h=0.0, ra=4
+            ac96h=0.0, intensity=0.0, ac24h=0.0,
+            ra_geo=4, ra_hid=4,
         )
         self.assertEqual(r.icc_geo, 0)
         self.assertEqual(r.icc_hid, 0)
@@ -169,7 +171,8 @@ class TestEvaluatePoint(unittest.TestCase):
         region = _region(2)
         r = evaluate_point(
             lat=-23.78, lon=-45.51, region=region,
-            ac96h=300.0, intensity=20.0, ac24h=130.0, ra=1
+            ac96h=300.0, intensity=20.0, ac24h=130.0,
+            ra_geo=1, ra_hid=1,
         )
         self.assertEqual(r.region_id, 3)
         self.assertEqual(r.icc_geo, 3)
@@ -184,13 +187,23 @@ class TestEvaluatePoint(unittest.TestCase):
         region = _region(2)  # Sao Sebastiao
         r = evaluate_point(
             lat=-23.78, lon=-45.51, region=region,
-            ac96h=300.0, intensity=20.0, ac24h=10.0, ra=1
+            ac96h=300.0, intensity=20.0, ac24h=10.0,
+            ra_geo=1, ra_hid=1,
         )
         self.assertEqual(r.icc_hid, 0)
         self.assertGreaterEqual(r.icc_geo, 3)
         self.assertEqual(r.rd, max(r.rd_geo, r.rd_hid))
         # Como ICC_hid=0, RD_hid=0 e RD = RD_geo
         self.assertEqual(r.rd, r.rd_geo)
+
+    def test_sem_ra_oficial_retorna_sem_dado(self):
+        region = _region(0)
+        r = evaluate_point(
+            lat=-23.7, lon=-46.1, region=region,
+            ac96h=100.0, intensity=10.0, ac24h=50.0,
+        )
+        self.assertEqual(r.nivel, "SEM DADO - RA nao mapeado")
+        self.assertIsNone(r.ra)
 
 
 class TestRegionPolygons(unittest.TestCase):

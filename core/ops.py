@@ -36,6 +36,7 @@ from flask import (
 )
 
 from .aggregator import state
+from .merge_ingest import ingest
 from .merge_inpe import _eccodes_available, _hourly_url, INPE_BASE, PUBLISH_LAG_HOURS
 from .sra_auth import sra_auth
 
@@ -236,7 +237,13 @@ def collect_diagnostics() -> Dict[str, Any]:
 
             "SAMAEG_DEGRADED_24H": os.environ.get("SAMAEG_DEGRADED_24H", "6"),
             "SAMAEG_USE_MANUAL_RA": os.environ.get("SAMAEG_USE_MANUAL_RA", "0"),
-            "SAMAEG_WORKERS": os.environ.get("SAMAEG_WORKERS", "4"),
+            "SAMAEG_WORKERS": os.environ.get("SAMAEG_WORKERS", "12"),
+            "SAMAEG_DECODE_WORKERS": os.environ.get(
+                "SAMAEG_DECODE_WORKERS", "6"
+            ),
+            "SAMAEG_INGEST_INTERVAL_S": os.environ.get(
+                "SAMAEG_INGEST_INTERVAL_S", "120"
+            ),
             "RENDER": os.environ.get("RENDER", ""),
             "RENDER_SERVICE_NAME": os.environ.get("RENDER_SERVICE_NAME", ""),
             "RENDER_GIT_COMMIT": os.environ.get("RENDER_GIT_COMMIT", ""),
@@ -259,6 +266,7 @@ def collect_diagnostics() -> Dict[str, Any]:
 
             "degraded_threshold_h": runtime["degraded_threshold"],
         },
+        "merge_ingest": ingest.status(),
         "data_quality": {
             "data_status": data_status,
             "files_ok": summary.get("files_ok", 0),

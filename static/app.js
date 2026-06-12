@@ -40,7 +40,7 @@ const HAZARDS = {
     palette: ["#2aa358", "#f1c40f", "#f39c12", "#e74c3c", "#8e44ad"],
     source: "REGEA-NIPPON 2021",
     available: true,
-    rdFrom: (point) => Number.isInteger(point?.rd_geo) ? point.rd_geo : null,
+    rdFrom: (point) => Number.isInteger(point?.rd) ? point.rd : null,
   },
   inundacao: {
     label: "Inundação",
@@ -51,7 +51,7 @@ const HAZARDS = {
     palette: ["#2aa358", "#5fa8d3", "#1d6fb8", "#0a3d7a", "#d61f8d"],
     source: "REGEA-NIPPON 2021",
     available: true,
-    rdFrom: (point) => Number.isInteger(point?.rd_hid) ? point.rd_hid : null,
+    rdFrom: (point) => Number.isInteger(point?.rd) ? point.rd : null,
   },
 };
 
@@ -80,6 +80,31 @@ function saveHazardState() {
   } catch { /* storage cheio/bloqueado: ignora */ }
 }
 
+const HAZARD_LAYER_KEY = { geo: "encosta", hidro: "inundacao" };
+
+function snapshotPoints(snap) {
+  const geo = snap?.points_geo || [];
+  const hid = snap?.points_hidro || [];
+  if (geo.length || hid.length) return { geo, hid };
+  const legacy = snap?.points || [];
+  return {
+    geo: legacy.filter((p) => p.hazard === "geo" || p.ra_hid == null),
+    hid: legacy.filter((p) => p.hazard === "hidro" || p.ra_geo == null),
+  };
+}
+
+function activeByLevel(summary) {
+  const encostaOn = HAZARD_STATE.encosta;
+  const inundacaoOn = HAZARD_STATE.inundacao;
+  if (encostaOn && !inundacaoOn) {
+    return summary.by_level_geo || summary.by_level || {};
+  }
+  if (inundacaoOn && !encostaOn) {
+    return summary.by_level_hidro || summary.by_level || {};
+  }
+  return summary.by_level || {};
+}
+
 const HAZARD_STATE = _loadHazardState();
 
 const state = {
@@ -104,7 +129,9 @@ const state = {
     idx: 0,
     step: 1,
     timer: null,
-  }
+  },
+  historyMode: false,
+  historyAtIso: null,
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -116,7 +143,9 @@ function init() {
   renderHazardLegend();
   loadRoadNetwork();
   refresh();
-  setInterval(refresh, REFRESH_MS);
+  setInterval(() => {
+    if (!state.historyMode && !state.timeline.active) refresh();
+  }, REFRESH_MS);
 }
 
 // ============================================================================
@@ -228,6 +257,7 @@ function attachEvents() {
     const original = btn.textContent;
     btn.textContent = "Atualizando...";
     try {
+      if (state.historyMode) await exitHistoryMode(false);
       await fetch(apiUrl("/api/refresh"), { method: "POST" });
       await refresh();
     } catch (e) {
@@ -264,6 +294,37 @@ function attachEvents() {
   });
   document.getElementById("tl-step")?.addEventListener("change", (e) => {
     state.timeline.step = Math.max(1, Number(e.target.value) || 1);
+  });
+
+  // ---- Consulta histórica (badge de data/hora) ----
+  const badgeUpdate = document.getElementById("badge-update");
+  const timePanel = document.getElementById("time-travel-panel");
+  badgeUpdate?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!timePanel) return;
+    const open = timePanel.hidden;
+    timePanel.hidden = !open;
+    if (open) {
+      const inp = document.getElementById("history-at");
+      if (inp && !inp.value) {
+        const d = new Date();
+        d.setMinutes(0, 0, 0);
+        inp.value = toDatetimeLocalValue(d);
+        inp.max = toDatetimeLocalValue(new Date());
+      }
+      loadHistoryHints();
+    }
+  });
+  document.getElementById("history-go")?.addEventListener("click", () => {
+    runHistoricalConsultation();
+  });
+  document.getElementById("history-live")?.addEventListener("click", () => {
+    exitHistoryMode(true);
+  });
+  document.addEventListener("click", (e) => {
+    const wrap = document.getElementById("time-travel-wrap");
+    if (!wrap || !timePanel || timePanel.hidden) return;
+    if (!wrap.contains(e.target)) timePanel.hidden = true;
   });
 
   document.getElementById("layer-regions").addEventListener("change", (e) => {
@@ -377,11 +438,12 @@ function attachModalEvents() {
 // ============================================================================
 
 async function refresh() {
-  // Durante a animacao temporal, o snapshot ao vivo nao recolore o mapa
-  // (a Linha do Tempo controla as cores dos trechos).
   if (state.timeline.active) return;
   try {
-    const res = await fetch(apiUrl("/api/snapshot"));
+    const url = state.historyMode && state.historyAtIso
+      ? apiUrl("/api/snapshot?at=" + encodeURIComponent(state.historyAtIso))
+      : apiUrl("/api/snapshot");
+    const res = await fetch(url);
     const snap = await res.json();
     renderSnapshot(snap);
     // Coerencia logica: os paineis dependentes (Acoes, Previsao) so podem
@@ -408,6 +470,141 @@ async function refresh() {
 // LINHA DO TEMPO (animacao 96h dos poligonos de alerta - Anexo C, 3.4.2)
 // ============================================================================
 
+function tlActiveChannelMessage() {
+  const enc = HAZARD_STATE.encosta;
+  const hid = HAZARD_STATE.inundacao;
+  if (enc && hid) {
+    return (
+      "Camadas ativas: encosta (RD geológico, paleta verde→roxo) e " +
+      "inundação (RD hidrológico, paleta verde→azul→magenta). " +
+      "Cada UA usa a cor do seu canal."
+    );
+  }
+  if (enc) {
+    return "Camada ativa: Instabilidade de encosta — níveis de RD geológico (geo).";
+  }
+  if (hid) {
+    return "Camada ativa: Inundação — níveis de RD hidrológico (24 h).";
+  }
+  return "Nenhuma camada ligada — marque Encosta ou Inundação no painel lateral.";
+}
+
+function updateTimelineChannelHint() {
+  const el = tlEl("tl-channel");
+  if (el) el.textContent = tlActiveChannelMessage();
+}
+
+function toDatetimeLocalValue(d) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return (
+    d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
+    "T" + pad(d.getHours()) + ":" + pad(d.getMinutes())
+  );
+}
+
+let historyHintsLoaded = false;
+
+async function loadHistoryHints() {
+  const box = document.getElementById("history-hints");
+  if (!box) return;
+  if (historyHintsLoaded) return;
+  try {
+    const res = await fetch(apiUrl("/api/history-hints"));
+    const data = await res.json();
+    renderHistoryHints(data.events || [], data.disclaimer || "");
+    historyHintsLoaded = true;
+  } catch (e) {
+    console.warn("history hints", e);
+    box.innerHTML =
+      "<span class=\"history-hints-loading\">Sugestões indisponíveis.</span>";
+  }
+}
+
+function renderHistoryHints(events, disclaimer) {
+  const box = document.getElementById("history-hints");
+  if (!box) return;
+  if (!events.length) {
+    box.innerHTML =
+      "<span class=\"history-hints-loading\">Nenhum evento cadastrado.</span>";
+    return;
+  }
+  box.innerHTML = "";
+  events.forEach((ev) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "history-hint-btn";
+    const note = [ev.note, ev.source].filter(Boolean).join(" — ");
+    btn.title = note;
+    const lvl = ev.max_level ?? 0;
+    const color = NIVEL_COLOR[lvl] || "#64748b";
+    btn.innerHTML =
+      "<span class=\"history-hint-level\" style=\"background:" + color +
+      "\"></span><span class=\"history-hint-text\"><strong>" +
+      escapeHtml(ev.label) + "</strong><small>" +
+      escapeHtml(ev.level_label || "") + " · " +
+      escapeHtml(ev.region || "") + "</small></span>";
+    btn.addEventListener("click", () => {
+      const inp = document.getElementById("history-at");
+      if (inp && ev.at_utc) {
+        inp.value = toDatetimeLocalValue(new Date(ev.at_utc));
+      }
+      runHistoricalConsultation();
+    });
+    box.appendChild(btn);
+  });
+  if (disclaimer) {
+    const foot = document.createElement("p");
+    foot.className = "time-travel-hints-help";
+    foot.style.marginTop = "0.25rem";
+    foot.textContent = disclaimer;
+    box.appendChild(foot);
+  }
+}
+
+async function runHistoricalConsultation() {
+  const inp = document.getElementById("history-at");
+  const panel = document.getElementById("time-travel-panel");
+  if (!inp?.value) return;
+  const atIso = new Date(inp.value).toISOString();
+  state.historyMode = true;
+  state.historyAtIso = atIso;
+  if (panel) panel.hidden = true;
+  closeTimeline();
+  setBadge("badge-update", "Consultando…", "loading");
+  setStatus("Consultando chuva MERGE/INPE na data selecionada…", "warn");
+  document.getElementById("status-time").textContent =
+    "Pode levar alguns minutos (96 GRIBs da época)";
+  startDownloadPoll();
+  setMapHistoryBanner("Carregando chuva MERGE/INPE da época…", true);
+  try {
+    const res = await fetch(
+      apiUrl("/api/snapshot?at=" + encodeURIComponent(atIso))
+    );
+    const snap = await res.json();
+    renderSnapshot(snap);
+    loadActions();
+    loadForecast();
+  } catch (e) {
+    console.error(e);
+    setStatus("Erro na consulta histórica", "alert");
+  }
+}
+
+async function exitHistoryMode(refreshLive) {
+  state.historyMode = false;
+  state.historyAtIso = null;
+  const panel = document.getElementById("time-travel-panel");
+  if (panel) panel.hidden = true;
+  if (refreshLive) {
+    setBadge("badge-update", "Ao vivo…", "loading");
+    setMapHistoryBanner(null);
+    try {
+      await fetch(apiUrl("/api/refresh"), { method: "POST" });
+    } catch { /* ignora */ }
+    await refresh();
+  }
+}
+
 function tlEl(id) {
   return document.getElementById(id);
 }
@@ -422,7 +619,8 @@ async function openTimeline() {
     return;
   }
   state.timeline.loading = true;
-  tlEl("tl-status").textContent = "Baixando 96 h do MERGE/INPE...";
+  updateTimelineChannelHint();
+  tlEl("tl-status").textContent = "Montando animação a partir do cache MERGE…";
   tlEl("tl-play").disabled = true;
   try {
     const res = await fetch(apiUrl("/api/timeline"));
@@ -441,6 +639,7 @@ async function openTimeline() {
     range.value = state.timeline.idx;
     range.disabled = false;
     tlEl("tl-status").textContent = "";
+    updateTimelineChannelHint();
     applyTimelineFrame(state.timeline.idx);
   } catch (e) {
     console.error("Erro na linha do tempo:", e);
@@ -465,17 +664,27 @@ function applyTimelineFrame(idx) {
   idx = Math.max(0, Math.min(frames.length - 1, idx));
   state.timeline.idx = idx;
   const frame = frames[idx];
-  const rd = frame.rd || {};
-  for (const [id, markers] of state.pointMarkers) {
-    const v = rd[id];
+  for (const [markerKey, markers] of state.pointMarkers) {
+    const hazardKey = markerKey.includes(":")
+      ? markerKey.split(":")[1]
+      : "encosta";
+    const uaId = markerKey.includes(":")
+      ? markerKey.split(":")[0]
+      : markerKey;
+    const rdMap = hazardKey === "inundacao"
+      ? (frame.rd_hidro || frame.rd || {})
+      : (frame.rd_geo || frame.rd || {});
+    const v = rdMap[uaId];
+    const palette = HAZARDS[hazardKey]?.palette || NIVEL_COLOR;
     const color = Number.isInteger(v)
-      ? (NIVEL_COLOR[v] || "#64748b")
+      ? (palette[v] || "#64748b")
       : "#64748b";
     const arr = Array.isArray(markers) ? markers : [markers];
-    arr.forEach((m) => m.setStyle({ color }));
+    arr.forEach((m) => m.setStyle({ color, fillColor: color }));
   }
   const range = tlEl("tl-range");
   if (range) range.value = idx;
+  updateTimelineChannelHint();
   const t = frame.ts ? new Date(frame.ts) : null;
   tlEl("tl-time").textContent = t
     ? t.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit",
@@ -518,21 +727,66 @@ function tlTogglePlay() {
 }
 
 function renderSnapshot(snap) {
+  state.lastSnapshot = snap;
   const ts = snap.timestamp_utc ? new Date(snap.timestamp_utc) : null;
   const summary = snap.summary || {};
   const maxRd = summary.max_rd ?? 0;
   const status = summary.data_status || "ok";   // ok | degraded | no_data | mock | loading
+  const isHistorical = !!summary.historical;
+
+  if (!isHistorical) {
+    setMapHistoryBanner(null);
+  }
+
+  // ---- Consulta histórica (badge seletor de data) ----
+  if (isHistorical) {
+    const consulted = summary.consulted_at || snap.timestamp_utc;
+    const tConsult = consulted ? new Date(consulted) : null;
+    updateMapHistoryBanner(summary, snap);
+    setBadge(
+      "badge-update",
+      tConsult ? "Histórico " + formatTime(tConsult) : "Histórico",
+      "historical"
+    );
+    if (summary.data_status === "no_data") {
+      renderSnapshotNoData(snap, summary, tConsult);
+      return;
+    }
+    setStatus(
+      `Consulta histórica — ${NIVEL_LABEL[maxRd]} na data escolhida`,
+      maxRd >= 3 ? "alert" : maxRd >= 2 ? "warn" : ""
+    );
+    document.getElementById("status-time").textContent =
+      (summary.rd_basis || "Chuva observada MERGE") +
+      (summary.merge_target_hour
+        ? " · hora MERGE " + formatTime(new Date(summary.merge_target_hour))
+        : "");
+    setBadge("badge-source", "MERGE / INPE (hist.)", "degraded");
+    stopDownloadPoll();
+    renderPointsOnMap(snap);
+    renderRegionsOnMap(snap.regions || []);
+    renderRegions(snap.regions || []);
+    if (state.roadGeoJSON) renderRoadsOnMap();
+    renderWorst(snap);
+    const by = activeByLevel(summary);
+    for (let i = 0; i <= 4; i++) {
+      const el = document.getElementById("count-" + i);
+      if (el) el.textContent = by[i] || 0;
+    }
+    renderRdBasisNote(summary, status);
+    return;
+  }
 
   // ---- Primeiro ciclo ainda em andamento (servidor recem-bootado) ----
   if (status === "loading") {
-    setStatus("Carregando primeira leitura do MERGE/INPE...", "warn");
+    setStatus("Preparando monitoramento — baixando chuva do INPE", "warn");
     document.getElementById("status-time").textContent =
-      "Pode levar até ~60 s no primeiro ciclo (Render free)";
+      "Primeira carga: últimas 96 horas (costuma levar de 3 a 8 min)";
     setBadge("badge-source", "MERGE / INPE", "loading");
     setBadge("badge-update", "carregando", "loading");
     // Mostra a malha em estilo "sem dado" para a interface nao ficar vazia
     // enquanto o primeiro update do MERGE termina.
-    renderPointsOnMap(snap.points || []);
+    renderPointsOnMap(snap);
     renderRegionsOnMap(snap.regions || []);
     renderRegions(snap.regions || []);
     if (state.roadGeoJSON) renderRoadsOnMap();
@@ -549,25 +803,19 @@ function renderSnapshot(snap) {
 
   // ---- Estado de DADOS (precede o estado operacional) ----
   if (status === "no_data") {
-    setStatus("Sem dado real do MERGE/INPE neste ciclo", "alert");
-    document.getElementById("status-time").textContent =
-      ts ? "Última tentativa às " + formatTime(ts) : "—";
-    setBadge("badge-source", "Sem dado", "no-data");
-    setBadge("badge-update", ts ? formatTime(ts) : "—", "no-data");
-    // Mostra os pontos da malha monitorada (estilo "sem dado") para deixar
-    // claro que o monitoramento existe; chuva e RD vao zerados.
-    renderPointsOnMap(snap.points || []);
-    renderRegionsOnMap(snap.regions || []);
-    renderRegions(snap.regions || []);
-    if (state.roadGeoJSON) renderRoadsOnMap();
-    stopDownloadPoll();
-    renderWorstNoData(summary.message);
-    renderRdBasisNote(summary, status);
-    document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
-    for (let i = 0; i <= 4; i++) {
-      const el = document.getElementById("count-" + i);
-      if (el) el.textContent = "\u2014";
-    }
+    fetch(apiUrl("/api/progress"))
+      .then((r) => r.json())
+      .then((prog) => {
+        if (isIngestProgressBusy(prog)) {
+          renderSnapshot({
+            ...snap,
+            summary: { ...summary, data_status: "loading" },
+          });
+        } else {
+          renderSnapshotNoData(snap, summary, ts);
+        }
+      })
+      .catch(() => renderSnapshotNoData(snap, summary, ts));
     return;
   }
 
@@ -575,12 +823,12 @@ function renderSnapshot(snap) {
   stopDownloadPoll();
   const statusClasses = ["", "warn", "warn", "alert", "max"];
   const statusSuffix = status === "degraded"
-    ? ` · dado parcial (${summary.missing_24h}h faltando em 24h)`
+    ? ` · leitura incompleta (${summary.missing_24h}h faltando em 24h)`
     : status === "mock"
-      ? " · MODO DEV (mock)"
+      ? " · modo de teste (dados simulados)"
       : "";
   setStatus(
-    `${NIVEL_LABEL[maxRd]} — estado geral da malha${statusSuffix}`,
+    `${NIVEL_LABEL[maxRd]} — situação geral na área monitorada${statusSuffix}`,
     statusClasses[Math.min(4, maxRd)]
   );
   if (ts) {
@@ -595,8 +843,8 @@ function renderSnapshot(snap) {
   );
   setBadge("badge-update", ts ? formatTime(ts) : "—", status === "ok" ? "ok" : status);
 
-  // Distribuição por nível
-  const by = summary.by_level || {};
+  // Distribuição por nível (camada(s) ativa(s))
+  const by = activeByLevel(summary);
   for (let i = 0; i <= 4; i++) {
     const el = document.getElementById("count-" + i);
     if (el) el.textContent = by[i] || 0;
@@ -613,9 +861,9 @@ function renderSnapshot(snap) {
 
   // Mapa
   renderRegionsOnMap(snap.regions || []);
-  renderPointsOnMap(snap.points || []);
+  renderPointsOnMap(snap);
 
-  // Atualiza coloracao da malha conforme o snapshot
+  // Malha DER: apoio cartográfico (sem tradução de alerta)
   if (state.roadGeoJSON) renderRoadsOnMap();
 
   // Heatmap (se ativo, atualiza)
@@ -632,13 +880,47 @@ function setBadge(id, text, kind) {
   if (!el) return;
   el.textContent = text;
   el.classList.remove(
-    "badge-ok", "badge-degraded", "badge-no-data", "badge-mock", "badge-loading"
+    "badge-ok", "badge-degraded", "badge-no-data", "badge-mock",
+    "badge-loading", "badge-historical"
   );
   if (kind === "ok") el.classList.add("badge-ok");
   else if (kind === "degraded") el.classList.add("badge-degraded");
   else if (kind === "no-data" || kind === "no_data") el.classList.add("badge-no-data");
   else if (kind === "mock") el.classList.add("badge-mock");
   else if (kind === "loading") el.classList.add("badge-loading");
+  else if (kind === "historical") el.classList.add("badge-historical");
+}
+
+function isIngestProgressBusy(prog) {
+  if (!prog) return false;
+  if (prog.active || prog.refreshing) return true;
+  if (prog.phase === "processing") return true;
+  const cached = prog.hours_cached_ok ?? 0;
+  const minOk = prog.min_ok_hours ?? 24;
+  if (!prog.ingest_ready && cached < minOk) return true;
+  const total = prog.total || 0;
+  const done = prog.done || 0;
+  return total > 0 && done < total;
+}
+
+function renderSnapshotNoData(snap, summary, ts) {
+  setStatus("Dados de chuva indisponíveis neste momento", "alert");
+  document.getElementById("status-time").textContent =
+    ts ? "Última tentativa às " + formatTime(ts) : "—";
+  setBadge("badge-source", "Sem dado", "no-data");
+  setBadge("badge-update", ts ? formatTime(ts) : "—", "no-data");
+  renderPointsOnMap(snap);
+  renderRegionsOnMap(snap.regions || []);
+  renderRegions(snap.regions || []);
+  if (state.roadGeoJSON) renderRoadsOnMap();
+  stopDownloadPoll();
+  renderWorstNoData(summary.message);
+  renderRdBasisNote(summary, "no_data");
+  document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
+  for (let i = 0; i <= 4; i++) {
+    const el = document.getElementById("count-" + i);
+    if (el) el.textContent = "\u2014";
+  }
 }
 
 function renderWorstNoData(message) {
@@ -646,33 +928,207 @@ function renderWorstNoData(message) {
   card.classList.add("empty");
   card.innerHTML = `
     <div class="worst-empty no-data">
-      <div class="no-data-title">Sem dado disponível</div>
+      <div class="no-data-title">Chuva indisponível</div>
       <div class="no-data-msg">${escapeHtml(
-        message || "MERGE/INPE indisponível neste ciclo. Tentando novamente em 10 min."
+        message || (
+          "Não foi possível obter a chuva medida pelo INPE agora. "
+          + "Nova tentativa automática em até 10 min."
+        )
       )}</div>
     </div>
   `;
 }
 
-// Progresso do primeiro ciclo. Fase "download": janela rotativa de 5 GRIBs,
-// cada um com barra propria (passo de 1%) e contagem geral X/Y. Fase
-// "processing": lista de etapas com mensagens amistosas ate o snapshot ser
-// publicado e renderizado.
-const VISIBLE_DL = 5;
+// Progresso do primeiro ciclo: lista rolavel de arquivos (ativos +
+// concluidos), cada um com barra real vinda do servidor, mais total X/Y.
 const _dl = {
-  poll: null, anim: null, data: null, pct: {},
+  poll: null, data: null,
   mode: null, procStart: null, doneAt: null, refreshed: false,
 };
 
 function stopDownloadPoll() {
   if (_dl.poll) { clearInterval(_dl.poll); _dl.poll = null; }
-  if (_dl.anim) { clearInterval(_dl.anim); _dl.anim = null; }
   _dl.data = null;
-  _dl.pct = {};
   _dl.mode = null;
   _dl.procStart = null;
   _dl.doneAt = null;
   _dl.refreshed = false;
+}
+
+function formatBytes(n) {
+  const v = Number(n) || 0;
+  if (v >= 1e6) return (v / 1e6).toFixed(1) + " MB";
+  if (v >= 1e3) return (v / 1e3).toFixed(0) + " KB";
+  return v + " B";
+}
+
+/** Rotulo da barra por fase do pipeline (download / decode / ok). */
+function fileProgressLabel(f) {
+  if (f.status === "ok") return { pct: 100, text: "Concluído" };
+  if (f.status === "fail") return { pct: 0, text: "Falha" };
+  if (f.status === "decoding") {
+    return { pct: null, text: "Interpretando", indeterminate: true };
+  }
+  if (f.status === "pending") {
+    return { pct: 0, text: "Aguardando" };
+  }
+  const pct = Number(f.pct);
+  if (Number.isFinite(pct) && pct > 0) {
+    return { pct, text: "Baixando " + Math.round(pct) + "%" };
+  }
+  if (f.bytes_done > 0) {
+    return {
+      pct: null,
+      text: "Baixando " + formatBytes(f.bytes_done),
+      indeterminate: true,
+    };
+  }
+  return { pct: 0, text: "Iniciando..." };
+}
+
+function dlPanelTitle(d) {
+  if (!d) return "Baixando chuva medida (INPE)";
+  if (d.phase === "processing") return "Calculando níveis de alerta";
+  if (d.batch_kind === "incremental") {
+    return "Atualizando horas recentes";
+  }
+  const cached = d.hours_cached_ok ?? 0;
+  const minOk = d.min_ok_hours ?? 24;
+  if (cached < minOk) {
+    return "Montando histórico de chuva";
+  }
+  if (cached < (d.hours_back ?? 96)) {
+    return "Completando histórico horário";
+  }
+  return "Baixando chuva medida (INPE)";
+}
+
+function dlPanelSubtitle(d) {
+  if (!d) {
+    return "Fonte oficial INPE/MERGE — leituras horárias de precipitação.";
+  }
+  if (d.phase === "processing") {
+    return "Chuva já carregada; aplicando sensibilidade regional e níveis PPDC.";
+  }
+  if (d.batch_kind === "incremental") {
+    return "O INPE republicou as horas mais recentes; só elas são revisadas.";
+  }
+  const cached = d.hours_cached_ok ?? 0;
+  const back = d.hours_back ?? 96;
+  const minOk = d.min_ok_hours ?? 24;
+  if (cached < minOk) {
+    return (
+      `Carregando ${back} horas para calcular os alertas. ` +
+      `Mínimo para operar: ${minOk} horas válidas.`
+    );
+  }
+  return "Download do INPE e leitura dos arquivos em segundo plano.";
+}
+
+function dlBatchHintText(d) {
+  const total = d.total || 0;
+  const workers = d.workers ?? 12;
+  const decWorkers = d.decode_workers ?? 6;
+  if (d.batch_kind === "incremental" && total > 0) {
+    return (
+      `Republicação INPE: ${total} hora(s) recente(s) em atualização.`
+    );
+  }
+  if (total > 0 && (d.hours_cached_ok ?? 0) < (d.min_ok_hours ?? 24)) {
+    return (
+      `Primeira carga: ${total} arquivos horários · ` +
+      `${workers} downloads e ${decWorkers} leituras em paralelo. ` +
+      "Tempo típico: 3 a 8 min."
+    );
+  }
+  if (total > 0) {
+    return `${workers} downloads e ${decWorkers} leituras em paralelo.`;
+  }
+  return "";
+}
+
+/** Barra unica: horas em memoria (carga inicial) ou lote incremental. */
+function dlMainProgress(d) {
+  const cacheBack = d.hours_back || 96;
+  const cacheOk = d.hours_cached_ok ?? 0;
+  const cacheDisplay = d.cache_hours_display ?? cacheOk;
+  const minOk = d.min_ok_hours ?? 24;
+  const batchTotal = d.total || 0;
+  const batchDone = d.done || 0;
+  const batchDisp = d.batch_done_display ?? batchDone;
+  const batchBusy = batchTotal > 0 && (
+    d.active || batchDisp < batchTotal || batchDone < batchTotal
+  );
+  const isIncremental = d.batch_kind === "incremental";
+
+  if (isIncremental && batchBusy) {
+    const batchPct = Number.isFinite(d.batch_pct)
+      ? d.batch_pct
+      : (batchTotal ? (batchDisp / batchTotal) * 100 : 0);
+    const doneTxt = batchDisp < batchTotal && batchDisp % 1
+      ? batchDisp.toFixed(1)
+      : String(Math.round(batchDisp));
+    return {
+      label: "Atualizando horas recentes",
+      pct: batchPct,
+      count: `${doneTxt} / ${batchTotal} arquivo(s)`,
+    };
+  }
+
+  const cachePct = Number.isFinite(d.cache_pct)
+    ? d.cache_pct
+    : (cacheBack ? Math.min(100, (cacheOk / cacheBack) * 100) : 0);
+  const disp = Number.isFinite(cacheDisplay)
+    ? Math.round(cacheDisplay * 10) / 10
+    : cacheOk;
+  let count = `${disp} de ${cacheBack} horas prontas`;
+  const faltaMin = Math.max(0, minOk - cacheOk);
+  if (faltaMin > 0 && cacheOk < minOk) {
+    count += ` · faltam ${faltaMin} h para exibir alertas no mapa`;
+  }
+  return {
+    label: cacheOk < minOk ? "Montando histórico de chuva" : "Histórico em memória",
+    pct: cachePct,
+    count,
+  };
+}
+
+function dlActivityHint(d) {
+  const dlN = d.downloading ?? 0;
+  const decN = d.decoding ?? 0;
+  const pending = d.queued ?? 0;
+  const failN = d.fail ?? 0;
+  const parts = [];
+  if (dlN > 0) parts.push(`${dlN} baixando do INPE`);
+  if (decN > 0) parts.push(`${decN} lendo arquivos`);
+  if (pending > 0) parts.push(`${pending} na fila`);
+  if (failN > 0) {
+    parts.push(`${failN} falha(s) — nova tentativa automática`);
+  }
+  if (!parts.length) {
+    const ok = d.hours_cached_ok ?? 0;
+    const back = d.hours_back ?? 96;
+    if (ok < back) return "Preparando próximas horas...";
+    return "Aguardando próxima etapa...";
+  }
+  return "Agora: " + parts.join(" · ");
+}
+
+function dlProcessingTitle(d) {
+  if (d?.phase === "done") return "Painel atualizado";
+  const stage = d?.stage;
+  if (stage === "risk") return "Calculando alerta por trecho monitorado";
+  if (stage === "forecast") return "Incorporando previsão de chuva";
+  if (stage === "publish") return "Atualizando o mapa";
+  if (stage === "aggregate") return "Organizando chuva já medida";
+  return "Finalizando cálculo";
+}
+
+function dlProcessingSubtitle(d) {
+  if (d?.phase === "done") {
+    return "Dados prontos — o mapa será atualizado em instantes.";
+  }
+  return "A chuva do INPE já foi carregada; as etapas abaixo rodam em sequência.";
 }
 
 function startDownloadPoll() {
@@ -683,52 +1139,62 @@ function startDownloadPoll() {
     try {
       const r = await fetch(apiUrl("/api/progress"));
       _dl.data = await r.json();
+      renderDownloadFrame();
     } catch { /* ignora erro de rede transitorio */ }
   };
   poll();
-  _dl.poll = setInterval(poll, 800);
-  _dl.anim = setInterval(renderDownloadFrame, 40);
+  _dl.poll = setInterval(poll, 250);
 }
 
 function buildDownloadCard() {
   const card = document.getElementById("worst-card");
   if (!card) return;
   card.classList.add("empty");
-  let rows = "";
-  for (let s = 0; s < VISIBLE_DL; s++) {
-    rows += `
-      <li class="dl-row" data-slot="${s}">
-        <div class="dl-name">&nbsp;</div>
-        <div class="dl-line">
-          <div class="dl-bar"><div class="dl-bar-fill"></div></div>
-          <span class="dl-pct">0%</span>
-        </div>
-      </li>`;
-  }
+  card.classList.remove("worst-card--busy");
   card.innerHTML = `
     <div class="worst-empty loading dl-box">
       <div class="loading-title">
         <span class="loading-spinner" aria-hidden="true"></span>
-        Buscando dados do MERGE/INPE
+        <span class="dl-title-text">Baixando chuva medida (INPE)</span>
       </div>
-      <ul class="dl-list">${rows}</ul>
-      <div class="dl-overall">
+      <p class="dl-subtitle">Fonte oficial INPE/MERGE — leituras horárias de precipitação.</p>
+      <div class="dl-cache">
         <div class="dl-overall-top">
-          <span>Baixados</span>
-          <span class="dl-overall-pct">0 / 0</span>
+          <span class="dl-progress-label">Montando histórico de chuva</span>
+          <span class="dl-cache-pct">0 / 96 horas</span>
         </div>
-        <div class="dl-bar dl-bar-lg">
-          <div class="dl-bar-fill dl-overall-fill"></div>
+        <div class="dl-bar dl-bar-lg dl-bar-cache">
+          <div class="dl-bar-fill dl-cache-fill"></div>
         </div>
       </div>
+      <div class="dl-batch-hint"></div>
+      <ul class="dl-list" aria-label="Arquivos em andamento"></ul>
+      <div class="dl-list-hint"></div>
     </div>`;
+}
+
+/** Arquivos visiveis (servidor envia subconjunto ativo + recentes). */
+function listDownloadFiles(d) {
+  return Array.isArray(d.files) ? d.files : [];
+}
+
+function rowStatusClass(f) {
+  if (f.status === "ok") return "dl-ok";
+  if (f.status === "fail") return "dl-fail";
+  if (f.status === "decoding") return "dl-decoding";
+  if (f.status === "downloading") return "dl-active";
+  if (f.status === "pending") return "dl-pending";
+  return "";
 }
 
 function renderDownloadFrame() {
   const card = document.getElementById("worst-card");
   const d = _dl.data;
   if (!card || !d) return;
-  const mode = d.active
+  const ingestBusy = isIngestProgressBusy(d);
+  const batchBusy = d.total > 0 && d.done < d.total;
+  const mode = (d.phase === "ingest" && (d.active || batchBusy))
+    || (ingestBusy && d.phase !== "processing" && d.phase !== "done")
     ? "download"
     : (d.phase === "processing" || d.phase === "done")
       ? "processing"
@@ -746,85 +1212,101 @@ function renderDownloadFrame() {
 
 function renderDownloadList(d) {
   const card = document.getElementById("worst-card");
-  const list = card.querySelector(".dl-list");
-  if (!list) return;  // card foi substituido por outro estado
-  const files = Array.isArray(d.files) ? d.files : [];
-  const total = d.total || files.length || 96;
-  const done = d.done || 0;
-  // Mostra apenas os arquivos que ainda estao baixando: ao concluir, o
-  // arquivo sai da lista e o proximo entra no lugar.
-  const visible = files
-    .filter((f) => f.status === "pending")
-    .slice(0, VISIBLE_DL);
-  list.querySelectorAll(".dl-row").forEach((row, s) => {
-    const f = visible[s];
-    const nameEl = row.querySelector(".dl-name");
+  const list = card?.querySelector(".dl-list");
+  const hint = card?.querySelector(".dl-list-hint");
+  const batchHint = card?.querySelector(".dl-batch-hint");
+  const subtitleEl = card?.querySelector(".dl-subtitle");
+  const titleEl = card?.querySelector(".dl-title-text");
+  if (!list) return;
+  const files = listDownloadFiles(d);
+
+  if (titleEl) titleEl.textContent = dlPanelTitle(d);
+  if (subtitleEl) subtitleEl.textContent = dlPanelSubtitle(d);
+  if (batchHint) batchHint.textContent = dlBatchHintText(d);
+  if (hint) hint.textContent = dlActivityHint(d);
+
+  const main = dlMainProgress(d);
+  const cacheFill = card.querySelector(".dl-cache-fill");
+  const cacheCount = card.querySelector(".dl-cache-pct");
+  const progressLabel = card.querySelector(".dl-progress-label");
+  if (progressLabel) progressLabel.textContent = main.label;
+  if (cacheFill) cacheFill.style.width = main.pct + "%";
+  if (cacheCount) cacheCount.textContent = main.count;
+
+  const prevKeys = list.dataset.keys || "";
+  const nextKeys = files.map((f) => `${f.h}:${f.status}`).join(",");
+  if (prevKeys !== nextKeys) {
+    list.dataset.keys = nextKeys;
+    if (!files.length) {
+      list.innerHTML =
+        `<li class="dl-row dl-empty">Conectando ao servidor de chuva do INPE...</li>`;
+    } else {
+      list.innerHTML = files.map((f) => `
+      <li class="dl-row ${rowStatusClass(f)}" data-h="${f.h}">
+        <div class="dl-name">${escapeHtml(f.name)}</div>
+        <div class="dl-line">
+          <div class="dl-bar"><div class="dl-bar-fill"></div></div>
+          <span class="dl-pct">0%</span>
+        </div>
+      </li>`).join("");
+    }
+  }
+
+  files.forEach((f) => {
+    const row = list.querySelector(`.dl-row[data-h="${f.h}"]`);
+    if (!row) return;
+    row.className = "dl-row " + rowStatusClass(f);
     const fill = row.querySelector(".dl-bar-fill");
     const pctEl = row.querySelector(".dl-pct");
-    if (!f) {
-      row.classList.add("dl-hide");
-      nameEl.textContent = "";
-      fill.style.width = "0";
-      pctEl.textContent = "";
-      return;
+    const prog = fileProgressLabel(f);
+    fill.classList.remove("dl-bar-indeterminate");
+    if (prog.indeterminate) {
+      fill.classList.add("dl-bar-indeterminate");
+      fill.style.width = prog.pct != null ? prog.pct + "%" : "";
+    } else if (prog.pct != null) {
+      fill.style.width = prog.pct + "%";
+    } else {
+      fill.style.width = "0%";
     }
-    row.classList.remove("dl-hide");
-    nameEl.textContent = f.name;
-    // Anima a barra do arquivo em passos de 1% (ate ~95%); ao concluir, o
-    // arquivo deixa a lista. _dl.pct e indexado por f.h (estavel).
-    let cur = _dl.pct[f.h] || 0;
-    if (cur < 95) cur = Math.min(95, cur + 1);
-    _dl.pct[f.h] = cur;
-    fill.style.width = cur + "%";
-    pctEl.textContent = Math.round(cur) + "%";
+    pctEl.textContent = prog.text;
   });
-  // Progresso geral: numero de baixados / total (sem porcentagem).
-  const ofill = card.querySelector(".dl-overall-fill");
-  const ocount = card.querySelector(".dl-overall-pct");
-  if (ofill) ofill.style.width = (total ? (done / total) * 100 : 0) + "%";
-  if (ocount) ocount.textContent = `${done} / ${total}`;
 }
 
 function buildProcessingCard(d) {
   const card = document.getElementById("worst-card");
   if (!card) return;
-  card.classList.add("empty");
+  card.classList.add("empty", "worst-card--busy");
   const stages = Array.isArray(d.stages) ? d.stages : [];
   const rows = stages.map((st) => `
-      <li class="pr-row" data-key="${st.key}">
-        <span class="pr-ic"></span>
+      <li class="pr-card pr-pending" data-key="${escapeHtml(st.key)}">
+        <span class="pr-ic" aria-hidden="true"></span>
         <span class="pr-label">${escapeHtml(st.label)}</span>
       </li>`).join("");
   card.innerHTML = `
-    <div class="worst-empty loading dl-box">
+    <div class="worst-empty loading dl-box dl-box--processing">
       <div class="loading-title">
         <span class="loading-spinner" aria-hidden="true"></span>
-        Processando os dados
+        <span class="dl-proc-title">Finalizando cálculo</span>
       </div>
+      <p class="dl-subtitle dl-proc-subtitle"></p>
       <ul class="pr-list">${rows}</ul>
     </div>`;
 }
 
 function renderProcessing(d) {
   const card = document.getElementById("worst-card");
-  const ul = card.querySelector(".pr-list");
+  const ul = card?.querySelector(".pr-list");
+  const procTitle = card?.querySelector(".dl-proc-title");
+  const procSub = card?.querySelector(".dl-proc-subtitle");
+  if (procTitle) procTitle.textContent = dlProcessingTitle(d);
+  if (procSub) procSub.textContent = dlProcessingSubtitle(d);
   if (!ul) return;
-  const rows = ul.querySelectorAll(".pr-row");
-  const n = rows.length;
-  if (!n) return;
-  if (_dl.procStart == null) _dl.procStart = performance.now();
-  const dwell = 650;  // ms minimos por etapa, leitura confortavel
-  const elapsed = performance.now() - _dl.procStart;
-  // O download ja terminou (indice 0); revelamos as etapas seguintes no tempo.
-  let active = 1 + Math.floor(elapsed / dwell);
-  const reachedEnd = active >= n - 1;
-  if (active > n - 1) active = n - 1;
-  const finished = d.phase === "done";
-  rows.forEach((row, i) => {
-    let st;
-    if (i < active) st = "done";
-    else if (i === active) st = (reachedEnd && finished) ? "done" : "active";
-    else st = "pending";
+  const stages = Array.isArray(d.stages) ? d.stages : [];
+  ul.querySelectorAll(".pr-card").forEach((row) => {
+    const key = row.dataset.key;
+    const stage = stages.find((s) => s.key === key);
+    if (!stage) return;
+    const st = stage.status;
     row.classList.remove("pr-done", "pr-active", "pr-pending");
     row.classList.add("pr-" + st);
     const ic = row.querySelector(".pr-ic");
@@ -836,8 +1318,7 @@ function renderProcessing(d) {
       ic.textContent = "";
     }
   });
-  // Conclui: backend publicou (done) e ja revelamos todas as etapas.
-  if (reachedEnd && finished) {
+  if (d.phase === "done") {
     if (_dl.doneAt == null) _dl.doneAt = performance.now();
     if (!_dl.refreshed && performance.now() - _dl.doneAt > 600) {
       _dl.refreshed = true;
@@ -861,12 +1342,17 @@ function renderWorst(snap) {
   const card = document.getElementById("worst-card");
   const summary = snap.summary || {};
   const id = summary.max_rd_point;
-  const points = snap.points || [];
-  const worst = id ? points.find((p) => p.id === id) : null;
+  const hazard = summary.max_rd_hazard;
+  const { geo, hid } = snapshotPoints(snap);
+  const pool = [...geo, ...hid];
+  const worst = id
+    ? pool.find((p) => p.id === id && (!hazard || p.hazard === hazard))
+      || pool.find((p) => p.id === id)
+    : null;
 
   if (!worst) {
     card.classList.add("empty");
-    card.innerHTML = '<div class="worst-empty">Aguardando primeira leitura...</div>';
+    card.innerHTML = '<div class="worst-empty">Aguardando a primeira leitura de chuva…</div>';
     return;
   }
 
@@ -891,8 +1377,8 @@ function renderWorst(snap) {
       <div class="worst-stat" title="Intensidade horária na última leitura">
         <span>Intensidade</span><b>${worst.intensity_mmh} mm/h</b>
       </div>
-      <div class="worst-stat" title="Coeficiente de Precipitação Crítica: razão entre chuva observada e a envoltória da região">
-        <span>CPC</span><b>${worst.cpc !== null ? worst.cpc : "—"}</b>
+      <div class="worst-stat" title="Quanto a chuva observada já se aproxima do limite desta região">
+        <span>Proximidade do limite</span><b>${worst.cpc !== null ? worst.cpc : "—"}</b>
       </div>
     </div>
     ${renderWorstSparkline(worst.history || [])}
@@ -907,14 +1393,14 @@ function renderRegions(regions) {
   const list = document.getElementById("region-list");
   list.innerHTML = regions
     .map((r) => `
-      <div class="region-row" title="Sensibilidade da região (parâmetro K). Quanto menor, mais sensível">
+      <div class="region-row" title="Quanto menor o valor, menos chuva costuma bastar para subir o alerta">
         <div class="region-info">
           <b>${r.id}. ${escapeHtml(r.nome)}</b>
           <small>${escapeHtml(r.rodovia || "")}</small>
         </div>
         <div class="region-k">
           <span>Sensibilidade</span>
-          <code>K = ${r.k_geo}</code>
+          <code>${r.k_geo}</code>
         </div>
       </div>
     `)
@@ -936,7 +1422,7 @@ function renderRegionsOnMap(regions) {
       fillOpacity: 0.05,
       dashArray: "6,4",
     }).bindTooltip(
-      `Região ${r.id}: ${r.nome} (${r.rodovia})<br><small>Sensibilidade K=${r.k_geo}</small>`,
+      `Região ${r.id}: ${r.nome} (${r.rodovia})<br><small>Sensibilidade: ${r.k_geo} (menor = reage mais cedo)</small>`,
       { sticky: true }
     );
     poly.addTo(state.layers.regions);
@@ -948,35 +1434,42 @@ function renderRegionsOnMap(regions) {
 // PONTOS DE MONITORAMENTO
 // ============================================================================
 
-function renderPointsOnMap(points) {
+function renderPointsOnMap(snap) {
   const groups = state.layers.hazardZones || {};
   Object.values(groups).forEach((g) => g.clearLayers());
   state.pointMarkers.clear();
   state.pointData.clear();
 
-  points.forEach((p) => {
-    state.pointData.set(p.id, p);
-    if (!Array.isArray(p.geometry) || p.geometry.length < 2) return;
+  const { geo, hid } = snapshotPoints(snap || {});
+  const layers = [
+    ["encosta", geo],
+    ["inundacao", hid],
+  ];
 
-    const isNoData = p.source === "NO_DATA";
-    // A zona aparece nas camadas de Riscos Monitorados (encosta/inundacao),
-    // colorida pelo RD daquele hazard em tempo real. O popup e o mesmo.
-    const lines = [];
-    Object.entries(HAZARDS).forEach(([key, h]) => {
-      if (!h.available) return;
-      const g = groups[key];
-      if (!g) return;
+  layers.forEach(([hazardKey, points]) => {
+    const h = HAZARDS[hazardKey];
+    const g = groups[hazardKey];
+    if (!h?.available || !g) return;
+
+    points.forEach((p) => {
+      const markerKey = `${p.id}:${hazardKey}`;
+      state.pointData.set(markerKey, p);
+      if (!Array.isArray(p.geometry) || p.geometry.length < 2) return;
+
+      const isNoData = p.source === "NO_DATA";
+      const isPoly = p.geometry_type === "polygon" && p.geometry.length >= 3;
       const rd = isNoData ? null : h.rdFrom(p);
       const color = (rd == null) ? "#64748b" : (h.palette[rd] || "#64748b");
-      const pl = L.polyline(p.geometry, {
-        color,
-        weight: 5,
-        opacity: 0.9,
-      }).bindPopup(buildPopup(p));
-      pl.addTo(g);
-      lines.push(pl);
+      const style = {
+        color, weight: isPoly ? 2 : 5, opacity: 0.9,
+        fillColor: color, fillOpacity: isPoly ? 0.55 : 0,
+      };
+      const layer = isPoly
+        ? L.polygon(p.geometry, style).bindPopup(buildPopup(p, hazardKey))
+        : L.polyline(p.geometry, style).bindPopup(buildPopup(p, hazardKey));
+      layer.addTo(g);
+      state.pointMarkers.set(markerKey, [layer]);
     });
-    state.pointMarkers.set(p.id, lines);
   });
 }
 
@@ -987,12 +1480,14 @@ function raSourceLabel(src) {
   return src;
 }
 
-function buildPopup(p) {
+function buildPopup(p, hazardKey) {
   const isNoData = p.source === "NO_DATA";
+  const channelLabel = HAZARDS[hazardKey]?.label || hazardKey || "";
   if (isNoData) {
     return `
       <div class="popup-content">
         <h4>${escapeHtml(p.nome)}</h4>
+        <div class="popup-rod">${escapeHtml(channelLabel)}</div>
         <div class="popup-rod">${escapeHtml(p.rodovia)}${p.km != null ? " · km " + p.km : ""}</div>
         <div class="popup-rod">Região: ${escapeHtml(p.region_name || "—")}</div>
         <div class="popup-level" style="background:#64748b;color:#fff">
@@ -1003,27 +1498,31 @@ function buildPopup(p) {
     `;
   }
   const levelTextColor = p.rd === 1 ? "#0f172a" : "#ffffff";
+  const isGeo = hazardKey === "encosta" || p.hazard === "geo";
+  const rainRows = isGeo
+    ? `<tr><td>Acum. 96h (geo)</td><td>${p.ac96h_mm} mm</td></tr>
+       ${p.fonte_chuva === "WRF" ? `<tr><td style="padding-left:10px;color:#555">= 72h obs + 24h prev</td><td style="color:#555">${p.ac72h_obs_mm} + ${p.prev24h_mm}</td></tr>` : ""}`
+    : `<tr><td>Janela 24h (hidro)</td><td>${p.ac24h_mm} mm</td></tr>
+       ${p.fonte_chuva === "WRF" ? `<tr><td style="padding-left:10px;color:#555">= 18h obs + 6h prev</td><td style="color:#555">${p.ac18h_obs_mm} + ${p.prev6h_mm}</td></tr>` : ""}`;
+  const iccRow = isGeo
+    ? `<tr><td>ICC geológico</td><td>${p.icc_geo}</td></tr>`
+    : `<tr><td>ICC hidrológico</td><td>${p.icc_hid}</td></tr>`;
   return `
     <div class="popup-content">
       <h4>${escapeHtml(p.nome)}</h4>
+      <div class="popup-rod">${escapeHtml(channelLabel)}</div>
       <div class="popup-rod">${escapeHtml(p.rodovia)}${p.km != null ? " · km " + p.km : ""}</div>
       <div class="popup-rod">Região: ${escapeHtml(p.region_name || "—")}</div>
       <table>
-        <tr><td>Janela 24h (hidro)</td><td>${p.ac24h_mm} mm</td></tr>
-        ${p.fonte_chuva === "WRF" ? `<tr><td style="padding-left:10px;color:#555">= 18h obs + 6h prev</td><td style="color:#555">${p.ac18h_obs_mm} + ${p.prev6h_mm}</td></tr>` : ""}
-        <tr><td>Acum. 96h (geo)</td><td>${p.ac96h_mm} mm</td></tr>
-        ${p.fonte_chuva === "WRF" ? `<tr><td style="padding-left:10px;color:#555">= 72h obs + 24h prev</td><td style="color:#555">${p.ac72h_obs_mm} + ${p.prev24h_mm}</td></tr>` : ""}
+        ${rainRows}
         <tr><td>Intensidade (obs)</td><td>${p.intensity_mmh} mm/h</td></tr>
         <tr><td>CPC</td><td>${p.cpc !== null ? p.cpc : "—"}</td></tr>
         <tr><td>Risco analisado</td><td>${p.ra !== null && p.ra !== undefined ? 'RA' + p.ra : 'SEM DADO'}</td></tr>
-        <tr><td>RA geológico</td><td>${p.ra_geo != null ? 'RA' + p.ra_geo : '—'}</td></tr>
-        <tr><td>RA hidrológico</td><td>${p.ra_hid != null ? 'RA' + p.ra_hid : '—'}</td></tr>
-        <tr><td>ICC geológico</td><td>${p.icc_geo}</td></tr>
-        <tr><td>ICC hidrológico</td><td>${p.icc_hid}</td></tr>
+        ${iccRow}
       </table>
       ${p.ra_source ? `<div class="popup-source">RA: ${escapeHtml(raSourceLabel(p.ra_source))}</div>` : ""}
       ${p.fonte_chuva === "OBS_ONLY" ? `<div class="popup-source" style="color:#b45309">⚠ Previsão WRF indisponível — RD com chuva observada apenas (pode subestimar).</div>` : ""}
-      <div class="popup-level" style="background:${NIVEL_COLOR[p.rd]};color:${levelTextColor}">
+      <div class="popup-level" style="background:${(HAZARDS[hazardKey]?.palette || NIVEL_COLOR)[p.rd]};color:${levelTextColor}">
         Nível ${p.rd} — ${NIVEL_LABEL[p.rd]}
       </div>
       <div class="popup-source">${escapeHtml(p.source || "")}</div>
@@ -1084,69 +1583,17 @@ function removeHeatmap() {
 // Tom azul-acinzentado solido: aparece bem sobre o basemap claro mas nao
 // compete visualmente com as paletas das camadas classificadas.
 const ROAD_UNMONITORED_STYLE = { color: "#5b6b7d", weight: 1.8, opacity: 0.8 };
-const ROAD_NO_DATA_STYLE     = { color: "#5b6b7d", weight: 2.2, opacity: 0.9, dashArray: "5,4" };
+const ROAD_SUPPORT_STYLE = { color: "#94a3b8", weight: 2, opacity: 0.75 };
 
-// Pesos por nivel - quanto mais grave, mais grossa a linha (escala aumentada)
+// Pesos por nivel — legenda das UAs (malha DER nao usa mais escala RD)
 const ROAD_WEIGHTS = [4.0, 4.5, 5.0, 5.5, 6.0];
 
-// Para cada region_id, qual o RD maximo de cada hazard ativo no ciclo atual
-// roadRegionMaxRd: Map<region_id, { encosta: rd|null, inundacao: rd|null }>
-let roadRegionMaxRd = new Map();
-
-function recomputeRoadRegionRd() {
-  roadRegionMaxRd = new Map();
-  const activeKeys = Object.entries(HAZARD_STATE)
-    .filter(([k, on]) => on && HAZARDS[k]?.available)
-    .map(([k]) => k);
-  if (activeKeys.length === 0) return;
-
-  for (const p of state.pointData.values()) {
-    if (p.region_id == null) continue;
-    if (p.source === "NO_DATA") continue;
-    const key = Number(p.region_id);
-    let bucket = roadRegionMaxRd.get(key);
-    if (!bucket) {
-      bucket = {};
-      for (const k of activeKeys) bucket[k] = null;
-      roadRegionMaxRd.set(key, bucket);
-    }
-    for (const k of activeKeys) {
-      const rd = HAZARDS[k].rdFrom(p);
-      if (rd == null) continue;
-      if (bucket[k] == null || rd > bucket[k]) bucket[k] = rd;
-    }
-  }
-}
-
 /**
- * Para um trecho da malha, decide cor/estilo:
- *  - fora da cobertura  -> cinza
- *  - sem hazard ativo   -> cinza (mostra que existe vigilancia mas nada selecionado)
- *  - sem dado calculado -> cinza tracejado
- *  - tem dado           -> paleta da camada com maior RD (alerta mais grave)
+ * Malha DER: referencia cartografica neutra. Alertas visuais ficam nas UAs.
  */
 function styleForRoadFeature(props) {
-  if (!props?.monitored || props.region_id == null) return ROAD_UNMONITORED_STYLE;
-  const bucket = roadRegionMaxRd.get(Number(props.region_id));
-  if (!bucket) return ROAD_NO_DATA_STYLE;
-
-  // camada vencedora = maior RD entre as ativas
-  let bestKey = null;
-  let bestRd = -1;
-  for (const [k, rd] of Object.entries(bucket)) {
-    if (rd == null) continue;
-    if (rd > bestRd) { bestRd = rd; bestKey = k; }
-  }
-  if (bestKey == null) return ROAD_NO_DATA_STYLE;
-
-  const palette = HAZARDS[bestKey].palette;
-  return {
-    color: palette[bestRd] || palette[0],
-    weight: ROAD_WEIGHTS[bestRd] || 3,
-    opacity: 0.95,
-    _hazard: bestKey,   // metadata interna, ignorada pelo Leaflet
-    _rd: bestRd,
-  };
+  if (!props?.monitored) return ROAD_UNMONITORED_STYLE;
+  return ROAD_SUPPORT_STYLE;
 }
 
 async function loadRoadNetwork() {
@@ -1310,7 +1757,6 @@ function updateStatsSummary(stats) {
 function renderRoadsOnMap() {
   if (!state.roadGeoJSON) return;
   state.layers.roads.clearLayers();
-  recomputeRoadRegionRd();
 
   const f = state.roadFilters;
   const filtered = {
@@ -1333,14 +1779,9 @@ function renderRoadsOnMap() {
     onEachFeature: (feat, layer) => {
       const p = feat.properties || {};
       const baseStyle = styleForRoadFeature(p);
-      const winnerKey = baseStyle._hazard || null;
-      const winnerRd  = baseStyle._rd ?? null;
       const tipTitle = p.monitored
         ? `<b>${escapeHtml(p.rodovia || "?")}</b> · ${escapeHtml(p.region_name || "")}<br>` +
-          (winnerKey != null
-            ? `${escapeHtml(HAZARDS[winnerKey].label)}: <b>${escapeHtml(NIVEL_LABEL[winnerRd])}</b>`
-            : "Sem dado") +
-          ` · km ${p.km_ini}–${p.km_fim}`
+          `Malha de apoio · km ${p.km_ini}–${p.km_fim}`
         : `<b>${escapeHtml(p.rodovia || "?")}</b><br>` +
           `Fora da cobertura · km ${p.km_ini}–${p.km_fim}`;
       layer.bindTooltip(tipTitle, { sticky: true, direction: "top" });
@@ -1363,7 +1804,7 @@ function renderRoadsOnMap() {
     if (shown === total) {
       el.innerHTML =
         `<b>${total.toLocaleString("pt-BR")}</b> trechos · <b>${Math.round(km).toLocaleString("pt-BR")}</b> km<br>` +
-        `<b>${monitoredShown}</b> trechos cobertos pelo sistema`;
+        `<b>${monitoredShown}</b> trechos com monitoramento ativo`;
     } else {
       el.innerHTML =
         `Filtro ativo: <b>${shown.toLocaleString("pt-BR")}</b> de ${total.toLocaleString("pt-BR")} trechos<br>` +
@@ -1377,33 +1818,16 @@ function buildRoadPopup(p) {
   const denom = p.denominacao ? `<small>${escapeHtml(p.denominacao)}</small>` : "";
   let monitoringBlock;
   if (p.monitored) {
-    const bucket = roadRegionMaxRd.get(Number(p.region_id));
-    const rows = Object.entries(HAZARDS)
-      .filter(([k, h]) => h.available && HAZARD_STATE[k])
-      .map(([k, h]) => {
-        const rd = bucket?.[k];
-        const palette = h.palette;
-        const swatch = rd != null ? palette[rd] : "#94a3b8";
-        const txt = rd != null ? `${rd} · ${escapeHtml(NIVEL_LABEL[rd])}` : "sem dado";
-        return `
-          <div class="popup-monitor-row">
-            <span class="popup-monitor-label">${escapeHtml(h.label)}</span>
-            <span class="rd-pill" style="background:${swatch};color:${rd >= 2 ? "#fff" : "#1f2937"}">${txt}</span>
-          </div>`;
-      }).join("");
-
-    const activeNote = rows.length === 0
-      ? `<div class="popup-monitor-off">Nenhuma camada ativa no painel.</div>`
-      : "";
-
     monitoringBlock = `
       <div class="popup-monitor">
         <div class="popup-monitor-row">
           <span class="popup-monitor-label">Região</span>
           <b>${escapeHtml(p.region_name || "—")}</b>
         </div>
-        ${rows}
-        ${activeNote}
+        <div class="popup-monitor-off">
+          Malha de apoio cartográfico. O alerta operacional é exibido
+          nas UAs (polígonos de encosta e inundação).
+        </div>
       </div>
     `;
   } else {
@@ -1468,8 +1892,19 @@ function renderHazardPanel() {
         if (e.target.checked) g.addTo(state.map);
         else state.map.removeLayer(g);
       }
-      renderRoadsOnMap();
       renderHazardLegend();
+      updateTimelineChannelHint();
+      if (state.timeline.active) {
+        applyTimelineFrame(state.timeline.idx);
+      }
+      const snap = state.lastSnapshot;
+      if (snap) {
+        const by = activeByLevel(snap.summary || {});
+        for (let i = 0; i <= 4; i++) {
+          const el = document.getElementById("count-" + i);
+          if (el) el.textContent = by[i] || 0;
+        }
+      }
     });
   });
 }
@@ -1550,6 +1985,45 @@ function formatTime(d) {
   });
 }
 
+function formatHistoryBannerDate(d) {
+  return d.toLocaleString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function setMapHistoryBanner(text, loading) {
+  const banner = document.getElementById("map-history-banner");
+  const dateEl = document.getElementById("map-history-date");
+  if (!banner || !dateEl) return;
+  if (!text) {
+    banner.hidden = true;
+    banner.classList.remove("is-loading");
+    dateEl.textContent = "—";
+    return;
+  }
+  banner.hidden = false;
+  banner.classList.toggle("is-loading", !!loading);
+  dateEl.textContent = text;
+}
+
+function updateMapHistoryBanner(summary, snap) {
+  if (!summary?.historical) {
+    setMapHistoryBanner(null);
+    return;
+  }
+  const raw = summary.consulted_at || snap?.timestamp_utc || state.historyAtIso;
+  const d = raw ? new Date(raw) : null;
+  setMapHistoryBanner(
+    d ? formatHistoryBannerDate(d) : "Data não informada",
+    false
+  );
+}
+
 function escapeHtml(str) {
   if (str === null || str === undefined) return "";
   const div = document.createElement("div");
@@ -1576,7 +2050,7 @@ function renderActionsWaiting() {
   const c = document.getElementById("actions-content");
   if (c) {
     c.innerHTML = '<div class="actions-empty waiting">'
-      + 'Aguardando o Monitoramento processar os dados da malha\u2026</div>';
+      + 'Aguardando a primeira leitura de chuva para orientar ações\u2026</div>';
   }
 }
 
@@ -1584,7 +2058,7 @@ function renderActionsNoData() {
   const c = document.getElementById("actions-content");
   if (c) {
     c.innerHTML = '<div class="actions-empty">'
-      + 'Sem dado neste ciclo \u2014 ações indisponíveis.</div>';
+      + 'Sem dados de chuva neste momento — ações indisponíveis.</div>';
   }
 }
 
@@ -1608,7 +2082,7 @@ function renderActions(data) {
     }
     const sub = partes.length
       ? partes.join(" · ")
-      : "Ação preventiva requerida";
+      : "Situação exige atenção preventiva";
     container.innerHTML = `
       <a class="acoes-btn blink" href="${url}" target="_blank"
          rel="noopener" style="--acao-cor:${cor};">
@@ -1618,8 +2092,7 @@ function renderActions(data) {
           <small>Nível ${rd} — ${nivel}</small>
         </span>
       </a>
-      <div class="acoes-sub">${sub}. Toque para abrir o plano de
-        contingência detalhado.</div>`;
+      <div class="acoes-sub">${sub}. Abra o plano detalhado da Defesa Civil.</div>`;
   } else {
     // Operacao normal: estado calmo, sem piscar, com link de referencia.
     container.innerHTML = `
@@ -1627,12 +2100,12 @@ function renderActions(data) {
         <span class="acoes-calm-dot"></span>
         <div>
           <b>Operação normal</b>
-          <small>Monitoramento de rotina — nenhuma ação
-            extraordinária.</small>
+          <small>Chuva dentro da rotina — nenhuma ação
+            extraordinária por enquanto.</small>
         </div>
       </div>
       <a class="acoes-btn-secondary" href="${url}" target="_blank"
-         rel="noopener">Ver protocolo de contingência</a>`;
+         rel="noopener">Ver plano de contingência (PPDC)</a>`;
   }
 }
 
@@ -1667,16 +2140,16 @@ function renderRdBasisNote(summary, dataStatus) {
   el.className = forecastOk === false
     ? "rd-basis-note rd-basis-warn"
     : "rd-basis-note rd-basis-ok";
-  let html = `<strong>Base do RD:</strong> ${escapeHtml(basis || "—")}`;
+  let html = `<strong>Base do alerta:</strong> ${escapeHtml(basis || "—")}`;
   if (forecastOk === false) {
     html += (
-      "<br><small>Previsão WRF indisponível — RD calculado apenas com "
-      + "chuva observada (pode subestimar).</small>"
+      "<br><small>Previsão indisponível — cálculo usa só a chuva já medida "
+      + "(pode demorar a refletir piora do tempo).</small>"
     );
   } else if (summary.forecast_count != null) {
     html += (
-      `<br><small>WRF aplicado em ${summary.forecast_count} `
-      + `zona(s) neste ciclo.</small>`
+      `<br><small>Previsão aplicada em ${summary.forecast_count} `
+      + `trecho(s) neste ciclo.</small>`
     );
   }
   el.innerHTML = html;
@@ -1686,7 +2159,7 @@ function renderForecastWaiting() {
   const c = document.getElementById("forecast-content");
   if (c) {
     c.innerHTML = '<div class="forecast-empty waiting">'
-      + 'Aguardando a leitura do MERGE/INPE concluir\u2026</div>';
+      + 'Aguardando a leitura de chuva concluir\u2026</div>';
   }
 }
 
@@ -1694,7 +2167,7 @@ function renderForecastNoData() {
   const c = document.getElementById("forecast-content");
   if (c) {
     c.innerHTML = '<div class="forecast-empty">'
-      + 'Sem dado neste ciclo \u2014 previsão indisponível.</div>';
+      + 'Sem dados de chuva — previsão indisponível.</div>';
   }
 }
 
@@ -1705,7 +2178,7 @@ function renderForecast(data) {
   const forecast = data.forecast || [];
   const comDados = forecast.filter((f) => f.ac24h_forecast_mm !== undefined);
   if (comDados.length === 0) {
-    container.innerHTML = `<div class="forecast-empty">Previsão WRF indisponível</div>`;
+    container.innerHTML = `<div class="forecast-empty">Previsão indisponível neste ciclo</div>`;
     return;
   }
 
@@ -1715,36 +2188,31 @@ function renderForecast(data) {
     ...comDados.map((f) => f.ac6h_forecast_mm ?? 0)
   );
 
-  let html = `<div style="font-size: .9em; line-height: 1.4;">`;
+  let html = `<div class="forecast-panel">`;
   html += (
-    `<div style="margin-bottom: 6px; font-size: .8em; color: #555;">`
-    + `${escapeHtml(data.source || "WRF horário CPTEC/INPE")}</div>`
+    `<div class="forecast-source">`
+    + `${escapeHtml(data.source || "Previsão horária CPTEC/INPE")}</div>`
   );
   html += (
     `<div style="margin-bottom: 4px;">`
-    + `<strong>Maior prev. geo (+24h):</strong> ${maxGeo.toFixed(1)} mm</div>`
+    + `<strong>Máxima em 24 h (deslizamentos):</strong> ${maxGeo.toFixed(1)} mm</div>`
   );
   html += (
     `<div style="margin-bottom: 4px;">`
-    + `<strong>Maior prev. hidro (+6h):</strong> ${maxHidro.toFixed(1)} mm</div>`
+    + `<strong>Máxima em 6 h (alagamentos):</strong> ${maxHidro.toFixed(1)} mm</div>`
   );
   html += (
-    `<div style="font-size: .85em; color: #666; margin-bottom: 8px;">`
-    + `${escapeHtml(maxPonto?.nome || "")}</div>`
+    `<div class="forecast-meta">${escapeHtml(maxPonto?.nome || "")}</div>`
   );
 
-  html += (
-    `<div style="max-height: 120px; overflow-y: auto; `
-    + `border-top: 1px solid #eee; padding-top: 6px;">`
-  );
+  html += `<div class="forecast-list">`;
   for (const f of comDados.slice(0, 5)) {
     const vals = `${f.ac24h_forecast_mm.toFixed(1)} (+24h)`;
     const hidro = f.ac6h_forecast_mm != null
       ? ` · ${f.ac6h_forecast_mm.toFixed(1)} (+6h)`
       : "";
     html += (
-      `<div style="display:flex; justify-content:space-between; `
-      + `font-size: .85em; padding: 2px 0; gap: 8px;">`
+      `<div class="forecast-row">`
       + `<span>${escapeHtml(f.nome)}</span>`
       + `<span><b>${vals}${hidro} mm</b></span>`
       + `</div>`
@@ -1752,8 +2220,8 @@ function renderForecast(data) {
   }
   if (comDados.length > 5) {
     html += (
-      `<div style="font-size: .8em; color: #999; text-align: center;">`
-      + `+${comDados.length - 5} zonas</div>`
+      `<div class="forecast-more">`
+      + `+${comDados.length - 5} trechos</div>`
     );
   }
   html += `</div></div>`;
@@ -1778,8 +2246,8 @@ function renderWorstSparkline(history) {
   });
   const color = NIVEL_COLOR[max] || "#999";
   return `
-    <div style="margin-top:10px; padding-top:8px; border-top:1px solid #eee;">
-      <div style="font-size:.75em; color:#666; margin-bottom:4px;">Evolução do Risco (últimos ${vals.length} ciclos)</div>
+    <div class="worst-spark">
+      <div class="worst-spark-label">Evolução do Risco (últimos ${vals.length} ciclos)</div>
       <svg width="${w}" height="${h}" style="overflow:visible">
         <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         ${vals.map((v, i) => {

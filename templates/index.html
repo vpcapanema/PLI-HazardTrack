@@ -15,14 +15,14 @@
         <div class="sidebar-header">
             <div class="logo">
                 <div class="logo-mark">PLI-HazardTrack</div>
-                <div class="logo-sub">SIGMA · Resiliência Climática</div>
+                <div class="logo-sub">Monitoramento · Litoral e Baixada Santista</div>
             </div>
         </div>
 
-        <div class="status-bar" title="Maior nível operacional ativo na malha monitorada">
+        <div class="status-bar" title="Resumo do maior nível de alerta na área monitorada">
             <div class="status-dot" id="status-dot"></div>
             <div class="status-text">
-                <div id="status-line">Carregando...</div>
+                <div id="status-line">Iniciando…</div>
                 <div id="status-time" class="status-time">—</div>
             </div>
         </div>
@@ -33,8 +33,8 @@
              abaixo do status, para que o plantonista a veja primeiro.
              ============================================================ -->
         <div class="panel" id="actions-panel">
-            <h2 class="panel-title">Ações Operacionais</h2>
-            <p class="panel-help">Recomendações do Plano Preventivo de Defesa Civil (PPDC) conforme o nível operacional vigente.</p>
+            <h2 class="panel-title">Ações operacionais</h2>
+            <p class="panel-help">Orientações práticas da Defesa Civil (PPDC) para o nível de alerta vigente — o que reforçar ou acionar agora.</p>
             <div id="actions-content" class="actions-content">
                 <div class="actions-empty">Carregando...</div>
             </div>
@@ -45,10 +45,10 @@
              O que está puxando o nível operacional neste momento.
              ============================================================ -->
         <div class="panel">
-            <h2 class="panel-title">Trecho Mais Crítico</h2>
-            <p class="panel-help">Trecho com maior Risco Dinâmico no momento. Em caso de empate, prevalece a maior chuva acumulada em 96 h.</p>
+            <h2 class="panel-title">Trecho de maior alerta</h2>
+            <p class="panel-help">Onde o alerta está mais alto neste momento. Se dois trechos empatarem, aparece o que registrou mais chuva nos últimos quatro dias.</p>
             <div id="worst-card" class="worst-card empty">
-                <div class="worst-empty">Aguardando primeira leitura...</div>
+                <div class="worst-empty">Aguardando a primeira leitura de chuva…</div>
             </div>
         </div>
 
@@ -57,32 +57,32 @@
              Panorama de quantos trechos estão em cada nível.
              ============================================================ -->
         <div class="panel">
-            <h2 class="panel-title">Distribuição de trechos rodoviários por Nível Operacional</h2>
-            <p class="panel-help">Quantidade de trechos monitorados em cada nível, conforme o protocolo do Plano Preventivo de Defesa Civil (PPDC).</p>
+            <h2 class="panel-title">Trechos por nível de alerta</h2>
+            <p class="panel-help">Quantos trechos monitorados estão em cada faixa do protocolo de Defesa Civil (PPDC), do tempo seco ao alerta máximo.</p>
             <div class="alert-meter" id="alert-meter">
-                <div class="meter-cell" data-rd="0" title="Sem chuva relevante. Monitoramento de rotina.">
+                <div class="meter-cell" data-rd="0" title="Chuva fraca ou ausente. Rotina de monitoramento.">
                     <span class="meter-name">Monitoramento</span>
-                    <span class="meter-desc">Sem chuva relevante</span>
+                    <span class="meter-desc">Tempo seco ou chuva leve</span>
                     <b id="count-0">0</b>
                 </div>
-                <div class="meter-cell" data-rd="1" title="Chuvas registradas, mas abaixo do limiar de deflagração.">
+                <div class="meter-cell" data-rd="1" title="Chuva aumentando, ainda abaixo do patamar de preocupação.">
                     <span class="meter-name">Observação</span>
-                    <span class="meter-desc">Chuva próxima do limiar</span>
+                    <span class="meter-desc">Chuva subindo, sem perigo imediato</span>
                     <b id="count-1">0</b>
                 </div>
-                <div class="meter-cell" data-rd="2" title="Chuvas significativas: equipe de plantão, vistorias preventivas.">
+                <div class="meter-cell" data-rd="2" title="Chuva relevante: reforçar plantão e vistorias preventivas.">
                     <span class="meter-name">Atenção</span>
-                    <span class="meter-desc">Vistorias preventivas</span>
+                    <span class="meter-desc">Reforçar vistorias</span>
                     <b id="count-2">0</b>
                 </div>
-                <div class="meter-cell" data-rd="3" title="Limiar deflagrador atingido: probabilidade alta de eventos.">
+                <div class="meter-cell" data-rd="3" title="Chuva forte: maior chance de alagamentos ou deslizamentos.">
                     <span class="meter-name">Alerta</span>
-                    <span class="meter-desc">Possíveis ocorrências</span>
+                    <span class="meter-desc">Risco elevado de ocorrências</span>
                     <b id="count-3">0</b>
                 </div>
-                <div class="meter-cell" data-rd="4" title="Chuvas extremas: alta probabilidade de múltiplos eventos. Considerar interdição.">
+                <div class="meter-cell" data-rd="4" title="Chuva extrema: prioridade máxima; avaliar interdições e acionamentos.">
                     <span class="meter-name">Alerta Máximo</span>
-                    <span class="meter-desc">Risco severo</span>
+                    <span class="meter-desc">Situação crítica</span>
                     <b id="count-4">0</b>
                 </div>
             </div>
@@ -93,26 +93,23 @@
              O que vem a seguir, já incorporado ao cálculo de risco.
              ============================================================ -->
         <div class="panel" id="forecast-panel">
-            <h2 class="panel-title">Previsão WRF (motor do RD)</h2>
-            <p class="panel-help">Mesma fonte WRF horária do cálculo de risco: +24 h (geológico) e +6 h (hidrológico) sobre o MERGE observado (Produto 6, seção 4.5.3).</p>
+            <h2 class="panel-title">Previsão de chuva</h2>
+            <p class="panel-help">Estimativa das próximas horas (CPTEC/INPE), usada junto com a chuva já medida para antecipar se o alerta pode subir.</p>
             <div id="rd-basis-note" class="rd-basis-note" hidden></div>
             <div id="forecast-content" class="forecast-content">
                 <div class="forecast-empty">Carregando...</div>
             </div>
         </div>
 
-        <!-- ============================================================
-             REGIÕES METEOROLÓGICAS
-             Contexto e referência: como cada região é calibrada.
-             ============================================================ -->
+        <!-- REGIÕES MONITORADAS -->
         <div class="panel">
-            <h2 class="panel-title">Regiões Meteorológicas</h2>
-            <p class="panel-help">As quatro regiões oficiais do DER-SP, cada uma com limiares pluviométricos específicos calibrados a partir de eventos históricos.</p>
+            <h2 class="panel-title">Regiões monitoradas</h2>
+            <p class="panel-help">Quatro áreas do litoral norte e da Baixada Santista escolhidas para monitoramento: no Estado de São Paulo, concentram o relevo e condições de solo mais suscetíveis a deslizamentos e alagamentos em rodovias — não são divisões administrativas do DER.</p>
             <div class="region-list" id="region-list"></div>
             <p class="panel-note">
-                <b>Sensibilidade</b>: parâmetro K da envoltória crítica
-                <code>I = K · Ac96h<sup>−0,9</sup></code>.
-                Quanto menor o K, mais sensível a região (chuvas menores já disparam alertas).
+                <b>Sensibilidade (K)</b>: indica o quanto cada região reage à chuva.
+                Quanto <b>menor</b> o valor, <b>menos chuva</b> já costuma bastar
+                para elevar o alerta. Valores da metodologia REGEA-NIPPON (2021).
             </p>
         </div>
 
@@ -121,8 +118,9 @@
              Ferramenta de exploração da malha no mapa.
              ============================================================ -->
         <div class="panel" id="road-filters-panel">
-            <h2 class="panel-title">Filtros da Malha Rodoviária</h2>
-            <div id="road-stats-summary" class="stats-summary">Carregando malha...</div>
+            <h2 class="panel-title">Filtros da malha rodoviária</h2>
+            <p class="panel-help">Mostra ou oculta trechos no mapa para consulta. Não altera o cálculo do alerta.</p>
+            <div id="road-stats-summary" class="stats-summary">Carregando malha…</div>
 
             <div class="filter-group">
                 <label for="filter-tipo-pista">Tipo de pista</label>
@@ -159,23 +157,33 @@
              Utilitários de visualização (atualizar, animar, centralizar).
              ============================================================ -->
         <div class="panel">
-            <h2 class="panel-title">Controles do Mapa</h2>
+            <h2 class="panel-title">Controles do mapa</h2>
+            <p class="panel-help">Atualize os dados, veja a evolução das últimas 96 horas ou centralize a visualização.</p>
             <button id="btn-refresh" class="btn">Atualizar leitura agora</button>
-            <button id="btn-timeline" class="btn btn-secondary">Linha do Tempo (últimas 96 h)</button>
+            <button id="btn-timeline" class="btn btn-secondary">Linha do tempo (últimas 96 h)</button>
             <button id="btn-fit" class="btn btn-secondary">Centralizar no Estado de SP</button>
             <button id="btn-fit-litoral" class="btn btn-secondary">Centralizar no Litoral Norte</button>
         </div>
 
         <div class="footer">
-            <div>Dados de chuva: <b>MERGE / CPTEC / INPE</b></div>
-            <div>Modelagem: <b>DER-SP / IPA / REGEA-NIPPON 2021</b></div>
-            <div>Malha rodoviária: <b>DER-SP — Sistema Rodoviário Estadual</b></div>
+            <div class="footer-line">
+              <span class="footer-k">Dados de chuva:</span>
+              <span class="footer-v">MERGE / CPTEC / INPE</span>
+            </div>
+            <div class="footer-line">
+              <span class="footer-k">Metodologia:</span>
+              <span class="footer-v">Alerta geodinâmico DER-SP · REGEA-NIPPON (2021)</span>
+            </div>
+            <div class="footer-line">
+              <span class="footer-k">Malha rodoviária:</span>
+              <span class="footer-v">DER-SP — dados abertos estaduais</span>
+            </div>
             <div class="footer-links">
-                <a href="#" id="link-help">Como ler os dados?</a>
-                <a href="#" id="link-glossary">Glossário técnico</a>
+                <a href="#" id="link-help">Como ler o mapa?</a>
+                <a href="#" id="link-glossary">Glossário</a>
                 <a href="/ops" rel="nofollow">Operações</a>
             </div>
-            <div class="ver">PLI-HazardTrack · SIGMA v0.1 — protótipo operacional</div>
+            <div class="ver">PLI-HazardTrack · protótipo operacional</div>
         </div>
     </aside>
 
@@ -189,11 +197,43 @@
             </div>
             <div class="topbar-actions">
                 <span class="badge" id="badge-source" title="Origem dos dados pluviométricos">MERGE / INPE</span>
-                <span class="badge" id="badge-update" title="Última atualização (horário local)">—</span>
+                <div class="time-travel-wrap" id="time-travel-wrap">
+                    <button type="button" class="badge badge-time-btn" id="badge-update"
+                            title="Clique para consultar outra data/hora">—</button>
+                    <div class="time-travel-panel" id="time-travel-panel" hidden>
+                        <p class="time-travel-title">Consulta histórica</p>
+                        <p class="time-travel-help">
+                            Reconstitui o RD com chuva MERGE/INPE da época
+                            (observado, sem previsão WRF). Pode levar alguns minutos.
+                        </p>
+                        <p class="time-travel-hints-title">Eventos com alerta elevado</p>
+                        <p class="time-travel-hints-help">
+                            Clique para consultar uma data validada — ideal para
+                            ver o sistema em condição real de alerta.
+                        </p>
+                        <div class="history-hints" id="history-hints" aria-live="polite">
+                            <span class="history-hints-loading">Carregando sugestões…</span>
+                        </div>
+                        <label class="time-travel-label" for="history-at">
+                            Data e hora (seu fuso local)
+                        </label>
+                        <input type="datetime-local" id="history-at" class="time-travel-input">
+                        <div class="time-travel-actions">
+                            <button type="button" id="history-go" class="btn btn-sm">Consultar</button>
+                            <button type="button" id="history-live" class="btn btn-secondary btn-sm">Ao vivo</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
-        <div id="map"></div>
+        <div class="map-stage">
+            <div id="map-history-banner" class="map-history-banner" hidden>
+                <span class="map-history-kicker">Consulta histórica</span>
+                <span class="map-history-date" id="map-history-date">—</span>
+            </div>
+            <div id="map"></div>
+        </div>
 
         <!-- ============================================================
              LINHA DO TEMPO (animação 96h dos polígonos de alerta)
@@ -218,9 +258,10 @@
             </div>
             <input type="range" id="tl-range" class="tl-range"
                    min="0" max="0" value="0" step="1" disabled>
+            <p class="tl-channel" id="tl-channel" aria-live="polite"></p>
             <div class="tl-hint">
-                Evolução do Risco Dinâmico, hora a hora, nas últimas 96 h
-                (chuva observada MERGE/INPE).
+                Reconstrução hora a hora com chuva observada MERGE/INPE (sem previsão).
+                Cores conforme camadas ligadas no painel lateral.
             </div>
         </div>
 
@@ -238,52 +279,85 @@
     <div class="modal-backdrop" id="modal-help" hidden>
         <div class="modal" role="dialog" aria-labelledby="modal-help-title">
             <header class="modal-header">
-                <h2 id="modal-help-title">Como ler os dados de cada ponto</h2>
+                <h2 id="modal-help-title">Como ler os dados no mapa</h2>
                 <button class="modal-close" data-close-modal aria-label="Fechar">×</button>
             </header>
             <div class="modal-body">
                 <p class="modal-intro">
-                    Cada ponto de monitoramento mostra três grupos de informação. Saber separar
-                    os três grupos é o que permite interpretar corretamente um alerta.
+                    O mapa mostra <b>809 Unidades de Análise (UAs)</b> — polígonos
+                    ao longo da malha do PLI — coloridos pelo <b>Risco Dinâmico (RD)</b>
+                    de cada canal ativo. A <b>malha rodoviária DER</b> aparece em tom
+                    neutro apenas como referência cartográfica; o alerta visual está
+                    nas UAs. Clique em um polígono para ver chuva, RA, ICC e nível
+                    operacional daquela unidade.
                 </p>
 
-                <h3>1. Chuva observada (gatilho meteorológico)</h3>
-                <p>Vem do produto MERGE/CPTEC/INPE, atualizado a cada hora.</p>
+                <h3>1. Camadas de risco no mapa</h3>
+                <p>Use o painel <b>Camadas do mapa</b> (canto superior esquerdo):</p>
                 <table class="modal-table">
-                    <tr><th>Chuva 24h</th><td>Chuva acumulada nas últimas 24 horas. Gatilho de inundações e enxurradas.</td></tr>
-                    <tr><th>Acum. 96h</th><td>Chuva acumulada nas últimas 96 horas (4 dias). Gatilho de movimentos de massa.</td></tr>
-                    <tr><th>Intensidade</th><td>Quanto choveu na última hora medida (mm/h).</td></tr>
-                    <tr><th>CPC</th><td>Coeficiente de Precipitação Crítica. Razão entre chuva observada e a envoltória mínima da região. <b>CPC ≥ 1</b> significa que o limiar deflagrador foi atingido.</td></tr>
+                    <tr><th>Instabilidade de encosta</th><td>Canal geológico (RD<sub>geo</sub>). Escorregamento e queda de bloco. Paleta verde → roxo.</td></tr>
+                    <tr><th>Inundação</th><td>Canal hidrológico (RD<sub>hid</sub>). Alagamento e enxurrada (janela 24 h). Paleta verde → azul → magenta.</td></tr>
+                    <tr><th>Malha DER</th><td>Trechos oficiais do sistema rodoviário estadual — <b>sem</b> codificação de alerta.</td></tr>
                 </table>
-
-                <h3>2. Vulnerabilidade do trecho (estática)</h3>
-                <p>Mapeada em campo pela equipe técnica, escala 1:1.000. Não muda com o tempo.</p>
-                <table class="modal-table">
-                    <tr><th>RA0</th><td>Risco analisado nulo a quase nulo</td></tr>
-                    <tr><th>RA1</th><td>Risco analisado baixo a muito baixo</td></tr>
-                    <tr><th>RA2</th><td>Risco analisado médio</td></tr>
-                    <tr><th>RA3</th><td>Risco analisado alto — encostas com evidências, drenagem precária</td></tr>
-                    <tr><th>RA4</th><td>Risco analisado muito alto — múltiplas evidências de instabilidade já instaladas</td></tr>
-                </table>
-
-                <h3>3. Risco Dinâmico (cálculo final)</h3>
-                <p>Combinação da vulnerabilidade com o gatilho meteorológico atual. <b>É o que dispara o nível operacional.</b></p>
-                <table class="modal-table">
-                    <tr><th>ICC geológico</th><td>Faixa atual do gatilho de movimentos de massa (escorregamento, queda de bloco).</td></tr>
-                    <tr><th>ICC hidrológico</th><td>Faixa atual do gatilho de eventos hidrológicos (inundação, enxurrada).</td></tr>
-                </table>
-                <p class="formula">RD = RA × ICC &nbsp;·&nbsp; RD final = max(RD<sub>geo</sub>, RD<sub>hid</sub>)</p>
                 <p class="modal-note">
-                    Pela matriz oficial DER-SP, qualquer ponto com ICC=0 produz RD=0, mesmo que
-                    o RA seja alto. Faz sentido: sem chuva, sem evento. Por isso é comum ver
-                    trechos com <b>RA3</b> (intrinsecamente perigosos) operando em
-                    <b>RD0 — Monitoramento</b> em dias secos.
+                    A sidebar “Distribuição por nível” reflete a(s) camada(s) ligada(s).
+                    Com as duas ativas, prevalece o pior RD entre geo e hidro por UA.
                 </p>
+
+                <h3>2. Chuva e gatilho meteorológico</h3>
+                <p>Fonte operacional: <b>MERGE/CPTEC/INPE</b> (grade horária, calibrada
+                    para o Brasil). Em modo ao vivo, o RD incorpora também previsão
+                    <b>WRF horária do CPTEC</b> nas janelas do Produto 6:</p>
+                <table class="modal-table">
+                    <tr><th>Canal encosta</th><td>Acumulado <b>96 h</b> = 72 h observadas (MERGE) + 24 h previstas (WRF), quando disponível.</td></tr>
+                    <tr><th>Canal inundação</th><td>Janela <b>24 h</b> = 18 h observadas + 6 h previstas (WRF), quando disponível.</td></tr>
+                    <tr><th>Intensidade</th><td>Chuva na última hora medida (mm/h) — observada.</td></tr>
+                    <tr><th>CPC</th><td>Coeficiente de Precipitação Crítica: intensidade ÷ envoltória mínima da região. <b>CPC ≥ 1</b> indica limiar deflagrador atingido (gatilho geo).</td></tr>
+                </table>
+                <p class="modal-note">
+                    Se o WRF falhar, o sistema usa <b>somente chuva observada</b>
+                    (popup avisa “OBS_ONLY”) — o RD pode ficar conservador.
+                    Na <b>consulta histórica</b>, só entra MERGE observado da época
+                    (sem WRF).
+                </p>
+
+                <h3>3. Vulnerabilidade estática (RA)</h3>
+                <p><b>Risco Analisado (RA)</b> por UA, mapeado a partir do relatório
+                    REGEA-NIPPON (tabelas oficiais nos trechos SP-055/SP-098 e
+                    digitalização das figuras 3.3.3). Não varia com a chuva do dia.</p>
+                <table class="modal-table">
+                    <tr><th>RA0–RA4</th><td>Escala 0 (nulo) a 4 (muito alto), conforme evidências de instabilidade ou susceptibilidade hidrológica do trecho.</td></tr>
+                    <tr><th>SEM DADO</th><td>UA fora da cobertura das tabelas oficiais — exibida em cinza, sem RD calculado.</td></tr>
+                </table>
+
+                <h3>4. Risco Dinâmico (RD) — o que gera o alerta</h3>
+                <p>Combina RA com o índice de chuva (ICC). <b>Dispara o nível operacional
+                    PPDC</b> (Monitoramento → Alerta Máximo).</p>
+                <table class="modal-table">
+                    <tr><th>ICC geológico</th><td>Faixa 0–4 derivada do CPC (encosta).</td></tr>
+                    <tr><th>ICC hidrológico</th><td>Faixa 0–4 derivada do acumulado 24 h (inundação).</td></tr>
+                </table>
+                <p class="formula">RD<sub>geo</sub> = RA<sub>geo</sub> × ICC<sub>geo</sub> &nbsp;·&nbsp;
+                    RD<sub>hid</sub> = RA<sub>hid</sub> × ICC<sub>hid</sub> &nbsp;·&nbsp;
+                    RD = max(RD<sub>geo</sub>, RD<sub>hid</sub>)</p>
+                <p class="modal-note">
+                    Pela matriz oficial DER-SP, ICC = 0 implica RD = 0, mesmo com RA alto:
+                    sem gatilho pluviométrico, a UA permanece em
+                    <b>Monitoramento</b> em dias secos.
+                </p>
+
+                <h3>5. Modos de operação da interface</h3>
+                <table class="modal-table">
+                    <tr><th>Ao vivo</th><td>Atualização automática (~10 min no servidor; painel a cada ~30 s). Badge de data/hora no topo.</td></tr>
+                    <tr><th>Consulta histórica</th><td>Clique no badge de data/hora → escolha data passada ou evento sugerido. Reconstitui RD com MERGE da época. Banner no topo do mapa indica a data consultada.</td></tr>
+                    <tr><th>Linha do tempo</th><td>Anima as últimas 96 h de RD observado (MERGE), separado por canal encosta/inundação conforme camada ativa.</td></tr>
+                    <tr><th>Primeira carga</th><td>Ao abrir o sistema, a sidebar “Trecho mais crítico” mostra o progresso da série horária MERGE (até 96 GRIBs) antes de liberar o mapa.</td></tr>
+                </table>
 
                 <h3>Exemplo prático</h3>
                 <div class="modal-example">
-                    <p><b>Popup:</b> Chuva 24h = 0,1 mm · Acum. 96h = 11,3 mm · Intensidade = 0 mm/h · CPC = 0 · RA3 · ICC<sub>geo</sub>=0 · ICC<sub>hid</sub>=0</p>
-                    <p><b>Leitura:</b> trecho intrinsecamente perigoso (RA3 = alto), mas sem gatilho meteorológico ativo. Risco Dinâmico = 0 (Monitoramento de rotina). Não há ação necessária no momento, mas o trecho permanece em vigilância pelas equipes da UBA.</p>
+                    <p><b>Popup (encosta):</b> Acum. 96h = 11 mm · Intensidade = 0 mm/h · CPC = 0 · RA2 · ICC<sub>geo</sub> = 0 · Nível 0 — Monitoramento</p>
+                    <p><b>Leitura:</b> UA com vulnerabilidade média (RA2), mas sem chuva relevante na janela geo. RD<sub>geo</sub> = 0 — rotina. Se a camada <b>Inundação</b> estiver ligada e houver acumulado 24 h elevado, o mesmo polígono pode apresentar RD<sub>hid</sub> maior.</p>
                 </div>
             </div>
         </div>
@@ -300,47 +374,65 @@
             </header>
             <div class="modal-body">
                 <dl class="modal-glossary">
-                    <dt>PLI-HazardTrack</dt>
-                    <dd>Codebase deste sistema (este repositório). Implementação de referência do conceito SAMAEG/SIGMA aplicado às rodovias do Programa Litoral Integrado.</dd>
-
-                    <dt>SIGMA</dt>
-                    <dd>Sistema Integrado de Gestão e Monitoramento de Alertas. Marca operacional do PLI-HazardTrack para os usuários finais (DER-SP, UBA, Defesa Civil).</dd>
+                    <dt>PLI-HazardTrack / SIGMA</dt>
+                    <dd>Implementação operacional do conceito SAMAEG para a malha do Programa Litoral Integrado (DER-SP). Interface web com mapa, painéis e alertas PPDC.</dd>
 
                     <dt>SAMAEG</dt>
-                    <dd>Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico. Conceito do Produto 06 do contrato DER-SP / REGEA-NIPPON (2021), base metodológica deste sistema.</dd>
+                    <dd>Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico — Produto 06 do contrato REGEA-NIPPON (2021). Base metodológica deste sistema.</dd>
 
                     <dt>PLI</dt>
-                    <dd>Programa Litoral Integrado — DER-SP. Conjunto de ações de resiliência climática para a malha rodoviária do litoral norte e baixada santista.</dd>
+                    <dd>Programa Litoral Integrado — resiliência climática da malha rodoviária do litoral norte e baixada santista de São Paulo.</dd>
+
+                    <dt>Unidade de Análise (UA)</dt>
+                    <dd>Polígono elementar de monitoramento ao longo das rodovias do PLI. O sistema opera <b>809 UAs</b>, cada uma com RA e RD próprios nos canais geo e hidro.</dd>
 
                     <dt>Risco Dinâmico (RD)</dt>
-                    <dd>Risco que varia em tempo real conforme as chuvas. Cinco classes: <b>0 Monitoramento</b>, <b>1 Observação</b>, <b>2 Atenção</b>, <b>3 Alerta</b>, <b>4 Alerta Máximo</b>.</dd>
+                    <dd>Risco que varia com a chuva. Cinco níveis operacionais PPDC: <b>0 Monitoramento</b>, <b>1 Observação</b>, <b>2 Atenção</b>, <b>3 Alerta</b>, <b>4 Alerta Máximo</b>.</dd>
+
+                    <dt>RD<sub>geo</sub> / RD<sub>hid</sub></dt>
+                    <dd>Risco Dinâmico calculado separadamente para encosta (geológico) e inundação (hidrológico). O RD exibido no mapa segue o canal da camada ativa; com ambas ligadas, usa-se o pior caso.</dd>
 
                     <dt>Risco Analisado (RA)</dt>
-                    <dd>Risco intrínseco do trecho, mapeado em campo (encostas, drenagem, evidências de instabilidade). Estático.</dd>
+                    <dd>Vulnerabilidade estática da UA (0–4), derivada das tabelas e figuras oficiais REGEA-NIPPON. Trechos sem mapeamento oficial aparecem como <b>SEM DADO</b>.</dd>
 
                     <dt>ICC — Índice de Correlação com Chuvas</dt>
-                    <dd>Faixa (0 a 4) que mede quão próximo o evento chuvoso atual está do limiar histórico que disparou eventos passados.</dd>
+                    <dd>Faixa 0–4 que classifica o gatilho pluviométrico atual: <b>ICC<sub>geo</sub></b> a partir do CPC (encosta); <b>ICC<sub>hid</sub></b> a partir do acumulado 24 h (inundação).</dd>
 
                     <dt>CPC — Coeficiente de Precipitação Crítica</dt>
-                    <dd>Razão entre a chuva observada e a envoltória crítica da região. CPC=1 significa que o limiar foi atingido. CPC=10 significa chuva 10× acima do limiar.</dd>
+                    <dd>Razão entre a intensidade horária observada e a envoltória crítica mínima da região. CPC ≥ 1 indica limiar deflagrador atingido.</dd>
 
                     <dt>Sensibilidade K</dt>
-                    <dd>Constante da envoltória crítica <code>I = K · Ac96h⁻⁰·⁹</code>. Cada região tem seu K próprio. <b>K=200</b> (São Sebastião) é mais sensível que <b>K=1000</b> (Mogi-Bertioga).</dd>
+                    <dd>Constante regional da envoltória crítica <code>I = K · Ac96h⁻⁰·⁹</code>. Ex.: <b>K = 200</b> (São Sebastião) é mais sensível que <b>K = 1000</b> (Mogi-Bertioga).</dd>
 
                     <dt>MERGE / CPTEC / INPE</dt>
-                    <dd>Produto operacional do INPE que combina estimativas de satélite (GPM-IMERG) com pluviômetros de superfície brasileiros, gerando campo de chuva calibrado em grade de 0,1°. Atualização horária.</dd>
+                    <dd>Produto de chuva horária do INPE (satélite + pluviômetros brasileiros, grade ~0,1°). Ingerido em streaming; cache em memória de até 96 h para cálculo do RD.</dd>
+
+                    <dt>WRF (CPTEC/INPE)</dt>
+                    <dd>Previsão horária de precipitação usada na composição das janelas geo ( +24 h) e hidro (+6 h) em modo ao vivo. Ausente na consulta histórica e quando indisponível no ciclo.</dd>
+
+                    <dt>Consulta histórica</dt>
+                    <dd>Reconstitui o RD para uma data/hora passada usando MERGE observado da época (até 96 GRIBs). Sem previsão WRF. Eventos sugeridos (ex.: fev/2023 — São Sebastião) validam o backtest documentado.</dd>
+
+                    <dt>Linha do tempo</dt>
+                    <dd>Animação das últimas 96 horas de RD observado (MERGE), frame a frame, conforme a camada encosta ou inundação selecionada.</dd>
+
+                    <dt>Malha DER</dt>
+                    <dd>Shapefile oficial do Sistema Rodoviário Estadual (dadosabertos.sp.gov.br). Camada cartográfica neutra; não substitui a simbologia de alerta das UAs.</dd>
+
+                    <dt>Região meteorológica (1–4)</dt>
+                    <dd>Quatro regiões climático-geológico-geomorfológicas do PLI, cada uma com limiares CPC e tabelas ICC hidrológicas próprias.</dd>
 
                     <dt>Movimento de massa</dt>
-                    <dd>Conjunto de processos de instabilização de encostas: escorregamento, queda de bloco rochoso, corrida de lama, rastejo, solapamento de margem.</dd>
+                    <dd>Processos de instabilização de encostas: escorregamento, queda de bloco, corrida de lama, solapamento — canal geológico.</dd>
 
                     <dt>Eventos hidrológicos</dt>
-                    <dd>Inundação fluvial, enxurrada (flash flood), alagamento urbano em pontos baixos da rodovia.</dd>
+                    <dd>Inundação, enxurrada e alagamento por chuva intensa — canal hidrológico (janela 24 h).</dd>
 
                     <dt>UBA</dt>
-                    <dd>Unidade Básica de Atendimento do DER-SP. Responsável pela operação e manutenção rodoviária num trecho. Áreas-piloto deste sistema: Caraguatatuba, Mogi das Cruzes e São Vicente.</dd>
+                    <dd>Unidade Básica de Atendimento do DER-SP. Referência operacional para equipes de campo nas rodovias monitoradas.</dd>
 
                     <dt>PPDC</dt>
-                    <dd>Plano Preventivo de Defesa Civil. Os cinco níveis operacionais (Monitoramento → Alerta Máximo) seguem a nomenclatura do PPDC.</dd>
+                    <dd>Plano Preventivo de Defesa Civil. Nomenclatura dos cinco níveis operacionais e das ações recomendadas no painel “Ações Operacionais”.</dd>
                 </dl>
             </div>
         </div>

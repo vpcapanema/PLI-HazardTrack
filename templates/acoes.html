@@ -106,7 +106,7 @@
 
         .dash {
             display: grid;
-            grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+            grid-template-columns: minmax(0, 1fr) minmax(0, 2.15fr);
             gap: 1.5rem;
             align-items: start;
         }
@@ -114,6 +114,92 @@
         .dash-aside > .section:first-child { margin-top: 1.2rem; }
         @media (max-width: 980px) {
             .dash { grid-template-columns: 1fr; gap: 0; }
+            .dash-col-now { order: 1; }
+            .dash-col-protocol { order: 2; }
+        }
+
+        /* Coluna estreita: protocolo compacto */
+        .dash-aside .proto > summary {
+            flex-wrap: wrap;
+            padding: 0.55rem 0.65rem;
+            font-size: 0.82rem;
+            gap: 0.4rem;
+        }
+        .dash-aside .proto-desc { display: none; }
+        .dash-aside .proto-name { font-size: 0.82rem; }
+        .dash-aside .org-chip {
+            min-width: 0;
+            width: 100%;
+            font-size: 0.62rem;
+        }
+        .dash-aside .action-row {
+            flex-direction: column;
+            gap: 0.3rem;
+            padding: 0.55rem 0.6rem;
+        }
+        .dash-aside .action-text { font-size: 0.8rem; padding-top: 0; }
+
+        /* Coluna larga: ações imediatas */
+        .dash-main .action-row { padding: 0.75rem 0.85rem; }
+        .dash-main .org-chip { min-width: 132px; }
+        .dash-main .action-text { font-size: 0.92rem; }
+
+        /* ---- Card introdutório PPDC (largura total) ---- */
+        .ppdc-intro {
+            margin-top: 1.2rem;
+            background: #fff;
+            border-radius: 0.65rem;
+            box-shadow: var(--shadow-md);
+            border-left: 5px solid var(--verde);
+            padding: 1.15rem 1.35rem;
+            width: 100%;
+        }
+        .ppdc-intro-title {
+            font-family: var(--font-display);
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.45rem;
+        }
+        .ppdc-intro-lead {
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            max-width: 95ch;
+            margin-bottom: 0.75rem;
+        }
+        .ppdc-intro-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
+        @media (max-width: 1100px) {
+            .ppdc-intro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 560px) {
+            .ppdc-intro-grid { grid-template-columns: 1fr; }
+        }
+        .ppdc-mini {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 0.45rem;
+            padding: 0.7rem 0.75rem;
+            height: 100%;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        .ppdc-mini-title {
+            display: block;
+            color: var(--navy);
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.35px;
+            margin-bottom: 0.35rem;
+        }
+        .ppdc-mini-text {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            line-height: 1.45;
+            margin: 0;
         }
 
         /* ---- Hero banner ---- */
@@ -371,11 +457,94 @@
             </div>
         </div>
 
-        <!-- DASHBOARD: ações + trechos à esquerda, protocolo à direita -->
-        <div class="dash">
-        <div class="dash-main">
+        <!-- O que é o PPDC (largura total, antes das seções operacionais) -->
+        <section class="ppdc-intro" aria-labelledby="ppdc-intro-title">
+            <h2 class="ppdc-intro-title" id="ppdc-intro-title">
+                O que é o protocolo PPDC
+            </h2>
+            <p class="ppdc-intro-lead">
+                O <b>Plano Preventivo de Defesa Civil (PPDC)</b> define, para a
+                malha rodoviária do PLI, a escala de prontidão e as ações
+                coordenadas entre DER-SP, Defesa Civil, concessionárias e demais
+                órgãos quando a chuva eleva o <b>Risco Dinâmico (RD)</b> das
+                Unidades de Análise. Esta página traduz o nível vigente no mapa
+                em orientações operacionais — não substitui o Plano de
+                Contingência completo (Produto 7, REGEA-NIPPON 2021).
+            </p>
+            <div class="ppdc-intro-grid">
+                <article class="ppdc-mini">
+                    <span class="ppdc-mini-title">Cinco níveis</span>
+                    <p class="ppdc-mini-text">
+                        Monitoramento (0), Observação (1), Atenção (2),
+                        Alerta (3) e Alerta Máximo (4), conforme o Quadro
+                        4.2.2-2 do Plano de Contingência.
+                    </p>
+                </article>
+                <article class="ppdc-mini">
+                    <span class="ppdc-mini-title">Gatilho automático</span>
+                    <p class="ppdc-mini-text">
+                        O SAMAEG calcula o RD com chuva MERGE/INPE e RA
+                        oficial; o pior nível entre os trechos monitorados
+                        define a prontidão no topo desta página.
+                    </p>
+                </article>
+                <article class="ppdc-mini">
+                    <span class="ppdc-mini-title">Quem faz o quê</span>
+                    <p class="ppdc-mini-text">
+                        Cada nível lista ações por órgão (DER, CEPDEC,
+                        Polícia Rodoviária, concessionárias etc.), com
+                        papéis distintos de coordenação e execução.
+                    </p>
+                </article>
+                <article class="ppdc-mini">
+                    <span class="ppdc-mini-title">Como usar esta página</span>
+                    <p class="ppdc-mini-text">
+                        À <b>direita</b>, o que fazer agora no nível vigente;
+                        à <b>esquerda</b>, a referência completa dos cinco
+                        níveis. A página atualiza a cada 2 minutos.
+                    </p>
+                </article>
+            </div>
+        </section>
 
-        <!-- O QUE FAZER AGORA -->
+        <!-- DASHBOARD: protocolo estreito à esquerda, ações largas à direita -->
+        <div class="dash">
+        <aside class="dash-aside dash-col-protocol">
+
+        <!-- PROTOCOLO COMPLETO (coluna estreita) -->
+        <div class="section">
+            <h2 class="section-title">Protocolo PPDC completo</h2>
+            <p class="section-help">
+                Referência dos cinco níveis. O vigente aparece expandido.
+            </p>
+
+            {% for nivel in protocolo %}
+            <details class="proto" data-cor="{{ cores[nivel.rd] }}" {{ 'open' if nivel.rd == actions.max_rd else '' }}>
+                <summary>
+                    <span class="proto-dot" data-bg="{{ cores[nivel.rd] }}"></span>
+                    <span class="proto-name">Nível {{ nivel.rd }} — {{ nivel.nivel }}</span>
+                    {% if nivel.rd == actions.max_rd %}<span class="proto-current">vigente</span>{% endif %}
+                    <span class="proto-desc">{{ nivel.descricao }}</span>
+                </summary>
+                <div class="proto-body">
+                    <div class="action-card" data-cor="{{ cores[nivel.rd] }}">
+                        {% for a in nivel.acoes %}
+                        <div class="action-row">
+                            <span class="org-chip">{{ a.orgao or 'Geral' }}</span>
+                            <span class="action-text">{{ a.texto }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </details>
+            {% endfor %}
+        </div>
+
+        </aside><!-- /dash-aside -->
+
+        <div class="dash-main dash-col-now">
+
+        <!-- O QUE FAZER AGORA (coluna larga) -->
         <div class="section">
             <h2 class="section-title">O que fazer agora</h2>
             <p class="section-help">
@@ -463,38 +632,6 @@
         {% endif %}
 
         </div><!-- /dash-main -->
-
-        <aside class="dash-aside">
-        <!-- PROTOCOLO COMPLETO -->
-        <div class="section">
-            <h2 class="section-title">Protocolo PPDC completo</h2>
-            <p class="section-help">
-                Referência dos cinco níveis operacionais e as ações de cada
-                órgão. O nível vigente aparece destacado e já expandido.
-            </p>
-
-            {% for nivel in protocolo %}
-            <details class="proto" data-cor="{{ cores[nivel.rd] }}" {{ 'open' if nivel.rd == actions.max_rd else '' }}>
-                <summary>
-                    <span class="proto-dot" data-bg="{{ cores[nivel.rd] }}"></span>
-                    <span class="proto-name">Nível {{ nivel.rd }} — {{ nivel.nivel }}</span>
-                    {% if nivel.rd == actions.max_rd %}<span class="proto-current">vigente</span>{% endif %}
-                    <span class="proto-desc">{{ nivel.descricao }}</span>
-                </summary>
-                <div class="proto-body">
-                    <div class="action-card" data-cor="{{ cores[nivel.rd] }}">
-                        {% for a in nivel.acoes %}
-                        <div class="action-row">
-                            <span class="org-chip">{{ a.orgao or 'Geral' }}</span>
-                            <span class="action-text">{{ a.texto }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </details>
-            {% endfor %}
-        </div>
-        </aside><!-- /dash-aside -->
         </div><!-- /dash -->
 
         <div class="footer-note">

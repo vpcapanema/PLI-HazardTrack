@@ -98,20 +98,23 @@ class Notifier:
 
     # ----------------------------------------------------------------- API
     def evaluate(self, points: List[Dict[str, Any]], summary: Dict[str, Any],
-                 now: Optional[datetime] = None) -> int:
+                 now: Optional[datetime] = None,
+                 channel: Optional[str] = None) -> int:
         """Avalia o snapshot e dispara notificacoes se necessario.
 
-        Retorna o numero de zonas alertadas neste ciclo (0 se nada)."""
+        channel: 'geo' (encosta) ou 'hidro' (inundacao) — anti-spam
+        separado por canal. Retorna o numero de zonas alertadas (0 se nada).
+        """
         now = now or datetime.now(timezone.utc)
         if not (self.enabled_email or self.enabled_webhook):
             return 0
 
         try:
-            alerts = self._select_alerts(points, now)
+            alerts = self._select_alerts(points, now, channel=channel)
             self.last_alert_count = len(alerts)
             if not alerts:
                 return 0
-            self._dispatch(alerts, summary, now)
+            self._dispatch(alerts, summary, now, channel=channel)
             return len(alerts)
         except Exception as e:  # noqa: BLE001
             self.last_error = str(e)
@@ -139,7 +142,8 @@ class Notifier:
 
     # ------------------------------------------------------------- internos
     def _select_alerts(self, points: List[Dict[str, Any]],
-                       now: datetime) -> List[Dict[str, Any]]:
+                       now: datetime,
+                       channel: Optional[str] = None) -> List[Dict[str, Any]]:
         """Decide quais zonas alertar (novo / escalada / lembrete pos-cooldown)
         e limpa zonas que retornaram abaixo do limiar."""
         alerts: List[Dict[str, Any]] = []
@@ -150,28 +154,33 @@ class Notifier:
                 if p.get("source") == "NO_DATA" or rd is None:
                     continue
                 zid = p.get("id")
+                alert_key = f"{channel or p.get('hazard', 'geo')}:{zid}"
                 if rd >= self.threshold:
-                    active_ids.add(zid)
-                    prev = self._last_alert.get(zid)
+                    active_ids.add(alert_key)
+                    prev = self._last_alert.get(alert_key)
                     fire = (
                         prev is None                       # novo
                         or rd > prev[0]                    # escalada
                         or (now - prev[1]) >= self.cooldown  # lembrete
                     )
                     if fire:
-                        self._last_alert[zid] = (rd, now)
+                        self._last_alert[alert_key] = (rd, now)
                         alerts.append(p)
-            # de-escalada: remove zonas que sairam do alerta
-            for zid in [z for z in self._last_alert if z not in active_ids]:
-                del self._last_alert[zid]
+            prefix = f"{channel}:" if channel else None
+            for key in list(self._last_alert):
+                if prefix and not key.startswith(prefix):
+                    continue
+                if key not in active_ids:
+                    del self._last_alert[key]
         # pior caso primeiro
         alerts.sort(key=lambda p: (p.get("rd", 0), p.get("ac96h_mm", 0)),
                     reverse=True)
         return alerts
 
     def _dispatch(self, alerts: List[Dict[str, Any]],
-                  summary: Dict[str, Any], now: datetime) -> None:
-        subject, body = self._format(alerts, summary, now)
+                  summary: Dict[str, Any], now: datetime,
+                  channel: Optional[str] = None) -> None:
+        subject, body = self._format(alerts, summary, now, channel=channel)
         channels_ok: Dict[str, bool] = {}
         if self.enabled_email:
             channels_ok["email"] = self._send_email(subject, body)
@@ -188,12 +197,19 @@ class Notifier:
                     len(alerts), self.threshold, channels_ok)
 
     def _format(self, alerts: List[Dict[str, Any]],
-                summary: Dict[str, Any], now: datetime) -> Tuple[str, str]:
+                summary: Dict[str, Any], now: datetime,
+                channel: Optional[str] = None) -> Tuple[str, str]:
         n = len(alerts)
-        subject = (f"[HazardTrack] {n} zona(s) em risco "
+        ch_label = {
+            "geo": "Encosta",
+            "hidro": "Inundacao",
+        }.get(channel or "", "")
+        ch_tag = f"[{ch_label}] " if ch_label else ""
+        subject = (f"[HazardTrack]{ch_tag} {n} UA(s) em risco "
                    f"(RD>={self.threshold}) - max RD{summary.get('max_rd', 0)}")
         linhas = [
             "Sistema de Alerta - Plano de Contingencia (rodovias SP-055/SP-098)",
+            f"Canal: {ch_label or 'geral'}",
             f"Horario (UTC): {now.isoformat(timespec='seconds')}",
             f"Fonte de chuva: {summary.get('data_source', '-')} "
             f"(status: {summary.get('data_status', '-')})",

@@ -15,9 +15,15 @@ services:
       # Em producao NUNCA usar mock
       - key: SAMAEG_FORCE_MOCK
         value: "0"
-      # Free tier: 0.5 CPU / 512 MB. Mais workers do que isso satura.
+      # Downloads MERGE/INPE em paralelo (leitura eccodes continua serial).
       - key: SAMAEG_WORKERS
-        value: "4"
+        value: "12"
+      - key: SAMAEG_DECODE_WORKERS
+        value: "6"
+      - key: SAMAEG_INGEST_INTERVAL_S
+        value: "120"
+      - key: SAMAEG_REFETCH_RECENT_H
+        value: "3"
       # Pagina /ops - configure no painel do Render (Settings > Environment)
       - key: OPS_USER
         sync: false

@@ -20,10 +20,8 @@ Abre em http://localhost:5050 (ou na porta definida em PORT).
 
 ## Documentacao
 
-- `METODOLOGIA_E_GAPS.md` - base cientifica (Produtos 02-05), sistema
-  original SAMAEG (TerraMA2 + ArcGIS), comparacao com a versao atual e
-  lista de gaps a resolver/implementar.
-- `DADOS_OFICIAIS_STATUS.md` - status detalhado dos dados oficiais.
+- `ferramentas/` — scripts auxiliares por tema (geracao UAs, relatorios, geodata)
+- Ver tambem READMEs em cada subpasta de `ferramentas/`
 
 ## Arquitetura
 

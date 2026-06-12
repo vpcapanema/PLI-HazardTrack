@@ -25,10 +25,11 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.join(ROOT, "ferramentas", "relatorios-plano-contingencia"))
 
 from core.risk import evaluate_point, rd_distribution, NIVEIS  # pylint: disable=wrong-import-position
 from core.regions import APPROXIMATE_REGIONS, Region  # pylint: disable=wrong-import-position
-from core.ra_official import get_ra_dist_for_point  # pylint: disable=wrong-import-position
+from ra_official import get_ra_dist_for_point  # pylint: disable=wrong-import-position
 
 
 def _region(idx: int) -> Region:
@@ -46,7 +47,7 @@ class TestCenarioGeologicoOficial(unittest.TestCase):
         region = _region(0)
         r = evaluate_point(
             lat=-23.5, lon=-46.0, region=region,
-            ac96h=150.0, intensity=50.0, ac24h=0.0, ra=1
+            ac96h=150.0, intensity=50.0, ac24h=0.0, ra_geo=1
         )
         # 150^0.9 = 90.87 -> I_env = 1000 / 90.87 = 11.00
         # CPC = 50 / 11.00 = 4.54 -> ICCGEO2 (3 <= 4.54 < 6)
@@ -58,7 +59,7 @@ class TestCenarioGeologicoOficial(unittest.TestCase):
         region = _region(1)
         r = evaluate_point(
             lat=-23.5, lon=-45.0, region=region,
-            ac96h=150.0, intensity=50.0, ac24h=0.0, ra=1
+            ac96h=150.0, intensity=50.0, ac24h=0.0, ra_geo=1
         )
         # 150^0.9 = 90.87 -> I_env = 400 / 90.87 = 4.402
         # CPC = 50 / 4.402 = 11.36 -> ICCGEO2 (6 <= 11.36 < 12)
@@ -70,7 +71,7 @@ class TestCenarioGeologicoOficial(unittest.TestCase):
         region = _region(2)
         r = evaluate_point(
             lat=-23.78, lon=-45.51, region=region,
-            ac96h=150.0, intensity=50.0, ac24h=0.0, ra=1
+            ac96h=150.0, intensity=50.0, ac24h=0.0, ra_geo=1
         )
         # 150^0.9 = 90.87 -> I_env = 200 / 90.87 = 2.201
         # CPC = 50 / 2.201 = 22.72 -> ICCGEO3 (16 <= 22.72 < 24)
@@ -82,7 +83,7 @@ class TestCenarioGeologicoOficial(unittest.TestCase):
         region = _region(3)
         r = evaluate_point(
             lat=-23.9, lon=-46.2, region=region,
-            ac96h=150.0, intensity=50.0, ac24h=0.0, ra=1
+            ac96h=150.0, intensity=50.0, ac24h=0.0, ra_geo=1
         )
         # 150^0.9 = 90.87 -> I_env = 1000 / 90.87 = 11.00
         # CPC = 50 / 11.00 = 4.54 -> ICCGEO2 (4 <= 4.54 < 8)
@@ -101,7 +102,7 @@ class TestCenarioHidrologicoOficial(unittest.TestCase):
         region = _region(0)
         r = evaluate_point(
             lat=-23.5, lon=-46.0, region=region,
-            ac96h=0.0, intensity=0.0, ac24h=100.0, ra=1
+            ac96h=0.0, intensity=0.0, ac24h=100.0, ra_hid=1
         )
         self.assertEqual(r.icc_hid, 0)
         self.assertEqual(r.rd_hid, 0)
@@ -111,7 +112,7 @@ class TestCenarioHidrologicoOficial(unittest.TestCase):
         region = _region(1)
         r = evaluate_point(
             lat=-23.5, lon=-45.0, region=region,
-            ac96h=0.0, intensity=0.0, ac24h=100.0, ra=1
+            ac96h=0.0, intensity=0.0, ac24h=100.0, ra_hid=1
         )
         self.assertEqual(r.icc_hid, 2)
         self.assertEqual(r.rd_hid, 2)  # RA=1 x ICC2 -> RD2
@@ -121,7 +122,7 @@ class TestCenarioHidrologicoOficial(unittest.TestCase):
         region = _region(2)
         r = evaluate_point(
             lat=-23.78, lon=-45.51, region=region,
-            ac96h=0.0, intensity=0.0, ac24h=100.0, ra=1
+            ac96h=0.0, intensity=0.0, ac24h=100.0, ra_hid=1
         )
         self.assertEqual(r.icc_hid, 2)
         self.assertEqual(r.rd_hid, 2)
@@ -131,7 +132,7 @@ class TestCenarioHidrologicoOficial(unittest.TestCase):
         region = _region(3)
         r = evaluate_point(
             lat=-23.9, lon=-46.2, region=region,
-            ac96h=0.0, intensity=0.0, ac24h=100.0, ra=1
+            ac96h=0.0, intensity=0.0, ac24h=100.0, ra_hid=1
         )
         self.assertEqual(r.icc_hid, 0)
         self.assertEqual(r.rd_hid, 0)
@@ -149,7 +150,7 @@ class TestCenarioTrechoCriticoSaoSebastiao(unittest.TestCase):
         r = evaluate_point(
             lat=-23.78, lon=-45.51, region=region,
             ac96h=150.0, intensity=50.0, ac24h=100.0,
-            ra=1, ra_geo=1, ra_hid=1
+            ra_geo=1, ra_hid=1
         )
         # Geologico: ICCGEO=3, RA=1 -> RDGEO=3 (Alerta)
         self.assertEqual(r.rd_geo, 3)
@@ -165,7 +166,7 @@ class TestCenarioTrechoCriticoSaoSebastiao(unittest.TestCase):
         r = evaluate_point(
             lat=-23.78, lon=-45.51, region=region,
             ac96h=150.0, intensity=50.0, ac24h=100.0,
-            ra=4, ra_geo=4, ra_hid=4
+            ra_geo=4, ra_hid=4
         )
         # Geologico: ICCGEO>=3, RA=4 -> RDGEO=4 (Alerta Maximo)
         self.assertEqual(r.rd_geo, 4)
@@ -187,7 +188,7 @@ class TestCenarioCombinadoOficial(unittest.TestCase):
         region = _region(0)
         r = evaluate_point(
             lat=-23.5, lon=-46.0, region=region,
-            ac96h=150.0, intensity=50.0, ac24h=100.0, ra=1
+            ac96h=150.0, intensity=50.0, ac24h=100.0, ra_geo=1, ra_hid=1
         )
         # Geo: ICCGEO=2 -> RDGEO=2; Hid: ICCHID=0 -> RDHID=0; RD=max=2
         self.assertEqual(r.rd, 2)
@@ -196,7 +197,7 @@ class TestCenarioCombinadoOficial(unittest.TestCase):
         region = _region(1)
         r = evaluate_point(
             lat=-23.5, lon=-45.0, region=region,
-            ac96h=150.0, intensity=50.0, ac24h=100.0, ra=1
+            ac96h=150.0, intensity=50.0, ac24h=100.0, ra_geo=1, ra_hid=1
         )
         # Geo: ICCGEO=2 -> RDGEO=2; Hid: ICCHID=2 -> RDHID=2; RD=max=2
         self.assertEqual(r.rd, 2)
@@ -205,7 +206,7 @@ class TestCenarioCombinadoOficial(unittest.TestCase):
         region = _region(2)
         r = evaluate_point(
             lat=-23.78, lon=-45.51, region=region,
-            ac96h=150.0, intensity=50.0, ac24h=100.0, ra=1
+            ac96h=150.0, intensity=50.0, ac24h=100.0, ra_geo=1, ra_hid=1
         )
         # Geo: ICCGEO=3 -> RDGEO=3; Hid: ICCHID=2 -> RDHID=2; RD=max=3
         self.assertEqual(r.rd, 3)
@@ -214,7 +215,7 @@ class TestCenarioCombinadoOficial(unittest.TestCase):
         region = _region(3)
         r = evaluate_point(
             lat=-23.9, lon=-46.2, region=region,
-            ac96h=150.0, intensity=50.0, ac24h=100.0, ra=1
+            ac96h=150.0, intensity=50.0, ac24h=100.0, ra_geo=1, ra_hid=1
         )
         # Geo: ICCGEO=2 -> RDGEO=2; Hid: ICCHID=0 -> RDHID=0
         self.assertEqual(r.rd, 2)
@@ -291,15 +292,24 @@ class TestAntiSubAlerta(unittest.TestCase):
         self.assertEqual(r.rd_unidades, 61)
         self.assertEqual(r.rd_geo_dist, {0: 7, 2: 95, 3: 12, 4: 61})
 
-    def test_moda_sozinha_sub_alertaria(self):
-        # Prova do perigo: usando apenas a moda escalar (RA=1), o mesmo trecho
+    def test_moda_escalar_ra_geo_sub_alertaria(self):
+        # Prova do perigo: usando apenas RAGEO=1 (moda), o mesmo trecho
         # sob ICCGEO2 ficaria em RD2 (Atencao) - sub-alerta dos 61 criticos.
         region = _region(1)
         r = evaluate_point(
             lat=-23.5, lon=-45.0, region=region,
-            ac96h=150.0, intensity=50.0, ac24h=0.0, ra=1,
+            ac96h=150.0, intensity=50.0, ac24h=0.0, ra_geo=1,
         )
-        self.assertEqual(r.rd_geo, 2)  # comportamento antigo (perigoso)
+        self.assertEqual(r.rd_geo, 2)  # escalar unico (perigoso vs distrib.)
+
+    def test_sem_ra_geo_nem_hid_e_sem_dado(self):
+        region = _region(0)
+        r = evaluate_point(
+            lat=-23.5, lon=-46.0, region=region,
+            ac96h=150.0, intensity=50.0, ac24h=100.0,
+        )
+        self.assertEqual(r.nivel, "SEM DADO - RA nao mapeado")
+        self.assertIsNone(r.ra)
 
 
 if __name__ == "__main__":

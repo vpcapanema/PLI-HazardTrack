@@ -1,0 +1,14 @@
+[Unit]
+Description=PLI-HazardTrack auto-deploy (sync GitHub + container)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/opt/pli-hazardtrack
+ExecStart=/opt/pli-hazardtrack/.deploy/watch_and_update.sh
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

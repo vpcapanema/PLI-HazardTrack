@@ -1,9 +1,6 @@
-#!/bin/bash
-# =============================================================================
-# Atualiza PLI-HazardTrack na VM (git pull + rebuild condicional + health).
-# Chamado pelo deploy-vm.bat apos git push.
-# =============================================================================
-set -euo pipefail
+#!/usr/bin/env bash
+# Atualiza PLI-HazardTrack na VM (sync GitHub + container + health).
+set -eu
 
 APP_DIR="/opt/pli-hazardtrack"
 COMPOSE_FILE="docker-compose.vm.yml"
@@ -11,7 +8,6 @@ NGINX_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack"
 NGINX_DST="/etc/nginx/sites-available/pli-hazardtrack"
 PUBLIC_HOST="pli-hazardtrack.56-125-163-194.sslip.io"
 EXPECTED_REPO_FRAGMENT="vpcapanema/PLI-HazardTrack"
-
 RUNTIME_RE='^(Dockerfile|docker-compose\.vm\.yml|requirements|app\.py|core/|static/|templates/|data/ua_)'
 
 step() { printf "\n\033[1;36m▶ %s\033[0m\n" "$1"; }
@@ -30,25 +26,30 @@ ACTUAL_REMOTE=$(git remote get-url origin 2>/dev/null || echo "")
     die "remote inesperado: $ACTUAL_REMOTE"
 ok "repositorio confirmado"
 
-step "Baixando atualizacoes do GitHub"
+step "Sincronizando com o GitHub (origin/main)"
 OLD_SHA=$(git rev-parse --short HEAD)
-git fetch --quiet origin
-git pull --ff-only
+git fetch origin main
+# Descarta divergencias locais na VM — deploy deve espelhar o GitHub
+if [[ -f docker-compose.vm.yml ]] && \
+    ! git ls-files --error-unmatch docker-compose.vm.yml >/dev/null 2>&1; then
+    rm -f docker-compose.vm.yml
+    info "removido docker-compose.vm.yml local (substituido pelo do repo)"
+fi
+git reset --hard origin/main
 NEW_SHA=$(git rev-parse --short HEAD)
 if [[ "$OLD_SHA" == "$NEW_SHA" ]]; then
-    info "ja estava na versao $NEW_SHA (sem commits novos)"
+    info "ja estava na versao $NEW_SHA"
 else
-    ok "codigo atualizado: $OLD_SHA → $NEW_SHA"
+    ok "codigo atualizado: $OLD_SHA -> $NEW_SHA"
     info "arquivos alterados:"
     git diff --name-only "$OLD_SHA" "$NEW_SHA" | sed 's/^/    /'
 fi
 
-if [[ ! -f "$COMPOSE_FILE" ]]; then
-    warn "docker-compose.vm.yml ausente — restaurando do repo"
-    [[ -f ferramentas/deploy-legado/docker-compose.vm.yml.disabled ]] && \
-        cp ferramentas/deploy-legado/docker-compose.vm.yml.disabled "$COMPOSE_FILE"
-fi
 [[ -f "$COMPOSE_FILE" ]] || die "docker-compose.vm.yml nao encontrado"
+
+if [[ -f "$APP_DIR/.deploy/update_vm.sh" ]]; then
+    sed -i 's/\r$//' "$APP_DIR/.deploy/update_vm.sh" 2>/dev/null || true
+fi
 
 step "Verificando proxy Nginx"
 if [[ -f "$NGINX_SRC" ]]; then
@@ -70,15 +71,13 @@ if [[ "$OLD_SHA" != "$NEW_SHA" ]]; then
     if git diff --name-only "$OLD_SHA" "$NEW_SHA" | grep -qE "$RUNTIME_RE"; then
         NEED_BUILD=1
     else
-        info "mudancas so em docs/ferramentas — rebuild nao necessario"
+        info "mudancas sem runtime — rebuild nao necessario"
     fi
-else
-    info "mesmo commit — rebuild opcional"
 fi
 
 if [[ "$NEED_BUILD" -eq 1 ]]; then
     step "Reconstruindo imagem Docker (ARM64)"
-    info "isso pode levar 1–3 minutos..."
+    info "isso pode levar 1-3 minutos..."
     docker compose -f "$COMPOSE_FILE" build --pull
     ok "imagem pronta"
 else

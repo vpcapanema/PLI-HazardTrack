@@ -70,8 +70,8 @@ app.register_blueprint(ops_bp)
 # ============================================================================
 # INICIALIZACAO: rodar primeira atualizacao + agendar refresh
 # ============================================================================
-_initialized = False
-_init_lock = threading.Lock()
+_BOOTSTRAP_DONE = threading.Event()
+_BOOTSTRAP_LOCK = threading.Lock()
 
 
 def _is_main_process() -> bool:
@@ -81,11 +81,10 @@ def _is_main_process() -> bool:
 
 def _bootstrap():
     """Primeiro ciclo + scheduler. Chamado uma unica vez por processo."""
-    global _initialized
-    with _init_lock:
-        if _initialized:
+    with _BOOTSTRAP_LOCK:
+        if _BOOTSTRAP_DONE.is_set():
             return
-        _initialized = True
+        _BOOTSTRAP_DONE.set()
 
     log.info("SAMAEG-PLI iniciando...")
 

@@ -8,6 +8,8 @@
  */
 
 const REFRESH_MS = 30_000;
+/** Máximo de UAs compartilhadas entre os painéis informativos de alerta. */
+const FOCAL_MAX = 4;
 const SP_BOUNDS = [[-25.5, -53.2], [-19.7, -44.0]];        // Estado inteiro
 const LITORAL_BOUNDS = [[-25.0, -47.0], [-22.5, -44.3]];   // Litoral norte + Baixada Santista
 
@@ -126,6 +128,111 @@ function activeByLevel(summary) {
   return summary.by_level || {};
 }
 
+function sortPointsByAlert(a, b) {
+  const dr = (b.rd || 0) - (a.rd || 0);
+  if (dr !== 0) return dr;
+  return (b.ac96h_mm || 0) - (a.ac96h_mm || 0);
+}
+
+/** Pool de UAs conforme camada(s) ativa(s); une geo+hidro pelo pior RD. */
+function activePointPool(snap) {
+  const { geo, hid } = snapshotPoints(snap);
+  const encostaOn = HAZARD_STATE.encosta;
+  const inundacaoOn = HAZARD_STATE.inundacao;
+  if (encostaOn && !inundacaoOn) {
+    return geo.map((p) => ({ ...p }));
+  }
+  if (inundacaoOn && !encostaOn) {
+    return hid.map((p) => ({ ...p }));
+  }
+  const byId = new Map();
+  const pick = (existing, candidate, hazard) => {
+    if (!existing) return { ...candidate, hazard };
+    if (sortPointsByAlert(candidate, existing) < 0) {
+      return { ...candidate, hazard };
+    }
+    return existing;
+  };
+  for (const p of geo) {
+    byId.set(p.id, pick(byId.get(p.id), p, "geo"));
+  }
+  for (const p of hid) {
+    byId.set(p.id, pick(byId.get(p.id), p, "hidro"));
+  }
+  return [...byId.values()];
+}
+
+/**
+ * Conjunto focal único (1..FOCAL_MAX UAs) para todos os painéis de alerta.
+ * Só inclui UAs com RD > 0; em operação normal retorna [].
+ */
+function resolveFocalPoints(snap) {
+  const pool = activePointPool(snap);
+  if (!pool.length) return [];
+  const alerted = pool.filter((p) => (p.rd || 0) > 0);
+  if (!alerted.length) return [];
+  alerted.sort(sortPointsByAlert);
+  return alerted.slice(0, FOCAL_MAX);
+}
+
+function levelsFromPoints(points) {
+  const by = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
+  for (const p of points) {
+    const rd = Math.min(4, Math.max(0, p.rd || 0));
+    by[rd] = (by[rd] || 0) + 1;
+  }
+  return by;
+}
+
+function focalMaxRd(focal) {
+  if (!focal?.length) return 0;
+  return Math.max(...focal.map((p) => p.rd || 0));
+}
+
+function renderFocalBanner(focal) {
+  const el = document.getElementById("focal-banner");
+  if (!el) return;
+  if (!focal?.length) {
+    el.hidden = true;
+    el.textContent = "";
+    return;
+  }
+  el.hidden = false;
+  const labels = focal.map((p) => escapeHtml(focalShortLabel(p))).join(" · ");
+  if (focal.length === 1) {
+    el.innerHTML = (
+      "Painéis de alerta referem-se à mesma UA: <b>"
+      + labels + "</b>"
+    );
+  } else {
+    el.innerHTML = (
+      "Painéis de alerta referem-se às <b>"
+      + focal.length + " UAs</b> com maior alerta: " + labels
+    );
+  }
+}
+
+function focalShortLabel(p) {
+  const rv = p.rodovia || "UA";
+  const km = p.km != null ? ` km ${p.km}` : "";
+  return `${rv}${km}`;
+}
+
+function sidebarLevelCounts(summary, focal) {
+  if (focal?.length) return levelsFromPoints(focal);
+  return activeByLevel(summary);
+}
+
+function applySidebarLevelCounts(summary, focal) {
+  const by = sidebarLevelCounts(summary, focal);
+  for (let i = 0; i <= 4; i++) {
+    const el = document.getElementById("count-" + i);
+    if (el) el.textContent = by[i] || 0;
+  }
+  const maxRd = focal?.length ? focalMaxRd(focal) : (summary.max_rd ?? 0);
+  applyMeterHighlight(by, maxRd);
+}
+
 const HAZARD_STATE = _loadHazardState();
 
 const state = {
@@ -153,6 +260,7 @@ const state = {
   },
   historyMode: false,
   historyAtIso: null,
+  focalPoints: [],
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -783,6 +891,14 @@ function renderSnapshot(snap) {
   const maxRd = summary.max_rd ?? 0;
   const status = summary.data_status || "ok";   // ok | degraded | no_data | mock | loading
   const isHistorical = !!summary.historical;
+  const focal =
+    status === "ok" || status === "degraded" || status === "mock"
+      ? resolveFocalPoints(snap)
+      : isHistorical && status !== "no_data"
+        ? resolveFocalPoints(snap)
+        : [];
+  state.focalPoints = focal;
+  renderFocalBanner(focal);
 
   if (!isHistorical) {
     setMapHistoryBanner(null);
@@ -817,19 +933,16 @@ function renderSnapshot(snap) {
     renderRegionsOnMap(snap.regions || []);
     renderRegions(snap.regions || []);
     if (state.roadGeoJSON) renderRoadsOnMap();
-    renderWorst(snap);
-    const by = activeByLevel(summary);
-    for (let i = 0; i <= 4; i++) {
-      const el = document.getElementById("count-" + i);
-      if (el) el.textContent = by[i] || 0;
-    }
-    applyMeterHighlight(summary, maxRd);
+    renderWorst(snap, focal);
+    applySidebarLevelCounts(summary, focal);
     renderRdBasisNote(summary, status);
     return;
   }
 
   // ---- Primeiro ciclo ainda em andamento (servidor recem-bootado) ----
   if (status === "loading") {
+    state.focalPoints = [];
+    renderFocalBanner([]);
     setStatus("Preparando monitoramento — baixando chuva do INPE", "warn");
     document.getElementById("status-time").textContent =
       "Primeira carga: últimas 96 horas (costuma levar de 3 a 8 min)";
@@ -894,16 +1007,11 @@ function renderSnapshot(snap) {
   );
   setBadge("badge-update", ts ? formatTime(ts) : "—", status === "ok" ? "ok" : status);
 
-  // Distribuição por nível (camada(s) ativa(s))
-  const by = activeByLevel(summary);
-  for (let i = 0; i <= 4; i++) {
-    const el = document.getElementById("count-" + i);
-    if (el) el.textContent = by[i] || 0;
-  }
-  applyMeterHighlight(summary, maxRd);
+  // Trecho mais crítico / UAs em foco
+  renderWorst(snap, focal);
 
-  // Trecho mais crítico
-  renderWorst(snap);
+  // Distribuição por nível (focal se houver alerta; senão malha inteira)
+  applySidebarLevelCounts(summary, focal);
 
   // Regiões
   renderRegions(snap.regions || []);
@@ -953,6 +1061,8 @@ function isIngestProgressBusy(prog) {
 }
 
 function renderSnapshotNoData(snap, summary, ts) {
+  state.focalPoints = [];
+  renderFocalBanner([]);
   setStatus("Dados de chuva indisponíveis neste momento", "alert");
   document.getElementById("status-time").textContent =
     ts ? "Última tentativa às " + formatTime(ts) : "—";
@@ -1390,55 +1500,79 @@ function setStatus(text, cls) {
 // TRECHO MAIS CRÍTICO
 // ============================================================================
 
-function renderWorst(snap) {
+function renderWorst(snap, focal) {
   const card = document.getElementById("worst-card");
-  const summary = snap.summary || {};
-  const id = summary.max_rd_point;
-  const hazard = summary.max_rd_hazard;
-  const { geo, hid } = snapshotPoints(snap);
-  const pool = [...geo, ...hid];
-  const worst = id
-    ? pool.find((p) => p.id === id && (!hazard || p.hazard === hazard))
-      || pool.find((p) => p.id === id)
-    : null;
+  if (!card) return;
+  const status = (snap?.summary || {}).data_status;
+  if (status === "loading") return;
 
-  if (!worst) {
+  const points = focal ?? resolveFocalPoints(snap);
+  if (!points.length) {
     card.classList.add("empty");
-    card.innerHTML = '<div class="worst-empty">Aguardando a primeira leitura de chuva…</div>';
+    card.classList.remove("worst-card--blink");
+    card.style.borderLeftColor = "";
+    if (status === "no_data") return;
+    card.innerHTML = (
+      '<div class="worst-empty">Nenhuma UA acima de Monitoramento.</div>'
+    );
     return;
   }
 
-  card.classList.remove("empty", "worst-card--blink");
-  card.style.borderLeftColor = NIVEL_COLOR[worst.rd];
+  card.classList.remove("empty");
+  if (points.length === 1) {
+    card.className = "worst-card";
+    if (shouldBlinkAlert(points[0].rd)) card.classList.add("worst-card--blink");
+    card.style.borderLeftColor = NIVEL_COLOR[points[0].rd];
+    card.innerHTML = renderWorstPointBody(points[0], true);
+    return;
+  }
 
+  card.className = "worst-card";
+  card.style.borderLeftColor = NIVEL_COLOR[focalMaxRd(points)];
+  card.innerHTML = (
+    '<div class="worst-stack">'
+    + points.map((p, i) => renderWorstPointBody(p, i === 0)).join("")
+    + "</div>"
+  );
+}
+
+function renderWorstPointBody(worst, withSparkline) {
   const levelTextColor = worst.rd === 1 ? "#0f172a" : "#ffffff";
   const levelBlink = shouldBlinkAlert(worst.rd) ? " worst-level--blink" : "";
-
-  card.innerHTML = `
-    <div class="worst-name">${escapeHtml(worst.nome)}</div>
-    <div class="worst-rod">${escapeHtml(worst.rodovia)} · km ${worst.km} · ${escapeHtml(worst.region_name || "—")}</div>
-    <span class="worst-level${levelBlink}" style="background:${NIVEL_COLOR[worst.rd]};color:${levelTextColor}">
-      Nível ${worst.rd} — ${NIVEL_LABEL[worst.rd]}
-    </span>
-    <div class="worst-stats">
-      <div class="worst-stat" title="Chuva acumulada nas últimas 24 horas">
-        <span>Chuva 24h</span><b>${worst.ac24h_mm} mm</b>
+  const wrapCls = withSparkline && (worst.history || []).length >= 2
+    ? "worst-card"
+    : "worst-card-item";
+  const blinkCls = shouldBlinkAlert(worst.rd) && !withSparkline
+    ? " worst-card--blink"
+    : "";
+  const hazardTag = worst.hazard === "hidro"
+    ? " · inundação"
+    : worst.hazard === "geo"
+      ? " · encosta"
+      : "";
+  return `
+    <div class="${wrapCls}${blinkCls}" style="border-left-color:${NIVEL_COLOR[worst.rd]}">
+      <div class="worst-name">${escapeHtml(worst.nome)}</div>
+      <div class="worst-rod">${escapeHtml(worst.rodovia)} · km ${worst.km} · ${escapeHtml(worst.region_name || "—")}${hazardTag}</div>
+      <span class="worst-level${levelBlink}" style="background:${NIVEL_COLOR[worst.rd]};color:${levelTextColor}">
+        Nível ${worst.rd} — ${NIVEL_LABEL[worst.rd]}
+      </span>
+      <div class="worst-stats">
+        <div class="worst-stat" title="Chuva acumulada nas últimas 24 horas">
+          <span>Chuva 24h</span><b>${worst.ac24h_mm} mm</b>
+        </div>
+        <div class="worst-stat" title="Chuva acumulada nas últimas 96 horas">
+          <span>Acum. 96h</span><b>${worst.ac96h_mm} mm</b>
+        </div>
+        <div class="worst-stat" title="Intensidade horária na última leitura">
+          <span>Intensidade</span><b>${worst.intensity_mmh} mm/h</b>
+        </div>
+        <div class="worst-stat" title="Coeficiente de Precipitação Crítica (CPC)">
+          <span>CPC</span><b>${worst.cpc !== null && worst.cpc !== undefined ? worst.cpc : "—"}</b>
+        </div>
       </div>
-      <div class="worst-stat" title="Chuva acumulada nas últimas 96 horas">
-        <span>Acum. 96h</span><b>${worst.ac96h_mm} mm</b>
-      </div>
-      <div class="worst-stat" title="Intensidade horária na última leitura">
-        <span>Intensidade</span><b>${worst.intensity_mmh} mm/h</b>
-      </div>
-      <div class="worst-stat" title="Quanto a chuva observada já se aproxima do limite desta região">
-        <span>Proximidade do limite</span><b>${worst.cpc !== null ? worst.cpc : "—"}</b>
-      </div>
-    </div>
-    ${renderWorstSparkline(worst.history || [])}
-  `;
-  if (shouldBlinkAlert(worst.rd)) {
-    card.classList.add("worst-card--blink");
-  }
+      ${withSparkline ? renderWorstSparkline(worst.history || []) : ""}
+    </div>`;
 }
 
 // ============================================================================
@@ -2030,10 +2164,15 @@ function renderHazardPanel() {
       }
       const snap = state.lastSnapshot;
       if (snap) {
-        const by = activeByLevel(snap.summary || {});
-        for (let i = 0; i <= 4; i++) {
-          const el = document.getElementById("count-" + i);
-          if (el) el.textContent = by[i] || 0;
+        const focal = resolveFocalPoints(snap);
+        state.focalPoints = focal;
+        renderFocalBanner(focal);
+        applySidebarLevelCounts(snap.summary || {}, focal);
+        renderWorst(snap, focal);
+        const st = (snap.summary && snap.summary.data_status) || "ok";
+        if (st !== "loading" && st !== "no_data") {
+          loadActions();
+          loadForecast();
         }
       }
     });
@@ -2206,8 +2345,7 @@ function shouldBlinkAlert(rd) {
   return rd >= 3;
 }
 
-function applyMeterHighlight(summary, maxRd) {
-  const by = activeByLevel(summary);
+function applyMeterHighlight(by, maxRd) {
   document.querySelectorAll(".meter-cell").forEach((c) => {
     c.classList.remove("active", "meter-cell--blink");
     const rd = Number(c.dataset.rd);
@@ -2216,6 +2354,30 @@ function applyMeterHighlight(summary, maxRd) {
       c.classList.add("meter-cell--blink");
     }
   });
+}
+
+function focalizeActions(data, focal) {
+  if (!focal?.length) {
+    return {
+      ...data,
+      max_rd: 0,
+      max_nivel: NIVEL_LABEL[0],
+      max_cor: NIVEL_COLOR[0],
+      acoes_necessarias: false,
+      total_critico: 0,
+      total_atencao: 0,
+    };
+  }
+  const max_rd = focalMaxRd(focal);
+  return {
+    ...data,
+    max_rd,
+    max_nivel: NIVEL_LABEL[max_rd],
+    max_cor: NIVEL_COLOR[max_rd],
+    acoes_necessarias: max_rd >= 1,
+    total_critico: focal.filter((p) => p.rd >= 3).length,
+    total_atencao: focal.filter((p) => p.rd === 2).length,
+  };
 }
 
 function actionsPageUrl() {
@@ -2270,31 +2432,36 @@ function renderActions(data) {
   const container = document.getElementById("actions-content");
   if (!container) return;
 
-  const nivel = data.max_nivel || "Monitoramento";
-  const cor = data.max_cor || "#22c55e";
-  const rd = data.max_rd ?? 0;
+  const scoped = focalizeActions(data, state.focalPoints);
+  const nivel = scoped.max_nivel || "Monitoramento";
+  const cor = scoped.max_cor || "#22c55e";
+  const rd = scoped.max_rd ?? 0;
   const url = actionsPageUrl();
   const blinkClass = shouldBlinkAlert(rd) ? " blink" : "";
 
-  if (data.acoes_necessarias) {
-    // Alertas demandam acao: botao piscante quando nivel >= 3.
+  if (scoped.acoes_necessarias) {
     const partes = [];
-    if (data.total_critico) {
-      partes.push(`${data.total_critico} em Alerta`);
+    if (scoped.total_critico) {
+      partes.push(`${scoped.total_critico} em Alerta`);
     }
-    if (data.total_atencao) {
-      partes.push(`${data.total_atencao} em Atenção`);
+    if (scoped.total_atencao) {
+      partes.push(`${scoped.total_atencao} em Atenção`);
     }
     const sub = partes.length
       ? partes.join(" · ")
       : "Situação exige atenção preventiva";
+    const foco = state.focalPoints?.length === 1
+      ? " (UA em foco)"
+      : state.focalPoints?.length > 1
+        ? ` (${state.focalPoints.length} UAs em foco)`
+        : "";
     container.innerHTML = `
       <a class="acoes-btn${blinkClass}" href="${url}" target="_blank"
          rel="noopener" style="--acao-cor:${cor};">
         <span class="acoes-btn-dot"></span>
         <span class="acoes-btn-main">
           <b>Ações necessárias</b>
-          <small>Nível ${rd} — ${nivel}</small>
+          <small>Nível ${rd} — ${nivel}${foco}</small>
         </span>
       </a>
       <div class="acoes-sub">${sub}. Abra o plano detalhado da Defesa Civil.</div>`;
@@ -2351,6 +2518,11 @@ function renderRdBasisNote(summary, dataStatus) {
       "<br><small>Previsão indisponível — cálculo usa só a chuva já medida "
       + "(pode demorar a refletir piora do tempo).</small>"
     );
+  } else if (summary.forecast_count != null && state.focalPoints?.length) {
+    html += (
+      `<br><small>Previsão listada para as ${state.focalPoints.length} `
+      + `UA(s) em foco (mesmo conjunto dos demais painéis).</small>`
+    );
   } else if (summary.forecast_count != null) {
     html += (
       `<br><small>Previsão aplicada em ${summary.forecast_count} `
@@ -2380,10 +2552,23 @@ function renderForecast(data) {
   const container = document.getElementById("forecast-content");
   if (!container) return;
 
-  const forecast = data.forecast || [];
-  const comDados = forecast.filter((f) => f.ac24h_forecast_mm !== undefined);
+  const focal = state.focalPoints || [];
+  if (!focal.length) {
+    container.innerHTML = (
+      '<div class="forecast-empty">Sem UA em alerta — previsão não destacada.</div>'
+    );
+    return;
+  }
+
+  const order = new Map(focal.map((p, i) => [p.id, i]));
+  const comDados = (data.forecast || [])
+    .filter((f) => order.has(f.id) && f.ac24h_forecast_mm !== undefined)
+    .sort((a, b) => order.get(a.id) - order.get(b.id));
+
   if (comDados.length === 0) {
-    container.innerHTML = `<div class="forecast-empty">Previsão indisponível neste ciclo</div>`;
+    container.innerHTML = (
+      '<div class="forecast-empty">Previsão indisponível para as UAs em foco</div>'
+    );
     return;
   }
 
@@ -2396,7 +2581,8 @@ function renderForecast(data) {
   let html = `<div class="forecast-panel">`;
   html += (
     `<div class="forecast-source">`
-    + `${escapeHtml(data.source || "Previsão horária CPTEC/INPE")}</div>`
+    + `${escapeHtml(data.source || "Previsão horária CPTEC/INPE")}`
+    + ` · ${focal.length} UA(s) em foco</div>`
   );
   html += (
     `<div style="margin-bottom: 4px;">`
@@ -2411,7 +2597,7 @@ function renderForecast(data) {
   );
 
   html += `<div class="forecast-list">`;
-  for (const f of comDados.slice(0, 5)) {
+  for (const f of comDados) {
     const vals = `${f.ac24h_forecast_mm.toFixed(1)} (+24h)`;
     const hidro = f.ac6h_forecast_mm != null
       ? ` · ${f.ac6h_forecast_mm.toFixed(1)} (+6h)`
@@ -2421,12 +2607,6 @@ function renderForecast(data) {
       + `<span>${escapeHtml(f.nome)}</span>`
       + `<span><b>${vals}${hidro} mm</b></span>`
       + `</div>`
-    );
-  }
-  if (comDados.length > 5) {
-    html += (
-      `<div class="forecast-more">`
-      + `+${comDados.length - 5} trechos</div>`
     );
   }
   html += `</div></div>`;

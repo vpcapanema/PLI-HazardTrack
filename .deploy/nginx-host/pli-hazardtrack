@@ -1,0 +1,54 @@
+# PLI-HazardTrack - virtual host Nginx do host da VM
+# Hostname: pli-hazardtrack.56-125-163-194.sslip.io
+
+upstream pli_hazardtrack_app {
+    server 127.0.0.1:5050;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name pli-hazardtrack.56-125-163-194.sslip.io;
+
+    client_max_body_size 4m;
+    proxy_connect_timeout  10s;
+    proxy_send_timeout     120s;
+    proxy_read_timeout     120s;
+    send_timeout           120s;
+
+    access_log /var/log/nginx/pli-hazardtrack.access.log;
+    error_log  /var/log/nginx/pli-hazardtrack.error.log warn;
+
+    location = /api/health {
+        proxy_pass http://pli_hazardtrack_app;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+        access_log off;
+    }
+
+    location ~* ^/static/.+\.(?:css|js|svg|png|jpg|jpeg|ico|woff2?)$ {
+        proxy_pass http://pli_hazardtrack_app;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection "";
+        expires 1h;
+        add_header Cache-Control "public, max-age=3600";
+        access_log off;
+    }
+
+    location / {
+        proxy_pass http://pli_hazardtrack_app;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+    }
+}

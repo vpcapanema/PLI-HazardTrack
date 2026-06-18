@@ -161,6 +161,22 @@ body {
   font-feature-settings: "tnum" 1;
 }
 
+.focal-banner {
+  margin: 0 0 0.65rem;
+  padding: 0.45rem 0.55rem;
+  font-size: var(--fs-note);
+  line-height: 1.35;
+  color: var(--sidebar-bege);
+  background: rgba(255,255,255,.06);
+  border-radius: 0.35rem;
+  border-left: 2px solid rgba(255,255,255,.2);
+}
+
+.focal-banner b {
+  color: var(--sidebar-text);
+  font-weight: 600;
+}
+
 /* ============================================================================
    PAINÉIS
    ============================================================================ */
@@ -366,6 +382,23 @@ body {
 .worst-card.worst-card--busy {
   text-align: left;
   min-height: 12rem;
+}
+
+.worst-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.worst-card-item {
+  background: rgba(255,255,255,.05);
+  border-radius: 0.35rem;
+  padding: 0.5rem 0.55rem;
+  border-left: 3px solid var(--rd-0);
+}
+
+.worst-card-item.worst-card--blink {
+  animation: worstCardPulse 1.3s ease-in-out infinite;
 }
 
 .worst-empty {

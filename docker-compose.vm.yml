@@ -1,0 +1,78 @@
+# PLI-HazardTrack - stack de producao para a VM AWS (sa-east-1)
+# Subir: docker compose -f docker-compose.vm.yml up -d
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pli-hazardtrack-app:latest
+    container_name: pli_hazardtrack_app
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+          cpus: "1.5"
+        reservations:
+          memory: 512M
+          cpus: "0.25"
+    mem_limit: 1536m
+    mem_reservation: 512m
+    cpus: 1.5
+    environment:
+      PORT: "5050"
+      SAMAEG_FORCE_MOCK: "0"
+      SAMAEG_USE_MANUAL_RA: "0"
+      SAMAEG_DEGRADED_24H: "6"
+      SAMAEG_WORKERS: "12"
+      GUNICORN_WORKERS: "2"
+      GUNICORN_THREADS: "8"
+      GUNICORN_TIMEOUT: "120"
+      SRA_DB_HOST: "${SRA_DB_HOST:-sra-postgres}"
+      SRA_DB_PORT: "${SRA_DB_PORT:-5432}"
+      SRA_DB_NAME: "${SRA_DB_NAME:-sra}"
+      SRA_DB_USER: "${SRA_DB_USER:-sra_user}"
+      SRA_DB_PASSWORD: "${SRA_DB_PASSWORD:-}"
+      SRA_RESET_URL: "${SRA_RESET_URL:-/recuperar-senha}"
+      OPS_SECRET: "${OPS_SECRET:-}"
+      DEPLOY_ENV: "vm-aws-sa-east-1"
+    command: >
+      sh -c "exec gunicorn app:app
+        --bind 0.0.0.0:5050
+        --workers ${GUNICORN_WORKERS:-2}
+        --threads ${GUNICORN_THREADS:-8}
+        --timeout ${GUNICORN_TIMEOUT:-120}
+        --graceful-timeout 30
+        --worker-tmp-dir /dev/shm
+        --access-logfile -
+        --error-logfile -"
+    ports:
+      - "127.0.0.1:5050:5050"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:5050/api/health"]
+      interval: 60s
+      timeout: 10s
+      start_period: 45s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    volumes:
+      - pli_hazardtrack_cache:/app/cache
+    networks:
+      - pli_hazardtrack_net
+      - sra_net
+
+networks:
+  pli_hazardtrack_net:
+    name: pli_hazardtrack_net
+    driver: bridge
+  sra_net:
+    external: true
+
+volumes:
+  pli_hazardtrack_cache:
+    name: pli_hazardtrack_cache

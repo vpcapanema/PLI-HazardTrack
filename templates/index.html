@@ -26,6 +26,7 @@
                 <div id="status-time" class="status-time">—</div>
             </div>
         </div>
+        <p id="focal-banner" class="focal-banner" hidden></p>
 
         <!-- ============================================================
              AÇÕES OPERACIONAIS DE CONTINGÊNCIA (PPDC)
@@ -34,7 +35,7 @@
              ============================================================ -->
         <div class="panel" id="actions-panel">
             <h2 class="panel-title">Ações operacionais</h2>
-            <p class="panel-help">Orientações práticas da Defesa Civil (PPDC) para o nível de alerta vigente — o que reforçar ou acionar agora.</p>
+            <p class="panel-help">Orientações PPDC para o nível das UAs em foco (mesmo conjunto dos demais painéis de alerta).</p>
             <div id="actions-content" class="actions-content">
                 <div class="actions-empty">Carregando...</div>
             </div>
@@ -45,8 +46,8 @@
              O que está puxando o nível operacional neste momento.
              ============================================================ -->
         <div class="panel">
-            <h2 class="panel-title">Trecho de maior alerta</h2>
-            <p class="panel-help">Onde o alerta está mais alto neste momento. Se dois trechos empatarem, aparece o que registrou mais chuva nos últimos quatro dias.</p>
+            <h2 class="panel-title">UAs em foco</h2>
+            <p class="panel-help">Detalhe das UAs em foco (mesmo conjunto nos painéis de alerta abaixo). Desempate por maior chuva acumulada em 96 h.</p>
             <div id="worst-card" class="worst-card empty">
                 <div class="worst-empty">Aguardando a primeira leitura de chuva…</div>
             </div>
@@ -58,7 +59,7 @@
              ============================================================ -->
         <div class="panel">
             <h2 class="panel-title">Trechos por nível de alerta</h2>
-            <p class="panel-help">Quantos trechos monitorados estão em cada faixa do protocolo de Defesa Civil (PPDC), do tempo seco ao alerta máximo.</p>
+            <p class="panel-help">Níveis das UAs em foco. Com alerta ativo, reflete só esse conjunto; em operação normal, panorama de toda a malha.</p>
             <div class="alert-meter" id="alert-meter">
                 <div class="meter-cell" data-rd="0" title="Chuva fraca ou ausente. Rotina de monitoramento.">
                     <span class="meter-name">Monitoramento</span>
@@ -94,7 +95,7 @@
              ============================================================ -->
         <div class="panel" id="forecast-panel">
             <h2 class="panel-title">Previsão de chuva</h2>
-            <p class="panel-help">Estimativa das próximas horas (CPTEC/INPE), usada junto com a chuva já medida para antecipar se o alerta pode subir.</p>
+            <p class="panel-help">Previsão WRF (CPTEC/INPE) para as mesmas UAs em foco — mesma janela usada no cálculo do alerta quando disponível.</p>
             <div id="rd-basis-note" class="rd-basis-note" hidden></div>
             <div id="forecast-content" class="forecast-content">
                 <div class="forecast-empty">Carregando...</div>

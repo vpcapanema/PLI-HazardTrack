@@ -25,6 +25,10 @@ ENV/
 # Environment
 .env
 .env.local
+*.session.sql
+
+# Chaves locais (nunca versionar)
+*.ppk
 
 # Cache de dados meteorologicos (GRIB2 INPE) - gerado em runtime
 cache/

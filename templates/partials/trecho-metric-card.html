@@ -1,0 +1,87 @@
+{% macro trecho_stat(channel, key, label, title='') %}
+<div
+  class="worst-stat"
+  data-stat="{{ key }}"
+  data-channel="{{ channel }}"
+  {% if title %}title="{{ title }}"{% endif %}
+>
+  <span>{{ label }}</span><b>Aguardando dados</b>
+</div>
+{% endmacro %}
+
+{% macro trecho_metric_card(card_id, mode) %}
+<div
+  id="{{ card_id }}"
+  class="worst-card trecho-metric-card"
+  data-card-mode="{{ mode }}"
+>
+  <div class="worst-name" data-bind="name">Aguardando dados</div>
+  <div class="worst-rod" data-bind="subtitle">Aguardando dados</div>
+  <p class="ua-metric-note" data-bind="note">
+    {% if mode == 'indicators' %}
+    Cada trecho monitorado corresponde a uma UA. Os indicadores exibidos
+    referem-se aos valores calculados na UA associada (RA, chuva no centróide,
+    RD = RA × ICC).
+    {% elif mode == 'forecast' %}
+    Previsão do modelo WRF (CPTEC/INPE) na UA do trecho (+24 h geológico;
+    +6 h hidrológico).
+    {% else %}
+    Sensibilidade K da região do trecho: valores menores indicam maior
+    resposta da envoltória crítica à precipitação acumulada.
+    {% endif %}
+  </p>
+  <div class="worst-dual">
+    <section class="worst-channel" data-channel="encosta">
+      <h4 class="worst-channel-title" data-bind="encosta-title">
+        {% if mode == 'forecast' %}Encosta (+24 h){% elif mode == 'region' %}Região do trecho{% else %}Encosta{% endif %}
+      </h4>
+      <span
+        class="worst-level"
+        data-bind="encosta-level"
+        style="background:#64748b;color:#fff"
+      >Aguardando dados</span>
+      <div class="worst-stats worst-stats--compact" data-bind="encosta-stats">
+        {% if mode == 'indicators' %}
+        {{ trecho_stat('encosta', 'ra', 'RA', 'Risco Analisado') }}
+        {{ trecho_stat('encosta', 'icc', 'ICC', 'Índice de Correlação com Chuvas') }}
+        {{ trecho_stat('encosta', 'chuva24', 'Chuva 24h', 'Chuva acumulada nas últimas 24 horas') }}
+        {{ trecho_stat('encosta', 'ac96', 'Acum. 96h', 'Chuva acumulada nas últimas 96 horas') }}
+        {{ trecho_stat('encosta', 'intensity', 'Intensidade', 'Intensidade horária na última leitura') }}
+        {{ trecho_stat('encosta', 'cpc', 'CPC', 'Coeficiente de Precipitação Crítica') }}
+        {% elif mode == 'forecast' %}
+        {{ trecho_stat('encosta', 'fc24', 'Previsão +24h', 'Acumulado previsto WRF — encosta') }}
+        {% elif mode == 'region' %}
+        {{ trecho_stat('encosta', 'k_geo', 'Sensibilidade K', 'Menor K = menos chuva já eleva o alerta') }}
+        {{ trecho_stat('encosta', 'reg_id', 'ID região', 'Região climático-geológica REGEA') }}
+        {{ trecho_stat('encosta', 'reg_nome', 'Nome', 'Nome oficial da região') }}
+        {% endif %}
+      </div>
+    </section>
+    {% if mode == 'indicators' or mode == 'forecast' %}
+    <section class="worst-channel" data-channel="inundacao">
+      <h4 class="worst-channel-title" data-bind="hidro-title">
+        {% if mode == 'forecast' %}Inundação (+6 h){% else %}Inundação{% endif %}
+      </h4>
+      <span
+        class="worst-level"
+        data-bind="hidro-level"
+        style="background:#64748b;color:#fff"
+      >Aguardando dados</span>
+      <div class="worst-stats worst-stats--compact" data-bind="hidro-stats">
+        {% if mode == 'indicators' %}
+        {{ trecho_stat('inundacao', 'ra', 'RA', 'Risco Analisado') }}
+        {{ trecho_stat('inundacao', 'icc', 'ICC', 'Índice de Correlação com Chuvas') }}
+        {{ trecho_stat('inundacao', 'chuva24', 'Chuva 24h', 'Chuva acumulada nas últimas 24 horas') }}
+        {{ trecho_stat('inundacao', 'ac96', 'Acum. 96h', 'Chuva acumulada nas últimas 96 horas') }}
+        {{ trecho_stat('inundacao', 'intensity', 'Intensidade', 'Intensidade horária na última leitura') }}
+        {% elif mode == 'forecast' %}
+        {{ trecho_stat('inundacao', 'fc6', 'Previsão +6h', 'Acumulado previsto WRF — inundação') }}
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+  </div>
+  <div class="worst-spark-wrap" data-bind="sparkline" hidden></div>
+  <p class="trecho-metric-footer" data-bind="footer" hidden></p>
+</div>
+{% endmacro %}

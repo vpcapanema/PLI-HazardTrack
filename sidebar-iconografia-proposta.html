@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iconografia Recomendada da Sidebar</title>
+    <style>
+      :root {
+        --pli-verde: #3ec26e;
+        --pli-azul: #1c3d59;
+        --pli-navy: #003b5a;
+        --pli-card: #164a6d;
+        --pli-card-strong: #1b587f;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-300: #cbd5e1;
+        --gray-500: #64748b;
+        --gray-700: #334155;
+        --font: "Inter", "Segoe UI", system-ui, sans-serif;
+        --font-display: "Poppins", "Segoe UI", system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #e9f0f5;
+        color: var(--pli-navy);
+        font-family: var(--font);
+      }
+
+      svg {
+        display: block;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 52px;
+      }
+
+      .hero {
+        padding: 26px 28px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--pli-navy), var(--pli-azul));
+        color: #fff;
+        box-shadow: 0 20px 45px rgba(0, 59, 90, 0.18);
+      }
+
+      h1 {
+        margin: 0;
+        color: var(--pli-verde);
+        font-family: var(--font-display);
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.05;
+      }
+
+      .hero p {
+        max-width: 930px;
+        margin: 12px 0 0;
+        color: var(--gray-100);
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .rule {
+        margin: 18px 0;
+        padding: 18px;
+        border-radius: 16px;
+        background: #fff;
+        border: 1px solid rgba(0, 59, 90, 0.12);
+      }
+
+      .rule strong {
+        color: var(--pli-navy);
+      }
+
+      .rule p {
+        margin: 0;
+        color: var(--gray-700);
+        font-size: 15px;
+        line-height: 1.55;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .card {
+        display: grid;
+        grid-template-columns: 110px 1fr 1.1fr;
+        gap: 18px;
+        align-items: stretch;
+        padding: 18px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid rgba(0, 59, 90, 0.12);
+        box-shadow: 0 8px 20px rgba(0, 59, 90, 0.06);
+      }
+
+      .icon-box {
+        display: grid;
+        place-items: center;
+        min-height: 108px;
+        border-radius: 16px;
+        background: var(--pli-card-strong);
+        border: 1px solid rgba(62, 194, 110, 0.5);
+      }
+
+      .icon {
+        width: 64px;
+        height: 64px;
+        color: var(--pli-verde);
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .icon .fill {
+        fill: currentColor;
+        stroke: none;
+      }
+
+      .title h2 {
+        margin: 0;
+        color: var(--pli-navy);
+        font-family: var(--font-display);
+        font-size: 20px;
+      }
+
+      .title .current {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        color: var(--gray-700);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .title p,
+      .logic p {
+        margin: 10px 0 0;
+        color: var(--gray-700);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .logic {
+        padding: 14px;
+        border-radius: 14px;
+        background: var(--pli-card);
+        color: #fff;
+      }
+
+      .logic strong {
+        display: block;
+        color: var(--pli-verde);
+        font-family: var(--font-display);
+        font-size: 14px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .logic p {
+        color: var(--gray-100);
+      }
+
+      .decision {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(62, 194, 110, 0.14);
+        color: var(--pli-verde);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 880px) {
+        .card {
+          grid-template-columns: 1fr;
+        }
+
+        .icon-box {
+          min-height: 90px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <h1>Iconografia Recomendada Da Sidebar</h1>
+        <p>
+          Esta proposta abandona simbolos abstratos soltos. Cada icone abaixo e
+          desenhado para responder a uma pergunta objetiva: qual objeto ou acao
+          real aquele titulo representa no sistema?
+        </p>
+      </section>
+
+      <section class="rule">
+        <p>
+          <strong>Regra adotada:</strong> quando o titulo nomeia um conceito do
+          dominio, o icone deve representar o objeto real do dominio. Quando o
+          titulo nomeia uma acao de interface, o icone deve representar a acao.
+          Por isso, "Consulta Avancada" nao deve usar simbolo generico: deve usar
+          filtro/criterios. "UAs em foco" nao deve usar alvo abstrato: deve usar
+          poligono territorial em foco.
+        </p>
+      </section>
+
+      <section class="grid" aria-label="Icones recomendados">
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M18 52c3-12 6-25 14-40 8 15 11 28 14 40" />
+              <path d="M26 38h12" />
+              <path d="M29 28h6" />
+              <path d="M20 18l-8 5 8 5" />
+              <path d="M44 18l8 5-8 5" />
+              <path d="M10 52h44" />
+              <circle cx="32" cy="20" r="3" class="fill" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>PLI-HazardTrack</h2>
+            <span class="current">Atual: sem icone</span>
+            <p>
+              O titulo do sistema precisa comunicar rodovia monitorada sob risco,
+              nao apenas uma marca abstrata.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Rodovia Sob Vigilancia</strong>
+            <p>
+              A rodovia central representa o objeto protegido; as setas laterais
+              indicam ameaças no entorno; o ponto superior indica monitoramento.
+            </p>
+            <span class="decision">Aderencia: muito alta</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <circle cx="32" cy="32" r="20" />
+              <circle cx="32" cy="32" r="10" />
+              <circle cx="32" cy="32" r="3" class="fill" />
+              <path d="M32 12v-6" />
+              <path d="M32 58v-6" />
+              <path d="M12 32H6" />
+              <path d="M58 32h-6" />
+              <path d="M39 25l10-10" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>Monitoramento</h2>
+            <span class="current">Atual: ◉</span>
+            <p>
+              O circulo atual sugere status, mas nao comunica leitura continua
+              do territorio.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Radar De Monitoramento</strong>
+            <p>
+              Radar e a metafora mais direta para observacao continua, varredura
+              e acompanhamento de uma area operacional.
+            </p>
+            <span class="decision">Aderencia: muito alta</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M20 10h24l6 6v36a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4h2" />
+              <path d="M24 10a8 8 0 0 1 16 0" />
+              <path d="M24 26h18" />
+              <path d="M24 36h14" />
+              <path d="M24 46h10" />
+              <path d="M45 34l5 5 9-11" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>PPDC · Acoes</h2>
+            <span class="current">Atual: ⚡</span>
+            <p>
+              Raio comunica urgencia, mas nao comunica protocolo, checklist ou
+              resposta de contingencia.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Checklist De Acionamento</strong>
+            <p>
+              O bloco exibe orientacoes PPDC. Checklist com marca de acao e mais
+              fiel que sinal eletrico ou alerta generico.
+            </p>
+            <span class="decision">Aderencia: muito alta</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M18 16l18-6 14 12-4 24-22 8-14-16z" />
+              <circle cx="32" cy="32" r="10" />
+              <circle cx="32" cy="32" r="3" class="fill" />
+              <path d="M32 18v-8" />
+              <path d="M32 54v-8" />
+              <path d="M18 32h-8" />
+              <path d="M54 32h-8" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>UAs Em Foco</h2>
+            <span class="current">Atual: ◎</span>
+            <p>
+              O alvo atual comunica foco, mas nao comunica UA como poligono
+              territorial.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Poligono Territorial Em Foco</strong>
+            <p>
+              Combina a forma poligonal da UA com reticula de foco. Representa
+              exatamente "unidade espacial selecionada".
+            </p>
+            <span class="decision">Aderencia: muito alta</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M12 52h40" />
+              <path d="M18 52V40" />
+              <path d="M28 52V32" />
+              <path d="M38 52V22" />
+              <path d="M48 52V12" />
+              <path d="M44 10l8 8" />
+              <path d="M52 10l-8 8" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>Niveis PPDC</h2>
+            <span class="current">Atual: ▥</span>
+            <p>
+              O atual sugere faixas, mas nao explicita escalada progressiva de
+              criticidade.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Escala Crescente De Alerta</strong>
+            <p>
+              Barras ascendentes comunicam niveis 0-4; o alerta no topo mostra
+              que a escala e operacional, nao apenas estatistica.
+            </p>
+            <span class="decision">Aderencia: alta</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M22 38h26a10 10 0 0 0 0-20 15 15 0 0 0-29-3A12 12 0 0 0 22 38z" />
+              <path d="M24 46l-3 6" />
+              <path d="M34 46l-3 6" />
+              <path d="M44 46l-3 6" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>Previsao WRF</h2>
+            <span class="current">Atual: ☁</span>
+            <p>
+              Nuvem e coerente, mas WRF entra no sistema porque antecipa chuva
+              relevante para risco.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Chuva Prevista</strong>
+            <p>
+              Nuvem com chuva comunica o dado operacionalmente relevante:
+              precipitacao futura usada para apoiar leitura de risco.
+            </p>
+            <span class="decision">Aderencia: muito alta</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M8 18l14-6 20 8 14-6v32l-14 6-20-8-14 6z" />
+              <path d="M22 12v32" />
+              <path d="M42 20v32" />
+              <path d="M16 30h12" />
+              <path d="M34 36h14" />
+              <path d="M14 42h10" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>Regioes PLI</h2>
+            <span class="current">Atual: ⌖</span>
+            <p>
+              Alvo/localizador e parcial. Regiao PLI e agrupamento territorial
+              delimitado.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Mapa Regionalizado</strong>
+            <p>
+              Mapa dobrado com divisorias internas comunica regioes, limites e
+              agregacao territorial melhor que um alvo.
+            </p>
+            <span class="decision">Aderencia: muito alta</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <circle cx="22" cy="24" r="10" />
+              <path d="M22 18v7l5 3" />
+              <path d="M12 46h40" />
+              <circle cx="18" cy="46" r="3" class="fill" />
+              <circle cx="32" cy="46" r="3" class="fill" />
+              <circle cx="46" cy="46" r="3" class="fill" />
+              <path d="M18 46c4-8 10-8 14 0s10 8 14 0" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>Linha Do Tempo</h2>
+            <span class="current">Atual: ▶</span>
+            <p>
+              Play e bom para botao de reproducao, mas o titulo representa
+              historico/evolucao de 96 horas.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Relogio Com Serie Temporal</strong>
+            <p>
+              Relogio comunica tempo; linha com pontos comunica sequencia de
+              leituras. E mais aderente ao conceito do painel.
+            </p>
+            <span class="decision">Aderencia: muito alta</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M8 16l14-6 18 7 16-6v28l-16 6-18-7-14 6z" />
+              <path d="M22 10v28" />
+              <path d="M40 17v28" />
+              <circle cx="42" cy="40" r="8" />
+              <path d="M48 46l8 8" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>Mapa E Consulta</h2>
+            <span class="current">Atual: ⊞</span>
+            <p>
+              Grade/camadas cobre mapa, mas nao cobre a funcao de consulta.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Mapa Com Lupa</strong>
+            <p>
+              Une explicitamente visualizacao territorial e consulta. E a
+              metafora mais completa para o titulo composto.
+            </p>
+            <span class="decision">Aderencia: muito alta</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-box">
+            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M10 14h44L38 32v14l-12 6V32z" />
+              <path d="M44 42h12" />
+              <path d="M48 34h8" />
+              <path d="M50 50h6" />
+            </svg>
+          </div>
+          <div class="title">
+            <h2>Consulta Avancada</h2>
+            <span class="current">Atual: ⊘</span>
+            <p>
+              O simbolo atual parece proibicao. Isso contradiz a funcao: filtrar
+              e consultar camadas.
+            </p>
+          </div>
+          <div class="logic">
+            <strong>Recomendado: Filtro Com Criterios</strong>
+            <p>
+              Funil representa filtragem; linhas laterais representam criterios
+              dinamicos do construtor de consulta.
+            </p>
+            <span class="decision">Aderencia: muito alta</span>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

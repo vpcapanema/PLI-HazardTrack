@@ -42,7 +42,7 @@ log = logging.getLogger("aggregator")
 DEGRADED_MISSING_24H_THRESHOLD = int(
     os.environ.get("SAMAEG_DEGRADED_24H", "6")
 )
-# Quantos ciclos manter no historico de runtime (para a pagina de ops)
+# Quantos ciclos manter no historico de runtime (painel /admin)
 RUNTIME_HISTORY = 96
 # TTL do cache da animacao temporal (Linha do Tempo), em segundos
 TIMELINE_TTL_S = 600
@@ -252,7 +252,7 @@ class State:
         self.last_cycle_duration_s = None
         self.last_error = None
         self.last_error_at = None
-        # Historico curto dos ultimos ciclos (para a pagina /ops)
+        # Historico curto dos ultimos ciclos (painel /admin)
         self.cycle_history = deque(maxlen=RUNTIME_HISTORY)
         # Historico de RD por ponto (ultimos 24 ciclos = 4h)
         self.point_rd_history: Dict[str, deque] = {}

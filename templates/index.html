@@ -1,544 +1,1439 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% from 'partials/trecho-picker.html' import trecho_picker %}
+  {% from 'partials/trecho-metric-card.html' import trecho_metric_card %}
+  {% from 'partials/level-meter.html' import level_meter_block %}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PLI-HazardTrack — Adaptado do SAMAEG</title>
 
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <div class="logo-mark">PLI-HazardTrack</div>
-                <div class="logo-sub">Monitoramento · Litoral e Baixada Santista</div>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ url_for('static', filename='favicon.svg') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="sidebar-shell" id="sidebar-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Painel lateral">
+        <header class="sidebar-header">
+          <div class="logo">
+            <div class="logo-mark">
+              <img
+                class="logo-icon sb-icon-img"
+                src="{{ url_for('static', filename='icons/png/008-mapa-de-pesquisa.png') }}"
+                alt=""
+                aria-hidden="true"
+              />
+              <span>PLI-HazardTrack</span>
             </div>
-        </div>
-
-        <div class="status-bar" title="Resumo do maior nível de alerta na área monitorada">
-            <div class="status-dot" id="status-dot"></div>
-            <div class="status-text">
-                <div id="status-line">Iniciando…</div>
-                <div id="status-time" class="status-time">—</div>
-            </div>
-        </div>
-        <p id="focal-banner" class="focal-banner" hidden></p>
-
-        <!-- ============================================================
-             AÇÕES OPERACIONAIS DE CONTINGÊNCIA (PPDC)
-             Prioridade operacional: a ação imediata fica no topo, logo
-             abaixo do status, para que o plantonista a veja primeiro.
-             ============================================================ -->
-        <div class="panel" id="actions-panel">
-            <h2 class="panel-title">Ações operacionais</h2>
-            <p class="panel-help">Orientações PPDC para o nível das UAs em foco (mesmo conjunto dos demais painéis de alerta).</p>
-            <div id="actions-content" class="actions-content">
-                <div class="actions-empty">Carregando...</div>
-            </div>
-        </div>
-
-        <!-- ============================================================
-             TRECHO MAIS CRÍTICO
-             O que está puxando o nível operacional neste momento.
-             ============================================================ -->
-        <div class="panel">
-            <h2 class="panel-title">UAs em foco</h2>
-            <p class="panel-help">Detalhe das UAs em foco (mesmo conjunto nos painéis de alerta abaixo). Desempate por maior chuva acumulada em 96 h.</p>
-            <div id="worst-card" class="worst-card empty">
-                <div class="worst-empty">Aguardando a primeira leitura de chuva…</div>
-            </div>
-        </div>
-
-        <!-- ============================================================
-             DISTRIBUIÇÃO POR NÍVEL OPERACIONAL
-             Panorama de quantos trechos estão em cada nível.
-             ============================================================ -->
-        <div class="panel">
-            <h2 class="panel-title">Trechos por nível de alerta</h2>
-            <p class="panel-help">Níveis das UAs em foco. Com alerta ativo, reflete só esse conjunto; em operação normal, panorama de toda a malha.</p>
-            <div class="alert-meter" id="alert-meter">
-                <div class="meter-cell" data-rd="0" title="Chuva fraca ou ausente. Rotina de monitoramento.">
-                    <span class="meter-name">Monitoramento</span>
-                    <span class="meter-desc">Tempo seco ou chuva leve</span>
-                    <b id="count-0">0</b>
-                </div>
-                <div class="meter-cell" data-rd="1" title="Chuva aumentando, ainda abaixo do patamar de preocupação.">
-                    <span class="meter-name">Observação</span>
-                    <span class="meter-desc">Chuva subindo, sem perigo imediato</span>
-                    <b id="count-1">0</b>
-                </div>
-                <div class="meter-cell" data-rd="2" title="Chuva relevante: reforçar plantão e vistorias preventivas.">
-                    <span class="meter-name">Atenção</span>
-                    <span class="meter-desc">Reforçar vistorias</span>
-                    <b id="count-2">0</b>
-                </div>
-                <div class="meter-cell" data-rd="3" title="Chuva forte: maior chance de alagamentos ou deslizamentos.">
-                    <span class="meter-name">Alerta</span>
-                    <span class="meter-desc">Risco elevado de ocorrências</span>
-                    <b id="count-3">0</b>
-                </div>
-                <div class="meter-cell" data-rd="4" title="Chuva extrema: prioridade máxima; avaliar interdições e acionamentos.">
-                    <span class="meter-name">Alerta Máximo</span>
-                    <span class="meter-desc">Situação crítica</span>
-                    <b id="count-4">0</b>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================================
-             PREVISÃO WRF (motor do RD)
-             O que vem a seguir, já incorporado ao cálculo de risco.
-             ============================================================ -->
-        <div class="panel" id="forecast-panel">
-            <h2 class="panel-title">Previsão de chuva</h2>
-            <p class="panel-help">Previsão WRF (CPTEC/INPE) para as mesmas UAs em foco — mesma janela usada no cálculo do alerta quando disponível.</p>
-            <div id="rd-basis-note" class="rd-basis-note" hidden></div>
-            <div id="forecast-content" class="forecast-content">
-                <div class="forecast-empty">Carregando...</div>
-            </div>
-        </div>
-
-        <!-- REGIÕES MONITORADAS -->
-        <div class="panel">
-            <h2 class="panel-title">Regiões monitoradas</h2>
-            <p class="panel-help">Quatro regiões entre o litoral norte e a Baixada
-                Santista, escolhidas por concentrarem, no Estado, o maior risco de
-                deslizamentos e alagamentos em rodovias, dado o relevo e a geologia
-                locais.</p>
-            <div class="region-list" id="region-list"></div>
-            <p class="panel-note">
-                <b>Sensibilidade (K)</b>: mede o quanto a chuva pesa em cada região.
-                Valor <b>menor</b> significa que <b>menos chuva</b> já tende a elevar
-                o alerta (metodologia REGEA-NIPPON, 2021).
+            <p class="logo-sub">
+              Monitoramento geodinâmico rodoviário · PLI-SP / DER-SP
             </p>
-        </div>
-
-        <!-- ============================================================
-             FILTROS DA MALHA RODOVIÁRIA
-             Ferramenta de exploração da malha no mapa.
-             ============================================================ -->
-        <div class="panel" id="road-filters-panel">
-            <h2 class="panel-title">Filtros da malha rodoviária</h2>
-            <p class="panel-help">Mostra ou oculta trechos no mapa para consulta. Não altera o cálculo do alerta.</p>
-            <div id="road-stats-summary" class="stats-summary">Carregando malha…</div>
-
-            <div class="filter-group">
-                <label for="filter-tipo-pista">Tipo de pista</label>
-                <select id="filter-tipo-pista" name="filter-tipo-pista">
-                    <option value="">Todos os tipos</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label for="filter-regional">Regional do DER</label>
-                <select id="filter-regional" name="filter-regional">
-                    <option value="">Todas as regionais</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label for="filter-administra">Administração</label>
-                <select id="filter-administra" name="filter-administra">
-                    <option value="">Todas</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label for="filter-rodovia">Buscar rodovia</label>
-                <input type="text" id="filter-rodovia" name="filter-rodovia"
-                       placeholder="ex.: SP 055, SP 150">
-            </div>
-
-            <button id="btn-clear-filters" class="btn btn-secondary">Limpar filtros</button>
-        </div>
-
-        <!-- ============================================================
-             CONTROLES DO MAPA
-             Utilitários de visualização (atualizar, animar, centralizar).
-             ============================================================ -->
-        <div class="panel">
-            <h2 class="panel-title">Controles do mapa</h2>
-            <p class="panel-help">Atualize os dados, veja a evolução das últimas 96 horas ou centralize a visualização.</p>
-            <button id="btn-refresh" class="btn">Atualizar leitura agora</button>
-            <button id="btn-timeline" class="btn btn-secondary">Linha do tempo (últimas 96 h)</button>
-            <button id="btn-fit" class="btn btn-secondary">Centralizar no Estado de SP</button>
-            <button id="btn-fit-litoral" class="btn btn-secondary">Centralizar no Litoral Norte</button>
-        </div>
-
-        <div class="footer">
-            <div class="footer-line">
-              <span class="footer-k">Dados de chuva:</span>
-              <span class="footer-v">MERGE / CPTEC / INPE</span>
-            </div>
-            <div class="footer-line">
-              <span class="footer-k">Metodologia:</span>
-              <span class="footer-v">Alerta geodinâmico DER-SP · REGEA-NIPPON (2021)</span>
-            </div>
-            <div class="footer-line">
-              <span class="footer-k">Malha rodoviária:</span>
-              <span class="footer-v">DER-SP — dados abertos estaduais</span>
-            </div>
-            <div class="footer-links">
-                <a href="#" id="link-help">Como ler o mapa?</a>
-                <a href="#" id="link-glossary">Glossário</a>
-                <a href="#" id="link-api">API pública</a>
-                <a href="/ops" rel="nofollow">Operações</a>
-            </div>
-            <div class="ver">PLI-HazardTrack · protótipo operacional</div>
-        </div>
-    </aside>
-
-    <main class="main">
-        <header class="topbar">
-            <div class="topbar-title-block">
-                <h1 id="topbar-title">PLI-HazardTrack</h1>
-                <p class="topbar-sub">
-                    Adaptado do Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico
-                </p>
-            </div>
-            <div class="topbar-actions">
-                <span class="badge" id="badge-source" title="Origem dos dados pluviométricos">MERGE / INPE</span>
-                <div class="time-travel-wrap" id="time-travel-wrap">
-                    <button type="button" class="badge badge-time-btn" id="badge-update"
-                            title="Clique para consultar outra data/hora">—</button>
-                    <div class="time-travel-panel" id="time-travel-panel" hidden>
-                        <p class="time-travel-title">Consulta histórica</p>
-                        <p class="time-travel-help">
-                            Reconstitui o RD com chuva MERGE/INPE da época
-                            (observado, sem previsão WRF). Pode levar alguns minutos.
-                        </p>
-                        <p class="time-travel-hints-title">Eventos com alerta elevado</p>
-                        <p class="time-travel-hints-help">
-                            Clique para consultar uma data validada — ideal para
-                            ver o sistema em condição real de alerta.
-                        </p>
-                        <div class="history-hints" id="history-hints" aria-live="polite">
-                            <span class="history-hints-loading">Carregando sugestões…</span>
-                        </div>
-                        <label class="time-travel-label" for="history-at">
-                            Data e hora (seu fuso local)
-                        </label>
-                        <input type="datetime-local" id="history-at" class="time-travel-input">
-                        <div class="time-travel-actions">
-                            <button type="button" id="history-go" class="btn btn-sm">Consultar</button>
-                            <button type="button" id="history-live" class="btn btn-secondary btn-sm">Ao vivo</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </header>
 
-        <div class="map-stage">
-            <div id="map-history-banner" class="map-history-banner" hidden>
-                <span class="map-history-kicker">Consulta histórica</span>
-                <span class="map-history-date" id="map-history-date">—</span>
+        <main class="sidebar-main">
+          <div class="sb-block sb-block--intro">
+            <section class="sb-section sb-section--welcome" aria-label="Boas-vindas">
+              <h2 class="sb-section-title">
+                <span class="sb-ico" aria-hidden="true">
+                  <img
+                    class="sb-icon-img"
+                    src="{{ url_for('static', filename='icons/png/001-poligono.png') }}"
+                    alt=""
+                  />
+                </span>
+                Boas-vindas
+              </h2>
+              <div class="sb-welcome" id="sb-welcome">
+              <p class="sb-welcome-text">
+                Módulo do <strong>PLI-SP 2050</strong> para monitoramento,
+                análise e alerta de risco geodinâmico em rodovias — adaptação do
+                <span class="sb-k">Sistema Automatizado de Análise,
+                Monitoramento e Alerta de Risco de Eventos Geodinâmicos</span>
+                (Produto 06, Contrato REGEA-NIPPON 20.595-3, DER-SP).
+              </p>
+              <p class="sb-welcome-text">
+                O <strong>PLI-HazardTrack</strong> implementa essa metodologia
+                para as Unidades Básicas de Atendimento (UBA) de Caraguatatuba,
+                Mogi das Cruzes e São Vicente. Em tempo quase real, o sistema
+                integra a ingestão contínua da chuva observada
+                <span class="sb-k">MERGE/INPE</span>, a previsão pluviométrica
+                do modelo <span class="sb-k">WRF (CPTEC/INPE)</span>, o cálculo
+                do <span class="sb-k">Risco Dinâmico (RD)</span> por Unidade de
+                Análise nos canais geológico e hidrológico, a classificação nos
+                <button type="button" class="sb-jump" data-sb-jump="operational-status">
+                  cinco níveis
+                </button>
+                do Plano de Prevenção e Defesa Civil (PPDC), as orientações de
+                contingência e ferramentas de consulta espacial, consulta
+                histórica e evolução temporal (96 h).
+              </p>
+              <p class="sb-welcome-text">
+                A principal diferença em relação ao sistema original reside na
+                <strong>base cartográfica</strong>: emprega-se malha, unidades
+                espaciais e atributos vigentes, porque os insumos vetoriais
+                oficiais descritos nos relatórios técnicos não se encontram
+                integralmente disponíveis.
+              </p>
+              <p class="sb-welcome-text">
+                A metodologia distingue dois processos geodinâmicos —
+                <strong>geológico</strong> (instabilidade de encosta) e
+                <strong>hidrológico</strong> (inundação). Em cada canal, o
+                <span class="sb-k">Risco Analisado (RA)</span> assume cinco
+                classes (0 a 4); combinado ao
+                <span class="sb-k">Índice de Correlação com Chuvas (ICC)</span>,
+                também em cinco faixas, define o
+                <span class="sb-k">Risco Dinâmico (RD)</span>, traduzido nos
+                cinco níveis operacionais do Plano de Prevenção e Defesa Civil
+                (PPDC) — de 0 (Monitoramento) a 4 (Alerta Máximo).
+              </p>
+              <p class="sb-welcome-text">
+                A unidade espacial mínima de análise é a
+                <button type="button" class="sb-jump" data-sb-jump="sb-panel-ua">
+                  Unidade de Análise (UA)
+                </button>
+                : <button type="button" class="sb-jump" data-sb-jump="sb-panel-ua">
+                  809 polígonos
+                </button>
+                ao longo das rodovias <strong>SP-055</strong> e
+                <strong>SP-098</strong>, agrupados em
+                <button
+                  type="button"
+                  class="sb-jump"
+                  data-sb-jump="sb-panel-regions"
+                >
+                  quatro regiões
+                </button>
+                climático-geológico-geomorfológicas. O mapa integra chuva
+                observada MERGE/INPE e previsão do modelo WRF do CPTEC/INPE; as
+                <button
+                  type="button"
+                  class="sb-jump"
+                  data-sb-jump="map-layer-control"
+                >
+                  camadas
+                </button>
+                de encosta e inundação simbolizam cada UA conforme o RD.
+              </p>
+              <p class="sb-welcome-text sb-panel-guide">
+                <strong>Como interpretar?</strong> O cartão de status resume o
+                nível máximo na área monitorada. Os painéis desta seção
+                detalham indicadores por trecho (priorização automática ou
+                seleção explícita), previsão pluviométrica, sensibilidade
+                regional e
+                <button type="button" class="sb-jump" data-sb-jump="actions-panel">
+                  ações
+                </button>
+                de contingência. Consultas espaciais e referências técnicas
+                encontram-se em Busca espacial e Documentação.
+              </p>
             </div>
-            <div id="map"></div>
-        </div>
+            </section>
 
-        <!-- ============================================================
+          </div>
+
+          <div class="sb-block sb-block--sections">
+        <section class="sb-section" aria-label="Monitoramento">
+          <h2 class="sb-section-title">
+            <span class="sb-ico" aria-hidden="true">
+              <img
+                class="sb-icon-img"
+                src="{{ url_for('static', filename='icons/png/005-gps.png') }}"
+                alt=""
+              />
+            </span>
+            Monitoramento
+          </h2>
+          <div class="sb-card sb-status-card" id="status-card">
+            <div
+              class="status-bar"
+              title="Resumo operacional da área monitorada (809 UAs, 4 regiões)"
+            >
+              <div
+                class="status-level-badge"
+                id="status-level-badge"
+                aria-label="Nível PPDC máximo"
+              >
+                0
+              </div>
+              <div class="status-dot" id="status-dot" aria-hidden="true"></div>
+              <div class="status-text">
+                <div class="status-head">
+                  <div id="status-line" class="status-line">Iniciando…</div>
+                  <button
+                    type="button"
+                    id="btn-refresh"
+                    class="status-refresh"
+                    title="Atualizar leitura agora"
+                    aria-label="Atualizar leitura agora"
+                  >
+                    ↻
+                  </button>
+                </div>
+                <div id="status-detail" class="status-detail" hidden></div>
+                <div id="status-time" class="status-time">—</div>
+              </div>
+            </div>
+          </div>
+          <div id="ingest-progress" class="ingest-progress" hidden></div>
+          <p id="focal-banner" class="focal-banner sb-card" hidden></p>
+          {{ level_meter_block() }}
+          <div class="sb-section-stack">
+          <div class="sb-panel is-open" id="actions-panel">
+            <button
+              type="button"
+              class="sb-panel-head"
+              data-sb-toggle
+              aria-expanded="true"
+            >
+              <span class="sb-panel-ico" aria-hidden="true">
+                <img
+                  class="sb-icon-img"
+                  src="{{ url_for('static', filename='icons/png/003-niveis.png') }}"
+                  alt=""
+                />
+              </span>
+              <span class="sb-panel-label">Ações recomendadas</span>
+              <span
+                class="sb-tip"
+                title="Orientações do Plano de Prevenção e Defesa Civil (PPDC) para o nível máximo entre as UAs prioritárias."
+                tabindex="0"
+                role="img"
+                aria-label="Ajuda"
+                >i</span
+              >
+              <span class="sb-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="sb-panel-body">
+              <p class="sb-panel-intro">
+                Orientações do Plano de Prevenção e Defesa Civil (PPDC)
+                conforme o nível máximo de RD entre as UAs prioritárias (até
+                quatro com maior alerta). Com nível acima de 0, indica medidas
+                recomendadas e o vínculo ao plano detalhado. Em operação
+                normal, confirma a ausência de ações extraordinárias.
+              </p>
+              <p class="sb-panel-intro sb-panel-guide">
+                <strong>Como usar?</strong> Com alerta ativo, o botão abre o
+                plano de contingência para o nível vigente; o resumo inferior
+                indica quantas UAs se encontram em Atenção ou Alerta. Sem
+                alerta, mantém o acesso ao PPDC para consulta.
+              </p>
+              <div id="actions-content" class="actions-content">
+                <div class="actions-empty">Carregando...</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-panel is-open" id="sb-panel-ua">
+            <button
+              type="button"
+              class="sb-panel-head"
+              data-sb-toggle
+              aria-expanded="true"
+            >
+              <span class="sb-panel-ico" aria-hidden="true">
+                <img
+                  class="sb-icon-img"
+                  src="{{ url_for('static', filename='icons/png/002-poligono-vetorial.png') }}"
+                  alt=""
+                />
+              </span>
+              <span class="sb-panel-label">Indicadores por trecho</span>
+              <span
+                class="sb-tip"
+                title="Selecione região, rodovia e trecho monitorado. O sistema associa a UA correspondente e exibe os indicadores de risco dinâmico."
+                tabindex="0"
+                role="img"
+                aria-label="Ajuda"
+                >i</span
+              >
+              <span class="sb-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="sb-panel-body">
+              <p class="sb-panel-intro">
+                Indicadores de risco dinâmico do <strong>trecho</strong>
+                selecionado. Somente as rodovias <strong>SP-055</strong> e
+                <strong>SP-098</strong> possuem UAs com RA e RD oficiais; demais
+                vias na área de estudo aparecem como malha cartográfica de apoio
+                (sem indicadores calculados).
+              </p>
+              <p class="sb-panel-intro sb-panel-guide">
+                <strong>Como usar?</strong> Região → rodovia → trecho (km).
+                Campos vazios adotam o trecho com maior RD no momento.
+              </p>
+              {{ trecho_picker('trecho-region-indicators', 'trecho-road-indicators', 'trecho-km-indicators') }}
+              {{ trecho_metric_card('worst-card', 'indicators') }}
+            </div>
+          </div>
+
+          <div class="sb-panel is-open" id="forecast-panel">
+            <button
+              type="button"
+              class="sb-panel-head"
+              data-sb-toggle
+              aria-expanded="true"
+            >
+              <span class="sb-panel-ico" aria-hidden="true">
+                <img
+                  class="sb-icon-img"
+                  src="{{ url_for('static', filename='icons/png/004-chuva-pesada.png') }}"
+                  alt=""
+                />
+              </span>
+              <span class="sb-panel-label">Chuva prevista</span>
+              <span
+                class="sb-tip"
+                title="Previsão do modelo WRF (CPTEC/INPE) por trecho monitorado — região, rodovia e quilometragem no seletor."
+                tabindex="0"
+                role="img"
+                aria-label="Ajuda"
+                >i</span
+              >
+              <span class="sb-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="sb-panel-body">
+              <p class="sb-panel-intro">
+                Previsão do modelo WRF (CPTEC/INPE) para o <strong>trecho</strong>
+                selecionado: acumulado de +24 h (canal geológico) e de +6 h (canal
+                hidrológico), calculados na UA correspondente.
+              </p>
+              <p class="sb-panel-intro sb-panel-guide">
+                <strong>Como usar?</strong> Região → rodovia → trecho (km).
+                Campos vazios adotam o trecho com maior RD no momento.
+              </p>
+              {{ trecho_picker('trecho-region-forecast', 'trecho-road-forecast', 'trecho-km-forecast') }}
+              <div id="rd-basis-note" class="rd-basis-note" hidden></div>
+              {{ trecho_metric_card('forecast-card', 'forecast') }}
+            </div>
+          </div>
+
+          <div class="sb-panel" id="sb-panel-regions">
+            <button
+              type="button"
+              class="sb-panel-head"
+              data-sb-toggle
+              aria-expanded="false"
+            >
+              <span class="sb-panel-ico" aria-hidden="true">
+                <img
+                  class="sb-icon-img"
+                  src="{{ url_for('static', filename='icons/png/007-localizacao-de-busca.png') }}"
+                  alt=""
+                />
+              </span>
+              <span class="sb-panel-label">Sensibilidade regional</span>
+              <span
+                class="sb-tip"
+                title="Quatro regiões climático-geológico-geomorfológicas entre o litoral norte e a Baixada Santista. Sensibilidade K: valor menor implica menor precipitação acumulada para elevar o alerta (REGEA-NIPPON, 2021)."
+                tabindex="0"
+                role="img"
+                aria-label="Ajuda"
+                >i</span
+              >
+              <span class="sb-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="sb-panel-body" hidden>
+              <p class="sb-panel-intro">
+                Sensibilidade K da região do <strong>trecho</strong> selecionado
+                (parâmetro regional da envoltória crítica empregada no CPC do
+                canal geológico).
+              </p>
+              <p class="sb-panel-intro sb-panel-guide">
+                <strong>Como usar?</strong> Mesmo seletor: região → rodovia →
+                trecho. Valores menores de K indicam maior sensibilidade da
+                região à precipitação acumulada.
+              </p>
+              {{ trecho_picker('trecho-region-regions', 'trecho-road-regions', 'trecho-km-regions') }}
+              {{ trecho_metric_card('region-card', 'region') }}
+            </div>
+          </div>
+
+          <div class="sb-panel" id="timeline-panel">
+            <button
+              type="button"
+              class="sb-panel-head"
+              data-sb-toggle
+              aria-expanded="false"
+            >
+              <span class="sb-panel-ico" aria-hidden="true">
+                <img
+                  class="sb-icon-img"
+                  src="{{ url_for('static', filename='icons/png/006-linha-do-tempo.png') }}"
+                  alt=""
+                />
+              </span>
+              <span class="sb-panel-label">Evolução 96 h</span>
+              <span
+                class="sb-tip"
+                title="Reconstrução horária do RD observado (MERGE/INPE), por canal geológico ou hidrológico."
+                tabindex="0"
+                role="img"
+                aria-label="Ajuda"
+                >i</span
+              >
+              <span class="sb-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="sb-panel-body" hidden>
+              <p class="sb-panel-intro">
+                Reconstrução temporal das últimas 96 horas, hora a hora, com
+                base na chuva observada MERGE/INPE. Cada quadro recalcula o RD na
+                UA correspondente ao trecho — <strong>sem previsão WRF</strong>.
+              </p>
+              <p class="sb-panel-intro">
+                As UAs de <strong>instabilidade de encosta</strong> (risco
+                geológico) e de <strong>inundação</strong> (risco hidrológico)
+                constituem conjuntos distintos no mapa. A animação exibe
+                <strong>um canal por vez</strong>, com a paleta e os níveis de RD
+                daquele processo.
+              </p>
+              <p class="sb-panel-intro sb-panel-guide">
+                <strong>Como usar?</strong> Selecione o tipo de risco, confirme
+                com OK e utilize os controles de reprodução no mapa. Avance
+                quadro a quadro para identificar alterações de nível PPDC na UA.
+              </p>
+              <div class="timeline-setup">
+                <div class="filter-group">
+                  <label for="timeline-hazard">Tipo de risco</label>
+                  <select
+                    id="timeline-hazard"
+                    name="timeline-hazard"
+                    aria-label="Tipo de risco para a animação"
+                  >
+                    <option value="encosta">
+                      Instabilidade de encosta (RD geológico)
+                    </option>
+                    <option value="inundacao">
+                      Inundação (RD hidrológico)
+                    </option>
+                  </select>
+                </div>
+                <button
+                  type="button"
+                  id="btn-timeline-start"
+                  class="btn btn-sm timeline-start-btn"
+                >
+                  OK — abrir animação
+                </button>
+              </div>
+            </div>
+          </div>
+          </div>
+        </section>
+
+        <section class="sb-section" aria-label="Busca espacial e Documentação">
+          <h2 class="sb-section-title">
+            <span class="sb-ico" aria-hidden="true">
+              <img
+                class="sb-icon-img"
+                src="{{ url_for('static', filename='icons/png/008-mapa-de-pesquisa.png') }}"
+                alt=""
+              />
+            </span>
+            Busca espacial e Documentação
+          </h2>
+          <div class="sb-section-stack">
+
+          <div class="sb-panel is-open" id="simple-search-panel">
+            <button
+              type="button"
+              class="sb-panel-head"
+              data-sb-toggle
+              aria-expanded="true"
+            >
+              <span class="sb-panel-ico" aria-hidden="true">
+                <img
+                  class="sb-icon-img"
+                  src="{{ url_for('static', filename='icons/png/007-localizacao-de-busca.png') }}"
+                  alt=""
+                />
+              </span>
+              <span class="sb-panel-label">Busca simples</span>
+              <span
+                class="sb-tip"
+                title="Busca direta por camada, campo e valor exato."
+                tabindex="0"
+                role="img"
+                aria-label="Ajuda"
+                >i</span
+              >
+              <span class="sb-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="sb-panel-body">
+              <p class="sb-panel-intro">
+                Localização de elementos no mapa por correspondência exata entre
+                camada, atributo e valor. Após a seleção da camada, os campos e
+                valores são carregados a partir dos dados em exibição.
+              </p>
+              <p class="sb-panel-intro sb-panel-guide">
+                <strong>Como usar?</strong> Selecione camada, campo e valor;
+                em seguida, Buscar. O mapa destaca apenas os registros que
+                satisfazem o critério. Limpar filtros restaura a visualização
+                integral. A operação não altera o cálculo do RD nem dos níveis
+                PPDC.
+              </p>
+              <div class="simple-search-grid">
+                <div class="filter-group">
+                  <label for="simple-layer">Camada</label>
+                  <select id="simple-layer" name="simple-layer"></select>
+                </div>
+                <div class="filter-group">
+                  <label for="simple-field">Campo</label>
+                  <select id="simple-field" name="simple-field" disabled></select>
+                </div>
+                <div class="filter-group">
+                  <label for="simple-value">Valor</label>
+                  <select id="simple-value" name="simple-value" disabled></select>
+                </div>
+              </div>
+              <div class="qf-actions simple-search-actions">
+                <button
+                  type="button"
+                  id="simple-search-apply"
+                  class="btn btn-compact"
+                >
+                  Buscar
+                </button>
+                <button
+                  type="button"
+                  id="simple-search-clear"
+                  class="btn btn-secondary btn-compact"
+                >
+                  Limpar filtros
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-panel" id="road-filters-panel">
+            <button
+              type="button"
+              class="sb-panel-head"
+              data-sb-toggle
+              aria-expanded="false"
+            >
+              <span class="sb-panel-ico" aria-hidden="true">
+                <img
+                  class="sb-icon-img"
+                  src="{{ url_for('static', filename='icons/png/009-procurar.png') }}"
+                  alt=""
+                />
+              </span>
+              <span class="sb-panel-label">Busca avançada</span>
+              <span
+                class="sb-tip"
+                title="Filtra por atributo. Não altera o cálculo do RD — só a visualização no mapa."
+                tabindex="0"
+                role="img"
+                aria-label="Ajuda"
+                >i</span
+              >
+              <span class="sb-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="sb-panel-body" hidden>
+              <p class="sb-panel-intro">
+                Filtra o mapa por atributos das camadas monitoradas: malha
+                rodoviária estadual e Unidades de Análise (UAs) dos canais
+                geológico e hidrológico. Cada camada admite consulta independente
+                com critérios Campo, Operador e Valor.
+              </p>
+              <p class="sb-panel-intro sb-panel-guide">
+                <strong>Como usar?</strong> Selecione a camada, defina os
+                critérios e clique em Aplicar filtro. Para dois ou mais
+                critérios na mesma camada, utilize + Adicionar critério — a
+                relação E ou OU aparece entre os blocos. Filtros ativos indica
+                as consultas em vigor (uma por camada). A busca altera somente a
+                visualização; o RD e os níveis PPDC não são recalculados.
+              </p>
+
+              <div id="qf-builder" class="qf-builder">
+                <div class="filter-group">
+                  <label for="qf-layer">Camada</label>
+                  <select id="qf-layer" name="qf-layer"></select>
+                </div>
+
+                <div class="qf-clauses-head">
+                  <span>Critérios da consulta</span>
+                </div>
+                <div id="qf-conditions" class="qf-conditions"></div>
+                <button
+                  type="button"
+                  id="qf-add-row"
+                  class="btn btn-secondary btn-compact"
+                >
+                  + Adicionar critério
+                </button>
+
+                <div class="qf-expression">
+                  <span class="qf-expression-label">Expressão</span>
+                  <code id="qf-expression-text" class="qf-expression-text">—</code>
+                </div>
+
+                <div class="qf-actions">
+                  <button type="button" id="qf-apply" class="btn btn-compact">
+                    Aplicar filtro
+                  </button>
+                  <button
+                    type="button"
+                    id="qf-clear-builder"
+                    class="btn btn-secondary btn-compact"
+                  >
+                    Limpar critérios
+                  </button>
+                </div>
+              </div>
+
+              <div id="qf-active-panel" class="qf-active">
+                <p class="qf-active-title">Filtros ativos</p>
+                <p class="qf-active-hint">
+                  Consultas em vigor no mapa (uma por camada monitorada).
+                </p>
+                <ul id="qf-active-list" class="qf-active-list"></ul>
+                <p id="qf-active-empty" class="qf-active-empty">
+                  Nenhum filtro aplicado ao mapa.
+                </p>
+                <button
+                  type="button"
+                  id="qf-clear-all"
+                  class="btn btn-secondary btn-compact qf-clear-all"
+                >
+                  Limpar todos os filtros
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-panel" id="documentation-panel">
+            <button
+              type="button"
+              class="sb-panel-head"
+              data-sb-toggle
+              aria-expanded="false"
+            >
+              <span class="sb-panel-ico" aria-hidden="true">
+                <img
+                  class="sb-icon-img"
+                  src="{{ url_for('static', filename='icons/png/009-procurar.png') }}"
+                  alt=""
+                />
+              </span>
+              <span class="sb-panel-label">Documentação</span>
+              <span
+                class="sb-tip"
+                title="Referências rápidas, glossário, API e painel operacional."
+                tabindex="0"
+                role="img"
+                aria-label="Ajuda"
+                >i</span
+              >
+              <span class="sb-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="sb-panel-body" hidden>
+              <p class="sb-panel-intro">
+                Referências técnicas e operacionais: interpretação do mapa e dos
+                alertas, glossário terminológico, documentação da Interface de
+                Programação de Aplicações (API) GeoJSON e painel de operações do
+                servidor.
+              </p>
+              <p class="sb-panel-intro sb-panel-guide">
+                <strong>Como usar?</strong> Cada minicard abre o recurso em
+                modal dedicado, sem deslocar a visualização do mapa. O glossário
+                define RA, Índice de Correlação com Chuvas (ICC), RD, CPC e
+                demais siglas empregadas na metodologia REGEA-NIPPON.
+              </p>
+              <div class="doc-mini-grid" aria-label="Documentação e referências">
+                <a
+                  href="#"
+                  id="link-help"
+                  class="doc-mini-card"
+                  title="Como ler o mapa?"
+                >
+                  <span class="doc-mini-ico" aria-hidden="true">?</span>
+                  <strong>Ajuda</strong>
+                  <small>Como interpretar mapa, alertas e camadas.</small>
+                </a>
+                <a
+                  href="#"
+                  id="link-glossary"
+                  class="doc-mini-card"
+                  title="Glossário técnico"
+                >
+                  <span class="doc-mini-ico" aria-hidden="true">≡</span>
+                  <strong>Glossário</strong>
+                  <small>Termos técnicos, níveis, RA, ICC e RD.</small>
+                </a>
+                <a
+                  href="#"
+                  id="link-api"
+                  class="doc-mini-card"
+                  title="API pública GeoJSON"
+                >
+                  <span class="doc-mini-ico" aria-hidden="true">{ }</span>
+                  <strong>API</strong>
+                  <small>Endpoints e dados GeoJSON disponíveis.</small>
+                </a>
+                <a
+                  href="/admin"
+                  class="doc-mini-card"
+                  rel="nofollow"
+                  title="Área administrativa"
+                >
+                  <span class="doc-mini-ico" aria-hidden="true">⚙</span>
+                  <strong>Admin</strong>
+                  <small>Diagnóstico e rotinas internas do sistema.</small>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          </div>
+        </section>
+          </div>
+
+          <div class="sb-block sb-block--footer">
+        <footer class="footer footer--compact">
+          <div class="ver">PLI-HazardTrack · protótipo operacional (DER-SP / PLI-SP)</div>
+        </footer>
+          </div>
+        </main>
+      </aside>
+      <div
+        class="sb-resize-handle"
+        id="sb-resize-handle"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Redimensionar painel lateral"
+        title="Arraste para redimensionar"
+      ></div>
+      <button
+        type="button"
+        class="sb-toggle"
+        id="sb-toggle"
+        aria-controls="sidebar"
+        aria-expanded="true"
+        title="Recolher painel"
+        aria-label="Recolher painel"
+      >
+        <span class="sb-toggle-ico" aria-hidden="true">
+          <svg
+            class="ico-collapse"
+            viewBox="0 0 16 16"
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 4 L5 8 L9 12" />
+            <path d="M4 4 L4 12" />
+          </svg>
+          <svg
+            class="ico-expand"
+            viewBox="0 0 16 16"
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M6 4 L10 8 L6 12" />
+            <path d="M11 4 L11 12" />
+          </svg>
+        </span>
+      </button>
+    </div>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title-block">
+          <h1 id="topbar-title">Mapa de situação operacional em tempo real</h1>
+          <p class="topbar-sub">
+            Monitoramento de risco geodinâmico — instabilidade de encosta e
+            inundação (litoral norte e Baixada Santista · DER-SP)
+          </p>
+        </div>
+        <div class="topbar-actions">
+          <span
+            class="badge"
+            id="badge-source"
+            title="Origem dos dados pluviométricos"
+            >MERGE / INPE</span
+          >
+          <div class="time-travel-wrap" id="time-travel-wrap">
+            <button
+              type="button"
+              class="badge badge-time-btn"
+              id="badge-update"
+              title="Clique para consultar outra data/hora"
+            >
+              —
+            </button>
+            <div class="time-travel-panel" id="time-travel-panel" hidden>
+              <p class="time-travel-title">Consulta histórica</p>
+              <p class="time-travel-help">
+                Reconstitui o RD com chuva MERGE/INPE da época (observada, sem
+                previsão WRF). A operação pode demandar alguns minutos.
+              </p>
+              <p class="time-travel-hints-title">Eventos com alerta elevado</p>
+              <p class="time-travel-hints-help">
+                Selecione uma data validada — indicada para verificar o sistema
+                em condição real de alerta.
+              </p>
+              <div class="history-hints" id="history-hints" aria-live="polite">
+                <span class="history-hints-loading">Carregando sugestões…</span>
+              </div>
+              <label class="time-travel-label" for="history-at">
+                Data e hora (seu fuso local)
+              </label>
+              <input
+                type="datetime-local"
+                id="history-at"
+                class="time-travel-input"
+              />
+              <div class="time-travel-actions">
+                <button type="button" id="history-go" class="btn btn-sm">
+                  Consultar
+                </button>
+                <button
+                  type="button"
+                  id="history-live"
+                  class="btn btn-secondary btn-sm"
+                >
+                  Ao vivo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="map-stage">
+        <div id="map-history-banner" class="map-history-banner" hidden>
+          <span class="map-history-kicker">Consulta histórica</span>
+          <span class="map-history-date" id="map-history-date">—</span>
+        </div>
+        <div id="map"></div>
+        <div class="map-layer-control map-layer-control--floating" id="map-layer-control">
+          <div class="map-layer-control-head">
+            <span class="map-layer-control-title">Camadas</span>
+          </div>
+          <div class="map-layer-control-body">
+            <div class="ck-group-title">Riscos Monitorados</div>
+            <div id="hazard-toggles"></div>
+            <div class="ck-group-title">Camadas de apoio</div>
+            <label class="ck">
+              <input type="checkbox" id="layer-regions" />
+              Regiões monitoradas
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="layer-heatmap" />
+              Mapa de calor
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="layer-roads" checked />
+              Malha Rodoviária Estadual (DER-SP, 2024)
+            </label>
+            <div class="ck-group-title">Limites DER / IGC</div>
+            <label class="ck">
+              <input type="checkbox" id="layer-municipios" />
+              Municípios (IGC, 2021)
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="layer-rc" />
+              Residência de Conserva - DER
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="layer-uba" />
+              Unidade Básica de Atendimento - DER
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="layer-cgr" />
+              Coordenadoria Geral Regional - DER
+            </label>
+          </div>
+        </div>
+        <div class="map-view-tools" aria-label="Enquadramento do mapa">
+          <button
+            type="button"
+            id="btn-fit"
+            class="map-view-btn"
+            title="Centralizar no Estado de SP"
+          >
+            SP
+          </button>
+          <button
+            type="button"
+            id="btn-fit-litoral"
+            class="map-view-btn"
+            title="Centralizar no Litoral Norte"
+          >
+            LN
+          </button>
+        </div>
+      </div>
+
+      <!-- ============================================================
              LINHA DO TEMPO (animação 96h dos polígonos de alerta)
              Anexo C do Produto 7, seção 3.4.2
              ============================================================ -->
-        <div class="timeline" id="timeline" hidden>
-            <div class="timeline-head">
-                <button id="tl-play" class="tl-btn" title="Reproduzir / Pausar">▶</button>
-                <button id="tl-prev" class="tl-btn" title="Anterior">⏮</button>
-                <button id="tl-next" class="tl-btn" title="Próximo">⏭</button>
-                <span class="tl-time" id="tl-time">—</span>
-                <label class="tl-step-label">Passo
-                    <select id="tl-step">
-                        <option value="1">1 h</option>
-                        <option value="2">2 h</option>
-                        <option value="3">3 h</option>
-                        <option value="6">6 h</option>
-                    </select>
-                </label>
-                <span class="tl-status" id="tl-status"></span>
-                <button id="tl-close" class="tl-btn tl-close" title="Fechar">×</button>
-            </div>
-            <input type="range" id="tl-range" class="tl-range"
-                   min="0" max="0" value="0" step="1" disabled>
-            <p class="tl-channel" id="tl-channel" aria-live="polite"></p>
-            <div class="tl-hint">
-                Reconstrução hora a hora com chuva observada MERGE/INPE (sem previsão).
-                Cores conforme camadas ligadas no painel lateral.
-            </div>
+      <div class="timeline" id="timeline" hidden>
+        <div class="timeline-head">
+          <button id="tl-play" class="tl-btn" title="Reproduzir / Pausar">
+            ▶
+          </button>
+          <button id="tl-prev" class="tl-btn" title="Anterior">⏮</button>
+          <button id="tl-next" class="tl-btn" title="Próximo">⏭</button>
+          <span class="tl-time" id="tl-time">—</span>
+          <label class="tl-step-label"
+            >Passo
+            <select id="tl-step">
+              <option value="1">1 h</option>
+              <option value="2">2 h</option>
+              <option value="3">3 h</option>
+              <option value="6">6 h</option>
+            </select>
+          </label>
+          <span class="tl-status" id="tl-status"></span>
+          <button id="tl-close" class="tl-btn tl-close" title="Fechar">
+            ×
+          </button>
         </div>
+        <input
+          type="range"
+          id="tl-range"
+          class="tl-range"
+          min="0"
+          max="0"
+          value="0"
+          step="1"
+          disabled
+        />
+        <p class="tl-channel" id="tl-channel" aria-live="polite"></p>
+        <p class="tl-hint">
+          Reconstrução horária com chuva observada MERGE/INPE (sem previsão).
+          Cores conforme a paleta do tipo de risco selecionado na seção
+          Evolução 96 h.
+        </p>
+      </div>
 
-        <!-- ============================================================
+      <!-- ============================================================
              LEGENDAS DO MAPA (rodapé esquerdo)
              ============================================================ -->
-        <div class="legend">
-            <div id="hazard-legend" class="legend-stack"></div>
-        </div>
+      <div class="legend">
+        <div id="hazard-legend" class="legend-stack"></div>
+      </div>
     </main>
 
     <!-- ============================================================
          MODAL: Como ler os dados
          ============================================================ -->
     <div class="modal-backdrop" id="modal-help" hidden>
-        <div class="modal" role="dialog" aria-labelledby="modal-help-title">
-            <header class="modal-header">
-                <h2 id="modal-help-title">Como ler os dados no mapa</h2>
-                <button class="modal-close" data-close-modal aria-label="Fechar">×</button>
-            </header>
-            <div class="modal-body">
-                <p class="modal-intro">
-                    O mapa mostra <b>809 Unidades de Análise (UAs)</b> — polígonos
-                    ao longo da malha do PLI — coloridos pelo <b>Risco Dinâmico (RD)</b>
-                    de cada canal ativo. A <b>malha rodoviária DER</b> aparece em tom
-                    neutro apenas como referência cartográfica; o alerta visual está
-                    nas UAs. Clique em um polígono para ver chuva, RA, ICC e nível
-                    operacional daquela unidade.
-                </p>
+      <div class="modal" role="dialog" aria-labelledby="modal-help-title">
+        <header class="modal-header">
+          <h2 id="modal-help-title">Como ler os dados no mapa</h2>
+          <button class="modal-close" data-close-modal aria-label="Fechar">
+            ×
+          </button>
+        </header>
+        <div class="modal-body">
+          <p class="modal-intro">
+            O mapa exibe <b>809 Unidades de Análise (UAs)</b> — polígonos ao
+            longo da malha monitorada — simbolizados pelo <b>Risco Dinâmico
+            (RD)</b> de cada canal ativo. A <b>malha rodoviária estadual
+            (DER-SP)</b> aparece em tom neutro como referência cartográfica; a
+            codificação de alerta reside nas UAs. Clique em um polígono para
+            consultar chuva, RA, ICC e nível operacional da unidade.
+          </p>
 
-                <h3>1. Camadas de risco no mapa</h3>
-                <p>Use o painel <b>Camadas do mapa</b> (canto superior esquerdo):</p>
-                <table class="modal-table">
-                    <tr><th>Instabilidade de encosta</th><td>Canal geológico (RD<sub>geo</sub>). Escorregamento e queda de bloco. Paleta verde → roxo.</td></tr>
-                    <tr><th>Inundação</th><td>Canal hidrológico (RD<sub>hid</sub>). Alagamento e enxurrada (janela 24 h). Paleta verde → azul → magenta.</td></tr>
-                    <tr><th>Malha DER</th><td>Trechos oficiais do sistema rodoviário estadual — <b>sem</b> codificação de alerta.</td></tr>
-                </table>
-                <p class="modal-note">
-                    A sidebar “Distribuição por nível” reflete a(s) camada(s) ligada(s).
-                    Com as duas ativas, prevalece o pior RD entre geo e hidro por UA.
-                </p>
+          <h3>1. Camadas de risco no mapa</h3>
+          <p>Use o painel <b>Camadas</b> sobre o mapa:</p>
+          <table class="modal-table">
+            <tr>
+              <th>Instabilidade de encosta</th>
+              <td>
+                Canal geológico (RD<sub>geo</sub>). Escorregamento e queda de
+                bloco. Paleta verde → roxo.
+              </td>
+            </tr>
+            <tr>
+              <th>Inundação</th>
+              <td>
+                Canal hidrológico (RD<sub>hid</sub>). Alagamento e enxurrada
+                (janela 24 h). Paleta verde → azul → magenta.
+              </td>
+            </tr>
+            <tr>
+              <th>Malha Rodoviária Estadual</th>
+              <td>
+                Trechos oficiais do sistema rodoviário estadual —
+                <b>sem</b> codificação de alerta.
+              </td>
+            </tr>
+          </table>
+          <p class="modal-note">
+            O cartão de status e as camadas ativas refletem o pior RD entre os
+            canais geológico e hidrológico por UA.
+          </p>
 
-                <h3>2. Chuva e gatilho meteorológico</h3>
-                <p>Fonte operacional: <b>MERGE/CPTEC/INPE</b> (grade horária, calibrada
-                    para o Brasil). Em modo ao vivo, o RD incorpora também previsão
-                    <b>WRF horária do CPTEC</b> nas janelas do Produto 6:</p>
-                <table class="modal-table">
-                    <tr><th>Canal encosta</th><td>Acumulado <b>96 h</b> = 72 h observadas (MERGE) + 24 h previstas (WRF), quando disponível.</td></tr>
-                    <tr><th>Canal inundação</th><td>Janela <b>24 h</b> = 18 h observadas + 6 h previstas (WRF), quando disponível.</td></tr>
-                    <tr><th>Intensidade</th><td>Chuva na última hora medida (mm/h) — observada.</td></tr>
-                    <tr><th>CPC</th><td>Coeficiente de Precipitação Crítica: intensidade ÷ envoltória mínima da região. <b>CPC ≥ 1</b> indica limiar deflagrador atingido (gatilho geo).</td></tr>
-                </table>
-                <p class="modal-note">
-                    Se o WRF falhar, o sistema usa <b>somente chuva observada</b>
-                    (popup avisa “OBS_ONLY”) — o RD pode ficar conservador.
-                    Na <b>consulta histórica</b>, só entra MERGE observado da época
-                    (sem WRF).
-                </p>
+          <h3>2. Chuva e gatilho meteorológico</h3>
+          <p>
+            Fonte operacional: <b>MERGE/CPTEC/INPE</b> (grade horária, calibrada
+            para o Brasil). Em modo ao vivo, o RD incorpora também previsão
+            <b>WRF horária do CPTEC</b> nas janelas do Produto 6:
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>Canal encosta</th>
+              <td>
+                Acumulado <b>96 h</b> = 72 h observadas (MERGE) + 24 h previstas
+                (WRF), quando disponível.
+              </td>
+            </tr>
+            <tr>
+              <th>Canal inundação</th>
+              <td>
+                Janela <b>24 h</b> = 18 h observadas + 6 h previstas (WRF),
+                quando disponível.
+              </td>
+            </tr>
+            <tr>
+              <th>Intensidade</th>
+              <td>Chuva na última hora medida (mm/h) — observada.</td>
+            </tr>
+            <tr>
+              <th>CPC</th>
+              <td>
+                Coeficiente de Precipitação Crítica: intensidade ÷ envoltória
+                mínima da região. <b>CPC ≥ 1</b> indica limiar deflagrador
+                atingido (gatilho geo).
+              </td>
+            </tr>
+          </table>
+          <p class="modal-note">
+            Se o WRF falhar, o sistema usa <b>somente chuva observada</b> (popup
+            avisa “OBS_ONLY”) — o RD pode ficar conservador. Na
+            <b>consulta histórica</b>, só entra MERGE observado da época (sem
+            WRF).
+          </p>
 
-                <h3>3. Vulnerabilidade estática (RA)</h3>
-                <p><b>Risco Analisado (RA)</b> por UA, mapeado a partir do relatório
-                    REGEA-NIPPON (tabelas oficiais nos trechos SP-055/SP-098 e
-                    digitalização das figuras 3.3.3). Não varia com a chuva do dia.</p>
-                <table class="modal-table">
-                    <tr><th>RA0–RA4</th><td>Escala 0 (nulo) a 4 (muito alto), conforme evidências de instabilidade ou susceptibilidade hidrológica do trecho.</td></tr>
-                    <tr><th>SEM DADO</th><td>UA fora da cobertura das tabelas oficiais — exibida em cinza, sem RD calculado.</td></tr>
-                </table>
+          <h3>3. Vulnerabilidade estática (RA)</h3>
+          <p>
+            <b>Risco Analisado (RA)</b> por UA, mapeado a partir do relatório
+            REGEA-NIPPON (tabelas oficiais nos trechos SP-055/SP-098 e
+            digitalização das figuras 3.3.3). Não varia com a chuva do dia.
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>RA0–RA4</th>
+              <td>
+                Escala 0 (nulo) a 4 (muito alto), conforme evidências de
+                instabilidade ou suscetibilidade hidrológica do trecho.
+              </td>
+            </tr>
+            <tr>
+              <th>SEM DADO</th>
+              <td>
+                UA fora da cobertura das tabelas oficiais — exibida em cinza,
+                sem RD calculado.
+              </td>
+            </tr>
+          </table>
 
-                <h3>4. Risco Dinâmico (RD) — o que gera o alerta</h3>
-                <p>Combina RA com o índice de chuva (ICC). <b>Dispara o nível operacional
-                    PPDC</b> (Monitoramento → Alerta Máximo).</p>
-                <table class="modal-table">
-                    <tr><th>ICC geológico</th><td>Faixa 0–4 derivada do CPC (encosta).</td></tr>
-                    <tr><th>ICC hidrológico</th><td>Faixa 0–4 derivada do acumulado 24 h (inundação).</td></tr>
-                </table>
-                <p class="formula">RD<sub>geo</sub> = RA<sub>geo</sub> × ICC<sub>geo</sub> &nbsp;·&nbsp;
-                    RD<sub>hid</sub> = RA<sub>hid</sub> × ICC<sub>hid</sub> &nbsp;·&nbsp;
-                    RD = max(RD<sub>geo</sub>, RD<sub>hid</sub>)</p>
-                <p class="modal-note">
-                    Pela matriz oficial DER-SP, ICC = 0 implica RD = 0, mesmo com RA alto:
-                    sem gatilho pluviométrico, a UA permanece em
-                    <b>Monitoramento</b> em dias secos.
-                </p>
+          <h3>4. Risco Dinâmico (RD) — o que gera o alerta</h3>
+          <p>
+            Combina RA com o índice de chuva (ICC).
+            <b>Dispara o nível operacional PPDC</b> (Monitoramento → Alerta
+            Máximo).
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>ICC geológico</th>
+              <td>Faixa 0–4 derivada do CPC (encosta).</td>
+            </tr>
+            <tr>
+              <th>ICC hidrológico</th>
+              <td>Faixa 0–4 derivada do acumulado 24 h (inundação).</td>
+            </tr>
+          </table>
+          <p class="formula">
+            RD<sub>geo</sub> = RA<sub>geo</sub> × ICC<sub>geo</sub>
+            &nbsp;·&nbsp; RD<sub>hid</sub> = RA<sub>hid</sub> × ICC<sub
+              >hid</sub
+            >
+            &nbsp;·&nbsp; RD = max(RD<sub>geo</sub>, RD<sub>hid</sub>)
+          </p>
+          <p class="modal-note">
+            Pela matriz oficial DER-SP, ICC = 0 implica RD = 0, mesmo com RA
+            alto: sem gatilho pluviométrico, a UA permanece em
+            <b>Monitoramento</b> em dias secos.
+          </p>
 
-                <h3>5. Modos de operação da interface</h3>
-                <table class="modal-table">
-                    <tr><th>Ao vivo</th><td>Atualização automática (~10 min no servidor; painel a cada ~30 s). Badge de data/hora no topo.</td></tr>
-                    <tr><th>Consulta histórica</th><td>Clique no badge de data/hora → escolha data passada ou evento sugerido. Reconstitui RD com MERGE da época. Banner no topo do mapa indica a data consultada.</td></tr>
-                    <tr><th>Linha do tempo</th><td>Anima as últimas 96 h de RD observado (MERGE), separado por canal encosta/inundação conforme camada ativa.</td></tr>
-                    <tr><th>Primeira carga</th><td>Ao abrir o sistema, a sidebar “Trecho mais crítico” mostra o progresso da série horária MERGE (até 96 GRIBs) antes de liberar o mapa.</td></tr>
-                </table>
+          <h3>5. Modos de operação da interface</h3>
+          <table class="modal-table">
+            <tr>
+              <th>Ao vivo</th>
+              <td>
+                Atualização automática (~10 min no servidor; painel a cada ~30
+                s). Badge de data/hora no topo.
+              </td>
+            </tr>
+            <tr>
+              <th>Consulta histórica</th>
+              <td>
+                Clique no badge de data/hora → escolha data passada ou evento
+                sugerido. Reconstitui RD com MERGE da época. Banner no topo do
+                mapa indica a data consultada.
+              </td>
+            </tr>
+            <tr>
+              <th>Linha do tempo</th>
+              <td>
+                Anima as últimas 96 h de RD observado (MERGE). Escolha encosta
+                ou inundação na seção Evolução 96 h — um canal por vez, pois as
+                UAs são distintas em cada tipo.
+              </td>
+            </tr>
+            <tr>
+              <th>Primeira carga</th>
+              <td>
+                Ao abrir o sistema, a barra de progresso no Monitoramento exibe
+                a ingestão da série horária MERGE (até 96 GRIBs) antes da
+                liberação do mapa.
+              </td>
+            </tr>
+          </table>
 
-                <h3>Exemplo prático</h3>
-                <div class="modal-example">
-                    <p><b>Popup (encosta):</b> Acum. 96h = 11 mm · Intensidade = 0 mm/h · CPC = 0 · RA2 · ICC<sub>geo</sub> = 0 · Nível 0 — Monitoramento</p>
-                    <p><b>Leitura:</b> UA com vulnerabilidade média (RA2), mas sem chuva relevante na janela geo. RD<sub>geo</sub> = 0 — rotina. Se a camada <b>Inundação</b> estiver ligada e houver acumulado 24 h elevado, o mesmo polígono pode apresentar RD<sub>hid</sub> maior.</p>
-                </div>
-            </div>
+          <h3>Exemplo prático</h3>
+          <div class="modal-example">
+            <p>
+              <b>Popup (encosta):</b> Acum. 96h = 11 mm · Intensidade = 0 mm/h ·
+              CPC = 0 · RA2 · ICC<sub>geo</sub> = 0 · Nível 0 — Monitoramento
+            </p>
+            <p>
+              <b>Leitura:</b> UA com vulnerabilidade média (RA2), mas sem chuva
+              relevante na janela geo. RD<sub>geo</sub> = 0 — rotina. Se a
+              camada <b>Inundação</b> estiver ligada e houver acumulado 24 h
+              elevado, o mesmo polígono pode apresentar RD<sub>hid</sub> maior.
+            </p>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- ============================================================
          MODAL: Glossário técnico
          ============================================================ -->
     <div class="modal-backdrop" id="modal-glossary" hidden>
-        <div class="modal" role="dialog" aria-labelledby="modal-glossary-title">
-            <header class="modal-header">
-                <h2 id="modal-glossary-title">Glossário técnico</h2>
-                <button class="modal-close" data-close-modal aria-label="Fechar">×</button>
-            </header>
-            <div class="modal-body">
-                <dl class="modal-glossary">
-                    <dt>PLI-HazardTrack / SIGMA</dt>
-                    <dd>Implementação operacional do conceito SAMAEG para a malha do Programa Litoral Integrado (DER-SP). Interface web com mapa, painéis e alertas PPDC.</dd>
+      <div class="modal" role="dialog" aria-labelledby="modal-glossary-title">
+        <header class="modal-header">
+          <h2 id="modal-glossary-title">Glossário técnico</h2>
+          <button class="modal-close" data-close-modal aria-label="Fechar">
+            ×
+          </button>
+        </header>
+        <div class="modal-body">
+          <dl class="modal-glossary">
+            <dt>PLI-HazardTrack</dt>
+            <dd>
+              Interface web de monitoramento geodinâmico adaptada do Produto 06
+              (Contrato REGEA-NIPPON 20.595-3), integrada ao
+              <a href="https://pli.semil.sp.gov.br/" target="_blank" rel="noopener">PLI-SP 2050</a>
+              — Plano de Logística e Investimentos do Estado de São Paulo. Reúne
+              mapa, painéis analíticos e alertas PPDC para rodovias do litoral
+              norte e da Baixada Santista.
+            </dd>
 
-                    <dt>SAMAEG</dt>
-                    <dd>Sistema Automatizado de Monitoramento, Análise e Alerta Geodinâmico — Produto 06 do contrato REGEA-NIPPON (2021). Base metodológica deste sistema.</dd>
+            <dt>SAMAEG</dt>
+            <dd>
+              Denominação operacional do Sistema Automatizado de Análise,
+              Monitoramento e Alerta de Risco de Eventos Geodinâmicos (Produto
+              06, Contrato REGEA-NIPPON 20.595-3, 2021). Constitui a base
+              metodológica desta adaptação.
+            </dd>
 
-                    <dt>PLI</dt>
-                    <dd>Programa Litoral Integrado — resiliência climática da malha rodoviária do litoral norte e baixada santista de São Paulo.</dd>
+            <dt>Área monitorada</dt>
+            <dd>
+              Trechos rodoviários do litoral norte e da Baixada Santista
+              abrangidos pelo plano de contingência REGEA-NIPPON (SP-055,
+              SP-098 e correlatas). Não se confunde com a malha DER estadual
+              integral.
+            </dd>
 
-                    <dt>Unidade de Análise (UA)</dt>
-                    <dd>Polígono elementar de monitoramento ao longo das rodovias do PLI. O sistema opera <b>809 UAs</b>, cada uma com RA e RD próprios nos canais geo e hidro.</dd>
+            <dt>Unidade de Análise (UA)</dt>
+            <dd>
+              Polígono elementar de monitoramento ao longo da malha coberta.
+              O sistema opera <b>809 UAs</b>, cada uma com RA e RD nos canais
+              geo e hidro.
+            </dd>
 
-                    <dt>Risco Dinâmico (RD)</dt>
-                    <dd>Risco que varia com a chuva. Cinco níveis operacionais PPDC: <b>0 Monitoramento</b>, <b>1 Observação</b>, <b>2 Atenção</b>, <b>3 Alerta</b>, <b>4 Alerta Máximo</b>.</dd>
+            <dt>Risco Dinâmico (RD)</dt>
+            <dd>
+              Risco que varia com a chuva. Cinco níveis operacionais PPDC:
+              <b>0 Monitoramento</b>, <b>1 Observação</b>, <b>2 Atenção</b>,
+              <b>3 Alerta</b>, <b>4 Alerta Máximo</b>.
+            </dd>
 
-                    <dt>RD<sub>geo</sub> / RD<sub>hid</sub></dt>
-                    <dd>Risco Dinâmico calculado separadamente para encosta (geológico) e inundação (hidrológico). O RD exibido no mapa segue o canal da camada ativa; com ambas ligadas, usa-se o pior caso.</dd>
+            <dt>RD<sub>geo</sub> / RD<sub>hid</sub></dt>
+            <dd>
+              Risco Dinâmico calculado separadamente para encosta (geológico) e
+              inundação (hidrológico). O RD exibido no mapa segue o canal da
+              camada ativa; com ambas ligadas, usa-se o pior caso.
+            </dd>
 
-                    <dt>Risco Analisado (RA)</dt>
-                    <dd>Vulnerabilidade estática da UA (0–4), derivada das tabelas e figuras oficiais REGEA-NIPPON. Trechos sem mapeamento oficial aparecem como <b>SEM DADO</b>.</dd>
+            <dt>Risco Analisado (RA)</dt>
+            <dd>
+              Vulnerabilidade estática da UA (0–4), derivada das tabelas e
+              figuras oficiais REGEA-NIPPON. Trechos sem mapeamento oficial
+              aparecem como <b>SEM DADO</b>.
+            </dd>
 
-                    <dt>ICC — Índice de Correlação com Chuvas</dt>
-                    <dd>Faixa 0–4 que classifica o gatilho pluviométrico atual: <b>ICC<sub>geo</sub></b> a partir do CPC (encosta); <b>ICC<sub>hid</sub></b> a partir do acumulado 24 h (inundação).</dd>
+            <dt>ICC — Índice de Correlação com Chuvas</dt>
+            <dd>
+              Faixa 0–4 que classifica o gatilho pluviométrico atual:
+              <b>ICC<sub>geo</sub></b> a partir do CPC (encosta);
+              <b>ICC<sub>hid</sub></b> a partir do acumulado 24 h (inundação).
+            </dd>
 
-                    <dt>CPC — Coeficiente de Precipitação Crítica</dt>
-                    <dd>Razão entre a intensidade horária observada e a envoltória crítica mínima da região. CPC ≥ 1 indica limiar deflagrador atingido.</dd>
+            <dt>CPC — Coeficiente de Precipitação Crítica</dt>
+            <dd>
+              Razão entre a intensidade horária observada e a envoltória crítica
+              mínima da região. CPC ≥ 1 indica limiar deflagrador atingido.
+            </dd>
 
-                    <dt>Sensibilidade K</dt>
-                    <dd>Constante regional da envoltória crítica <code>I = K · Ac96h⁻⁰·⁹</code>. Ex.: <b>K = 200</b> (São Sebastião) é mais sensível que <b>K = 1000</b> (Mogi-Bertioga).</dd>
+            <dt>Sensibilidade K</dt>
+            <dd>
+              Constante regional da envoltória crítica
+              <code>I = K · Ac96h⁻⁰·⁹</code>. Ex.: <b>K = 200</b> (São
+              Sebastião) é mais sensível que <b>K = 1000</b> (Mogi-Bertioga).
+            </dd>
 
-                    <dt>MERGE / CPTEC / INPE</dt>
-                    <dd>Produto de chuva horária do INPE (satélite + pluviômetros brasileiros, grade ~0,1°). Ingerido em streaming; cache em memória de até 96 h para cálculo do RD.</dd>
+            <dt>MERGE / CPTEC / INPE</dt>
+            <dd>
+              Produto de chuva horária do INPE (satélite + pluviômetros
+              brasileiros, grade ~0,1°). Ingerido em streaming; cache em memória
+              de até 96 h para cálculo do RD.
+            </dd>
 
-                    <dt>WRF (CPTEC/INPE)</dt>
-                    <dd>Previsão horária de precipitação usada na composição das janelas geo ( +24 h) e hidro (+6 h) em modo ao vivo. Ausente na consulta histórica e quando indisponível no ciclo.</dd>
+            <dt>WRF (CPTEC/INPE)</dt>
+            <dd>
+              Previsão horária de precipitação usada na composição das janelas
+              geo ( +24 h) e hidro (+6 h) em modo ao vivo. Ausente na consulta
+              histórica e quando indisponível no ciclo.
+            </dd>
 
-                    <dt>Consulta histórica</dt>
-                    <dd>Reconstitui o RD para uma data/hora passada usando MERGE observado da época (até 96 GRIBs). Sem previsão WRF. Eventos sugeridos (ex.: fev/2023 — São Sebastião) validam o backtest documentado.</dd>
+            <dt>Consulta histórica</dt>
+            <dd>
+              Reconstitui o RD para uma data/hora passada usando MERGE observado
+              da época (até 96 GRIBs). Sem previsão WRF. Eventos sugeridos (ex.:
+              fev/2023 — São Sebastião) validam o backtest documentado.
+            </dd>
 
-                    <dt>Linha do tempo</dt>
-                    <dd>Animação das últimas 96 horas de RD observado (MERGE), frame a frame, conforme a camada encosta ou inundação selecionada.</dd>
+            <dt>Linha do tempo</dt>
+            <dd>
+              Animação das últimas 96 horas de RD observado (MERGE), frame a
+              frame. Na seção Evolução 96 h, selecione encosta (geológico) ou
+              inundação (hidrológico) e confirme com OK — a animação usa só as
+              UAs daquele canal.
+            </dd>
 
-                    <dt>Malha DER</dt>
-                    <dd>Shapefile oficial do Sistema Rodoviário Estadual (dadosabertos.sp.gov.br). Camada cartográfica neutra; não substitui a simbologia de alerta das UAs.</dd>
+            <dt>Malha Rodoviária Estadual</dt>
+            <dd>
+              Shapefile oficial do Sistema Rodoviário Estadual
+              (DER-SP, 2024; dadosabertos.sp.gov.br). Camada cartográfica neutra; não
+              substitui a simbologia de alerta das UAs.
+            </dd>
 
-                    <dt>Região meteorológica (1–4)</dt>
-                    <dd>Quatro regiões climático-geológico-geomorfológicas do PLI, cada uma com limiares CPC e tabelas ICC hidrológicas próprias.</dd>
+            <dt>Região meteorológica (1–4)</dt>
+            <dd>
+              Quatro regiões climático-geológico-geomorfológicas da área
+              monitorada, cada uma com limiares CPC e tabelas ICC hidrológicas
+              próprias.
+            </dd>
 
-                    <dt>Movimento de massa</dt>
-                    <dd>Processos de instabilização de encostas: escorregamento, queda de bloco, corrida de lama, solapamento — canal geológico.</dd>
+            <dt>Movimento de massa</dt>
+            <dd>
+              Processos de instabilização de encostas: escorregamento, queda de
+              bloco, corrida de lama, solapamento — canal geológico.
+            </dd>
 
-                    <dt>Eventos hidrológicos</dt>
-                    <dd>Inundação, enxurrada e alagamento por chuva intensa — canal hidrológico (janela 24 h).</dd>
+            <dt>Eventos hidrológicos</dt>
+            <dd>
+              Inundação, enxurrada e alagamento por chuva intensa — canal
+              hidrológico (janela 24 h).
+            </dd>
 
-                    <dt>UBA</dt>
-                    <dd>Unidade Básica de Atendimento do DER-SP. Referência operacional para equipes de campo nas rodovias monitoradas.</dd>
+            <dt>UBA</dt>
+            <dd>
+              Unidade Básica de Atendimento do DER-SP. Referência operacional
+              para equipes de campo nas rodovias monitoradas.
+            </dd>
 
-                    <dt>PPDC</dt>
-                    <dd>Plano Preventivo de Defesa Civil. Nomenclatura dos cinco níveis operacionais e das ações recomendadas no painel “Ações Operacionais”.</dd>
-                </dl>
-            </div>
+            <dt>PPDC</dt>
+            <dd>
+              Plano de Prevenção e Defesa Civil. Define a nomenclatura dos cinco
+              níveis operacionais e as ações recomendadas no painel Ações
+              recomendadas.
+            </dd>
+          </dl>
         </div>
+      </div>
     </div>
 
     <!-- ============================================================
          MODAL: API pública (integração externa)
          ============================================================ -->
     <div class="modal-backdrop" id="modal-api" hidden>
-        <div class="modal modal-wide" role="dialog" aria-labelledby="modal-api-title">
-            <header class="modal-header">
-                <h2 id="modal-api-title">API pública — camadas de UA</h2>
-                <button class="modal-close" data-close-modal aria-label="Fechar">×</button>
-            </header>
-            <div class="modal-body">
-                <p class="modal-intro">
-                    Endpoint aberto para outras aplicações consumirem as
-                    <b>809 Unidades de Análise</b> com geometria e monitoramento
-                    em tempo real (RD, chuva, RA e atributos DER).
-                    Resposta em <b>GeoJSON</b> (<code>application/geo+json</code>).
-                </p>
+      <div
+        class="modal modal-wide"
+        role="dialog"
+        aria-labelledby="modal-api-title"
+      >
+        <header class="modal-header">
+          <h2 id="modal-api-title">API pública — camadas de UA</h2>
+          <button class="modal-close" data-close-modal aria-label="Fechar">
+            ×
+          </button>
+        </header>
+        <div class="modal-body">
+          <p class="modal-intro">
+            Endpoint aberto para outras aplicações consumirem as
+            <b>809 Unidades de Análise</b> com geometria e monitoramento em
+            tempo real (RD, chuva, RA e atributos DER). Resposta em
+            <b>GeoJSON</b> (<code>application/geo+json</code>).
+          </p>
 
-                <h3>URL base (esta instalação)</h3>
-                <p class="modal-code-line">
-                    <code id="api-url-live" class="modal-code-block">—</code>
-                </p>
-                <p class="modal-note">
-                    Atualize a cada ~30 s. Compatível com Leaflet, Mapbox,
-                    QGIS, ArcGIS Online e qualquer cliente HTTP/GeoJSON.
-                </p>
+          <h3>URL base (esta instalação)</h3>
+          <p class="modal-code-line">
+            <code id="api-url-live" class="modal-code-block">—</code>
+          </p>
+          <p class="modal-note">
+            Atualize a cada ~30 s. Compatível com Leaflet, Mapbox, QGIS, ArcGIS
+            Online e qualquer cliente HTTP/GeoJSON.
+          </p>
 
-                <h3>Endpoints</h3>
-                <table class="modal-table">
-                    <tr>
-                        <th>Todas as UAs (geo + hidro)</th>
-                        <td><code id="api-url-all">—</code></td>
-                    </tr>
-                    <tr>
-                        <th>Encosta (RD geológico)</th>
-                        <td><code id="api-url-geo">—</code></td>
-                    </tr>
-                    <tr>
-                        <th>Inundação (RD hidrológico)</th>
-                        <td><code id="api-url-hidro">—</code></td>
-                    </tr>
-                    <tr>
-                        <th>Somente alertas (RD ≥ 3)</th>
-                        <td><code id="api-url-alerts">—</code></td>
-                    </tr>
-                </table>
+          <h3>Endpoints</h3>
+          <table class="modal-table">
+            <tr>
+              <th>Todas as UAs (geo + hidro)</th>
+              <td><code id="api-url-all">—</code></td>
+            </tr>
+            <tr>
+              <th>Encosta (RD geológico)</th>
+              <td><code id="api-url-geo">—</code></td>
+            </tr>
+            <tr>
+              <th>Inundação (RD hidrológico)</th>
+              <td><code id="api-url-hidro">—</code></td>
+            </tr>
+            <tr>
+              <th>Somente alertas (RD ≥ 3)</th>
+              <td><code id="api-url-alerts">—</code></td>
+            </tr>
+          </table>
 
-                <h3>Parâmetros de consulta</h3>
-                <table class="modal-table">
-                    <tr>
-                        <th><code>hazard</code></th>
-                        <td><code>geo</code>, <code>hidro</code> ou <code>all</code> (padrão)</td>
-                    </tr>
-                    <tr>
-                        <th><code>min_rd</code></th>
-                        <td>Filtro 0–4 — retorna UAs com RD ≥ valor (ex.: <code>3</code>)</td>
-                    </tr>
-                    <tr>
-                        <th><code>at</code></th>
-                        <td>Data/hora ISO 8601 UTC — snapshot histórico (ex.: <code>2023-02-19T12:00:00Z</code>)</td>
-                    </tr>
-                </table>
+          <h3>Parâmetros de consulta</h3>
+          <table class="modal-table">
+            <tr>
+              <th><code>hazard</code></th>
+              <td>
+                <code>geo</code>, <code>hidro</code> ou
+                <code>all</code> (padrão)
+              </td>
+            </tr>
+            <tr>
+              <th><code>min_rd</code></th>
+              <td>
+                Filtro 0–4 — retorna UAs com RD ≥ valor (ex.: <code>3</code>)
+              </td>
+            </tr>
+            <tr>
+              <th><code>at</code></th>
+              <td>
+                Data/hora ISO 8601 UTC — snapshot histórico (ex.:
+                <code>2023-02-19T12:00:00Z</code>)
+              </td>
+            </tr>
+          </table>
 
-                <h3>Propriedades de cada feature</h3>
-                <table class="modal-table">
-                    <tr><th>Identificação</th><td><code>id</code>, <code>rodovia</code>, <code>km</code>, <code>regiao</code>, <code>region_name</code>, <code>municipio</code></td></tr>
-                    <tr><th>Risco</th><td><code>ra</code>, <code>rd</code>, <code>rd_geo</code>, <code>rd_hid</code>, <code>nivel</code>, <code>hazard</code></td></tr>
-                    <tr><th>Chuva</th><td><code>ac96h_mm</code>, <code>ac24h_mm</code>, <code>intensity_mmh</code>, <code>cpc</code>, <code>icc_geo</code>, <code>icc_hid</code></td></tr>
-                    <tr><th>DER</th><td><code>cgr</code>, <code>uba_codigo</code>, <code>uba_nome</code>, <code>residencia_conserva</code></td></tr>
-                </table>
+          <h3>Propriedades de cada feature</h3>
+          <table class="modal-table">
+            <tr>
+              <th>Identificação</th>
+              <td>
+                <code>id</code>, <code>rodovia</code>, <code>km</code>,
+                <code>regiao</code>, <code>region_name</code>,
+                <code>municipio</code>
+              </td>
+            </tr>
+            <tr>
+              <th>Risco</th>
+              <td>
+                <code>ra</code>, <code>rd</code>, <code>rd_geo</code>,
+                <code>rd_hid</code>, <code>nivel</code>, <code>hazard</code>
+              </td>
+            </tr>
+            <tr>
+              <th>Chuva</th>
+              <td>
+                <code>ac96h_mm</code>, <code>ac24h_mm</code>,
+                <code>intensity_mmh</code>, <code>cpc</code>,
+                <code>icc_geo</code>, <code>icc_hid</code>
+              </td>
+            </tr>
+            <tr>
+              <th>DER</th>
+              <td>
+                <code>cgr</code>, <code>uba_codigo</code>,
+                <code>uba_nome</code>, <code>residencia_conserva</code>
+              </td>
+            </tr>
+          </table>
 
-                <h3>Metadados (<code>metadata</code>)</h3>
-                <p>
-                    O objeto raiz inclui <code>timestamp_utc</code>,
-                    <code>data_status</code> (<code>ok</code>, <code>loading</code>,
-                    <code>no_data</code>), contagem por nível e
-                    <code>feature_count</code>.
-                </p>
+          <h3>Metadados (<code>metadata</code>)</h3>
+          <p>
+            O objeto raiz inclui <code>timestamp_utc</code>,
+            <code>data_status</code> (<code>ok</code>, <code>loading</code>,
+            <code>no_data</code>), contagem por nível e
+            <code>feature_count</code>.
+          </p>
 
-                <h3>Exemplo (JavaScript)</h3>
-                <pre class="modal-pre" id="api-fetch-example">—</pre>
+          <h3>Exemplo (JavaScript)</h3>
+          <pre class="modal-pre" id="api-fetch-example">—</pre>
 
-                <p class="modal-note">
-                    CORS liberado (<code>Access-Control-Allow-Origin: *</code>).
-                    Cache HTTP: 30 s. Não requer autenticação.
-                </p>
-            </div>
+          <p class="modal-note">
+            CORS liberado (<code>Access-Control-Allow-Origin: *</code>). Cache
+            HTTP: 30 s. Não requer autenticação.
+          </p>
         </div>
+      </div>
     </div>
 
     <script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/leaflet/leaflet-heat.js') }}"></script>
     <script>
-        // Prefixo da app injetado pelo Flask. Quando atras de Nginx em path
-        // (ex: /hazardtrack/), vira "/hazardtrack". Caso contrario, "".
-        window.APP_BASE = "{{ request.script_root }}";
+      // Prefixo da app injetado pelo Flask. Quando atras de Nginx em path
+      // (ex: /hazardtrack/), vira "/hazardtrack". Caso contrario, "".
+      window.APP_BASE = "{{ request.script_root }}";
     </script>
+    <script src="{{ url_for('static', filename='query-filter.js') }}"></script>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
-</body>
+  </body>
 </html>

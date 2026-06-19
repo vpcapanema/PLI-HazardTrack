@@ -1,14 +1,14 @@
 """
-Pagina de operacoes (/ops) com acesso restrito.
+Area administrativa (/admin) com acesso restrito.
 
-Autenticacao: contra o banco do SRA (somente leitura, bcrypt validado no
-proprio PLI). Configurar via env:
-    SRA_DB_HOST / SRA_DB_PORT / SRA_DB_NAME / SRA_DB_USER / SRA_DB_PASSWORD
-    OPS_ALLOWED_ROLES   (default: admin)
-    OPS_SECRET          chave de sessao Flask
+Autenticacao: SIGMA-PLI (PostgreSQL ou API HTTP) ou credenciais locais.
+Configurar via env:
+    ADMIN_USER / ADMIN_PASS   (dev e ambientes simples)
+    ADMIN_SECRET              chave de sessao Flask
+    SIGMA_API_BASE_URL        (opcional, producao integrada)
 
 Tudo que importa para diagnosticar producao esta em uma unica resposta JSON
-em /ops/api/diagnostics, organizada por responsabilidade:
+em /admin/api/diagnostics, organizada por responsabilidade:
 
     1. Visao geral (semaforos)
     2. Fontes externas (INPE/MERGE, basemap, Google Fonts)
@@ -16,7 +16,7 @@ em /ops/api/diagnostics, organizada por responsabilidade:
     4. Pipeline de dados (scheduler, ciclos, qualidade)
     5. Modelo / metodologia (regioes, pontos, RA, limiares)
     6. Aplicacao web (rotas, assets versionados)
-    7. Backend de autenticacao (saude da conexao com o SRA)
+    7. Backend de autenticacao (saude da conexao com o SIGMA-PLI)
 """
 from __future__ import annotations
 
@@ -37,23 +37,26 @@ from flask import (
 
 from .aggregator import state
 from .merge_ingest import ingest
-from .merge_inpe import _eccodes_available, _hourly_url, INPE_BASE, PUBLISH_LAG_HOURS
-from .sra_auth import sra_auth
+from .merge_inpe import (
+    _eccodes_available, _hourly_url, INPE_BASE, PUBLISH_LAG_HOURS,
+)
+from . import admin_auth
+from .sigma_auth import SigmaConnectionError
 
-ops_bp = Blueprint("ops", __name__, url_prefix="/ops")
+admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
 # ---------------------------------------------------------------------------
-# Auth helpers (delegam ao sra_auth)
+# Auth helpers
 # ---------------------------------------------------------------------------
 
 def _login_required(view):
     @wraps(view)
     def wrapper(*args, **kwargs):
-        if not session.get("ops_user"):
-            if request.path.startswith("/ops/api/"):
+        if not session.get("admin_user"):
+            if request.path.startswith("/admin/api/"):
                 return jsonify({"error": "auth required"}), 401
-            return redirect(url_for("ops.login_page", next=request.path))
+            return redirect(url_for("admin.login_page", next=request.path))
         return view(*args, **kwargs)
     return wrapper
 
@@ -295,7 +298,7 @@ def collect_diagnostics() -> Dict[str, Any]:
             }
             for r in regions
         ],
-        "points_total": len(state.points),
+        "points_total": len(points),
         "points_by_region": by_region,
         "ra_mode": "manual" if os.environ.get("SAMAEG_USE_MANUAL_RA") == "1" else "neutralized (RA=1)",
         "formulas": {
@@ -324,21 +327,17 @@ def collect_diagnostics() -> Dict[str, Any]:
             "style_css": "/static/style.css",
         },
         "session": {
-            "user": session.get("ops_user"),
+            "user": session.get("admin_user"),
             "remote_addr": request.remote_addr,
             "user_agent": request.headers.get("User-Agent"),
         },
     }
 
-    # ---- 7. Backend de autenticacao (Postgres do SRA) ----
+    # ---- 7. Backend de autenticacao (SIGMA-PLI) ----
     auth_backend = {
-        "provider": "Postgres do SRA (read-only, bcrypt validado no PLI)",
-        "configured": sra_auth.configured,
-        "role_required": "admin",
-        "reset_password_url": sra_auth.reset_password_url,
-        "health": sra_auth.healthcheck(),
+        **admin_auth.auth_backend_diag(),
         "session": {
-            "user": session.get("ops_user"),
+            "user": session.get("admin_user"),
             "remote_addr": request.remote_addr,
             "user_agent": request.headers.get("User-Agent"),
         },
@@ -356,7 +355,7 @@ def collect_diagnostics() -> Dict[str, Any]:
     }
 
 
-def _light_for_data(status: Optional[str], missing_24h: int) -> str:
+def _light_for_data(status: Optional[str], _missing_24h: int) -> str:
     if status == "ok":
         return "ok"
     if status in {"degraded", "loading"}:
@@ -368,61 +367,85 @@ def _light_for_data(status: Optional[str], missing_24h: int) -> str:
 # Rotas
 # ---------------------------------------------------------------------------
 
-@ops_bp.route("/", methods=["GET"])
+@admin_bp.route("/", methods=["GET"])
 def root():
-    """Root do /ops: redireciona para o status (com auth) ou login."""
-    if session.get("ops_user"):
-        return redirect(url_for("ops.status_page"))
-    return redirect(url_for("ops.login_page"))
+    """Root do /admin: redireciona para o status (com auth) ou login."""
+    if session.get("admin_user"):
+        return redirect(url_for("admin.status_page"))
+    return redirect(url_for("admin.login_page"))
 
 
-@ops_bp.route("/login", methods=["GET"])
+@admin_bp.route("/login", methods=["GET"])
 def login_page():
-    next_url = request.args.get("next", "/ops/status")
-    err = request.args.get("err")
+    if session.get("admin_user"):
+        next_url = request.args.get("next", "/admin/status")
+        return redirect(next_url)
+    next_url = request.args.get("next", "/admin/status")
     return render_template(
-        "ops_login.html",
+        "admin_login.html",
         next_url=next_url,
-        error=err,
-        backend_configured=sra_auth.configured,
-        reset_password_url=sra_auth.reset_password_url,
+        backend_configured=admin_auth.auth_configured(),
     )
 
 
-@ops_bp.route("/login", methods=["POST"])
-def login_submit():
-    email = request.form.get("email", "").strip()
-    pw = request.form.get("password", "")
-    next_url = request.form.get("next", "/ops/status")
-
-    user = sra_auth.authenticate(email, pw)
-    if user:
-        session.clear()
-        session["ops_user"] = {
-            "id": user["id"],
-            "email": user["email"],
-            "nome": user["nome"],
-            "role": user["role"],
-        }
-        session.permanent = True
-        return redirect(next_url)
-    return redirect(url_for("ops.login_page", next=next_url, err="1"))
+@admin_bp.route("/api/auth/context", methods=["GET"])
+def api_auth_context():
+    return jsonify(admin_auth.auth_context())
 
 
-@ops_bp.route("/logout", methods=["POST", "GET"])
+@admin_bp.route("/api/auth/login", methods=["POST"])
+def api_auth_login():
+    if not admin_auth.auth_configured():
+        return jsonify({
+            "error": (
+                "Acesso restrito nao configurado "
+                "(defina SIGMA_POSTGRES_* ou ADMIN_USER/ADMIN_PASS no .env)."
+            ),
+        }), 503
+
+    body = request.get_json(silent=True) or {}
+    username = str(body.get("username", "")).strip()
+    password = str(body.get("password", ""))
+    next_url = str(body.get("next", "/admin/status")).strip() or "/admin/status"
+
+    if not next_url.startswith("/admin"):
+        next_url = "/admin/status"
+
+    try:
+        user = admin_auth.authenticate(username, password)
+    except SigmaConnectionError as exc:
+        return jsonify({
+            "error": "Servico de autenticacao indisponivel.",
+            "detail": str(exc),
+        }), 503
+
+    if not user:
+        return jsonify({"error": "Usuario ou senha invalidos."}), 401
+
+    session.clear()
+    session["admin_user"] = admin_auth.session_payload(user)
+    session.permanent = True
+    return jsonify({
+        "ok": True,
+        "username": user.username,
+        "redirect": next_url,
+    })
+
+
+@admin_bp.route("/logout", methods=["POST", "GET"])
 def logout():
     session.clear()
-    return redirect(url_for("ops.login_page"))
+    return redirect(url_for("admin.login_page"))
 
 
-@ops_bp.route("/status", methods=["GET"])
+@admin_bp.route("/status", methods=["GET"])
 @_login_required
 def status_page():
     diag = collect_diagnostics()
-    return render_template("ops_status.html", diag=diag)
+    return render_template("admin_status.html", diag=diag)
 
 
-@ops_bp.route("/api/diagnostics", methods=["GET"])
+@admin_bp.route("/api/diagnostics", methods=["GET"])
 @_login_required
 def api_diagnostics():
     return jsonify(collect_diagnostics())

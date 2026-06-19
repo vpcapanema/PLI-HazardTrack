@@ -24,12 +24,16 @@ services:
         value: "120"
       - key: SAMAEG_REFETCH_RECENT_H
         value: "3"
-      # Pagina /ops - configure no painel do Render (Settings > Environment)
-      - key: OPS_USER
+      # Area /admin - configure no painel do Render (Settings > Environment)
+      - key: SIGMA_API_BASE_URL
         sync: false
-      - key: OPS_PASS
+      - key: SIGMA_POSTGRES_HOST
         sync: false
-      - key: OPS_PASS_SHA256
+      - key: SIGMA_POSTGRES_PASSWORD
         sync: false
-      - key: OPS_SECRET
+      - key: ADMIN_USER
+        sync: false
+      - key: ADMIN_PASS
+        sync: false
+      - key: ADMIN_SECRET
         sync: false

@@ -1,0 +1,38 @@
+{% macro trecho_picker(region_id, road_id, km_id) %}
+<div class="trecho-picker">
+  <div class="filter-group trecho-picker-field">
+    <label for="{{ region_id }}">Região</label>
+    <select
+      id="{{ region_id }}"
+      class="js-trecho-region"
+      name="{{ region_id }}"
+      aria-label="Região monitorada"
+    >
+      <option value="">Selecione um valor</option>
+    </select>
+  </div>
+  <div class="filter-group trecho-picker-field">
+    <label for="{{ road_id }}">Rodovia</label>
+    <select
+      id="{{ road_id }}"
+      class="js-trecho-road"
+      name="{{ road_id }}"
+      aria-label="Rodovia monitorada"
+    >
+      <option value="">Selecione um valor</option>
+    </select>
+  </div>
+  <div class="filter-group trecho-picker-field">
+    <label for="{{ km_id }}">Trecho (km)</label>
+    <select
+      id="{{ km_id }}"
+      class="js-trecho-km"
+      name="{{ km_id }}"
+      aria-label="Trecho monitorado"
+      disabled
+    >
+      <option value="">Selecione um valor</option>
+    </select>
+  </div>
+</div>
+{% endmacro %}

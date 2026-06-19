@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#003b5a">
+    <title>PLI-HazardTrack — Administração</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/admin.css">
+</head>
+<body class="access-page">
+    <header class="access-topbar">
+        <h1>Administração</h1>
+        <nav>
+            <a href="/">Monitoramento</a>
+            <a href="/admin/login" aria-current="page">Admin</a>
+        </nav>
+    </header>
+    <main class="access-main">
+        <div class="access-login-wrapper">
+            <section id="login-panel" class="access-login-card">
+                <div class="access-branding">
+                    <img
+                        src="/static/favicon.svg"
+                        alt=""
+                        class="access-app-icon"
+                        width="64"
+                        height="64"
+                    />
+                    <h2 class="access-app-title">PLI-HAZARDTRACK</h2>
+                    <p class="access-app-subtitle">Acesso administrativo</p>
+                </div>
+
+                {% if not backend_configured %}
+                <div class="access-feedback" role="alert">
+                    <strong>Autenticação indisponível.</strong>
+                    Defina <code>SIGMA_POSTGRES_*</code> (banco SIGMA) ou
+                    <code>ADMIN_USER</code>/<code>ADMIN_PASS</code> no <code>.env</code>.
+                </div>
+                {% endif %}
+
+                <form id="login-form" novalidate>
+                    <input type="hidden" id="login-next" value="{{ next_url }}">
+
+                    <div class="access-field">
+                        <label class="access-field-label" for="login-user" id="login-user-label">Usuário</label>
+                        <div class="access-input-wrap">
+                            <span class="access-input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                            </span>
+                            <input
+                                id="login-user"
+                                type="text"
+                                placeholder="gestor.silva ou gestor.silva@orgao.gov.br"
+                                autocomplete="username"
+                                minlength="3"
+                                maxlength="255"
+                                required
+                                autofocus
+                                {% if not backend_configured %}disabled{% endif %}
+                            />
+                        </div>
+                    </div>
+
+                    <div class="access-field">
+                        <label class="access-field-label" for="login-pass" id="login-pass-label">Senha</label>
+                        <div class="access-input-wrap">
+                            <span class="access-input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-5 6.7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM10 8V6a2 2 0 1 1 4 0v2h-4z"/></svg>
+                            </span>
+                            <input
+                                id="login-pass"
+                                type="password"
+                                placeholder="Sua senha"
+                                autocomplete="current-password"
+                                minlength="6"
+                                maxlength="128"
+                                required
+                                {% if not backend_configured %}disabled{% endif %}
+                            />
+                            <button type="button" class="access-toggle-pw" id="login-toggle-pw" aria-label="Mostrar ou ocultar senha">
+                                <svg class="icon-eye" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 5C7 5 2.7 8.1 1 12c1.7 3.9 6 7 11 7s9.3-3.1 11-7c-1.7-3.9-6-7-11-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p id="login-error" class="access-feedback" hidden role="alert"></p>
+
+                    <button type="submit" class="access-btn-submit"
+                            {% if not backend_configured %}disabled{% endif %}>
+                        Entrar
+                    </button>
+                </form>
+
+                <div class="access-forgot">
+                    <a id="link-recuperar-senha" href="#" target="_blank" rel="noopener noreferrer" hidden>Esqueceu a senha?</a>
+                </div>
+
+                <div class="access-divider" id="access-divider" hidden>
+                    <span></span>
+                    <span class="access-divider-text">ou</span>
+                    <span></span>
+                </div>
+
+                <a id="link-cadastro" href="#" target="_blank" rel="noopener noreferrer" class="access-btn-register" hidden>Criar Conta</a>
+            </section>
+        </div>
+    </main>
+    <script src="/static/admin-access-login.js"></script>
+</body>
+</html>

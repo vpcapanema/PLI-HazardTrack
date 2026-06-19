@@ -3,28 +3,41 @@
  * Sistema de Alerta de Risco Geodinâmico Rodoviário
  *
  * - Auto-refresh do snapshot a cada 30s
- * - Mapa Leaflet (CARTO Light) com camadas: pontos, regiões, malha DER-SP, heatmap
+ * - Mapa Leaflet (CARTO Light) com camadas: pontos, regiões, malha rodoviária estadual, heatmap
  * - Filtros interativos da malha rodoviária
  */
 
 const REFRESH_MS = 30_000;
-/** Máximo de UAs compartilhadas entre os painéis informativos de alerta. */
+/** UAs prioritárias para ações e situação operacional (até N). */
 const FOCAL_MAX = 4;
-const SP_BOUNDS = [[-25.5, -53.2], [-19.7, -44.0]];        // Estado inteiro
-const LITORAL_BOUNDS = [[-25.0, -47.0], [-22.5, -44.3]];   // Litoral norte + Baixada Santista
+const SP_BOUNDS = [
+  [-25.5, -53.2],
+  [-19.7, -44.0],
+]; // Estado inteiro
+const LITORAL_BOUNDS = [
+  [-25.0, -47.0],
+  [-22.5, -44.3],
+]; // Litoral norte + Baixada Santista
 
 // Prefixo da app, injetado pelo template (vazio em raiz, "/hazardtrack" atras de Nginx em path)
-const APP_BASE = (typeof window !== "undefined" && window.APP_BASE) ? window.APP_BASE : "";
+const APP_BASE =
+  typeof window !== "undefined" && window.APP_BASE ? window.APP_BASE : "";
 const apiUrl = (path) => APP_BASE + path;
 
-const NIVEL_LABEL = ["Monitoramento", "Observação", "Atenção", "Alerta", "Alerta Máximo"];
+const NIVEL_LABEL = [
+  "Monitoramento",
+  "Observação",
+  "Atenção",
+  "Alerta",
+  "Alerta Máximo",
+];
 const NIVEL_COLOR = ["#2aa358", "#f1c40f", "#f39c12", "#e74c3c", "#8e44ad"];
 const NIVEL_DESC = [
   "Sem chuva relevante",
   "Chuva próxima ao limiar",
   "Vistorias preventivas",
   "Possíveis ocorrências",
-  "Risco severo"
+  "Risco severo",
 ];
 
 // ============================================================================
@@ -33,34 +46,43 @@ const NIVEL_DESC = [
 // que extrai o RD daquele hazard a partir de um ponto do snapshot.
 // Para adicionar uma camada nova: registrar entrada aqui + tornar `available`.
 // ============================================================================
+const TRECHO_SELECT_PLACEHOLDER = "Selecione um valor";
+const TRECHO_VALUE_PENDING = "Aguardando dados";
+
 const HAZARDS = {
   encosta: {
     label: "Instabilidade de encosta",
-    legendTitle: "Situação operacional dos trechos<br>rodoviários considerando: instabilidade de encosta",
-    description: "Engloba escorregamento e queda de bloco. Pelo método em uso (REGEA-NIPPON 2021), são tratados na mesma envoltória crítica.",
+    legendTitle:
+      "Situação operacional dos trechos<br>rodoviários considerando: instabilidade de encosta",
+    description:
+      "Engloba escorregamento e queda de bloco. Pelo método em uso (REGEA-NIPPON 2021), são tratados na mesma envoltória crítica.",
     // Mesma escala dos pontos (niveis operacionais oficiais).
     palette: ["#2aa358", "#f1c40f", "#f39c12", "#e74c3c", "#8e44ad"],
     source: "REGEA-NIPPON 2021",
     available: true,
-    rdFrom: (point) => Number.isInteger(point?.rd) ? point.rd : null,
+    rdFrom: (point) => (Number.isInteger(point?.rd) ? point.rd : null),
   },
   inundacao: {
     label: "Inundação",
-    legendTitle: "Situação operacional dos trechos<br>rodoviários considerando: inundação",
-    description: "Alagamento e enxurrada por chuva intensa de curto prazo (24h).",
+    legendTitle:
+      "Situação operacional dos trechos<br>rodoviários considerando: inundação",
+    description:
+      "Alagamento e enxurrada por chuva intensa de curto prazo (24h).",
     // Nivel 0 = mesmo verde dos pontos (Monitoramento). Niveis 1-3 sobem em azul,
     // nivel 4 vira magenta/violeta vivido para destaque maximo.
     palette: ["#2aa358", "#5fa8d3", "#1d6fb8", "#0a3d7a", "#d61f8d"],
     source: "REGEA-NIPPON 2021",
     available: true,
-    rdFrom: (point) => Number.isInteger(point?.rd) ? point.rd : null,
+    rdFrom: (point) => (Number.isInteger(point?.rd) ? point.rd : null),
   },
 };
 
 // Estado das camadas, persistido em localStorage (controle do usuario).
 // Default: todas as disponiveis ligadas; o que o usuario alterar fica salvo.
-const HAZARD_STORAGE_KEY = "pli_hazardtrack.hazard_layers.v1";
+const HAZARD_STORAGE_KEY = "pli_hazardtrack.hazard_layers.v2";
 const LEGEND_COLLAPSE_KEY = "pli_hazardtrack.legend_collapsed.v1";
+const MAP_LAYER_STORAGE_KEY = "pli_hazardtrack.map_layers.v2";
+const PROGRESS_POLL_MS = 1500;
 
 function _loadLegendCollapsed() {
   try {
@@ -73,18 +95,19 @@ function _loadLegendCollapsed() {
 
 function saveLegendCollapsed() {
   try {
-    localStorage.setItem(
-      LEGEND_COLLAPSE_KEY,
-      JSON.stringify(LEGEND_COLLAPSED)
-    );
-  } catch { /* ignora */ }
+    localStorage.setItem(LEGEND_COLLAPSE_KEY, JSON.stringify(LEGEND_COLLAPSED));
+  } catch {
+    /* ignora */
+  }
 }
 
 const LEGEND_COLLAPSED = _loadLegendCollapsed();
 
 function _loadHazardState() {
   const defaults = Object.fromEntries(
-    Object.entries(HAZARDS).filter(([, h]) => h.available).map(([k]) => [k, true])
+    Object.entries(HAZARDS)
+      .filter(([, h]) => h.available)
+      .map(([k]) => [k, true]),
   );
   try {
     const raw = localStorage.getItem(HAZARD_STORAGE_KEY);
@@ -100,10 +123,43 @@ function _loadHazardState() {
 function saveHazardState() {
   try {
     localStorage.setItem(HAZARD_STORAGE_KEY, JSON.stringify(HAZARD_STATE));
-  } catch { /* storage cheio/bloqueado: ignora */ }
+  } catch {
+    /* storage cheio/bloqueado: ignora */
+  }
 }
 
 const HAZARD_LAYER_KEY = { geo: "encosta", hidro: "inundacao" };
+
+const MAP_LAYER_DEFAULTS = {
+  regions: false,
+  heatmap: false,
+  roads: true,
+  municipios: false,
+  rc: false,
+  uba: false,
+  cgr: false,
+};
+
+function loadMapLayerState() {
+  try {
+    const raw = localStorage.getItem(MAP_LAYER_STORAGE_KEY);
+    return raw ? { ...MAP_LAYER_DEFAULTS, ...JSON.parse(raw) } : {
+      ...MAP_LAYER_DEFAULTS,
+    };
+  } catch {
+    return { ...MAP_LAYER_DEFAULTS };
+  }
+}
+
+const MAP_LAYER_STATE = loadMapLayerState();
+
+function saveMapLayerState() {
+  try {
+    localStorage.setItem(MAP_LAYER_STORAGE_KEY, JSON.stringify(MAP_LAYER_STATE));
+  } catch {
+    /* ignora */
+  }
+}
 
 function snapshotPoints(snap) {
   const geo = snap?.points_geo || [];
@@ -189,26 +245,85 @@ function focalMaxRd(focal) {
   return Math.max(...focal.map((p) => p.rd || 0));
 }
 
+function infoCardClassForRd(rd) {
+  if (rd >= 3) return "info-card--critical";
+  if (rd >= 2) return "info-card--warning";
+  return "info-card--success";
+}
+
+function infoAccentForRd(rd) {
+  if (rd >= 3) return "var(--info-critical)";
+  if (rd >= 2) return "var(--info-warning)";
+  return "var(--info-success)";
+}
+
+const TRECHO_SCALAR_NOTE =
+  "Cada trecho monitorado corresponde a uma Unidade de Análise (UA). Os "
+  + "indicadores referem-se aos valores calculados nessa UA (RA do polígono, "
+  + "chuva no centróide, RD = RA × ICC).";
+
+function formatTrechoKm(km) {
+  if (km == null || km === "") return "—";
+  const n = Number(km);
+  if (!Number.isFinite(n)) return String(km);
+  return n.toLocaleString("pt-BR", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+}
+
+function resolvePanelUaId(snap) {
+  if (state.uaPickerId) return state.uaPickerId;
+  const focal = resolveFocalPoints(snap);
+  if (state.trechoRegion) {
+    const rid = Number(state.trechoRegion);
+    const inReg = focal.filter((p) => uaRegionId(p) === rid);
+    if (inReg.length) return inReg[0].id;
+    const { geo } = snapshotPoints(snap);
+    const ranked = geo
+      .filter((p) => uaRegionId(p) === rid)
+      .sort((a, b) => (b.rd || 0) - (a.rd || 0));
+    return ranked[0]?.id || null;
+  }
+  return focal[0]?.id || null;
+}
+
 function renderFocalBanner(focal) {
   const el = document.getElementById("focal-banner");
   if (!el) return;
   if (!focal?.length) {
     el.hidden = true;
     el.textContent = "";
+    el.classList.remove(
+      "info-card--critical",
+      "info-card--success",
+      "info-card--warning",
+    );
     return;
   }
   el.hidden = false;
+  const maxRd = focalMaxRd(focal);
+  el.classList.remove(
+    "info-card--critical",
+    "info-card--success",
+    "info-card--warning",
+  );
+  el.classList.add(
+    infoCardClassForRd(maxRd),
+  );
   const labels = focal.map((p) => escapeHtml(focalShortLabel(p))).join(" · ");
+  const top = focalShortLabel(focal[0]);
   if (focal.length === 1) {
-    el.innerHTML = (
-      "Painéis de alerta referem-se à mesma UA: <b>"
-      + labels + "</b>"
-    );
+    el.innerHTML =
+      "Ações e situação operacional referem-se ao trecho <b>" + labels
+      + "</b>. Indicadores, previsão e sensibilidade empregam "
+      + "<b>um trecho por vez</b> (priorização automática).";
   } else {
-    el.innerHTML = (
-      "Painéis de alerta referem-se às <b>"
-      + focal.length + " UAs</b> com maior alerta: " + labels
-    );
+    el.innerHTML =
+      "Ações e situação operacional consideram até <b>" + focal.length
+      + " trechos</b> em alerta: " + labels + ". "
+      + "Indicadores, previsão e sensibilidade adotam o de maior RD "
+      + "(<b>" + escapeHtml(top) + "</b>) — selecione outro no seletor.";
   }
 }
 
@@ -223,14 +338,65 @@ function sidebarLevelCounts(summary, focal) {
   return activeByLevel(summary);
 }
 
+function maxLevelFromCounts(by) {
+  for (let i = 4; i >= 0; i--) {
+    if ((by?.[i] || by?.[String(i)] || 0) > 0) return i;
+  }
+  return 0;
+}
+
+function pendingLevelCountsObj() {
+  const o = {};
+  for (let i = 0; i <= 4; i++) o[i] = TRECHO_VALUE_PENDING;
+  return o;
+}
+
+function setLayerLevelCounts(prefix, by) {
+  const pending =
+    by?.[0] === TRECHO_VALUE_PENDING || by?.["0"] === TRECHO_VALUE_PENDING;
+  for (let i = 0; i <= 4; i++) {
+    const el = document.getElementById(`count-${prefix}-${i}`);
+    if (!el) continue;
+    const raw = by?.[i] ?? by?.[String(i)];
+    if (pending || raw === TRECHO_VALUE_PENDING) {
+      el.textContent = TRECHO_VALUE_PENDING;
+    } else {
+      el.textContent = String(raw ?? 0);
+    }
+  }
+}
+
+function initLevelMeters() {
+  setLayerLevelCounts("geo", pendingLevelCountsObj());
+  setLayerLevelCounts("hidro", pendingLevelCountsObj());
+  syncMeterScaleColors();
+}
+
 function applySidebarLevelCounts(summary, focal) {
   const by = sidebarLevelCounts(summary, focal);
-  for (let i = 0; i <= 4; i++) {
-    const el = document.getElementById("count-" + i);
-    if (el) el.textContent = by[i] || 0;
-  }
+  const byGeo = summary.by_level_geo || {};
+  const byHidro = summary.by_level_hidro || {};
+  setLayerLevelCounts("geo", byGeo);
+  setLayerLevelCounts("hidro", byHidro);
   const maxRd = focal?.length ? focalMaxRd(focal) : (summary.max_rd ?? 0);
-  applyMeterHighlight(by, maxRd);
+  applyMeterHighlight({
+    encosta: byGeo,
+    inundacao: byHidro,
+    combined: by,
+    max: {
+      encosta: maxLevelFromCounts(byGeo),
+      inundacao: maxLevelFromCounts(byHidro),
+      combined: maxRd,
+    },
+  });
+}
+
+function syncMeterScaleColors() {
+  applyMeterHighlight({
+    encosta: {},
+    inundacao: {},
+    max: { encosta: 0, inundacao: 0 },
+  });
 }
 
 const HAZARD_STATE = _loadHazardState();
@@ -239,14 +405,14 @@ const state = {
   map: null,
   layers: { hazardZones: {}, regions: null, heat: null, roads: null },
   pointMarkers: new Map(),
-  pointData: new Map(),       // id -> dados completos do ponto (para heatmap)
+  pointData: new Map(), // id -> dados completos do ponto (para heatmap)
   regionPolys: [],
   roadGeoJSON: null,
   roadFilters: {
     tipo_pista: "",
     regional: "",
     administra: "",
-    rodovia: ""
+    rodovia: "",
   },
   // Animacao temporal (Linha do Tempo - Anexo C 3.4.2)
   timeline: {
@@ -257,10 +423,18 @@ const state = {
     idx: 0,
     step: 1,
     timer: null,
+    hazard: "encosta",
+    savedHazardState: null,
   },
   historyMode: false,
   historyAtIso: null,
   focalPoints: [],
+  uaPickerId: "",
+  trechoRegion: "",
+  trechoRoad: "",
+  trechoApoioId: "",
+  trechoFocus: { markerKeys: [], overlay: null, lastKey: "" },
+  forecastData: null,
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -268,6 +442,37 @@ document.addEventListener("DOMContentLoaded", init);
 function init() {
   initMap();
   attachEvents();
+  initSidebarPanels();
+  initSidebarJumps();
+  initSidebarChrome();
+  window.pliMapBridge = {
+    onFiltersChanged() {
+      renderRoadsOnMap();
+      if (state.lastSnapshot) renderPointsOnMap(state.lastSnapshot);
+    },
+    getLayerValues(layerId, fieldKey) {
+      let rows = [];
+      if (layerId === "roads") {
+        rows = state.roadGeoJSON?.features?.map((f) => f.properties || {}) || [];
+      } else if (layerId === "encosta" || layerId === "inundacao") {
+        const snap = state.lastSnapshot || {};
+        const [geo, hid] = snapshotPoints(snap);
+        rows = layerId === "inundacao" ? hid : geo;
+      }
+
+      const values = rows.map((row) => {
+        if (fieldKey === "rd" && layerId !== "roads") {
+          return HAZARDS[layerId]?.rdFrom(row);
+        }
+        return row?.[fieldKey];
+      }).filter((v) => v !== null && v !== undefined && v !== "");
+
+      return [...new Set(values.map((v) => String(fixText(v))))].sort(
+        (a, b) => a.localeCompare(b, "pt-BR", { numeric: true }),
+      );
+    },
+  };
+  if (window.QueryFilter) window.QueryFilter.init();
   renderHazardPanel();
   renderHazardLegend();
   initLegendToggles();
@@ -291,17 +496,21 @@ function initMap() {
 
   L.control.zoom({ position: "topright" }).addTo(state.map);
 
-  // Painel de camadas DENTRO do mapa (filho de .leaflet-control-container)
+  // Painel Camadas persistente sobre o mapa.
   installMapLayerControl();
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-    attribution: "&copy; OpenStreetMap &copy; CARTO",
-    maxZoom: 19,
-    minZoom: 6,
-    subdomains: "abcd",
-  }).addTo(state.map);
+  L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    {
+      attribution: "&copy; OpenStreetMap &copy; CARTO",
+      maxZoom: 19,
+      minZoom: 6,
+      subdomains: "abcd",
+    },
+  ).addTo(state.map);
 
-  L.control.attribution({ position: "bottomright", prefix: false })
+  L.control
+    .attribution({ position: "bottomright", prefix: false })
     .addAttribution("OSM | CARTO | INPE/MERGE | DER-SP")
     .addTo(state.map);
 
@@ -314,7 +523,7 @@ function initMap() {
     state.layers.hazardZones[key] = g;
     if (HAZARD_STATE[key]) g.addTo(state.map);
   });
-  state.layers.regions = L.layerGroup();  // criada vazia, ligada via toggle
+  state.layers.regions = L.layerGroup(); // criada vazia, ligada via toggle
   state.layers.roads = L.layerGroup().addTo(state.map);
   // Camadas administrativas (criadas vazias; carregadas sob demanda no toggle)
   state.layers.municipios = L.layerGroup();
@@ -333,23 +542,31 @@ function initMap() {
  */
 async function loadSpMask() {
   try {
-    const gj = await (await fetch(apiUrl("/static/data/sp_state.geojson"))).json();
+    const gj = await (
+      await fetch(apiUrl("/static/data/sp_state.geojson"))
+    ).json();
     const feat = (gj.features || [])[0];
     if (!feat) return;
 
     // Coleta o(s) anel(eis) externo(s) do estado em formato lat/lon Leaflet.
     const collectRings = (geom) => {
       if (geom.type === "Polygon") return [geom.coordinates[0]];
-      if (geom.type === "MultiPolygon") return geom.coordinates.map((p) => p[0]);
+      if (geom.type === "MultiPolygon")
+        return geom.coordinates.map((p) => p[0]);
       return [];
     };
     const sp_rings_lonlat = collectRings(feat.geometry);
     const sp_rings_latlng = sp_rings_lonlat.map((ring) =>
-      ring.map(([lon, lat]) => [lat, lon])
+      ring.map(([lon, lat]) => [lat, lon]),
     );
 
     // Anel externo "do mundo" (sentido horario) + aneis de SP como furos
-    const world = [[-90, -180], [-90, 180], [90, 180], [90, -180]];
+    const world = [
+      [-90, -180],
+      [-90, 180],
+      [90, 180],
+      [90, -180],
+    ];
     const polys = [world, ...sp_rings_latlng];
 
     const mask = L.polygon(polys, {
@@ -383,9 +600,11 @@ async function loadSpMask() {
 function attachEvents() {
   document.getElementById("btn-refresh").addEventListener("click", async () => {
     const btn = document.getElementById("btn-refresh");
+    const lbl = btn.querySelector(".sb-tool-lbl");
     btn.disabled = true;
-    const original = btn.textContent;
-    btn.textContent = "Atualizando...";
+    const original = lbl ? lbl.textContent : btn.textContent;
+    if (lbl) lbl.textContent = "…";
+    else btn.textContent = "…";
     try {
       if (state.historyMode) await exitHistoryMode(false);
       await fetch(apiUrl("/api/refresh"), { method: "POST" });
@@ -393,7 +612,8 @@ function attachEvents() {
     } catch (e) {
       console.error(e);
     } finally {
-      btn.textContent = original;
+      if (lbl) lbl.textContent = original;
+      else btn.textContent = original;
       btn.disabled = false;
     }
   });
@@ -407,7 +627,9 @@ function attachEvents() {
   });
 
   // ---- Linha do Tempo (animacao 96h) ----
-  document.getElementById("btn-timeline")?.addEventListener("click", openTimeline);
+  document
+    .getElementById("btn-timeline-start")
+    ?.addEventListener("click", startTimeline);
   document.getElementById("tl-close")?.addEventListener("click", closeTimeline);
   document.getElementById("tl-play")?.addEventListener("click", tlTogglePlay);
   document.getElementById("tl-prev")?.addEventListener("click", () => {
@@ -458,65 +680,540 @@ function attachEvents() {
   });
 
   document.getElementById("layer-regions").addEventListener("change", (e) => {
+    MAP_LAYER_STATE.regions = e.target.checked;
+    saveMapLayerState();
     if (e.target.checked) state.map.addLayer(state.layers.regions);
     else state.map.removeLayer(state.layers.regions);
   });
 
   document.getElementById("layer-heatmap").addEventListener("change", (e) => {
+    MAP_LAYER_STATE.heatmap = e.target.checked;
+    saveMapLayerState();
     if (e.target.checked) addHeatmap();
     else removeHeatmap();
   });
 
+  document.getElementById("layer-roads")?.addEventListener("change", (e) => {
+    MAP_LAYER_STATE.roads = e.target.checked;
+    saveMapLayerState();
+    if (e.target.checked) state.map.addLayer(state.layers.roads);
+    else state.map.removeLayer(state.layers.roads);
+  });
+
   attachAdminLayerEvents();
-  attachRoadFilterEvents();
+  restoreMapLayerState();
   attachModalEvents();
+  initTrechoPickers();
+  initTrechoMetricCards();
+  initLevelMeters();
+}
+
+function uaRegionId(p) {
+  if (!p) return null;
+  const v = p.region_id ?? p.regiao;
+  return v != null ? Number(v) : null;
+}
+
+function trechoIndexByRoad(snap) {
+  const { geo } = snapshotPoints(snap);
+  const byRod = new Map();
+  for (const p of geo) {
+    const rod = p.rodovia || "—";
+    if (!byRod.has(rod)) byRod.set(rod, []);
+    byRod.get(rod).push(p);
+  }
+  for (const pts of byRod.values()) {
+    pts.sort((a, b) => (a.km || 0) - (b.km || 0));
+  }
+  return byRod;
+}
+
+function monitoredMalhaRoads() {
+  const s = new Set();
+  for (const f of state.roadGeoJSON?.features || []) {
+    if (f.properties?.monitored) s.add(f.properties.rodovia);
+  }
+  return s;
+}
+
+function malhaTrechosForRoad(road, regId) {
+  const rid = regId ? Number(regId) : null;
+  return (state.roadGeoJSON?.features || [])
+    .filter((f) => {
+      const p = f.properties || {};
+      if (!p.monitored || p.rodovia !== road) return false;
+      if (rid != null && Number(p.region_id) !== rid) return false;
+      return true;
+    })
+    .map((f, i) => ({ i, p: f.properties || {} }))
+    .sort((a, b) => (a.p.km_ini || 0) - (b.p.km_ini || 0));
+}
+
+function roadsInRegion(snap, regId) {
+  const byRod = trechoIndexByRoad(snap);
+  const rid = Number(regId);
+  const uaRoads = [];
+  for (const [road, pts] of byRod) {
+    if (pts.some((p) => uaRegionId(p) === rid)) uaRoads.push(road);
+  }
+  uaRoads.sort((a, b) => a.localeCompare(b, "pt-BR"));
+  const uaSet = new Set(uaRoads);
+  const apoioRoads = [];
+  for (const f of state.roadGeoJSON?.features || []) {
+    const p = f.properties || {};
+    if (!p.monitored || Number(p.region_id) !== rid) continue;
+    if (!uaSet.has(p.rodovia)) apoioRoads.push(p.rodovia);
+  }
+  return {
+    uaRoads,
+    apoioRoads: [...new Set(apoioRoads)].sort((a, b) =>
+      a.localeCompare(b, "pt-BR"),
+    ),
+  };
+}
+
+function filteredUaPoints(byRod, road, regId) {
+  let pts = byRod.get(road) || [];
+  if (regId) {
+    const rid = Number(regId);
+    pts = pts.filter((p) => uaRegionId(p) === rid);
+  }
+  return pts;
+}
+
+function trechoMalhaOptionsHtml(road, regId) {
+  const segs = malhaTrechosForRoad(road, regId);
+  if (!segs.length) {
+    return `<option value="">Sem trechos na malha</option>`;
+  }
+  let html = `<option value="">${TRECHO_SELECT_PLACEHOLDER}</option>`;
+  for (const { i, p } of segs) {
+    html += `<option value="apoio:${i}">km ${formatTrechoKm(p.km_ini)} – ${
+      formatTrechoKm(p.km_fim)
+    } · sem indicadores RD</option>`;
+  }
+  return html;
+}
+
+function trechoKmOptionsHtml(byRod, road, regId) {
+  const pts = filteredUaPoints(byRod, road, regId);
+  if (!pts.length) {
+    return '<option value="">Sem trechos nesta rodovia</option>';
+  }
+  let html = `<option value="">${TRECHO_SELECT_PLACEHOLDER}</option>`;
+  for (const p of pts) {
+    const rdTag = (p.rd || 0) > 0 ? ` · RD ${p.rd}` : "";
+    html += `<option value="${escapeHtml(String(p.id))}">km ${
+      formatTrechoKm(p.km)
+    }${rdTag}</option>`;
+  }
+  return html;
+}
+
+function syncTrechoRegionValue(regId) {
+  document.querySelectorAll(".js-trecho-region").forEach((sel) => {
+    sel.value = regId;
+  });
+}
+
+function syncTrechoRoadValue(road) {
+  document.querySelectorAll(".js-trecho-road").forEach((sel) => {
+    sel.value = road;
+  });
+}
+
+function syncTrechoKmValue(uaId) {
+  document.querySelectorAll(".js-trecho-km").forEach((sel) => {
+    sel.value = uaId;
+  });
+}
+
+function syncTrechoKmOptions(snap) {
+  const byRod = trechoIndexByRoad(snap);
+  const road = state.trechoRoad;
+  const regId = state.trechoRegion || "";
+  document.querySelectorAll(".js-trecho-km").forEach((sel) => {
+    if (!road) {
+      sel.innerHTML =
+        `<option value="">${TRECHO_SELECT_PLACEHOLDER}</option>`;
+      sel.disabled = true;
+      sel.value = "";
+      return;
+    }
+    sel.disabled = false;
+    const uaPts = filteredUaPoints(byRod, road, regId);
+    if (uaPts.length) {
+      sel.innerHTML = trechoKmOptionsHtml(byRod, road, regId);
+      if (state.uaPickerId) sel.value = state.uaPickerId;
+      else sel.value = "";
+      return;
+    }
+    sel.innerHTML = trechoMalhaOptionsHtml(road, regId);
+    if (state.trechoApoioId) sel.value = state.trechoApoioId;
+    else sel.value = "";
+  });
+}
+
+function buildRegionOptionsHtml(snap) {
+  const regions = (snap?.regions || []).slice().sort((a, b) => a.id - b.id);
+  let html = `<option value="">${TRECHO_SELECT_PLACEHOLDER}</option>`;
+  for (const r of regions) {
+    html += `<option value="${r.id}">${r.id} · ${escapeHtml(r.nome)}</option>`;
+  }
+  return html;
+}
+
+function buildTrechoRoadOptionsHtml(byRod, regId) {
+  let uaRoads;
+  let apoioRoads;
+  if (regId) {
+    const scoped = roadsInRegion(state.lastSnapshot, regId);
+    uaRoads = scoped.uaRoads;
+    apoioRoads = scoped.apoioRoads;
+  } else {
+    uaRoads = [...byRod.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"));
+    const malhaRoads = [...monitoredMalhaRoads()].sort((a, b) =>
+      a.localeCompare(b, "pt-BR"),
+    );
+    apoioRoads = malhaRoads.filter((r) => !byRod.has(r));
+  }
+  let html = `<option value="">${TRECHO_SELECT_PLACEHOLDER}</option>`;
+  if (uaRoads.length) {
+    html += '<optgroup label="Com indicadores RD (809 UAs)">';
+    for (const r of uaRoads) {
+      html += `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`;
+    }
+    html += "</optgroup>";
+  }
+  if (apoioRoads.length) {
+    html += '<optgroup label="Malha de apoio (sem UA / sem RA oficial)">';
+    for (const r of apoioRoads) {
+      html += `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`;
+    }
+    html += "</optgroup>";
+  }
+  return html;
+}
+
+function rebuildTrechoPickers(snap) {
+  const byRod = trechoIndexByRoad(snap);
+  const regId = state.trechoRegion || "";
+  const regionHtml = buildRegionOptionsHtml(snap);
+  const roadHtml = buildTrechoRoadOptionsHtml(byRod, regId);
+  const scoped = regId ? roadsInRegion(snap, regId) : null;
+  const scopedRoads = scoped
+    ? new Set([...scoped.uaRoads, ...scoped.apoioRoads])
+    : new Set([...byRod.keys(), ...monitoredMalhaRoads()]);
+
+  if (state.uaPickerId) {
+    const pair = getUaPair(snap, state.uaPickerId);
+    const ref = pair.geo || pair.hid;
+    if (ref?.rodovia) {
+      state.trechoRoad = ref.rodovia;
+      state.trechoApoioId = "";
+    }
+    const rid = uaRegionId(ref);
+    if (rid != null) state.trechoRegion = String(rid);
+  }
+
+  document.querySelectorAll(".js-trecho-region").forEach((sel) => {
+    sel.innerHTML = regionHtml;
+    sel.value = state.trechoRegion || "";
+  });
+
+  document.querySelectorAll(".js-trecho-road").forEach((sel) => {
+    sel.innerHTML = roadHtml;
+    if (state.trechoRoad && scopedRoads.has(state.trechoRoad)) {
+      sel.value = state.trechoRoad;
+    } else if (!state.uaPickerId && !state.trechoApoioId) {
+      sel.value = "";
+      state.trechoRoad = "";
+    }
+  });
+
+  syncTrechoKmOptions(snap);
+  if (state.uaPickerId && filteredUaPoints(
+    byRod, state.trechoRoad, regId,
+  ).some((p) => String(p.id) === state.uaPickerId)) {
+    syncTrechoKmValue(state.uaPickerId);
+  } else if (state.trechoApoioId) {
+    syncTrechoKmValue(state.trechoApoioId);
+  } else if (!state.uaPickerId) {
+    syncTrechoKmValue("");
+  }
+}
+
+function initTrechoPickers() {
+  document.querySelectorAll(".js-trecho-region").forEach((sel) => {
+    sel.addEventListener("change", (e) => {
+      state.trechoRegion = e.target.value || "";
+      state.trechoRoad = "";
+      state.uaPickerId = "";
+      state.trechoApoioId = "";
+      syncTrechoRegionValue(state.trechoRegion);
+      syncTrechoRoadValue("");
+      if (state.lastSnapshot) {
+        const byRod = trechoIndexByRoad(state.lastSnapshot);
+        const roadHtml = buildTrechoRoadOptionsHtml(byRod, state.trechoRegion);
+        document.querySelectorAll(".js-trecho-road").forEach((rsel) => {
+          rsel.innerHTML = roadHtml;
+          rsel.value = "";
+        });
+        syncTrechoKmOptions(state.lastSnapshot);
+      }
+      handleTrechoSelection("");
+    });
+  });
+  document.querySelectorAll(".js-trecho-road").forEach((sel) => {
+    sel.addEventListener("change", (e) => {
+      state.trechoRoad = e.target.value || "";
+      state.uaPickerId = "";
+      state.trechoApoioId = "";
+      syncTrechoRoadValue(state.trechoRoad);
+      if (state.lastSnapshot) {
+        syncTrechoKmOptions(state.lastSnapshot);
+      }
+      handleTrechoSelection("");
+    });
+  });
+  document.querySelectorAll(".js-trecho-km").forEach((sel) => {
+    sel.addEventListener("change", (e) => {
+      handleTrechoSelection(e.target.value || "");
+    });
+  });
+}
+
+function handleTrechoSelection(value) {
+  if (value && String(value).startsWith("apoio:")) {
+    state.uaPickerId = "";
+    state.trechoApoioId = value;
+    syncTrechoKmValue(value);
+    if (!state.lastSnapshot) return;
+    renderWorst(state.lastSnapshot, state.focalPoints);
+    renderRegions(state.lastSnapshot.regions || [], state.lastSnapshot);
+    if (state.forecastData) {
+      renderForecast(state.forecastData, state.lastSnapshot);
+    }
+    updateTrechoMapFocus(state.lastSnapshot, { zoom: true });
+    return;
+  }
+  state.trechoApoioId = "";
+  state.uaPickerId = value || "";
+  syncTrechoKmValue(state.uaPickerId);
+  if (state.uaPickerId && state.lastSnapshot) {
+    const pair = getUaPair(state.lastSnapshot, state.uaPickerId);
+    const ref = pair.geo || pair.hid;
+    if (ref?.rodovia) {
+      state.trechoRoad = ref.rodovia;
+      syncTrechoRoadValue(state.trechoRoad);
+      const rid = uaRegionId(ref);
+      if (rid != null) {
+        state.trechoRegion = String(rid);
+        syncTrechoRegionValue(state.trechoRegion);
+      }
+      syncTrechoKmOptions(state.lastSnapshot);
+      syncTrechoKmValue(state.uaPickerId);
+    }
+  }
+  if (!state.lastSnapshot) return;
+  renderWorst(state.lastSnapshot, state.focalPoints);
+  renderRegions(state.lastSnapshot.regions || [], state.lastSnapshot);
+  if (state.forecastData) {
+    renderForecast(state.forecastData, state.lastSnapshot);
+  }
+  updateTrechoMapFocus(state.lastSnapshot, { zoom: true });
+}
+
+async function restoreMapLayerState() {
+  Object.entries(MAP_LAYER_STATE).forEach(([key, checked]) => {
+    const cb = document.getElementById(`layer-${key}`);
+    if (cb) cb.checked = !!checked;
+  });
+
+  if (MAP_LAYER_STATE.regions) {
+    state.map.addLayer(state.layers.regions);
+  } else {
+    state.map.removeLayer(state.layers.regions);
+  }
+
+  if (MAP_LAYER_STATE.roads) {
+    state.map.addLayer(state.layers.roads);
+  } else {
+    state.map.removeLayer(state.layers.roads);
+  }
+
+  if (MAP_LAYER_STATE.heatmap) addHeatmap();
+  else removeHeatmap();
+
+  await Promise.all(
+    Object.keys(ADMIN_LAYERS).map(async (key) => {
+      if (!MAP_LAYER_STATE[key]) return;
+      await loadAdminLayer(key);
+      state.map.addLayer(state.layers[key]);
+    }),
+  );
 }
 
 /**
- * Cria um L.Control com o painel "Camadas do mapa" - vira filho do
- * .leaflet-control-container (dentro do conteiner do Leaflet, canto sup-esq).
+ * Acordeão dos painéis da sidebar (seções Monitoramento / Mapa).
  */
-function installMapLayerControl() {
-  const Ctrl = L.Control.extend({
-    options: { position: "topleft" },
-    onAdd() {
-      const wrap = L.DomUtil.create("div", "map-layer-control leaflet-bar");
-      wrap.id = "map-layer-control";
-      wrap.innerHTML = `
-        <div class="map-layer-control-head">
-          <span class="map-layer-control-title">Camadas do mapa</span>
-          <button type="button" class="map-layer-control-toggle"
-                  id="map-layer-control-toggle" aria-label="Recolher/expandir">▾</button>
-        </div>
-        <div class="map-layer-control-body">
-          <div class="ck-group-title">Riscos Monitorados</div>
-          <div id="hazard-toggles"></div>
-
-          <div class="ck-group-title">Outras camadas</div>
-          <label class="ck"><input type="checkbox" id="layer-regions"> Limites das regiões</label>
-          <label class="ck"><input type="checkbox" id="layer-heatmap"> Mapa de calor de risco</label>
-          <label class="ck"><input type="checkbox" id="layer-roads" checked> Malha rodoviária estadual (DER)</label>
-
-          <div class="ck-group-title">Limites administrativos</div>
-          <label class="ck"><input type="checkbox" id="layer-municipios"> Municípios (IGC 2021)</label>
-          <label class="ck"><input type="checkbox" id="layer-rc"> Residências de Conserva (DER)</label>
-          <label class="ck"><input type="checkbox" id="layer-uba"> Unidades Básicas de Atendimento (DER)</label>
-          <label class="ck"><input type="checkbox" id="layer-cgr"> Coordenadorias Gerais Regionais (DER)</label>
-        </div>
-      `;
-
-      // Bloqueia eventos de mapa (evita pan/zoom ao interagir com o painel)
-      L.DomEvent.disableClickPropagation(wrap);
-      L.DomEvent.disableScrollPropagation(wrap);
-
-      // Toggle recolher/expandir
-      const btn = wrap.querySelector("#map-layer-control-toggle");
-      btn.addEventListener("click", () => wrap.classList.toggle("collapsed"));
-
-      return wrap;
-    },
+function initSidebarPanels() {
+  document.querySelectorAll("[data-sb-toggle]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      if (e.target.closest(".sb-tip")) return;
+      const panel = btn.closest(".sb-panel");
+      const body = panel?.querySelector(".sb-panel-body");
+      if (!panel || !body) return;
+      const open = panel.classList.toggle("is-open");
+      body.hidden = !open;
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
   });
-  new Ctrl().addTo(state.map);
+}
+
+/** Abre painel da sidebar e rola até o alvo (links do bloco de boas-vindas). */
+function initSidebarJumps() {
+  const openPanel = (targetId) => {
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    const panel = el.closest(".sb-panel");
+    if (panel) {
+      panel.classList.add("is-open");
+      const body = panel.querySelector(".sb-panel-body");
+      const head = panel.querySelector(".sb-panel-head");
+      if (body) body.hidden = false;
+      if (head) head.setAttribute("aria-expanded", "true");
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  };
+
+  document.querySelectorAll("[data-sb-jump]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const id = btn.getAttribute("data-sb-jump");
+      if (id) openPanel(id);
+    });
+  });
+}
+
+const SB_WIDTH_MIN = 300;
+const SB_WIDTH_MAX = 900;
+const SB_WIDTH_DEFAULT = 450;
+const SB_LS_WIDTH = "pli.sidebar.width";
+
+/** Redimensionar (arrastar) e recolher/expandir a sidebar. */
+function initSidebarChrome() {
+  const shell = document.getElementById("sidebar-shell");
+  const handle = document.getElementById("sb-resize-handle");
+  const toggle = document.getElementById("sb-toggle");
+  if (!shell || !handle || !toggle) return;
+
+  const clampWidth = (px) =>
+    Math.min(SB_WIDTH_MAX, Math.max(SB_WIDTH_MIN, Math.round(px)));
+
+  let stored = parseInt(localStorage.getItem(SB_LS_WIDTH), 10);
+  if (!Number.isFinite(stored)) stored = SB_WIDTH_DEFAULT;
+  let sidebarWidth = clampWidth(stored);
+
+  const applyWidth = (px) => {
+    sidebarWidth = clampWidth(px);
+    shell.style.setProperty("--sidebar-width", `${sidebarWidth}px`);
+    shell.dataset.width = String(sidebarWidth);
+    localStorage.setItem(SB_LS_WIDTH, String(sidebarWidth));
+    syncAppHeaderHeights();
+  };
+
+  const notifyMapResize = () => {
+    if (!state.map) return;
+    window.requestAnimationFrame(() => state.map.invalidateSize());
+    setTimeout(() => state.map.invalidateSize(), 240);
+  };
+
+  const syncAppHeaderHeights = () => {
+    const sidebarHeader = document.querySelector(".sidebar-header");
+    const topbar = document.querySelector(".topbar");
+    if (!sidebarHeader || !topbar) return;
+    sidebarHeader.style.minHeight = "";
+    topbar.style.minHeight = "";
+    const h = Math.max(sidebarHeader.offsetHeight, topbar.offsetHeight);
+    const px = `${h}px`;
+    sidebarHeader.style.minHeight = px;
+    topbar.style.minHeight = px;
+    document.documentElement.style.setProperty("--app-header-height", px);
+    document.documentElement.style.setProperty("--topbar-height", px);
+  };
+  syncAppHeaderHeights();
+  requestAnimationFrame(() => {
+    syncAppHeaderHeights();
+    requestAnimationFrame(syncAppHeaderHeights);
+  });
+  window.addEventListener("resize", syncAppHeaderHeights);
+  if (typeof ResizeObserver !== "undefined") {
+    const headerRo = new ResizeObserver(() => syncAppHeaderHeights());
+    const sidebarHeader = document.querySelector(".sidebar-header");
+    const topbar = document.querySelector(".topbar");
+    if (sidebarHeader) headerRo.observe(sidebarHeader);
+    if (topbar) headerRo.observe(topbar);
+    headerRo.observe(shell);
+  }
+
+  const setCollapsed = (collapsed) => {
+    shell.classList.toggle("is-collapsed", collapsed);
+    toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    const label = collapsed ? "Expandir painel" : "Recolher painel";
+    toggle.title = label;
+    toggle.setAttribute("aria-label", label);
+    notifyMapResize();
+    syncAppHeaderHeights();
+  };
+
+  applyWidth(sidebarWidth);
+  setCollapsed(false);
+
+  toggle.addEventListener("click", () => {
+    setCollapsed(!shell.classList.contains("is-collapsed"));
+  });
+
+  let dragging = false;
+  let dragStartX = 0;
+  let dragStartW = 0;
+
+  const onPointerMove = (e) => {
+    if (!dragging) return;
+    const next = clampWidth(dragStartW + (e.clientX - dragStartX));
+    applyWidth(next);
+    notifyMapResize();
+  };
+
+  const stopDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    shell.classList.remove("is-resizing");
+    document.body.classList.remove("sb-resizing");
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", stopDrag);
+    window.removeEventListener("pointercancel", stopDrag);
+    notifyMapResize();
+  };
+
+  handle.addEventListener("pointerdown", (e) => {
+    if (shell.classList.contains("is-collapsed")) return;
+    e.preventDefault();
+    dragging = true;
+    dragStartX = e.clientX;
+    dragStartW = sidebarWidth;
+    shell.classList.add("is-resizing");
+    document.body.classList.add("sb-resizing");
+    handle.setPointerCapture(e.pointerId);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", stopDrag);
+    window.addEventListener("pointercancel", stopDrag);
+  });
+}
+
+/** Camadas: markup persistente em index.html; IDs preservados para eventos. */
+function installMapLayerControl() {
+  /* Sem inicializacao imperativa: o painel ja nasce aberto no mapa. */
 }
 
 // ============================================================================
@@ -556,7 +1253,9 @@ function attachModalEvents() {
     }
   };
   const closeAll = () => {
-    document.querySelectorAll(".modal-backdrop").forEach((el) => (el.hidden = true));
+    document
+      .querySelectorAll(".modal-backdrop")
+      .forEach((el) => (el.hidden = true));
     document.body.style.overflow = "";
   };
 
@@ -598,9 +1297,10 @@ function attachModalEvents() {
 async function refresh() {
   if (state.timeline.active) return;
   try {
-    const url = state.historyMode && state.historyAtIso
-      ? apiUrl("/api/snapshot?at=" + encodeURIComponent(state.historyAtIso))
-      : apiUrl("/api/snapshot");
+    const url =
+      state.historyMode && state.historyAtIso
+        ? apiUrl("/api/snapshot?at=" + encodeURIComponent(state.historyAtIso))
+        : apiUrl("/api/snapshot");
     const res = await fetch(url);
     const snap = await res.json();
     renderSnapshot(snap);
@@ -629,22 +1329,80 @@ async function refresh() {
 // ============================================================================
 
 function tlActiveChannelMessage() {
-  const enc = HAZARD_STATE.encosta;
-  const hid = HAZARD_STATE.inundacao;
-  if (enc && hid) {
+  const hazardKey = state.timeline.hazard || "encosta";
+  const h = HAZARDS[hazardKey];
+  if (!state.timeline.active) {
+    return "Escolha o tipo de risco na seção Evolução 96 h e confirme com OK.";
+  }
+  if (hazardKey === "encosta") {
     return (
-      "Camadas ativas: encosta (RD geológico, paleta verde→roxo) e " +
-      "inundação (RD hidrológico, paleta verde→azul→magenta). " +
-      "Cada UA usa a cor do seu canal."
+      `Animação: ${h?.label || "Encosta"} — níveis de RD geológico ` +
+      "(paleta verde→roxo)."
     );
   }
-  if (enc) {
-    return "Camada ativa: Instabilidade de encosta — níveis de RD geológico (geo).";
+  return (
+    `Animação: ${h?.label || "Inundação"} — níveis de RD hidrológico ` +
+    "(paleta verde→azul→magenta)."
+  );
+}
+
+function setHazardTogglesDisabled(disabled) {
+  document
+    .querySelectorAll('#hazard-toggles input[type="checkbox"]')
+    .forEach((cb) => {
+      cb.disabled = disabled;
+    });
+}
+
+function prepareTimelineLayers(hazardKey) {
+  Object.entries(HAZARDS).forEach(([k, h]) => {
+    if (!h.available) return;
+    const on = k === hazardKey;
+    HAZARD_STATE[k] = on;
+    const g = state.layers.hazardZones?.[k];
+    if (g) {
+      if (on) g.addTo(state.map);
+      else state.map.removeLayer(g);
+    }
+  });
+  renderHazardLegend();
+  updateTimelineChannelHint();
+  setHazardTogglesDisabled(true);
+}
+
+function restoreTimelineLayers() {
+  const saved = state.timeline.savedHazardState;
+  if (!saved) return;
+  Object.assign(HAZARD_STATE, saved);
+  state.timeline.savedHazardState = null;
+  Object.entries(HAZARDS).forEach(([k, h]) => {
+    if (!h.available) return;
+    const g = state.layers.hazardZones?.[k];
+    if (g) {
+      if (HAZARD_STATE[k]) g.addTo(state.map);
+      else state.map.removeLayer(g);
+    }
+  });
+  renderHazardPanel();
+  renderHazardLegend();
+  setHazardTogglesDisabled(false);
+}
+
+async function startTimeline() {
+  const sel = document.getElementById("timeline-hazard");
+  const hazard = sel?.value === "inundacao" ? "inundacao" : "encosta";
+  state.timeline.hazard = hazard;
+  const panel = tlEl("timeline");
+  if (state.timeline.active && state.timeline.frames.length) {
+    if (panel) panel.hidden = false;
+    if (!state.timeline.savedHazardState) {
+      state.timeline.savedHazardState = { ...HAZARD_STATE };
+    }
+    prepareTimelineLayers(hazard);
+    applyTimelineFrame(state.timeline.idx);
+    return;
   }
-  if (hid) {
-    return "Camada ativa: Inundação — níveis de RD hidrológico (24 h).";
-  }
-  return "Nenhuma camada ligada — marque Encosta ou Inundação no painel lateral.";
+  await openTimeline();
 }
 
 function updateTimelineChannelHint() {
@@ -655,8 +1413,15 @@ function updateTimelineChannelHint() {
 function toDatetimeLocalValue(d) {
   const pad = (n) => String(n).padStart(2, "0");
   return (
-    d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
-    "T" + pad(d.getHours()) + ":" + pad(d.getMinutes())
+    d.getFullYear() +
+    "-" +
+    pad(d.getMonth() + 1) +
+    "-" +
+    pad(d.getDate()) +
+    "T" +
+    pad(d.getHours()) +
+    ":" +
+    pad(d.getMinutes())
   );
 }
 
@@ -674,7 +1439,7 @@ async function loadHistoryHints() {
   } catch (e) {
     console.warn("history hints", e);
     box.innerHTML =
-      "<span class=\"history-hints-loading\">Sugestões indisponíveis.</span>";
+      '<span class="history-hints-loading">Sugestões indisponíveis.</span>';
   }
 }
 
@@ -683,7 +1448,7 @@ function renderHistoryHints(events, disclaimer) {
   if (!box) return;
   if (!events.length) {
     box.innerHTML =
-      "<span class=\"history-hints-loading\">Nenhum evento cadastrado.</span>";
+      '<span class="history-hints-loading">Nenhum evento cadastrado.</span>';
     return;
   }
   box.innerHTML = "";
@@ -696,11 +1461,15 @@ function renderHistoryHints(events, disclaimer) {
     const lvl = ev.max_level ?? 0;
     const color = NIVEL_COLOR[lvl] || "#64748b";
     btn.innerHTML =
-      "<span class=\"history-hint-level\" style=\"background:" + color +
-      "\"></span><span class=\"history-hint-text\"><strong>" +
-      escapeHtml(ev.label) + "</strong><small>" +
-      escapeHtml(ev.level_label || "") + " · " +
-      escapeHtml(ev.region || "") + "</small></span>";
+      '<span class="history-hint-level" style="background:' +
+      color +
+      '"></span><span class="history-hint-text"><strong>' +
+      escapeHtml(ev.label) +
+      "</strong><small>" +
+      escapeHtml(ev.level_label || "") +
+      " · " +
+      escapeHtml(ev.region || "") +
+      "</small></span>";
     btn.addEventListener("click", () => {
       const inp = document.getElementById("history-at");
       if (inp && ev.at_utc) {
@@ -729,14 +1498,20 @@ async function runHistoricalConsultation() {
   if (panel) panel.hidden = true;
   closeTimeline();
   setBadge("badge-update", "Consultando…", "loading");
-  setStatus("Consultando chuva MERGE/INPE na data selecionada…", "warn");
-  document.getElementById("status-time").textContent =
-    "Pode levar alguns minutos (96 GRIBs da época)";
+  renderStatusCard({
+    headline: "Consultando histórico…",
+    detail:
+      '<span class="status-detail-item">Reconstituindo RD com chuva '
+      + "observada da data escolhida</span>",
+    timeLine: "Aguarde a resposta do servidor · pode levar alguns minutos",
+    levelVisible: false,
+    dotClass: "warn",
+  });
   startDownloadPoll();
   setMapHistoryBanner("Carregando chuva MERGE/INPE da época…", true);
   try {
     const res = await fetch(
-      apiUrl("/api/snapshot?at=" + encodeURIComponent(atIso))
+      apiUrl("/api/snapshot?at=" + encodeURIComponent(atIso)),
     );
     const snap = await res.json();
     renderSnapshot(snap);
@@ -758,7 +1533,9 @@ async function exitHistoryMode(refreshLive) {
     setMapHistoryBanner(null);
     try {
       await fetch(apiUrl("/api/refresh"), { method: "POST" });
-    } catch { /* ignora */ }
+    } catch {
+      /* ignora */
+    }
     await refresh();
   }
 }
@@ -770,6 +1547,10 @@ function tlEl(id) {
 async function openTimeline() {
   const panel = tlEl("timeline");
   if (!panel) return;
+  if (!state.timeline.savedHazardState) {
+    state.timeline.savedHazardState = { ...HAZARD_STATE };
+  }
+  prepareTimelineLayers(state.timeline.hazard);
   panel.hidden = false;
   if (state.timeline.frames.length) {
     state.timeline.active = true;
@@ -780,16 +1561,19 @@ async function openTimeline() {
   updateTimelineChannelHint();
   tlEl("tl-status").textContent = "Montando animação a partir do cache MERGE…";
   tlEl("tl-play").disabled = true;
+  const startBtn = document.getElementById("btn-timeline-start");
+  if (startBtn) startBtn.disabled = true;
   try {
     const res = await fetch(apiUrl("/api/timeline"));
     const data = await res.json();
     if (!data.available || !Array.isArray(data.frames) || !data.frames.length) {
       tlEl("tl-status").textContent =
         data.reason || "Sem dados para a animação.";
+      restoreTimelineLayers();
       return;
     }
     state.timeline.frames = data.frames;
-    state.timeline.idx = data.frames.length - 1;   // comeca no "agora"
+    state.timeline.idx = data.frames.length - 1; // comeca no "agora"
     state.timeline.active = true;
     const range = tlEl("tl-range");
     range.min = 0;
@@ -802,9 +1586,11 @@ async function openTimeline() {
   } catch (e) {
     console.error("Erro na linha do tempo:", e);
     tlEl("tl-status").textContent = "Erro ao carregar a animação.";
+    restoreTimelineLayers();
   } finally {
     state.timeline.loading = false;
     tlEl("tl-play").disabled = false;
+    if (startBtn) startBtn.disabled = false;
   }
 }
 
@@ -813,7 +1599,8 @@ function closeTimeline() {
   state.timeline.active = false;
   const panel = tlEl("timeline");
   if (panel) panel.hidden = true;
-  refresh();   // restaura as cores ao vivo
+  restoreTimelineLayers();
+  refresh(); // restaura as cores ao vivo
 }
 
 function applyTimelineFrame(idx) {
@@ -822,21 +1609,19 @@ function applyTimelineFrame(idx) {
   idx = Math.max(0, Math.min(frames.length - 1, idx));
   state.timeline.idx = idx;
   const frame = frames[idx];
+  const hazardKey = state.timeline.hazard || "encosta";
+  const rdMap =
+    hazardKey === "inundacao"
+      ? frame.rd_hidro || frame.rd || {}
+      : frame.rd_geo || frame.rd || {};
+  const palette = HAZARDS[hazardKey]?.palette || NIVEL_COLOR;
   for (const [markerKey, markers] of state.pointMarkers) {
-    const hazardKey = markerKey.includes(":")
-      ? markerKey.split(":")[1]
-      : "encosta";
-    const uaId = markerKey.includes(":")
-      ? markerKey.split(":")[0]
-      : markerKey;
-    const rdMap = hazardKey === "inundacao"
-      ? (frame.rd_hidro || frame.rd || {})
-      : (frame.rd_geo || frame.rd || {});
+    const parts = markerKey.split(":");
+    const mkHazard = parts[1] || "encosta";
+    if (mkHazard !== hazardKey) continue;
+    const uaId = parts[0];
     const v = rdMap[uaId];
-    const palette = HAZARDS[hazardKey]?.palette || NIVEL_COLOR;
-    const color = Number.isInteger(v)
-      ? (palette[v] || "#64748b")
-      : "#64748b";
+    const color = Number.isInteger(v) ? palette[v] || "#64748b" : "#64748b";
     const arr = Array.isArray(markers) ? markers : [markers];
     arr.forEach((m) => m.setStyle({ color, fillColor: color }));
   }
@@ -845,8 +1630,12 @@ function applyTimelineFrame(idx) {
   updateTimelineChannelHint();
   const t = frame.ts ? new Date(frame.ts) : null;
   tlEl("tl-time").textContent = t
-    ? t.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit",
-        hour: "2-digit", minute: "2-digit" })
+    ? t.toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
     : "—";
 }
 
@@ -886,10 +1675,11 @@ function tlTogglePlay() {
 
 function renderSnapshot(snap) {
   state.lastSnapshot = snap;
+  rebuildTrechoPickers(snap);
   const ts = snap.timestamp_utc ? new Date(snap.timestamp_utc) : null;
   const summary = snap.summary || {};
   const maxRd = summary.max_rd ?? 0;
-  const status = summary.data_status || "ok";   // ok | degraded | no_data | mock | loading
+  const status = summary.data_status || "ok"; // ok | degraded | no_data | mock | loading
   const isHistorical = !!summary.historical;
   const focal =
     status === "ok" || status === "degraded" || status === "mock"
@@ -912,26 +1702,23 @@ function renderSnapshot(snap) {
     setBadge(
       "badge-update",
       tConsult ? "Histórico " + formatTime(tConsult) : "Histórico",
-      "historical"
+      "historical",
     );
     if (summary.data_status === "no_data") {
       renderSnapshotNoData(snap, summary, tConsult);
       return;
     }
-    setStatus(
-      `Consulta histórica — ${NIVEL_LABEL[maxRd]} na data escolhida`,
-      maxRd >= 3 ? "alert" : maxRd >= 2 ? "warn" : ""
-    );
-    document.getElementById("status-time").textContent =
-      (summary.rd_basis || "Chuva observada MERGE") +
-      (summary.merge_target_hour
-        ? " · hora MERGE " + formatTime(new Date(summary.merge_target_hour))
-        : "");
+    renderStatusCard({
+      headline: `Consulta histórica — ${NIVEL_LABEL[maxRd]}`,
+      detail: statusDetailHtml(summary, focal),
+      timeLine: statusTimeLine(summary, tConsult, "historical"),
+      level: maxRd,
+    });
     setBadge("badge-source", "MERGE / INPE (hist.)", "degraded");
     stopDownloadPoll();
     renderPointsOnMap(snap);
     renderRegionsOnMap(snap.regions || []);
-    renderRegions(snap.regions || []);
+    renderRegions(snap.regions || [], snap);
     if (state.roadGeoJSON) renderRoadsOnMap();
     renderWorst(snap, focal);
     applySidebarLevelCounts(summary, focal);
@@ -943,25 +1730,35 @@ function renderSnapshot(snap) {
   if (status === "loading") {
     state.focalPoints = [];
     renderFocalBanner([]);
-    setStatus("Preparando monitoramento — baixando chuva do INPE", "warn");
-    document.getElementById("status-time").textContent =
-      "Primeira carga: últimas 96 horas (costuma levar de 3 a 8 min)";
+    renderStatusCard({
+      headline: "Preparando monitoramento",
+      detail:
+        '<span class="status-detail-item">Baixando série horária MERGE/INPE '
+        + "(últimas 96 h)</span>"
+        + '<span class="status-detail-item">809 UAs aguardando primeira '
+        + "leitura de chuva</span>",
+      timeLine:
+        "Primeira carga: costuma levar de 3 a 8 min · progresso no cartão "
+        + "abaixo",
+      level: 0,
+      dotClass: "warn",
+    });
     setBadge("badge-source", "MERGE / INPE", "loading");
     setBadge("badge-update", "carregando", "loading");
     // Mostra a malha em estilo "sem dado" para a interface nao ficar vazia
     // enquanto o primeiro update do MERGE termina.
     renderPointsOnMap(snap);
     renderRegionsOnMap(snap.regions || []);
-    renderRegions(snap.regions || []);
+    renderRegions(snap.regions || [], snap);
     if (state.roadGeoJSON) renderRoadsOnMap();
     startDownloadPoll();
     renderRdBasisNote(summary, status);
-    document.querySelectorAll(".meter-cell").forEach((c) => c.classList.remove("active"));
-    // Distribuicao ainda nao processada: nao exibir como "concluido".
-    for (let i = 0; i <= 4; i++) {
-      const el = document.getElementById("count-" + i);
-      if (el) el.textContent = "\u2014";
-    }
+    document
+      .querySelectorAll(".meter-cell")
+      .forEach((c) => c.classList.remove("active"));
+    setLayerLevelCounts("geo", pendingLevelCountsObj());
+    setLayerLevelCounts("hidro", pendingLevelCountsObj());
+    syncMeterScaleColors();
     return;
   }
 
@@ -985,27 +1782,30 @@ function renderSnapshot(snap) {
 
   // ---- Estado operacional normal ----
   stopDownloadPoll();
-  const statusClasses = ["", "warn", "warn", "alert", "max"];
-  const statusSuffix = status === "degraded"
-    ? ` · leitura incompleta (${summary.missing_24h}h faltando em 24h)`
-    : status === "mock"
-      ? " · modo de teste (dados simulados)"
-      : "";
-  setStatus(
-    `${NIVEL_LABEL[maxRd]} — situação geral na área monitorada${statusSuffix}`,
-    statusClasses[Math.min(4, maxRd)]
-  );
-  if (ts) {
-    document.getElementById("status-time").textContent = "Atualizado às " + formatTime(ts);
-  }
+  const statusSuffix =
+    status === "degraded"
+      ? " (leitura incompleta)"
+      : status === "mock"
+        ? " (teste)"
+        : "";
+  renderStatusCard({
+    headline: `${NIVEL_LABEL[maxRd]} — situação geral${statusSuffix}`,
+    detail: statusDetailHtml(summary, focal),
+    timeLine: statusTimeLine(summary, ts, status),
+    level: maxRd,
+  });
 
   // Badges da topbar
   setBadge(
     "badge-source",
     status === "mock" ? "MOCK (dev)" : "MERGE / INPE",
-    status === "ok" ? "ok" : status
+    status === "ok" ? "ok" : status,
   );
-  setBadge("badge-update", ts ? formatTime(ts) : "—", status === "ok" ? "ok" : status);
+  setBadge(
+    "badge-update",
+    ts ? formatTime(ts) : "—",
+    status === "ok" ? "ok" : status,
+  );
 
   // Trecho mais crítico / UAs em foco
   renderWorst(snap, focal);
@@ -1014,13 +1814,13 @@ function renderSnapshot(snap) {
   applySidebarLevelCounts(summary, focal);
 
   // Regiões
-  renderRegions(snap.regions || []);
+  renderRegions(snap.regions || [], snap);
 
   // Mapa
   renderRegionsOnMap(snap.regions || []);
   renderPointsOnMap(snap);
 
-  // Malha DER: apoio cartográfico (sem tradução de alerta)
+  // Malha Rodoviaria Estadual: apoio cartografico (sem traducao de alerta)
   if (state.roadGeoJSON) renderRoadsOnMap();
 
   // Heatmap (se ativo, atualiza)
@@ -1037,12 +1837,17 @@ function setBadge(id, text, kind) {
   if (!el) return;
   el.textContent = text;
   el.classList.remove(
-    "badge-ok", "badge-degraded", "badge-no-data", "badge-mock",
-    "badge-loading", "badge-historical"
+    "badge-ok",
+    "badge-degraded",
+    "badge-no-data",
+    "badge-mock",
+    "badge-loading",
+    "badge-historical",
   );
   if (kind === "ok") el.classList.add("badge-ok");
   else if (kind === "degraded") el.classList.add("badge-degraded");
-  else if (kind === "no-data" || kind === "no_data") el.classList.add("badge-no-data");
+  else if (kind === "no-data" || kind === "no_data")
+    el.classList.add("badge-no-data");
   else if (kind === "mock") el.classList.add("badge-mock");
   else if (kind === "loading") el.classList.add("badge-loading");
   else if (kind === "historical") el.classList.add("badge-historical");
@@ -1063,14 +1868,23 @@ function isIngestProgressBusy(prog) {
 function renderSnapshotNoData(snap, summary, ts) {
   state.focalPoints = [];
   renderFocalBanner([]);
-  setStatus("Dados de chuva indisponíveis neste momento", "alert");
-  document.getElementById("status-time").textContent =
-    ts ? "Última tentativa às " + formatTime(ts) : "—";
+  renderStatusCard({
+    headline: "Dados de chuva indisponíveis",
+    detail:
+      '<span class="status-detail-item">MERGE/INPE sem leitura utilizável '
+      + "no momento</span>"
+      + '<span class="status-detail-item">O mapa permanece visível, mas RD '
+      + "não pode ser calculado</span>",
+    timeLine: statusTimeLine(summary, ts, "no_data"),
+    level: 0,
+    dotClass: "alert",
+    levelVisible: false,
+  });
   setBadge("badge-source", "Sem dado", "no-data");
   setBadge("badge-update", ts ? formatTime(ts) : "—", "no-data");
   renderPointsOnMap(snap);
   renderRegionsOnMap(snap.regions || []);
-  renderRegions(snap.regions || []);
+  renderRegions(snap.regions || [], snap);
   if (state.roadGeoJSON) renderRoadsOnMap();
   stopDownloadPoll();
   renderWorstNoData(summary.message);
@@ -1078,43 +1892,50 @@ function renderSnapshotNoData(snap, summary, ts) {
   document.querySelectorAll(".meter-cell").forEach((c) => {
     c.classList.remove("active", "meter-cell--blink");
   });
-  for (let i = 0; i <= 4; i++) {
-    const el = document.getElementById("count-" + i);
-    if (el) el.textContent = "\u2014";
-  }
+  setLayerLevelCounts("geo", pendingLevelCountsObj());
+  setLayerLevelCounts("hidro", pendingLevelCountsObj());
+  syncMeterScaleColors();
 }
 
 function renderWorstNoData(message) {
   const card = document.getElementById("worst-card");
-  card.classList.add("empty");
-  card.classList.remove("worst-card--blink");
-  card.innerHTML = `
-    <div class="worst-empty no-data">
-      <div class="no-data-title">Chuva indisponível</div>
-      <div class="no-data-msg">${escapeHtml(
-        message || (
-          "Não foi possível obter a chuva medida pelo INPE agora. "
-          + "Nova tentativa automática em até 10 min."
-        )
-      )}</div>
-    </div>
-  `;
+  if (!card) return;
+  const msg =
+    message ||
+    "Não foi possível obter a chuva medida pelo INPE agora. "
+    + "Nova tentativa automática em até 10 min.";
+  resetTrechoMetricCard(card, {
+    noteHtml:
+      `<strong>Chuva indisponível.</strong> ${escapeHtml(msg)}`,
+  });
 }
 
 // Progresso do primeiro ciclo: lista rolavel de arquivos (ativos +
 // concluidos), cada um com barra real vinda do servidor, mais total X/Y.
 const _dl = {
-  poll: null, data: null,
-  mode: null, procStart: null, doneAt: null, refreshed: false,
+  poll: null,
+  data: null,
+  mode: null,
+  procStart: null,
+  doneAt: null,
+  refreshed: false,
 };
 
 function stopDownloadPoll() {
-  if (_dl.poll) { clearInterval(_dl.poll); _dl.poll = null; }
+  if (_dl.poll) {
+    clearInterval(_dl.poll);
+    _dl.poll = null;
+  }
   _dl.data = null;
   _dl.mode = null;
   _dl.procStart = null;
   _dl.doneAt = null;
   _dl.refreshed = false;
+  const el = document.getElementById("ingest-progress");
+  if (el) {
+    el.hidden = true;
+    el.innerHTML = "";
+  }
 }
 
 function formatBytes(n) {
@@ -1192,9 +2013,7 @@ function dlBatchHintText(d) {
   const workers = d.workers ?? 12;
   const decWorkers = d.decode_workers ?? 6;
   if (d.batch_kind === "incremental" && total > 0) {
-    return (
-      `Republicação INPE: ${total} hora(s) recente(s) em atualização.`
-    );
+    return `Republicação INPE: ${total} hora(s) recente(s) em atualização.`;
   }
   if (total > 0 && (d.hours_cached_ok ?? 0) < (d.min_ok_hours ?? 24)) {
     return (
@@ -1218,18 +2037,21 @@ function dlMainProgress(d) {
   const batchTotal = d.total || 0;
   const batchDone = d.done || 0;
   const batchDisp = d.batch_done_display ?? batchDone;
-  const batchBusy = batchTotal > 0 && (
-    d.active || batchDisp < batchTotal || batchDone < batchTotal
-  );
+  const batchBusy =
+    batchTotal > 0 &&
+    (d.active || batchDisp < batchTotal || batchDone < batchTotal);
   const isIncremental = d.batch_kind === "incremental";
 
   if (isIncremental && batchBusy) {
     const batchPct = Number.isFinite(d.batch_pct)
       ? d.batch_pct
-      : (batchTotal ? (batchDisp / batchTotal) * 100 : 0);
-    const doneTxt = batchDisp < batchTotal && batchDisp % 1
-      ? batchDisp.toFixed(1)
-      : String(Math.round(batchDisp));
+      : batchTotal
+        ? (batchDisp / batchTotal) * 100
+        : 0;
+    const doneTxt =
+      batchDisp < batchTotal && batchDisp % 1
+        ? batchDisp.toFixed(1)
+        : String(Math.round(batchDisp));
     return {
       label: "Atualizando horas recentes",
       pct: batchPct,
@@ -1239,7 +2061,9 @@ function dlMainProgress(d) {
 
   const cachePct = Number.isFinite(d.cache_pct)
     ? d.cache_pct
-    : (cacheBack ? Math.min(100, (cacheOk / cacheBack) * 100) : 0);
+    : cacheBack
+      ? Math.min(100, (cacheOk / cacheBack) * 100)
+      : 0;
   const disp = Number.isFinite(cacheDisplay)
     ? Math.round(cacheDisplay * 10) / 10
     : cacheOk;
@@ -1249,7 +2073,8 @@ function dlMainProgress(d) {
     count += ` · faltam ${faltaMin} h para exibir alertas no mapa`;
   }
   return {
-    label: cacheOk < minOk ? "Montando histórico de chuva" : "Histórico em memória",
+    label:
+      cacheOk < minOk ? "Montando histórico de chuva" : "Histórico em memória",
     pct: cachePct,
     count,
   };
@@ -1302,18 +2127,19 @@ function startDownloadPoll() {
       const r = await fetch(apiUrl("/api/progress"));
       _dl.data = await r.json();
       renderDownloadFrame();
-    } catch { /* ignora erro de rede transitorio */ }
+    } catch {
+      /* ignora erro de rede transitorio */
+    }
   };
   poll();
-  _dl.poll = setInterval(poll, 250);
+  _dl.poll = setInterval(poll, PROGRESS_POLL_MS);
 }
 
 function buildDownloadCard() {
-  const card = document.getElementById("worst-card");
-  if (!card) return;
-  card.classList.add("empty");
-  card.classList.remove("worst-card--busy");
-  card.innerHTML = `
+  const el = document.getElementById("ingest-progress");
+  if (!el) return;
+  el.hidden = false;
+  el.innerHTML = `
     <div class="worst-empty loading dl-box">
       <div class="loading-title">
         <span class="loading-spinner" aria-hidden="true"></span>
@@ -1350,17 +2176,18 @@ function rowStatusClass(f) {
 }
 
 function renderDownloadFrame() {
-  const card = document.getElementById("worst-card");
+  const el = document.getElementById("ingest-progress");
   const d = _dl.data;
-  if (!card || !d) return;
+  if (!el || !d) return;
   const ingestBusy = isIngestProgressBusy(d);
   const batchBusy = d.total > 0 && d.done < d.total;
-  const mode = (d.phase === "ingest" && (d.active || batchBusy))
-    || (ingestBusy && d.phase !== "processing" && d.phase !== "done")
-    ? "download"
-    : (d.phase === "processing" || d.phase === "done")
-      ? "processing"
-      : _dl.mode;
+  const mode =
+    (d.phase === "ingest" && (d.active || batchBusy)) ||
+    (ingestBusy && d.phase !== "processing" && d.phase !== "done")
+      ? "download"
+      : d.phase === "processing" || d.phase === "done"
+        ? "processing"
+        : _dl.mode;
   if (mode !== _dl.mode) {
     _dl.mode = mode;
     _dl.procStart = null;
@@ -1373,12 +2200,12 @@ function renderDownloadFrame() {
 }
 
 function renderDownloadList(d) {
-  const card = document.getElementById("worst-card");
-  const list = card?.querySelector(".dl-list");
-  const hint = card?.querySelector(".dl-list-hint");
-  const batchHint = card?.querySelector(".dl-batch-hint");
-  const subtitleEl = card?.querySelector(".dl-subtitle");
-  const titleEl = card?.querySelector(".dl-title-text");
+  const el = document.getElementById("ingest-progress");
+  const list = el?.querySelector(".dl-list");
+  const hint = el?.querySelector(".dl-list-hint");
+  const batchHint = el?.querySelector(".dl-batch-hint");
+  const subtitleEl = el?.querySelector(".dl-subtitle");
+  const titleEl = el?.querySelector(".dl-title-text");
   if (!list) return;
   const files = listDownloadFiles(d);
 
@@ -1388,9 +2215,9 @@ function renderDownloadList(d) {
   if (hint) hint.textContent = dlActivityHint(d);
 
   const main = dlMainProgress(d);
-  const cacheFill = card.querySelector(".dl-cache-fill");
-  const cacheCount = card.querySelector(".dl-cache-pct");
-  const progressLabel = card.querySelector(".dl-progress-label");
+  const cacheFill = el.querySelector(".dl-cache-fill");
+  const cacheCount = el.querySelector(".dl-cache-pct");
+  const progressLabel = el.querySelector(".dl-progress-label");
   if (progressLabel) progressLabel.textContent = main.label;
   if (cacheFill) cacheFill.style.width = main.pct + "%";
   if (cacheCount) cacheCount.textContent = main.count;
@@ -1400,17 +2227,20 @@ function renderDownloadList(d) {
   if (prevKeys !== nextKeys) {
     list.dataset.keys = nextKeys;
     if (!files.length) {
-      list.innerHTML =
-        `<li class="dl-row dl-empty">Conectando ao servidor de chuva do INPE...</li>`;
+      list.innerHTML = `<li class="dl-row dl-empty">Conectando ao servidor de chuva do INPE...</li>`;
     } else {
-      list.innerHTML = files.map((f) => `
+      list.innerHTML = files
+        .map(
+          (f) => `
       <li class="dl-row ${rowStatusClass(f)}" data-h="${f.h}">
         <div class="dl-name">${escapeHtml(f.name)}</div>
         <div class="dl-line">
           <div class="dl-bar"><div class="dl-bar-fill"></div></div>
           <span class="dl-pct">0%</span>
         </div>
-      </li>`).join("");
+      </li>`,
+        )
+        .join("");
     }
   }
 
@@ -1435,16 +2265,20 @@ function renderDownloadList(d) {
 }
 
 function buildProcessingCard(d) {
-  const card = document.getElementById("worst-card");
-  if (!card) return;
-  card.classList.add("empty", "worst-card--busy");
+  const el = document.getElementById("ingest-progress");
+  if (!el) return;
   const stages = Array.isArray(d.stages) ? d.stages : [];
-  const rows = stages.map((st) => `
+  const rows = stages
+    .map(
+      (st) => `
       <li class="pr-card pr-pending" data-key="${escapeHtml(st.key)}">
         <span class="pr-ic" aria-hidden="true"></span>
         <span class="pr-label">${escapeHtml(st.label)}</span>
-      </li>`).join("");
-  card.innerHTML = `
+      </li>`,
+    )
+    .join("");
+  el.hidden = false;
+  el.innerHTML = `
     <div class="worst-empty loading dl-box dl-box--processing">
       <div class="loading-title">
         <span class="loading-spinner" aria-hidden="true"></span>
@@ -1456,10 +2290,10 @@ function buildProcessingCard(d) {
 }
 
 function renderProcessing(d) {
-  const card = document.getElementById("worst-card");
-  const ul = card?.querySelector(".pr-list");
-  const procTitle = card?.querySelector(".dl-proc-title");
-  const procSub = card?.querySelector(".dl-proc-subtitle");
+  const el = document.getElementById("ingest-progress");
+  const ul = el?.querySelector(".pr-list");
+  const procTitle = el?.querySelector(".dl-proc-title");
+  const procSub = el?.querySelector(".dl-proc-subtitle");
   if (procTitle) procTitle.textContent = dlProcessingTitle(d);
   if (procSub) procSub.textContent = dlProcessingSubtitle(d);
   if (!ul) return;
@@ -1490,15 +2324,538 @@ function renderProcessing(d) {
 }
 
 function setStatus(text, cls) {
-  document.getElementById("status-line").textContent = text;
+  renderStatusCard({
+    headline: text,
+    dotClass: cls || "",
+    levelVisible: false,
+  });
+}
+
+function statusDotClass(level) {
+  if (level >= 4) return "max";
+  if (level >= 3) return "alert";
+  if (level >= 2) return "warn";
+  return "";
+}
+
+function statusDetailHtml(summary, focal) {
+  if (!summary) return "";
+  const items = [];
+  const totalGeo = summary.total_geo ?? 0;
+  const totalHid = summary.total_hidro ?? 0;
+  items.push(`${totalGeo} UAs encosta · ${totalHid} inundação`);
+
+  const byGeo = summary.by_level_geo || {};
+  const byHid = summary.by_level_hidro || {};
+  const alertCount = (by) =>
+    (by[2] || 0) + (by[3] || 0) + (by[4] || 0);
+  const alertGeo = alertCount(byGeo);
+  const alertHid = alertCount(byHid);
+  const focalN = focal?.length || 0;
+
+  if (focalN) {
+    items.push(
+      `<b>${focalN}</b> trecho${focalN > 1 ? "s" : ""} em destaque `
+      + "(Atenção ou acima)",
+    );
+  } else if ((summary.max_rd || 0) === 0) {
+    items.push("Nenhum trecho acima de Monitoramento");
+  }
+
+  if (alertGeo || alertHid) {
+    items.push(
+      `Em Atenção/alerta: ${alertGeo} encosta · ${alertHid} inundação`,
+    );
+  }
+
+  if (summary.max_rd_name) {
+    const canal = summary.max_rd_hazard === "hidro" ? "inundação" : "encosta";
+    items.push(
+      `Maior RD: <b>${escapeHtml(summary.max_rd_name)}</b> (${canal})`,
+    );
+  }
+
+  return items
+    .map((t) => `<span class="status-detail-item">${t}</span>`)
+    .join("");
+}
+
+function statusTimeLine(summary, ts, status) {
+  const parts = [];
+  if (status === "mock") {
+    parts.push("Modo de teste (dados simulados)");
+  } else if (status === "degraded") {
+    const miss = summary?.missing_24h;
+    parts.push(
+      miss != null
+        ? `Leitura parcial (${miss} h faltando em 24 h)`
+        : "Leitura parcial",
+    );
+  } else if (status === "historical") {
+    parts.push(summary?.rd_basis || "Chuva observada MERGE/INPE (histórico)");
+  } else if (status === "loading") {
+    parts.push("Primeira carga MERGE/INPE em andamento");
+  } else if (status === "no_data") {
+    parts.push("Sem leitura de chuva disponível");
+  } else {
+    parts.push(summary?.rd_basis || "Chuva observada MERGE/INPE");
+  }
+  if (ts) {
+    const label = status === "historical" ? "consulta" : "atualizado";
+    parts.push(`${label} às ${formatTime(ts)}`);
+  }
+  if (summary?.merge_target_hour && status !== "loading") {
+    parts.push(
+      "hora MERGE " + formatTime(new Date(summary.merge_target_hour)),
+    );
+  }
+  return parts.join(" · ");
+}
+
+function renderStatusCard(opts = {}) {
+  const {
+    headline = "—",
+    detail = "",
+    timeLine = "",
+    level = 0,
+    dotClass = "",
+    levelVisible = true,
+  } = opts;
+  const lineEl = document.getElementById("status-line");
+  const detailEl = document.getElementById("status-detail");
+  const timeEl = document.getElementById("status-time");
+  const badgeEl = document.getElementById("status-level-badge");
   const dot = document.getElementById("status-dot");
-  dot.classList.remove("warn", "alert", "max");
-  if (cls) dot.classList.add(cls);
+  const card = document.getElementById("status-card");
+
+  if (lineEl) lineEl.textContent = headline;
+  if (detailEl) {
+    detailEl.innerHTML = detail;
+    detailEl.hidden = !detail;
+  }
+  if (timeEl) timeEl.textContent = timeLine || "—";
+
+  const lvl = Math.min(4, Math.max(0, Number(level) || 0));
+  const color = NIVEL_COLOR[lvl];
+  if (badgeEl) {
+    badgeEl.textContent = String(lvl);
+    badgeEl.style.background = color;
+    badgeEl.style.color = lvl === 1 ? "#0f172a" : "#fff";
+    badgeEl.hidden = !levelVisible;
+  }
+  if (dot) {
+    dot.hidden = levelVisible;
+    dot.classList.remove("warn", "alert", "max");
+    const cls = dotClass || statusDotClass(lvl);
+    if (cls) dot.classList.add(cls);
+  }
+  if (card) {
+    card.style.borderLeftColor = levelVisible ? color : "";
+    card.dataset.rdLevel = String(lvl);
+  }
+}
+
+// ============================================================================
+// CARDS DE MÉTRICAS POR TRECHO (estrutura persistente no HTML)
+// ============================================================================
+
+function setCardBind(card, key, text, { html = false, hide = false } = {}) {
+  const el = card?.querySelector(`[data-bind="${key}"]`);
+  if (!el) return;
+  if (hide) {
+    el.hidden = true;
+    return;
+  }
+  el.hidden = false;
+  if (html) el.innerHTML = text;
+  else el.textContent = text;
+}
+
+function setCardStat(card, channel, key, value, suffix = "") {
+  const el = card?.querySelector(
+    `[data-channel="${channel}"][data-stat="${key}"] b`,
+  );
+  if (!el) return;
+  el.textContent =
+    value != null && value !== "" && value !== undefined
+      ? `${value}${suffix}`
+      : TRECHO_VALUE_PENDING;
+}
+
+function setCardLevel(card, bindKey, rd) {
+  const el = card?.querySelector(`[data-bind="${bindKey}"]`);
+  if (!el) return;
+  if (rd == null || rd === undefined) {
+    el.textContent = TRECHO_VALUE_PENDING;
+    el.style.background = "#64748b";
+    el.style.color = "#fff";
+    el.classList.remove("worst-level--blink");
+    return;
+  }
+  el.textContent = `RD ${rd} — ${NIVEL_LABEL[rd]}`;
+  el.style.background = NIVEL_COLOR[rd];
+  el.style.color = rd === 1 ? "#0f172a" : "#ffffff";
+  el.classList.toggle("worst-level--blink", shouldBlinkAlert(rd));
+}
+
+function initTrechoMetricCards() {
+  for (const id of ["worst-card", "forecast-card", "region-card"]) {
+    const card = document.getElementById(id);
+    if (!card) continue;
+    card.classList.remove("empty", "worst-card--busy");
+  }
+}
+
+function pendingAllCardStats(card, channel) {
+  card?.querySelectorAll(
+    `[data-channel="${channel}"] [data-stat] b`,
+  ).forEach((el) => {
+    el.textContent = TRECHO_VALUE_PENDING;
+  });
+}
+
+function applyTrechoCardChrome(card, maxRd) {
+  if (!card) return;
+  card.classList.remove(
+    "empty",
+    "worst-card--busy",
+    "info-card--critical",
+    "info-card--success",
+    "info-card--warning",
+    "worst-card--blink",
+  );
+  if (maxRd != null && maxRd !== undefined && maxRd > 0) {
+    card.classList.add(infoCardClassForRd(maxRd));
+    if (shouldBlinkAlert(maxRd)) card.classList.add("worst-card--blink");
+    card.style.borderLeftColor = infoAccentForRd(maxRd);
+  } else {
+    card.style.borderLeftColor = "rgba(255, 255, 255, 0.1)";
+  }
+}
+
+function resetTrechoMetricCard(card, { note, noteHtml } = {}) {
+  if (!card) return;
+  applyTrechoCardChrome(card, null);
+  setCardBind(card, "name", TRECHO_VALUE_PENDING);
+  setCardBind(card, "subtitle", TRECHO_VALUE_PENDING);
+  if (noteHtml != null) {
+    setCardBind(card, "note", noteHtml, { html: true });
+  } else if (note != null) {
+    setCardBind(card, "note", note);
+  }
+  pendingAllCardStats(card, "encosta");
+  pendingAllCardStats(card, "inundacao");
+  setCardLevel(card, "encosta-level", null);
+  setCardLevel(card, "hidro-level", null);
+  const dual = card.querySelector(".worst-dual");
+  if (dual) dual.hidden = false;
+  const sparkWrap = card.querySelector('[data-bind="sparkline"]');
+  if (sparkWrap) {
+    sparkWrap.innerHTML = "";
+    sparkWrap.hidden = true;
+  }
+  setCardBind(card, "footer", "", { hide: true });
+}
+
+function setCardStatLabel(card, channel, key, label) {
+  const el = card?.querySelector(
+    `[data-channel="${channel}"][data-stat="${key}"] span`,
+  );
+  if (el && label) el.textContent = label;
+}
+
+function fillIndicatorsChannel(card, channel, pt, isGeo) {
+  const bind = channel === "encosta" ? "encosta" : "hidro";
+  if (!pt) {
+    pendingAllCardStats(card, channel);
+    setCardLevel(card, `${bind}-level`, null);
+    return;
+  }
+  setCardLevel(card, `${bind}-level`, pt.rd);
+  const ra = isGeo ? (pt.ra_geo ?? pt.ra) : (pt.ra_hid ?? pt.ra);
+  const icc = isGeo ? pt.icc_geo : pt.icc_hid;
+  setCardStat(card, channel, "ra", ra != null ? ra : null);
+  setCardStat(card, channel, "icc", icc != null ? icc : null);
+  setCardStat(card, channel, "chuva24", pt.ac24h_mm, " mm");
+  setCardStat(card, channel, "ac96", pt.ac96h_mm, " mm");
+  setCardStat(card, channel, "intensity", pt.intensity_mmh, " mm/h");
+  if (isGeo) {
+    setCardStat(
+      card,
+      channel,
+      "cpc",
+      pt.cpc != null && pt.cpc !== undefined ? pt.cpc : null,
+    );
+  }
+}
+
+function fillIndicatorsCard(geo, hid) {
+  const card = document.getElementById("worst-card");
+  if (!card) return;
+  const ref = geo || hid;
+  if (!ref) {
+    resetTrechoMetricCard(card, { note: "Trecho não encontrado." });
+    return;
+  }
+  const maxRd = Math.max(geo?.rd || 0, hid?.rd || 0);
+  applyTrechoCardChrome(card, maxRd);
+  setCardBind(card, "name", ref.nome || ref.id);
+  setCardBind(
+    card,
+    "subtitle",
+    `${ref.rodovia || "—"} · km ${formatTrechoKm(ref.km)} · ${
+      ref.region_name || "—"
+    }`,
+  );
+  setCardBind(card, "note", TRECHO_SCALAR_NOTE, { html: true });
+  fillIndicatorsChannel(card, "encosta", geo, true);
+  fillIndicatorsChannel(card, "inundacao", hid, false);
+  const sparkWrap = card.querySelector('[data-bind="sparkline"]');
+  if (sparkWrap) {
+    const spark =
+      geo && (geo.history || []).length >= 2
+        ? renderWorstSparkline(geo.history || [])
+        : "";
+    if (spark) {
+      sparkWrap.innerHTML = spark;
+      sparkWrap.hidden = false;
+    } else {
+      sparkWrap.innerHTML = "";
+      sparkWrap.hidden = true;
+    }
+  }
+  setCardBind(card, "footer", TRECHO_VALUE_PENDING, { hide: true });
+}
+
+function fillApoioIndicatorsCard() {
+  const card = document.getElementById("worst-card");
+  if (!card) return;
+  const road = state.trechoRoad || TRECHO_VALUE_PENDING;
+  let segLabel = "";
+  const segs = malhaTrechosForRoad(state.trechoRoad, state.trechoRegion);
+  if (state.trechoApoioId?.startsWith("apoio:")) {
+    const idx = Number(state.trechoApoioId.split(":")[1]);
+    const seg = segs[idx];
+    if (seg) {
+      segLabel =
+        `km ${formatTrechoKm(seg.p.km_ini)} – ${formatTrechoKm(seg.p.km_fim)}`;
+    }
+  }
+  applyTrechoCardChrome(card, 0);
+  setCardBind(card, "name", road);
+  setCardBind(
+    card,
+    "subtitle",
+    segLabel ? `Trecho ${segLabel}` : "Malha de apoio",
+  );
+  setCardBind(
+    card,
+    "note",
+    "Esta rodovia integra a <strong>malha cartográfica de apoio</strong> "
+    + "(área das quatro regiões), sem UA nem RA oficial. Indicadores de RD "
+    + "disponíveis apenas em <strong>SP-055</strong> e <strong>SP-098</strong>.",
+    { html: true },
+  );
+  fillIndicatorsChannel(card, "encosta", null, true);
+  fillIndicatorsChannel(card, "inundacao", null, false);
+  const sparkWrap = card.querySelector('[data-bind="sparkline"]');
+  if (sparkWrap) sparkWrap.hidden = true;
+  setCardBind(card, "footer", TRECHO_VALUE_PENDING, { hide: true });
+}
+
+function fillForecastCard(data, snap) {
+  const card = document.getElementById("forecast-card");
+  if (!card) return;
+
+  if (state.trechoApoioId || isTrechoApoioRoad(snap)) {
+    resetTrechoMetricCard(card, {
+      note:
+        "Previsão restrita às rodovias SP-055 e SP-098 (com UA). "
+        + "Esta via constitui malha cartográfica de apoio.",
+    });
+    return;
+  }
+
+  const targetIds = resolveForecastTargetIds(snap);
+  if (!targetIds.length) {
+    resetTrechoMetricCard(card, {
+      note:
+        "Selecione região, rodovia e trecho — ou aguarde trecho em alerta.",
+    });
+    return;
+  }
+
+  const order = new Map(targetIds.map((id, i) => [id, i]));
+  const comDados = (data?.forecast || [])
+    .filter((f) => order.has(f.id))
+    .sort((a, b) => order.get(a.id) - order.get(b.id));
+  const f = comDados[0];
+  const hasGeo = f?.ac24h_forecast_mm != null;
+  const hasHid = f?.ac6h_forecast_mm != null;
+
+  if (!f || (!hasGeo && !hasHid)) {
+    resetTrechoMetricCard(card, {
+      note:
+        "Previsão indisponível para "
+        + (state.uaPickerId ? "o trecho selecionado" : "o trecho em alerta")
+        + ".",
+    });
+    return;
+  }
+
+  const pair = snap ? getUaPair(snap, f.id) : { geo: null, hid: null };
+  const ref = pair.geo || pair.hid || f;
+  const modeLabel = state.uaPickerId
+    ? "Trecho selecionado"
+    : "Trecho em alerta";
+
+  applyTrechoCardChrome(card, 0);
+  setCardBind(card, "name", ref.nome || f.nome || f.id);
+  setCardBind(
+    card,
+    "subtitle",
+    `${ref.rodovia || "—"} · km ${formatTrechoKm(ref.km)} · ${
+      ref.region_name || "—"
+    }`,
+  );
+  setCardBind(
+    card,
+    "note",
+    "Previsão do modelo WRF (CPTEC/INPE) na UA do trecho "
+    + "(+24 h canal geológico; +6 h canal hidrológico).",
+  );
+  pendingAllCardStats(card, "encosta");
+  pendingAllCardStats(card, "inundacao");
+  setCardLevel(card, "encosta-level", null);
+  setCardLevel(card, "hidro-level", null);
+  if (hasGeo) {
+    setCardStat(
+      card,
+      "encosta",
+      "fc24",
+      f.ac24h_forecast_mm.toFixed(1),
+      " mm",
+    );
+  }
+  if (hasHid) {
+    setCardStat(
+      card,
+      "inundacao",
+      "fc6",
+      f.ac6h_forecast_mm.toFixed(1),
+      " mm",
+    );
+  }
+  setCardBind(
+    card,
+    "footer",
+    `${data?.source || "Previsão horária CPTEC/INPE"} · ${modeLabel}`,
+  );
+}
+
+function fillRegionCard(regions, snap) {
+  const card = document.getElementById("region-card");
+  if (!card) return;
+
+  if (state.trechoApoioId || isTrechoApoioRoad(snap)) {
+    resetTrechoMetricCard(card, {
+      note:
+        "Sensibilidade K restrita a trechos-UA em SP-055 e SP-098. "
+        + "Esta via constitui malha cartográfica de apoio.",
+    });
+    return;
+  }
+
+  const hlIds = snap ? resolveRegionHighlightIds(snap) : [];
+  const activeId = hlIds[0];
+  const activeReg = (regions || []).find((r) => r.id === activeId);
+  const ctx = snap ? resolveUaPickerContext(snap) : null;
+
+  if (!activeReg && !ctx) {
+    resetTrechoMetricCard(card, {
+      note:
+        "Selecione região, rodovia e trecho — ou aguarde trecho em alerta.",
+    });
+    return;
+  }
+
+  applyTrechoCardChrome(card, 0);
+  const ref = ctx || {};
+  setCardBind(card, "name", ref.nome || ref.id || activeReg?.nome || "—");
+  const subParts = [
+    ref.rodovia ? escapeHtml(ref.rodovia) : null,
+    ref.km != null ? `km ${formatTrechoKm(ref.km)}` : null,
+    ref.region_name
+      ? escapeHtml(ref.region_name)
+      : activeReg
+        ? escapeHtml(activeReg.nome)
+        : null,
+  ].filter(Boolean);
+  setCardBind(card, "subtitle", subParts.join(" · ") || "—", { html: true });
+  setCardBind(
+    card,
+    "note",
+    "Sensibilidade K: valores menores indicam maior resposta da região "
+    + "à precipitação acumulada (envoltória crítica).",
+  );
+  pendingAllCardStats(card, "encosta");
+  setCardLevel(card, "encosta-level", null);
+  if (activeReg) {
+    setCardStat(card, "encosta", "k_geo", activeReg.k_geo);
+    setCardStat(card, "encosta", "reg_id", activeReg.id);
+    setCardStat(card, "encosta", "reg_nome", activeReg.nome);
+  }
+  setCardBind(card, "footer", TRECHO_VALUE_PENDING, { hide: true });
 }
 
 // ============================================================================
 // TRECHO MAIS CRÍTICO
 // ============================================================================
+
+function getUaPair(snap, id) {
+  const { geo, hid } = snapshotPoints(snap);
+  return {
+    geo: geo.find((p) => p.id === id) || null,
+    hid: hid.find((p) => p.id === id) || null,
+  };
+}
+
+function resolveUaPickerContext(snap) {
+  const id = resolvePanelUaId(snap);
+  if (!id) return null;
+  const pair = getUaPair(snap, id);
+  return pair.geo || pair.hid;
+}
+
+function resolveRegionHighlightIds(snap) {
+  if (state.trechoRegion) return [Number(state.trechoRegion)];
+  const id = resolvePanelUaId(snap);
+  if (!id) return [];
+  const pair = getUaPair(snap, id);
+  const ref = pair.geo || pair.hid;
+  const rid = uaRegionId(ref);
+  return rid != null ? [rid] : [];
+}
+
+function resolveForecastTargetIds(snap) {
+  const id = resolvePanelUaId(snap);
+  return id ? [id] : [];
+}
+
+function renderWorstUaPair(geo, hid) {
+  fillIndicatorsCard(geo, hid);
+}
+
+function isTrechoApoioRoad(snap) {
+  if (!state.trechoRoad || !snap) return false;
+  const byRod = trechoIndexByRoad(snap);
+  const regId = state.trechoRegion || "";
+  return !filteredUaPoints(byRod, state.trechoRoad, regId).length;
+}
+
+function renderTrechoApoioCard() {
+  fillApoioIndicatorsCard();
+}
 
 function renderWorst(snap, focal) {
   const card = document.getElementById("worst-card");
@@ -1506,52 +2863,49 @@ function renderWorst(snap, focal) {
   const status = (snap?.summary || {}).data_status;
   if (status === "loading") return;
 
+  if (state.trechoApoioId || isTrechoApoioRoad(snap)) {
+    renderTrechoApoioCard();
+    return;
+  }
+
+  const panelId = resolvePanelUaId(snap);
+  if (panelId) {
+    const pair = getUaPair(snap, panelId);
+    renderWorstUaPair(pair.geo, pair.hid);
+    return;
+  }
+
   const points = focal ?? resolveFocalPoints(snap);
   if (!points.length) {
-    card.classList.add("empty");
-    card.classList.remove("worst-card--blink");
-    card.style.borderLeftColor = "";
     if (status === "no_data") return;
-    card.innerHTML = (
-      '<div class="worst-empty">Nenhuma UA acima de Monitoramento.</div>'
-    );
+    resetTrechoMetricCard(card, {
+      note: "Nenhum trecho acima de Monitoramento.",
+    });
     return;
   }
 
-  card.classList.remove("empty");
-  if (points.length === 1) {
-    card.className = "worst-card";
-    if (shouldBlinkAlert(points[0].rd)) card.classList.add("worst-card--blink");
-    card.style.borderLeftColor = NIVEL_COLOR[points[0].rd];
-    card.innerHTML = renderWorstPointBody(points[0], true);
-    return;
-  }
-
-  card.className = "worst-card";
-  card.style.borderLeftColor = NIVEL_COLOR[focalMaxRd(points)];
-  card.innerHTML = (
-    '<div class="worst-stack">'
-    + points.map((p, i) => renderWorstPointBody(p, i === 0)).join("")
-    + "</div>"
-  );
+  const pair = getUaPair(snap, points[0].id);
+  renderWorstUaPair(pair.geo, pair.hid);
 }
 
 function renderWorstPointBody(worst, withSparkline) {
   const levelTextColor = worst.rd === 1 ? "#0f172a" : "#ffffff";
   const levelBlink = shouldBlinkAlert(worst.rd) ? " worst-level--blink" : "";
-  const wrapCls = withSparkline && (worst.history || []).length >= 2
-    ? "worst-card"
-    : "worst-card-item";
-  const blinkCls = shouldBlinkAlert(worst.rd) && !withSparkline
-    ? " worst-card--blink"
-    : "";
-  const hazardTag = worst.hazard === "hidro"
-    ? " · inundação"
-    : worst.hazard === "geo"
-      ? " · encosta"
-      : "";
+  const wrapCls =
+    withSparkline && (worst.history || []).length >= 2
+      ? "worst-card"
+      : "worst-card-item";
+  const infoCls = " " + infoCardClassForRd(worst.rd);
+  const blinkCls =
+    shouldBlinkAlert(worst.rd) && !withSparkline ? " worst-card--blink" : "";
+  const hazardTag =
+    worst.hazard === "hidro"
+      ? " · inundação"
+      : worst.hazard === "geo"
+        ? " · encosta"
+        : "";
   return `
-    <div class="${wrapCls}${blinkCls}" style="border-left-color:${NIVEL_COLOR[worst.rd]}">
+    <div class="${wrapCls}${infoCls}${blinkCls}" style="border-left-color:${infoAccentForRd(worst.rd)}">
       <div class="worst-name">${escapeHtml(worst.nome)}</div>
       <div class="worst-rod">${escapeHtml(worst.rodovia)} · km ${worst.km} · ${escapeHtml(worst.region_name || "—")}${hazardTag}</div>
       <span class="worst-level${levelBlink}" style="background:${NIVEL_COLOR[worst.rd]};color:${levelTextColor}">
@@ -1579,22 +2933,8 @@ function renderWorstPointBody(worst, withSparkline) {
 // REGIÕES (sidebar e mapa)
 // ============================================================================
 
-function renderRegions(regions) {
-  const list = document.getElementById("region-list");
-  list.innerHTML = regions
-    .map((r) => `
-      <div class="region-row" title="Quanto menor o valor, menos chuva costuma bastar para subir o alerta">
-        <div class="region-info">
-          <b>${r.id}. ${escapeHtml(r.nome)}</b>
-          <small>${escapeHtml(r.rodovia || "")}</small>
-        </div>
-        <div class="region-k">
-          <span>Sensibilidade</span>
-          <code>${r.k_geo}</code>
-        </div>
-      </div>
-    `)
-    .join("");
+function renderRegions(regions, snap) {
+  fillRegionCard(regions, snap);
 }
 
 function renderRegionsOnMap(regions) {
@@ -1613,7 +2953,7 @@ function renderRegionsOnMap(regions) {
       dashArray: "6,4",
     }).bindTooltip(
       `Região ${r.id}: ${r.nome} (${r.rodovia})<br><small>Sensibilidade: ${r.k_geo} (menor = reage mais cedo)</small>`,
-      { sticky: true }
+      { sticky: true },
     );
     poly.addTo(state.layers.regions);
     state.regionPolys.push(poly);
@@ -1623,6 +2963,149 @@ function renderRegionsOnMap(regions) {
 // ============================================================================
 // PONTOS DE MONITORAMENTO
 // ============================================================================
+
+function boundsFromGeometry(geometry) {
+  if (!Array.isArray(geometry) || !geometry.length) return null;
+  const b = L.latLngBounds([]);
+  for (const pt of geometry) {
+    if (!Array.isArray(pt) || pt.length < 2) continue;
+    b.extend([pt[0], pt[1]]);
+  }
+  return b.isValid() ? b : null;
+}
+
+function boundsFromGeoJsonGeometry(geom) {
+  if (!geom?.coordinates) return null;
+  const b = L.latLngBounds([]);
+  const extendCoords = (coords) => {
+    if (typeof coords[0] === "number") {
+      b.extend([coords[1], coords[0]]);
+      return;
+    }
+    coords.forEach(extendCoords);
+  };
+  extendCoords(geom.coordinates);
+  return b.isValid() ? b : null;
+}
+
+function restoreTrechoMarkerStyle(markerKey) {
+  const p = state.pointData.get(markerKey);
+  const markers = state.pointMarkers.get(markerKey);
+  if (!p || !markers) return;
+  const hazardKey = markerKey.split(":")[1] || "encosta";
+  const h = HAZARDS[hazardKey];
+  const isNoData = p.source === "NO_DATA";
+  const isPoly = p.geometry_type === "polygon" && p.geometry?.length >= 3;
+  const rd = isNoData ? null : h?.rdFrom(p);
+  const color = rd == null ? "#64748b" : h.palette[rd] || "#64748b";
+  const blinkCls = shouldBlinkAlert(rd) ? " ua-alert-blink" : "";
+  const style = {
+    color,
+    weight: isPoly ? 2 : 5,
+    opacity: 0.9,
+    fillColor: color,
+    fillOpacity: isPoly ? 0.55 : 0,
+    className: (isPoly ? "ua-polygon" : "ua-polyline") + blinkCls,
+  };
+  markers.forEach((m) => m.setStyle(style));
+}
+
+function clearTrechoMapFocus() {
+  if (state.trechoFocus.overlay) {
+    state.map.removeLayer(state.trechoFocus.overlay);
+    state.trechoFocus.overlay = null;
+  }
+  for (const key of state.trechoFocus.markerKeys) {
+    restoreTrechoMarkerStyle(key);
+  }
+  state.trechoFocus.markerKeys = [];
+}
+
+function applyTrechoUaFocus(uaId, { zoom = true } = {}) {
+  const bounds = L.latLngBounds([]);
+  ["encosta", "inundacao"].forEach((hazardKey) => {
+    const markerKey = `${uaId}:${hazardKey}`;
+    const markers = state.pointMarkers.get(markerKey);
+    const p = state.pointData.get(markerKey);
+    if (!markers?.length || !p) return;
+    const h = HAZARDS[hazardKey];
+    const isNoData = p.source === "NO_DATA";
+    const isPoly = p.geometry_type === "polygon" && p.geometry?.length >= 3;
+    const rd = isNoData ? null : h?.rdFrom(p);
+    const color = rd == null ? "#64748b" : h.palette[rd] || "#64748b";
+    const blinkCls = shouldBlinkAlert(rd) ? " ua-alert-blink" : "";
+    markers.forEach((m) => {
+      m.setStyle({
+        color: "#fde047",
+        weight: isPoly ? 4 : 7,
+        opacity: 1,
+        fillColor: color,
+        fillOpacity: isPoly ? 0.8 : 0,
+        className:
+          (isPoly ? "ua-polygon ua-trecho-focus" : "ua-polyline ua-trecho-focus")
+          + blinkCls,
+      });
+      m.bringToFront?.();
+    });
+    state.trechoFocus.markerKeys.push(markerKey);
+    const gb = boundsFromGeometry(p.geometry);
+    if (gb) bounds.extend(gb);
+  });
+  if (zoom && bounds.isValid()) {
+    state.map.fitBounds(bounds.pad(0.4), { maxZoom: 14, animate: true });
+  }
+}
+
+function applyTrechoApoioFocus({ zoom = true } = {}) {
+  if (!state.trechoApoioId?.startsWith("apoio:")) return;
+  const idx = Number(state.trechoApoioId.split(":")[1]);
+  const segs = malhaTrechosForRoad(state.trechoRoad, state.trechoRegion);
+  const seg = segs[idx];
+  if (!seg) return;
+  const feat = (state.roadGeoJSON?.features || []).find((f) => {
+    const fp = f.properties || {};
+    return fp.monitored
+      && fp.rodovia === seg.p.rodovia
+      && fp.km_ini === seg.p.km_ini
+      && fp.km_fim === seg.p.km_fim;
+  });
+  if (!feat) return;
+  state.trechoFocus.overlay = L.geoJSON(feat, {
+    style: {
+      color: "#fde047",
+      weight: 7,
+      opacity: 1,
+    },
+  }).addTo(state.map);
+  const gb = boundsFromGeoJsonGeometry(feat.geometry);
+  if (zoom && gb) {
+    state.map.fitBounds(gb.pad(0.35), { maxZoom: 14, animate: true });
+  }
+}
+
+function trechoFocusKey(snap) {
+  if (state.trechoApoioId?.startsWith("apoio:")) return state.trechoApoioId;
+  if (snap && state.trechoRoad && isTrechoApoioRoad(snap)) return "";
+  const uaId = state.uaPickerId || resolvePanelUaId(snap);
+  return uaId ? `ua:${uaId}` : "";
+}
+
+function updateTrechoMapFocus(snap, { zoom } = {}) {
+  if (!state.map || state.timeline.active) return;
+  const key = trechoFocusKey(snap);
+  const shouldZoom = zoom ?? key !== state.trechoFocus.lastKey;
+  clearTrechoMapFocus();
+  if (!key) {
+    state.trechoFocus.lastKey = "";
+    return;
+  }
+  state.trechoFocus.lastKey = key;
+  if (key.startsWith("apoio:")) {
+    applyTrechoApoioFocus({ zoom: shouldZoom });
+    return;
+  }
+  applyTrechoUaFocus(key.slice(3), { zoom: shouldZoom });
+}
 
 function renderPointsOnMap(snap) {
   const groups = state.layers.hazardZones || {};
@@ -1642,6 +3125,7 @@ function renderPointsOnMap(snap) {
     if (!h?.available || !g) return;
 
     points.forEach((p) => {
+      if (window.QueryFilter && !QueryFilter.matchUa(hazardKey, p)) return;
       const markerKey = `${p.id}:${hazardKey}`;
       state.pointData.set(markerKey, p);
       if (!Array.isArray(p.geometry) || p.geometry.length < 2) return;
@@ -1649,27 +3133,33 @@ function renderPointsOnMap(snap) {
       const isNoData = p.source === "NO_DATA";
       const isPoly = p.geometry_type === "polygon" && p.geometry.length >= 3;
       const rd = isNoData ? null : h.rdFrom(p);
-      const color = (rd == null) ? "#64748b" : (h.palette[rd] || "#64748b");
+      const color = rd == null ? "#64748b" : h.palette[rd] || "#64748b";
       const blinkCls = shouldBlinkAlert(rd) ? " ua-alert-blink" : "";
       const pathClass = (isPoly ? "ua-polygon" : "ua-polyline") + blinkCls;
       const style = {
-        color, weight: isPoly ? 2 : 5, opacity: 0.9,
-        fillColor: color, fillOpacity: isPoly ? 0.55 : 0,
+        color,
+        weight: isPoly ? 2 : 5,
+        opacity: 0.9,
+        fillColor: color,
+        fillOpacity: isPoly ? 0.55 : 0,
         className: pathClass,
       };
       const layer = isPoly
-        ? L.polygon(p.geometry, style).bindPopup(
-          buildPopup(p, hazardKey),
-          { className: "ua-popup-wrap", maxWidth: 360, minWidth: 280 }
-        )
-        : L.polyline(p.geometry, style).bindPopup(
-          buildPopup(p, hazardKey),
-          { className: "ua-popup-wrap", maxWidth: 360, minWidth: 280 }
-        );
+        ? L.polygon(p.geometry, style).bindPopup(buildPopup(p, hazardKey), {
+            className: "ua-popup-wrap",
+            maxWidth: 360,
+            minWidth: 280,
+          })
+        : L.polyline(p.geometry, style).bindPopup(buildPopup(p, hazardKey), {
+            className: "ua-popup-wrap",
+            maxWidth: 360,
+            minWidth: 280,
+          });
       layer.addTo(g);
       state.pointMarkers.set(markerKey, [layer]);
     });
   });
+  updateTrechoMapFocus(snap);
 }
 
 function fixText(str) {
@@ -1717,12 +3207,15 @@ function raClassLabel(hazardKey, p) {
 function popupHeaderHtml(p, hazardKey) {
   const regionName = escapeHtml(fixText(p.region_name || "—"));
   const channelLabel = escapeHtml(
-    fixText(HAZARDS[hazardKey]?.label || hazardKey || "")
+    fixText(HAZARDS[hazardKey]?.label || hazardKey || ""),
   );
   const rod = fixText(p.rodovia || "");
-  const trecho = rod && p.km != null && p.km !== ""
-    ? `${escapeHtml(rod)} km ${formatKm(p.km)}`
-    : (rod ? escapeHtml(rod) : "—");
+  const trecho =
+    rod && p.km != null && p.km !== ""
+      ? `${escapeHtml(rod)} km ${formatKm(p.km)}`
+      : rod
+        ? escapeHtml(rod)
+        : "—";
   const raLine = escapeHtml(raClassLabel(hazardKey, p));
   return `
     <header class="ua-popup-header">
@@ -1813,9 +3306,10 @@ function buildPopup(p, hazardKey) {
   const iccRow = isGeo
     ? `<tr><th>ICC geológico</th><td>${formatNum(p.icc_geo, 0)}</td></tr>`
     : `<tr><th>ICC hidrológico</th><td>${formatNum(p.icc_hid, 0)}</td></tr>`;
-  const warnWrf = p.fonte_chuva === "OBS_ONLY"
-    ? `<p class="ua-popup-note">Previsão WRF indisponível — cálculo usa só chuva observada (pode subestimar).</p>`
-    : "";
+  const warnWrf =
+    p.fonte_chuva === "OBS_ONLY"
+      ? `<p class="ua-popup-note">Previsão WRF indisponível — cálculo usa só chuva observada (pode subestimar).</p>`
+      : "";
 
   return `
     <div class="ua-popup">
@@ -1852,8 +3346,8 @@ function addHeatmap() {
   state.pointData.forEach((p) => {
     // Intensidade do heatmap baseada em RD + chuva acumulada
     // Mesmo com RD=0 mostramos algum sinal de chuva
-    const rdComp = p.rd / 4.0;          // 0..1
-    const rainComp = Math.min(p.ac96h_mm / 200.0, 1.0);  // 0..1
+    const rdComp = p.rd / 4.0; // 0..1
+    const rainComp = Math.min(p.ac96h_mm / 200.0, 1.0); // 0..1
     const intensity = Math.max(0.15, rdComp, rainComp * 0.6);
     heatPoints.push([p.lat, p.lon, intensity]);
   });
@@ -1894,11 +3388,12 @@ function removeHeatmap() {
 const ROAD_UNMONITORED_STYLE = { color: "#5b6b7d", weight: 1.8, opacity: 0.8 };
 const ROAD_SUPPORT_STYLE = { color: "#94a3b8", weight: 2, opacity: 0.75 };
 
-// Pesos por nivel — legenda das UAs (malha DER nao usa mais escala RD)
+// Pesos por nivel — legenda das UAs (malha rodoviaria nao usa mais escala RD)
 const ROAD_WEIGHTS = [4.0, 4.5, 5.0, 5.5, 6.0];
 
 /**
- * Malha DER: referencia cartografica neutra. Alertas visuais ficam nas UAs.
+ * Malha Rodoviaria Estadual: referencia cartografica neutra.
+ * Alertas visuais ficam nas UAs.
  */
 function styleForRoadFeature(props) {
   if (!props?.monitored) return ROAD_UNMONITORED_STYLE;
@@ -1906,24 +3401,20 @@ function styleForRoadFeature(props) {
 }
 
 async function loadRoadNetwork() {
-  const setSummary = (msg) => {
-    const el = document.getElementById("road-stats-summary");
-    if (el) el.textContent = msg;
-  };
-
   try {
     const stats = normalizeRoadStats(
-      await (await fetch(apiUrl("/api/road-stats"))).json()
+      await (await fetch(apiUrl("/api/road-stats"))).json(),
     );
     populateFilterDropdowns(stats);
 
-    setSummary("Carregando malha rodoviária...");
     const gj = await (await fetch(apiUrl("/api/road-network"))).json();
     state.roadGeoJSON = normalizeRoadGeoJSON(gj);
     renderRoadsOnMap();
+    if (state.lastSnapshot) {
+      rebuildTrechoPickers(state.lastSnapshot);
+    }
   } catch (e) {
     console.error("Erro ao carregar malha:", e);
-    setSummary("Erro ao carregar a malha");
   }
 }
 
@@ -1934,19 +3425,44 @@ async function loadRoadNetwork() {
 const ADMIN_LAYERS = {
   municipios: {
     file: "/static/data/municipios.geojson",
-    style: { color: "#475569", weight: 0.5, opacity: 0.45, fill: false, interactive: false },
+    style: {
+      color: "#475569",
+      weight: 0.5,
+      opacity: 0.45,
+      fill: false,
+      interactive: false,
+    },
   },
   rc: {
     file: "/static/data/rc_poligonos.geojson",
-    style: { color: "#7c3aed", weight: 1.2, opacity: 0.7, fillColor: "#7c3aed", fillOpacity: 0.04, interactive: false },
+    style: {
+      color: "#7c3aed",
+      weight: 1.2,
+      opacity: 0.7,
+      fillColor: "#7c3aed",
+      fillOpacity: 0.04,
+      interactive: false,
+    },
   },
   uba: {
     file: "/static/data/uba_poligonos.geojson",
-    style: { color: "#0d9488", weight: 1.4, opacity: 0.8, fill: false, interactive: false },
+    style: {
+      color: "#0d9488",
+      weight: 1.4,
+      opacity: 0.8,
+      fill: false,
+      interactive: false,
+    },
   },
   cgr: {
     file: "/static/data/cgr_poligonos.geojson",
-    style: { color: "#b45309", weight: 1.8, opacity: 0.85, fill: false, interactive: false },
+    style: {
+      color: "#b45309",
+      weight: 1.8,
+      opacity: 0.85,
+      fill: false,
+      interactive: false,
+    },
   },
 };
 
@@ -1970,6 +3486,8 @@ function attachAdminLayerEvents() {
     const cb = document.getElementById(`layer-${key}`);
     if (!cb) return;
     cb.addEventListener("change", async (e) => {
+      MAP_LAYER_STATE[key] = e.target.checked;
+      saveMapLayerState();
       if (e.target.checked) {
         await loadAdminLayer(key);
         state.map.addLayer(state.layers[key]);
@@ -2023,8 +3541,9 @@ function normalizeRoadStats(stats) {
     };
   }
   const total = stats.total_trechos ?? stats.total_features ?? 0;
-  const rodovias = stats.rodovias_unicas
-    ?? (Array.isArray(stats.rodovias) ? stats.rodovias.length : 0);
+  const rodovias =
+    stats.rodovias_unicas ??
+    (Array.isArray(stats.rodovias) ? stats.rodovias.length : 0);
   return {
     total_trechos: total,
     extensao_total_km: Number(stats.extensao_total_km ?? 0),
@@ -2036,42 +3555,22 @@ function normalizeRoadStats(stats) {
 }
 
 function populateFilterDropdowns(stats) {
-  const s = normalizeRoadStats(stats);
-  const fillSelect = (id, values) => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    values.forEach((v) => {
-      const opt = document.createElement("option");
-      opt.value = v;
-      opt.textContent = v;
-      sel.appendChild(opt);
-    });
-  };
-  fillSelect("filter-tipo-pista", s.tipos_pista);
-  fillSelect("filter-regional", s.regionais);
-  fillSelect("filter-administra", s.administra);
-}
-
-function updateStatsSummary(stats) {
-  const el = document.getElementById("road-stats-summary");
-  if (!el) return;
-  const s = normalizeRoadStats(stats);
-  const fmt = (n) => Number(n || 0).toLocaleString("pt-BR");
-  el.innerHTML =
-    `<b>${fmt(s.total_trechos)}</b> trechos<br>` +
-    `<b>${fmt(Math.round(s.extensao_total_km))}</b> km de extensão total<br>` +
-    `<b>${fmt(s.rodovias_unicas)}</b> rodovias distintas`;
+  if (window.QueryFilter) {
+    QueryFilter.setRoadEnums(normalizeRoadStats(stats));
+  }
 }
 
 function renderRoadsOnMap() {
   if (!state.roadGeoJSON) return;
   state.layers.roads.clearLayers();
 
-  const f = state.roadFilters;
+  const useAdvanced = window.QueryFilter?.hasActiveRules?.();
   const filtered = {
     type: "FeatureCollection",
     features: state.roadGeoJSON.features.filter((feat) => {
       const p = feat.properties || {};
+      if (useAdvanced) return QueryFilter.matchRoad(p);
+      const f = state.roadFilters;
       if (f.tipo_pista && p.tipo_pista !== f.tipo_pista) return false;
       if (f.regional && p.regional !== f.regional) return false;
       if (f.administra && p.administra !== f.administra) return false;
@@ -2080,7 +3579,7 @@ function renderRoadsOnMap() {
         if (!(p.rodovia || "").toLowerCase().includes(q)) return false;
       }
       return true;
-    })
+    }),
   };
 
   const gj = L.geoJSON(filtered, {
@@ -2095,31 +3594,16 @@ function renderRoadsOnMap() {
           `Fora da cobertura · ${formatKmRange(p.km_ini, p.km_fim)}`;
       layer.bindTooltip(tipTitle, { sticky: true, direction: "top" });
       layer.on("mouseover", () =>
-        layer.setStyle({ ...baseStyle, weight: (baseStyle.weight || 2) + 2, opacity: 1 })
+        layer.setStyle({
+          ...baseStyle,
+          weight: (baseStyle.weight || 2) + 2,
+          opacity: 1,
+        }),
       );
       layer.on("mouseout", () => layer.setStyle(baseStyle));
-    }
+    },
   });
   gj.addTo(state.layers.roads);
-
-  // Atualiza contagem
-  const el = document.getElementById("road-stats-summary");
-  if (el && state.roadGeoJSON) {
-    const total = state.roadGeoJSON.features.length;
-    const shown = filtered.features.length;
-    const km = filtered.features.reduce((s, ft) => s + (ft.properties?.extensao || 0), 0);
-    const monitoredShown = filtered.features.filter((ft) => ft.properties?.monitored).length;
-    if (shown === total) {
-      el.innerHTML =
-        `<b>${total.toLocaleString("pt-BR")}</b> trechos · <b>${Math.round(km).toLocaleString("pt-BR")}</b> km<br>` +
-        `<b>${monitoredShown}</b> trechos com monitoramento ativo`;
-    } else {
-      el.innerHTML =
-        `Filtro ativo: <b>${shown.toLocaleString("pt-BR")}</b> de ${total.toLocaleString("pt-BR")} trechos<br>` +
-        `Extensão filtrada: <b>${Math.round(km).toLocaleString("pt-BR")}</b> km · ` +
-        `<b>${monitoredShown}</b> cobertos`;
-    }
-  }
 }
 
 // ============================================================================
@@ -2142,10 +3626,11 @@ function renderHazardPanel() {
           ${escapeHtml(h.label)}
         </label>
       `;
-    }).join("");
+    })
+    .join("");
   // Sempre mostra a secao; sem camadas disponiveis, exibe uma linha vazia.
-  root.innerHTML = items
-    || '<div class="ck ck-empty">Nenhuma camada disponível</div>';
+  root.innerHTML =
+    items || '<div class="ck ck-empty">Nenhuma camada disponível</div>';
 
   root.querySelectorAll('input[type="checkbox"][data-hazard]').forEach((cb) => {
     cb.addEventListener("change", (e) => {
@@ -2158,9 +3643,10 @@ function renderHazardPanel() {
         else state.map.removeLayer(g);
       }
       renderHazardLegend();
-      updateTimelineChannelHint();
       if (state.timeline.active) {
+        prepareTimelineLayers(state.timeline.hazard);
         applyTimelineFrame(state.timeline.idx);
+        return;
       }
       const snap = state.lastSnapshot;
       if (snap) {
@@ -2184,18 +3670,20 @@ function renderHazardLegend() {
   const root = document.getElementById("hazard-legend");
   if (!root) return;
 
-  const activeEntries = Object.entries(HAZARDS)
-    .filter(([k, h]) => h.available && HAZARD_STATE[k]);
+  const activeEntries = Object.entries(HAZARDS).filter(
+    ([k, h]) => h.available && HAZARD_STATE[k],
+  );
 
   if (activeEntries.length === 0) {
     root.innerHTML = "";
     return;
   }
 
-  const blocks = activeEntries.map(([key, h]) => {
-    const collapsed = !!LEGEND_COLLAPSED[key];
-    const toggleChar = collapsed ? "\u25B8" : "\u25C2";
-    return `
+  const blocks = activeEntries
+    .map(([key, h]) => {
+      const collapsed = !!LEGEND_COLLAPSED[key];
+      const toggleChar = collapsed ? "\u25B8" : "\u25C2";
+      return `
     <div class="legend-block${collapsed ? " collapsed" : ""}"
          data-legend-key="${key}">
       <div class="legend-head">
@@ -2207,18 +3695,23 @@ function renderHazardLegend() {
       </div>
       <div class="legend-body">
         <div class="legend-rows">
-          ${h.palette.map((c, i) => `
+          ${h.palette
+            .map(
+              (c, i) => `
             <div class="legend-item">
               <span class="line" style="border-top:${ROAD_WEIGHTS[i]}px solid ${c}"></span>
               ${i} — ${escapeHtml(NIVEL_LABEL[i])}
             </div>
-          `).join("")}
+          `,
+            )
+            .join("")}
           <div class="legend-item"><span class="line line-rd-nd"></span>Monitorado · sem dado</div>
           <div class="legend-item"><span class="line line-out"></span>Fora da área de monitoramento</div>
         </div>
       </div>
     </div>`;
-  }).join("");
+    })
+    .join("");
 
   root.innerHTML = blocks;
 }
@@ -2239,7 +3732,7 @@ function initLegendToggles() {
     btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
     btn.setAttribute(
       "aria-label",
-      collapsed ? "Expandir legenda" : "Recolher legenda"
+      collapsed ? "Expandir legenda" : "Recolher legenda",
     );
     btn.title = collapsed ? "Expandir" : "Recolher";
     btn.textContent = collapsed ? "\u25B8" : "\u25C2";
@@ -2247,37 +3740,6 @@ function initLegendToggles() {
       LEGEND_COLLAPSED[key] = collapsed;
       saveLegendCollapsed();
     }
-  });
-}
-
-function attachRoadFilterEvents() {
-  const handler = () => {
-    state.roadFilters = {
-      tipo_pista: document.getElementById("filter-tipo-pista").value,
-      regional: document.getElementById("filter-regional").value,
-      administra: document.getElementById("filter-administra").value,
-      rodovia: document.getElementById("filter-rodovia").value.trim()
-    };
-    renderRoadsOnMap();
-  };
-  ["filter-tipo-pista", "filter-regional", "filter-administra"].forEach((id) => {
-    document.getElementById(id)?.addEventListener("change", handler);
-  });
-  let timer;
-  document.getElementById("filter-rodovia")?.addEventListener("input", () => {
-    clearTimeout(timer);
-    timer = setTimeout(handler, 250);
-  });
-  document.getElementById("btn-clear-filters")?.addEventListener("click", () => {
-    document.getElementById("filter-tipo-pista").value = "";
-    document.getElementById("filter-regional").value = "";
-    document.getElementById("filter-administra").value = "";
-    document.getElementById("filter-rodovia").value = "";
-    handler();
-  });
-  document.getElementById("layer-roads")?.addEventListener("change", (e) => {
-    if (e.target.checked) state.map.addLayer(state.layers.roads);
-    else state.map.removeLayer(state.layers.roads);
   });
 }
 
@@ -2329,7 +3791,7 @@ function updateMapHistoryBanner(summary, snap) {
   const d = raw ? new Date(raw) : null;
   setMapHistoryBanner(
     d ? formatHistoryBannerDate(d) : "Data não informada",
-    false
+    false,
   );
 }
 
@@ -2340,17 +3802,23 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-
 function shouldBlinkAlert(rd) {
   return rd >= 3;
 }
 
-function applyMeterHighlight(by, maxRd) {
+function applyMeterHighlight(levelState) {
   document.querySelectorAll(".meter-cell").forEach((c) => {
     c.classList.remove("active", "meter-cell--blink");
     const rd = Number(c.dataset.rd);
-    if (rd === maxRd) c.classList.add("active");
-    if (shouldBlinkAlert(rd) && (by[rd] || 0) > 0) {
+    const hazard = c.dataset.hazard;
+    const h = HAZARDS[hazard];
+    const by = levelState?.[hazard] || levelState?.combined || {};
+    const maxRd = levelState?.max?.[hazard] ?? levelState?.max?.combined ?? 0;
+    const count = by?.[rd] ?? by?.[String(rd)] ?? 0;
+    const color = h?.palette?.[rd] || NIVEL_COLOR[rd] || "#64748b";
+    c.style.setProperty("--meter-color", color);
+    if (rd === maxRd && count > 0) c.classList.add("active");
+    if (shouldBlinkAlert(rd) && count > 0) {
       c.classList.add("meter-cell--blink");
     }
   });
@@ -2382,18 +3850,14 @@ function focalizeActions(data, focal) {
 
 function actionsPageUrl() {
   if (state.historyMode && state.historyAtIso) {
-    return apiUrl(
-      "/acoes?at=" + encodeURIComponent(state.historyAtIso)
-    );
+    return apiUrl("/acoes?at=" + encodeURIComponent(state.historyAtIso));
   }
   return apiUrl("/acoes");
 }
 
 function actionsApiUrl() {
   if (state.historyMode && state.historyAtIso) {
-    return apiUrl(
-      "/api/actions?at=" + encodeURIComponent(state.historyAtIso)
-    );
+    return apiUrl("/api/actions?at=" + encodeURIComponent(state.historyAtIso));
   }
   return apiUrl("/api/actions");
 }
@@ -2415,16 +3879,18 @@ async function loadActions() {
 function renderActionsWaiting() {
   const c = document.getElementById("actions-content");
   if (c) {
-    c.innerHTML = '<div class="actions-empty waiting">'
-      + 'Aguardando a primeira leitura de chuva para orientar ações\u2026</div>';
+    c.innerHTML =
+      '<div class="actions-empty waiting">' +
+      "Aguardando a primeira leitura de chuva para orientar ações\u2026</div>";
   }
 }
 
 function renderActionsNoData() {
   const c = document.getElementById("actions-content");
   if (c) {
-    c.innerHTML = '<div class="actions-empty">'
-      + 'Sem dados de chuva neste momento — ações indisponíveis.</div>';
+    c.innerHTML =
+      '<div class="actions-empty">' +
+      "Sem dados de chuva neste momento — ações indisponíveis.</div>";
   }
 }
 
@@ -2450,11 +3916,12 @@ function renderActions(data) {
     const sub = partes.length
       ? partes.join(" · ")
       : "Situação exige atenção preventiva";
-    const foco = state.focalPoints?.length === 1
-      ? " (UA em foco)"
-      : state.focalPoints?.length > 1
-        ? ` (${state.focalPoints.length} UAs em foco)`
-        : "";
+    const foco =
+      state.focalPoints?.length === 1
+        ? " (UA em foco)"
+        : state.focalPoints?.length > 1
+          ? ` (${state.focalPoints.length} UAs em foco)`
+          : "";
     container.innerHTML = `
       <a class="acoes-btn${blinkClass}" href="${url}" target="_blank"
          rel="noopener" style="--acao-cor:${cor};">
@@ -2464,20 +3931,15 @@ function renderActions(data) {
           <small>Nível ${rd} — ${nivel}${foco}</small>
         </span>
       </a>
-      <div class="acoes-sub">${sub}. Abra o plano detalhado da Defesa Civil.</div>`;
+      <div class="acoes-sub">${sub}. Consulte o plano detalhado da Defesa Civil.</div>`;
   } else {
-    // Operacao normal: estado calmo, sem piscar, com link de referencia.
+    // Operacao normal: informa sem criar outro card de status.
     container.innerHTML = `
-      <div class="acoes-calm">
-        <span class="acoes-calm-dot"></span>
-        <div>
-          <b>Operação normal</b>
-          <small>Chuva dentro da rotina — nenhuma ação
-            extraordinária por enquanto.</small>
-        </div>
+      <div class="actions-empty actions-empty--normal">
+        Operação normal — nenhuma ação extraordinária por enquanto.
       </div>
       <a class="acoes-btn-secondary" href="${url}" target="_blank"
-         rel="noopener">Ver plano de contingência (PPDC)</a>`;
+         rel="noopener">Plano de Prevenção e Defesa Civil (PPDC)</a>`;
   }
 }
 
@@ -2489,7 +3951,8 @@ async function loadForecast() {
     const res = await fetch(apiUrl("/api/forecast"));
     if (!res.ok) return;
     const data = await res.json();
-    renderForecast(data);
+    state.forecastData = data;
+    renderForecast(data, state.lastSnapshot);
   } catch (e) {
     console.error("Erro ao carregar previsao:", e);
   }
@@ -2509,114 +3972,49 @@ function renderRdBasisNote(summary, dataStatus) {
     return;
   }
   el.hidden = false;
-  el.className = forecastOk === false
-    ? "rd-basis-note rd-basis-warn"
-    : "rd-basis-note rd-basis-ok";
+  el.className =
+    forecastOk === false
+      ? "rd-basis-note rd-basis-warn"
+      : "rd-basis-note rd-basis-ok";
   let html = `<strong>Base do alerta:</strong> ${escapeHtml(basis || "—")}`;
   if (forecastOk === false) {
-    html += (
-      "<br><small>Previsão indisponível — cálculo usa só a chuva já medida "
-      + "(pode demorar a refletir piora do tempo).</small>"
-    );
+    html +=
+      "<br><small>Previsão indisponível — cálculo usa só a chuva já medida " +
+      "(pode demorar a refletir piora do tempo).</small>";
+  } else if (summary.forecast_count != null && state.uaPickerId) {
+    html +=
+      "<br><small>Previsão exibida para o trecho selecionado.</small>";
   } else if (summary.forecast_count != null && state.focalPoints?.length) {
-    html += (
-      `<br><small>Previsão listada para as ${state.focalPoints.length} `
-      + `UA(s) em foco (mesmo conjunto dos demais painéis).</small>`
-    );
+    html +=
+      "<br><small>Previsão destacada para o trecho com maior RD "
+      + "(seleção automática de trecho prioritário).</small>";
   } else if (summary.forecast_count != null) {
-    html += (
-      `<br><small>Previsão aplicada em ${summary.forecast_count} `
-      + `trecho(s) neste ciclo.</small>`
-    );
+    html +=
+      `<br><small>Previsão aplicada em ${summary.forecast_count} ` +
+      `trecho(s) neste ciclo.</small>`;
   }
   el.innerHTML = html;
 }
 
 function renderForecastWaiting() {
-  const c = document.getElementById("forecast-content");
-  if (c) {
-    c.innerHTML = '<div class="forecast-empty waiting">'
-      + 'Aguardando a leitura de chuva concluir\u2026</div>';
-  }
+  resetTrechoMetricCard(document.getElementById("forecast-card"), {
+    note: "Aguardando a leitura de chuva concluir…",
+  });
 }
 
 function renderForecastNoData() {
-  const c = document.getElementById("forecast-content");
-  if (c) {
-    c.innerHTML = '<div class="forecast-empty">'
-      + 'Sem dados de chuva — previsão indisponível.</div>';
-  }
+  resetTrechoMetricCard(document.getElementById("forecast-card"), {
+    note: "Sem dados de chuva — previsão indisponível.",
+  });
 }
 
-function renderForecast(data) {
-  const container = document.getElementById("forecast-content");
-  if (!container) return;
-
-  const focal = state.focalPoints || [];
-  if (!focal.length) {
-    container.innerHTML = (
-      '<div class="forecast-empty">Sem UA em alerta — previsão não destacada.</div>'
-    );
-    return;
-  }
-
-  const order = new Map(focal.map((p, i) => [p.id, i]));
-  const comDados = (data.forecast || [])
-    .filter((f) => order.has(f.id) && f.ac24h_forecast_mm !== undefined)
-    .sort((a, b) => order.get(a.id) - order.get(b.id));
-
-  if (comDados.length === 0) {
-    container.innerHTML = (
-      '<div class="forecast-empty">Previsão indisponível para as UAs em foco</div>'
-    );
-    return;
-  }
-
-  const maxGeo = Math.max(...comDados.map((f) => f.ac24h_forecast_mm));
-  const maxPonto = comDados.find((f) => f.ac24h_forecast_mm === maxGeo);
-  const maxHidro = Math.max(
-    ...comDados.map((f) => f.ac6h_forecast_mm ?? 0)
-  );
-
-  let html = `<div class="forecast-panel">`;
-  html += (
-    `<div class="forecast-source">`
-    + `${escapeHtml(data.source || "Previsão horária CPTEC/INPE")}`
-    + ` · ${focal.length} UA(s) em foco</div>`
-  );
-  html += (
-    `<div style="margin-bottom: 4px;">`
-    + `<strong>Máxima em 24 h (deslizamentos):</strong> ${maxGeo.toFixed(1)} mm</div>`
-  );
-  html += (
-    `<div style="margin-bottom: 4px;">`
-    + `<strong>Máxima em 6 h (alagamentos):</strong> ${maxHidro.toFixed(1)} mm</div>`
-  );
-  html += (
-    `<div class="forecast-meta">${escapeHtml(maxPonto?.nome || "")}</div>`
-  );
-
-  html += `<div class="forecast-list">`;
-  for (const f of comDados) {
-    const vals = `${f.ac24h_forecast_mm.toFixed(1)} (+24h)`;
-    const hidro = f.ac6h_forecast_mm != null
-      ? ` · ${f.ac6h_forecast_mm.toFixed(1)} (+6h)`
-      : "";
-    html += (
-      `<div class="forecast-row">`
-      + `<span>${escapeHtml(f.nome)}</span>`
-      + `<span><b>${vals}${hidro} mm</b></span>`
-      + `</div>`
-    );
-  }
-  html += `</div></div>`;
-
-  container.innerHTML = html;
+function renderForecast(data, snap) {
+  fillForecastCard(data, snap);
 }
 
 function renderWorstSparkline(history) {
   if (!history || history.length < 2) return "";
-  const vals = history.map(h => h.rd);
+  const vals = history.map((h) => h.rd);
   const min = Math.min(...vals);
   const max = Math.max(...vals);
   const range = max - min || 1;
@@ -2635,11 +4033,13 @@ function renderWorstSparkline(history) {
       <div class="worst-spark-label">Evolução do Risco (últimos ${vals.length} ciclos)</div>
       <svg width="${w}" height="${h}" style="overflow:visible">
         <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        ${vals.map((v, i) => {
-          const x = i * step;
-          const y = h - ((v - min) / range) * h;
-          return `<circle cx="${x}" cy="${y}" r="3" fill="${NIVEL_COLOR[v]}"/>`;
-        }).join("")}
+        ${vals
+          .map((v, i) => {
+            const x = i * step;
+            const y = h - ((v - min) / range) * h;
+            return `<circle cx="${x}" cy="${y}" r="3" fill="${NIVEL_COLOR[v]}"/>`;
+          })
+          .join("")}
       </svg>
     </div>
   `;

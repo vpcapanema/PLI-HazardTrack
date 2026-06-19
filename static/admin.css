@@ -1,5 +1,5 @@
 /* ============================================================================
-   PLI-HazardTrack · Painel de Operações
+   PLI-HazardTrack · Painel administrativo
    ============================================================================ */
 
 :root {
@@ -10,9 +10,21 @@
     --ink-3: #94a3b8;
     --line: #e2e8f0;
     --line-2: #cbd5e1;
+    --border: #e2e8f0;
+    --muted: #64748b;
     --pli-verde-escuro: #0f3a1f;
     --pli-verde: #3ec26e;
+    --pli-verde-dark: #0f3a1f;
     --pli-navy: #003b5a;
+    --pli-primary: #003b5a;
+    --pli-secondary: #1c3d59;
+    --pli-accent: #116593;
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 0.75rem;
+    --space-lg: 1rem;
+    --space-xl: 1.5rem;
+    --space-2xl: 2rem;
     --ok: #2aa358;
     --warn: #f39c12;
     --fail: #e74c3c;
@@ -54,7 +66,7 @@ pre {
    LOGIN
    ============================================================================ */
 
-body.ops-login {
+body.admin-login {
     min-height: 100vh;
     display: grid;
     place-items: center;
@@ -159,7 +171,7 @@ body.ops-login {
 }
 
 /* Nome do usuário autenticado no topbar do dashboard */
-.ops-actions .who {
+.admin-actions .who {
     color: rgba(255,255,255,.85);
     font-size: 0.82rem;
     padding: 0.25rem 0.55rem;
@@ -182,10 +194,303 @@ body.ops-login {
 }
 
 /* ============================================================================
+   LOGIN SIGMA-PLI (mesmo visual do PLI Reporta /acesso)
+   ============================================================================ */
+
+body.access-page {
+    background: linear-gradient(
+      340deg,
+      #003b5a 0%,
+      #1c3d59 38%,
+      rgba(28, 61, 89, 0.08) 72%,
+      #ffffff 100%
+    );
+    min-height: 100vh;
+}
+
+.access-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.85rem 1.2rem;
+    background: rgba(0, 59, 90, 0.92);
+    color: #fff;
+}
+
+.access-topbar h1 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.access-topbar nav {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+}
+
+.access-topbar a {
+    color: rgba(255, 255, 255, 0.88);
+    text-decoration: none;
+}
+
+.access-topbar a:hover,
+.access-topbar a[aria-current="page"] {
+    color: #fff;
+    text-decoration: underline;
+}
+
+body.access-page .access-main {
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: var(--space-xl) 1rem var(--space-2xl);
+}
+
+.access-login-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.access-login-card {
+    width: 100%;
+    background: #fff;
+    border-radius: 10px;
+    border-top: 4px solid var(--pli-accent);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      0 12px 40px rgba(0, 0, 0, 0.08);
+    padding: var(--space-xl) var(--space-xl) var(--space-lg);
+}
+
+.access-branding {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.access-app-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 0.75rem;
+    display: block;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(28, 61, 89, 0.25);
+}
+
+.access-app-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 0.35rem;
+    letter-spacing: 0.06em;
+    color: var(--pli-primary);
+    text-transform: uppercase;
+}
+
+.access-app-subtitle {
+    font-size: 0.9375rem;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.45;
+}
+
+.access-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+}
+
+.access-field-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--pli-secondary);
+}
+
+.access-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.access-input-icon {
+    position: absolute;
+    left: 11px;
+    color: var(--muted);
+    pointer-events: none;
+    z-index: 1;
+    display: flex;
+}
+
+.access-input-wrap input {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--space-sm) 2.25rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fff;
+    outline: none;
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
+}
+
+.access-input-wrap input:focus {
+    border-color: var(--pli-accent);
+    box-shadow: 0 0 0 3px rgba(17, 101, 147, 0.12);
+}
+
+.access-input-wrap input::placeholder {
+    color: #94a3b8;
+    font-size: 0.875rem;
+}
+
+.access-toggle-pw {
+    position: absolute;
+    right: 8px;
+    width: auto;
+    min-height: auto;
+    padding: 4px;
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.access-toggle-pw:hover {
+    color: var(--pli-secondary);
+}
+
+.access-feedback {
+    display: none;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    margin-bottom: var(--space-md);
+    line-height: 1.4;
+}
+
+.access-feedback:not([hidden]) {
+    display: block;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.access-btn-submit {
+    width: 100%;
+    min-height: 46px;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, var(--pli-secondary), var(--pli-accent));
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(28, 61, 89, 0.2);
+    transition:
+      background 0.18s ease,
+      transform 0.12s ease,
+      box-shadow 0.18s ease;
+}
+
+.access-btn-submit:hover {
+    background: linear-gradient(135deg, var(--pli-primary), var(--pli-secondary));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(28, 61, 89, 0.3);
+}
+
+.access-btn-submit:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.access-forgot {
+    text-align: center;
+    margin-top: var(--space-md);
+}
+
+.access-forgot a {
+    font-size: 0.8125rem;
+    color: var(--pli-accent);
+    text-decoration: none;
+}
+
+.access-forgot a:hover {
+    color: var(--pli-secondary);
+    text-decoration: underline;
+}
+
+.access-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin: var(--space-lg) 0;
+}
+
+.access-divider span:first-child,
+.access-divider span:last-child {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.access-divider-text {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.access-btn-register {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.625rem;
+    background: transparent;
+    border: 2px solid var(--pli-verde);
+    border-radius: 6px;
+    color: var(--pli-verde-dark);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      background 0.18s ease,
+      color 0.18s ease;
+}
+
+.access-btn-register:hover {
+    background: var(--pli-verde);
+    color: #fff;
+    text-decoration: none;
+}
+
+@media (max-width: 480px) {
+    .access-login-card {
+        padding: var(--space-xl) var(--space-lg) var(--space-lg);
+    }
+
+    .access-app-title {
+        font-size: 1.35rem;
+    }
+}
+
+/* ============================================================================
    DASHBOARD
    ============================================================================ */
 
-.ops-topbar {
+.admin-topbar {
     background: var(--pli-verde-escuro);
     color: #fff;
     padding: 0.75rem 1.2rem;
@@ -197,14 +502,14 @@ body.ops-login {
     border-bottom: 1px solid rgba(0,0,0,.2);
 }
 
-.ops-brand strong {
+.admin-brand strong {
     font-family: 'Poppins', 'Inter', sans-serif;
     font-weight: 700;
     margin-right: 0.35rem;
 }
-.ops-brand span { color: rgba(255,255,255,.78); font-size: 0.85rem; }
+.admin-brand span { color: rgba(255,255,255,.78); font-size: 0.85rem; }
 
-.ops-actions {
+.admin-actions {
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -229,7 +534,7 @@ body.ops-login {
 }
 .logout-form { margin: 0; }
 
-.ops-grid {
+.admin-grid {
     max-width: 1280px;
     margin: 1.4rem auto;
     padding: 0 1.2rem 2rem;
@@ -378,7 +683,8 @@ body.ops-login {
 
 /* ---------- responsivo --------------------------------------------------- */
 @media (max-width: 900px) {
-    .ops-grid { grid-template-columns: 1fr; }
+    .admin-grid { grid-template-columns: 1fr; }
     .kv { grid-template-columns: 1fr; gap: 0.1rem; }
     .kv-k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px; }
 }
+

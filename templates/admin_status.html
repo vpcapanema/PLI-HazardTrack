@@ -4,32 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>PLI-HazardTrack · Operações</title>
+    <title>PLI-HazardTrack · Administração</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/ops.css">
+    <link rel="stylesheet" href="/static/admin.css">
 </head>
-<body class="ops-status">
-    <header class="ops-topbar">
-        <div class="ops-brand">
+<body class="admin-status">
+    <header class="admin-topbar">
+        <div class="admin-brand">
             <strong>PLI-HazardTrack</strong>
-            <span>· Painel de Operações</span>
+            <span>· Painel de Administração</span>
         </div>
-        <div class="ops-actions">
-            {% if session.ops_user %}
-            <span class="who" title="Autenticado via SRA">
-                {{ session.ops_user.nome or session.ops_user.email }}
+        <div class="admin-actions">
+            {% if session.admin_user %}
+            <span class="who" title="Autenticado via SIGMA-PLI">
+                {{ session.admin_user.username or session.admin_user.email }}
             </span>
             {% endif %}
             <span id="updated-at" class="updated-at">—</span>
             <button id="btn-refresh" type="button" class="btn-secondary">Atualizar</button>
             <a href="/" class="btn-link">Mapa público</a>
-            <form method="POST" action="/ops/logout" class="logout-form">
+            <form method="POST" action="/admin/logout" class="logout-form">
                 <button type="submit" class="btn-link">Sair</button>
             </form>
         </div>
     </header>
 
-    <main class="ops-grid">
+    <main class="admin-grid">
         <!-- ===================================================
              1. VISÃO GERAL — semáforos
              =================================================== -->
@@ -122,15 +122,14 @@
         </section>
 
         <!-- ===================================================
-             7. AUTENTICAÇÃO (Postgres do SRA)
+             7. AUTENTICAÇÃO (SIGMA-PLI)
              =================================================== -->
         <section class="card">
             <h2>Autenticação</h2>
             <p class="card-help">
-                O login do <code>/ops</code> consulta diretamente o banco de dados
-                do SRA em modo somente leitura e valida o bcrypt aqui no PLI.
-                A aplicação SRA não é chamada. Apenas usuários com
-                <code>users.role = 'admin'</code> no banco conseguem entrar.
+                O login do <code>/admin</code> valida gestores no SIGMA-PLI
+                (API HTTP preferida ou PostgreSQL read-only). Apenas usuários
+                com perfil <code>GESTOR</code> conseguem entrar.
             </p>
             <div id="auth-backend"></div>
         </section>
@@ -139,7 +138,7 @@
         <section class="card card-full">
             <h2>JSON cru (para suporte)</h2>
             <p class="card-help">
-                Resposta completa do <code>/ops/api/diagnostics</code>. Útil para colar
+                Resposta completa do <code>/admin/api/diagnostics</code>. Útil para colar
                 num chamado ou auditoria.
             </p>
             <details>
@@ -159,8 +158,8 @@
 
         async function refresh() {
             try {
-                const r = await fetch("/ops/api/diagnostics", { credentials: "same-origin" });
-                if (r.status === 401) { window.location = "/ops/login"; return; }
+                const r = await fetch("/admin/api/diagnostics", { credentials: "same-origin" });
+                if (r.status === 401) { window.location = "/admin/login"; return; }
                 const d = await r.json();
                 renderAll(d);
             } catch (e) {
@@ -479,7 +478,7 @@
             root.appendChild(s);
         }
 
-        // ---- 7. auth backend (SRA) ------------------------------------
+        // ---- 7. auth backend (SIGMA-PLI) -----------------------------
         function renderAuthBackend(a) {
             const root = document.getElementById("auth-backend");
             root.innerHTML = "";
@@ -497,10 +496,20 @@
                  <b>${escapeHtml(a.provider || "—")}</b>
                  <small>${a.configured ? "configurado" : "não configurado"}</small>`));
             const kv = el("div", "kv-grid");
-            kv.appendChild(kvRow("Perfil exigido", a.role_required || "admin"));
-            kv.appendChild(kvRow("Conexão com Postgres do SRA", health.ok ? "OK" : "indisponível"));
+            kv.appendChild(kvRow("Perfil exigido", a.role_required || "GESTOR"));
+            kv.appendChild(kvRow("Modo", a.mode || "—"));
+            const healthLabel = health.mode === "api"
+                ? "API SIGMA"
+                : (health.mode === "db" ? "PostgreSQL SIGMA" : "SIGMA");
+            kv.appendChild(kvRow(
+                "Conexão " + healthLabel,
+                health.ok ? "OK" : "indisponível"
+            ));
             if (health.error) kv.appendChild(kvRow("Erro", health.error));
-            kv.appendChild(kvRow("Recuperação de senha", a.reset_password_url || "—"));
+            const links = a.sigma_links;
+            if (links && links.recuperar_senha) {
+                kv.appendChild(kvRow("Recuperação de senha", links.recuperar_senha));
+            }
             head.appendChild(kv);
             root.appendChild(head);
 
@@ -511,10 +520,10 @@
                 const kv2 = el("div", "kv-grid");
                 const u = a.session.user;
                 if (u && typeof u === "object") {
-                    kv2.appendChild(kvRow("Nome", u.nome || "—"));
+                    kv2.appendChild(kvRow("Usuário", u.username || "—"));
                     kv2.appendChild(kvRow("E-mail", u.email || "—"));
-                    kv2.appendChild(kvRow("Perfil SRA", u.role || "—"));
-                    kv2.appendChild(kvRow("ID no SRA", u.id ?? "—"));
+                    kv2.appendChild(kvRow("Perfil", u.tipo_usuario || u.role || "—"));
+                    kv2.appendChild(kvRow("ID", u.id ?? "—"));
                 } else {
                     kv2.appendChild(kvRow("Usuário", "anônimo"));
                 }
@@ -525,3 +534,4 @@
     </script>
 </body>
 </html>
+

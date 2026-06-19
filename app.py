@@ -8,9 +8,12 @@ import logging
 import multiprocessing
 import os
 import secrets
+import sys
 import threading
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
+
+import core.env  # noqa: F401  pylint: disable=unused-import
 
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
@@ -18,16 +21,116 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from core.aggregator import state
-from core.ops import ops_bp
+from core.admin import admin_bp
 from core.actions import get_summary_actions, get_protocolo_completo
 from core.merge_ingest import ingest
 from core.ua_public_feed import build_ua_layers_geojson
-from core.zones import get_zones_geo
+from core.zones import get_zones_geo, get_zones_hidro
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s"
-)
+_DEV_LOG = os.environ.get("SAMAEG_DEV_LOG") == "1"
+_DEV_COLOR = os.environ.get("SAMAEG_DEV_COLOR") == "1"
+
+
+class _Ansi:
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    GREEN = "\033[32m"
+    RED = "\033[31m"
+    YELLOW = "\033[33m"
+    CYAN = "\033[36m"
+    MAGENTA = "\033[35m"
+    GRAY = "\033[90m"
+
+
+def _enable_windows_vt() -> None:
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+        h = ctypes.windll.kernel32.GetStdHandle(-11)
+        mode = ctypes.c_uint32()
+        if ctypes.windll.kernel32.GetConsoleMode(h, ctypes.byref(mode)):
+            ctypes.windll.kernel32.SetConsoleMode(h, mode.value | 4)
+    except Exception:
+        pass
+
+
+class _DevColorFormatter(logging.Formatter):
+    """Cores no terminal dev: verde ok, vermelho erro, amarelo aviso."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        plain = super().format(record)
+        if not _DEV_COLOR or not sys.stdout.isatty():
+            return plain
+        msg = record.getMessage()
+        level = record.levelno
+
+        if level >= logging.ERROR:
+            return f"{_Ansi.BOLD}{_Ansi.RED}{plain}{_Ansi.RESET}"
+        if level >= logging.WARNING:
+            return f"{_Ansi.YELLOW}{plain}{_Ansi.RESET}"
+
+        if "[boot " in msg and "/5]" in msg:
+            if "INDISPONIVEL" in msg or "Falha" in msg:
+                color = _Ansi.RED
+            elif any(
+                k in msg for k in ("prontas", "disponivel", "configurado")
+            ):
+                color = _Ansi.GREEN
+            else:
+                color = _Ansi.CYAN
+            return f"\n{_Ansi.BOLD}{color}{plain}{_Ansi.RESET}"
+
+        if msg.startswith("===") or "Servidor HTTP" in msg:
+            return (
+                f"\n{_Ansi.BOLD}{_Ansi.MAGENTA}{plain}{_Ansi.RESET}\n"
+            )
+
+        if "[http]" in msg:
+            if "-> 2" in plain or "-> 3" in plain:
+                return f"{_Ansi.GREEN}{plain}{_Ansi.RESET}"
+            if "-> 4" in plain or "-> 5" in plain:
+                return f"{_Ansi.RED}{plain}{_Ansi.RESET}"
+            return f"{_Ansi.GRAY}{plain}{_Ansi.RESET}"
+
+        if "INDISPONIVEL" in msg or "Falha" in msg:
+            return f"{_Ansi.RED}{plain}{_Ansi.RESET}"
+
+        if any(
+            k in msg for k in ("ativo", "disponivel", "prontas", "iniciado")
+        ):
+            return f"{_Ansi.GREEN}{plain}{_Ansi.RESET}"
+
+        if any(
+            k in msg for k in (
+                "Aguardando", "em andamento", "loading", "mantendo",
+            )
+        ):
+            return f"{_Ansi.YELLOW}{plain}{_Ansi.RESET}"
+
+        if "Running on" in msg:
+            return f"\n{_Ansi.BOLD}{_Ansi.GREEN}{plain}{_Ansi.RESET}\n"
+
+        return plain
+
+
+def _setup_logging() -> None:
+    root = logging.getLogger()
+    if root.handlers:
+        return
+    root.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    fmt = "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
+    if _DEV_LOG and _DEV_COLOR:
+        _enable_windows_vt()
+        handler.setFormatter(_DevColorFormatter(fmt))
+    else:
+        handler.setFormatter(logging.Formatter(fmt))
+    root.addHandler(handler)
+
+
+_setup_logging()
 log = logging.getLogger("samaeg")
 
 # Silencia o ruido do health check (keep-alive bate a cada 10 min).
@@ -43,10 +146,10 @@ for _name in ("werkzeug", "gunicorn.access"):
     logging.getLogger(_name).addFilter(_HideHealthFilter())
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
-# Sessao Flask para a pagina /ops. Em prod, defina OPS_SECRET via env var.
-# Sem OPS_SECRET, geramos um random por processo (cookies caem ao reiniciar).
+# Sessao Flask para /admin. Em prod, defina ADMIN_SECRET via env var.
+# Sem ADMIN_SECRET, geramos um random por processo (cookies caem ao reiniciar).
 app.config["SECRET_KEY"] = (
-    os.environ.get("OPS_SECRET") or secrets.token_hex(32)
+    os.environ.get("ADMIN_SECRET") or secrets.token_hex(32)
 )
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -64,7 +167,24 @@ app.wsgi_app = ProxyFix(  # type: ignore[method-assign]
     x_for=1, x_proto=1, x_host=1, x_prefix=1,
 )
 
-app.register_blueprint(ops_bp)
+app.register_blueprint(admin_bp)
+
+
+@app.after_request
+def _log_dev_request(response):
+    """Log amigavel de requisicoes do frontend (modo dev)."""
+    if not _DEV_LOG:
+        return response
+    path = request.path or ""
+    if path.startswith("/static/") or path == "/api/health":
+        return response
+    log.info(
+        "[http] %s %s -> %s",
+        request.method,
+        path,
+        response.status_code,
+    )
+    return response
 
 
 # ============================================================================
@@ -86,11 +206,56 @@ def _bootstrap():
             return
         _BOOTSTRAP_DONE.set()
 
+    if _DEV_LOG:
+        log.info("=== Boot PLI-HazardTrack (modo dev) ===")
+
     log.info("SAMAEG-PLI iniciando...")
 
-    coords = [(p["lat"], p["lon"]) for p in get_zones_geo()]
+    if _DEV_LOG:
+        log.info("[boot 1/5] Malha UA - carregando unidades de analise...")
+    geo = get_zones_geo()
+    hid = get_zones_hidro()
+    if _DEV_LOG:
+        log.info(
+            "[boot 1/5] UAs prontas: encosta=%d inundacao=%d",
+            len(geo), len(hid),
+        )
+
+    if _DEV_LOG:
+        try:
+            from core.merge_inpe import _eccodes_available
+            ecc = _eccodes_available()
+        except Exception:
+            ecc = False
+        log.info(
+            "[boot 2/5] MERGE/INPE (CPTEC) - decodificador eccodes: %s",
+            "disponivel" if ecc else "INDISPONIVEL",
+        )
+        log.info(
+            "[boot 3/5] Ingest MERGE - fonte HTTP cpdc.inpe.br "
+            "(nao usa banco local)",
+        )
+        sigma_api = os.environ.get("SIGMA_API_BASE_URL")
+        sigma_db = os.environ.get("SIGMA_POSTGRES_HOST") or os.environ.get(
+            "SIGMA_DATABASE_URL"
+        )
+        admin_local = os.environ.get("ADMIN_USER")
+        if admin_local:
+            log.info("[boot 4/5] Login /admin: credenciais locais (.env)")
+        elif sigma_api or sigma_db:
+            log.info("[boot 4/5] Login /admin (SIGMA-PLI): configurado")
+        else:
+            log.info(
+                "[boot 4/5] Login /admin: nao configurado "
+                "(defina SIGMA_POSTGRES_* ou ADMIN_USER/ADMIN_PASS no .env)",
+            )
+
+    coords = [(p["lat"], p["lon"]) for p in geo]
     ingest.configure(coords)
     ingest.start()
+
+    if _DEV_LOG:
+        log.info("[boot 5/5] Scheduler e primeiro ciclo de RD...")
 
     # Primeiro update em background para nao bloquear o boot do gunicorn
     def _first_update():
@@ -110,6 +275,11 @@ def _bootstrap():
     scheduler.add_job(state.update, "interval", minutes=10, id="merge_refresh")
     scheduler.start()
     log.info("Scheduler ativo (refresh a cada 10 min)")
+    if _DEV_LOG:
+        log.info(
+            "Aguardando /api/health - ingest MERGE pode levar 1-3 min "
+            "na 1a carga",
+        )
 
 
 def initialize():
@@ -425,5 +595,9 @@ def _notifier_status():
 if __name__ == "__main__":
     multiprocessing.freeze_support()
     port = int(os.environ.get("PORT", 5050))
-    log.info("Servidor pronto em http://localhost:%d", port)
+    if _DEV_LOG:
+        log.info("=== Servidor HTTP em http://localhost:%d ===", port)
+        log.info("Pressione Ctrl+C para encerrar")
+    else:
+        log.info("Servidor pronto em http://localhost:%d", port)
     app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)

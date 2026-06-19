@@ -15,9 +15,8 @@ tabelas estaticas extraidas dos relatorios (ver `ferramentas/`).
 | `merge_inpe.py` | Ingestao MERGE/INPE (streaming GRIB2) |
 | `forecast_wrf_prec_hourly.py` | Previsao WRF para composicao PDF |
 | `notifier.py` | Alertas RD≥3 (webhook, etc.) |
-| `ops.py` | Pagina operacional `/ops` |
+| `admin.py` | Area administrativa `/admin` |
 | `actions.py` | Protocolos e acoes por nivel de RD |
-| `sra_auth.py` | Autenticacao SRA (camadas restritas) |
 
 ## O que saiu de `core/`
 

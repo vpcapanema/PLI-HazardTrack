@@ -1,0 +1,37 @@
+{% macro level_meter_cell(hazard, prefix, rd, name, desc) %}
+<div
+  class="meter-cell"
+  data-rd="{{ rd }}"
+  data-hazard="{{ hazard }}"
+  title="{{ rd }} · {{ name }} — {{ desc }}"
+>
+  <span class="meter-rd">{{ rd }}</span>
+  <span class="meter-name">{{ name }}</span>
+  <b id="count-{{ prefix }}-{{ rd }}">Aguardando dados</b>
+</div>
+{% endmacro %}
+
+{% macro level_meter_block() %}
+<div id="operational-status" class="operational-status" aria-label="Distribuição por nível PPDC">
+  <section class="hazard-meter">
+    <h3 class="hazard-meter-title">Instabilidade de encosta</h3>
+    <div class="alert-meter alert-meter--vertical">
+      {{ level_meter_cell('encosta', 'geo', 0, 'Monitoramento', 'Sem chuva relevante') }}
+      {{ level_meter_cell('encosta', 'geo', 1, 'Observação', 'Chuva próxima ao limiar') }}
+      {{ level_meter_cell('encosta', 'geo', 2, 'Atenção', 'Vistorias preventivas') }}
+      {{ level_meter_cell('encosta', 'geo', 3, 'Alerta', 'Possíveis ocorrências') }}
+      {{ level_meter_cell('encosta', 'geo', 4, 'Alerta Máximo', 'Risco severo') }}
+    </div>
+  </section>
+  <section class="hazard-meter">
+    <h3 class="hazard-meter-title">Inundação</h3>
+    <div class="alert-meter alert-meter--vertical">
+      {{ level_meter_cell('inundacao', 'hidro', 0, 'Monitoramento', 'Sem chuva relevante') }}
+      {{ level_meter_cell('inundacao', 'hidro', 1, 'Observação', 'Chuva próxima ao limiar') }}
+      {{ level_meter_cell('inundacao', 'hidro', 2, 'Atenção', 'Vistorias preventivas') }}
+      {{ level_meter_cell('inundacao', 'hidro', 3, 'Alerta', 'Possíveis ocorrências') }}
+      {{ level_meter_cell('inundacao', 'hidro', 4, 'Alerta Máximo', 'Risco severo') }}
+    </div>
+  </section>
+</div>
+{% endmacro %}

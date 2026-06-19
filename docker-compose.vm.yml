@@ -53,6 +53,8 @@ services:
         --error-logfile -"
     ports:
       - "127.0.0.1:5050:5050"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:5050/api/health"]
       interval: 60s

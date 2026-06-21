@@ -1,0 +1,140 @@
+{% from 'partials/level-meter.html' import level_meter_block %}
+
+{% macro ppdc_realtime_block() %}
+<div class="sb-panel" id="ppdc-max-panel">
+  <button
+    type="button"
+    class="sb-panel-head"
+    data-sb-toggle
+    aria-expanded="false"
+    aria-controls="ppdc-max-panel-body"
+  >
+    <span class="sb-panel-ico" aria-hidden="true">
+      <img
+        class="sb-icon-img"
+        src="{{ url_for('static', filename='icons/png/003-niveis.png') }}"
+        alt=""
+      />
+    </span>
+    <span class="sb-panel-label">
+      Nível PPDC Máximo, considerando todas as regiões monitoradas
+    </span>
+    <span class="sb-chevron" aria-hidden="true">▾</span>
+  </button>
+
+  <div class="ppdc-panel-lead">
+    <div class="sb-meta-row">
+      <p class="sb-meta-field">
+        <span class="sb-meta-label">Tipo de risco com maior nível de alerta:</span>
+        <strong id="max-alert-hazard" class="sb-meta-value">Aguardando dados</strong>
+      </p>
+      <button
+        type="button"
+        id="btn-refresh"
+        class="status-refresh"
+        title="Atualizar leitura agora"
+        aria-label="Atualizar leitura agora"
+      >
+        ↻
+      </button>
+    </div>
+
+    <div class="ppdc-status-head" id="ppdc-status-head">
+      <div
+        class="ppdc-status-display ppdc-status-display--pending"
+        id="ppdc-status-display"
+        aria-label="Status PPDC máximo"
+      >
+        <span
+          class="status-level-badge"
+          id="status-level-badge"
+          aria-hidden="true"
+        >—</span>
+        <span class="status-level-name" id="status-level-name"
+          >Aguardando dados</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="sb-panel-body"
+    id="ppdc-max-panel-body"
+    hidden
+  >
+    <div class="ppdc-status-block">
+      <div class="sb-card sb-status-card" id="status-card">
+        <dl class="max-alert-trecho" id="max-alert-trecho">
+          <div class="max-alert-row">
+            <dt>Região</dt>
+            <dd id="max-alert-region">—</dd>
+          </div>
+          <div class="max-alert-row">
+            <dt>Rodovia</dt>
+            <dd id="max-alert-road">—</dd>
+          </div>
+          <div class="max-alert-row">
+            <dt>Trecho</dt>
+            <dd id="max-alert-segment">—</dd>
+          </div>
+          <div class="max-alert-row">
+            <dt>RA (geo)</dt>
+            <dd id="max-alert-ra-geo">—</dd>
+          </div>
+          <div class="max-alert-row">
+            <dt>RA (hidro)</dt>
+            <dd id="max-alert-ra-hid">—</dd>
+          </div>
+          <div class="max-alert-row max-alert-row--rd">
+            <dt>RD</dt>
+            <dd id="max-alert-rd">—</dd>
+          </div>
+        </dl>
+
+        <div id="status-line" class="status-line status-line--aux" hidden></div>
+        <div id="status-detail" class="status-detail" hidden></div>
+        <div id="status-time" class="status-time">—</div>
+        <div class="status-dot" id="status-dot" hidden aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div id="ingest-progress" class="ingest-progress" hidden></div>
+    <p id="focal-banner" class="focal-banner sb-card" hidden></p>
+  </div>
+</div>
+
+<div class="sb-panel" id="ppdc-by-level-panel">
+  <button
+    type="button"
+    class="sb-panel-head"
+    data-sb-toggle
+    aria-expanded="false"
+    aria-controls="ppdc-by-level-panel-body"
+  >
+    <span class="sb-panel-ico" aria-hidden="true">
+      <img
+        class="sb-icon-img"
+        src="{{ url_for('static', filename='icons/png/003-niveis.png') }}"
+        alt=""
+      />
+    </span>
+    <span class="sb-panel-label">
+      Trechos monitorados classificados por tipo de Nível PPDC
+    </span>
+    <span class="sb-chevron" aria-hidden="true">▾</span>
+  </button>
+
+  <p class="sb-panel-lead">
+    Contagem de UAs por nível PPDC nos canais geológico (encosta) e
+    hidrológico (inundação).
+  </p>
+
+  <div
+    class="sb-panel-body"
+    id="ppdc-by-level-panel-body"
+    hidden
+  >
+    {{ level_meter_block() }}
+  </div>
+</div>
+{% endmacro %}

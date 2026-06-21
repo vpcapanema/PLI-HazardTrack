@@ -39,6 +39,10 @@ const NIVEL_DESC = [
   "Possíveis ocorrências",
   "Risco severo",
 ];
+const HAZARD_ALERT_LABEL = {
+  geo: "Instabilidade de encosta (risco geológico)",
+  hidro: "Inundação (risco hidrológico)",
+};
 
 // ============================================================================
 // REGISTRY DE CAMADAS DE HAZARD
@@ -327,6 +331,97 @@ function renderFocalBanner(focal) {
   }
 }
 
+function formatRaValue(pt, channel) {
+  if (!pt) return "—";
+  const raw =
+    channel === "geo"
+      ? pt.ra_geo ?? pt.ra
+      : pt.ra_hid ?? pt.ra;
+  if (raw == null || raw === "") return "SEM DADO";
+  return String(raw);
+}
+
+function formatTrechoLabel(pt) {
+  if (!pt) return "—";
+  const km = formatTrechoKm(pt.km);
+  if (pt.nome) return `${pt.nome} · km ${km}`;
+  return `km ${km}`;
+}
+
+function resolveMaxAlertContext(snap, summary) {
+  const pending = {
+    hazardLabel: TRECHO_VALUE_PENDING,
+    region: TRECHO_VALUE_PENDING,
+    rodovia: TRECHO_VALUE_PENDING,
+    trecho: TRECHO_VALUE_PENDING,
+    raGeo: TRECHO_VALUE_PENDING,
+    raHid: TRECHO_VALUE_PENDING,
+    rdAlert: TRECHO_VALUE_PENDING,
+    rdChannel: null,
+  };
+  if (!snap || !summary?.max_rd_point) return pending;
+
+  const hazard = summary.max_rd_hazard === "hidro" ? "hidro" : "geo";
+  const pair = getUaPair(snap, summary.max_rd_point);
+  const alertPt = hazard === "hidro" ? pair.hid : pair.geo;
+  const ref = pair.geo || pair.hid || alertPt;
+  if (!ref) return pending;
+
+  const rdAlert = alertPt?.rd ?? summary.max_rd ?? 0;
+  return {
+    hazardLabel: HAZARD_ALERT_LABEL[hazard] || HAZARD_ALERT_LABEL.geo,
+    region: ref.region_name || "—",
+    rodovia: ref.rodovia || "—",
+    trecho: formatTrechoLabel(ref),
+    raGeo: formatRaValue(pair.geo, "geo"),
+    raHid: formatRaValue(pair.hid, "hidro"),
+    rdAlert,
+    rdChannel: hazard,
+  };
+}
+
+function renderMaxAlertPanel(snap, summary, level) {
+  const hazardEl = document.getElementById("max-alert-hazard");
+  const ctx = resolveMaxAlertContext(snap, summary);
+  const pendingTrecho =
+    !snap
+    || summary?.data_status === "loading"
+    || summary?.data_status === "no_data"
+    || !summary?.max_rd_point;
+
+  if (hazardEl) {
+    hazardEl.textContent = pendingTrecho ? TRECHO_VALUE_PENDING : ctx.hazardLabel;
+  }
+
+  const fields = [
+    ["max-alert-region", ctx.region],
+    ["max-alert-road", ctx.rodovia],
+    ["max-alert-segment", ctx.trecho],
+    ["max-alert-ra-geo", ctx.raGeo],
+    ["max-alert-ra-hid", ctx.raHid],
+  ];
+  for (const [id, value] of fields) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = pendingTrecho ? TRECHO_VALUE_PENDING : value;
+  }
+
+  const rdEl = document.getElementById("max-alert-rd");
+  if (rdEl) {
+    if (pendingTrecho) {
+      rdEl.textContent = TRECHO_VALUE_PENDING;
+    } else {
+      const rd = Math.min(4, Math.max(0, Number(ctx.rdAlert) || 0));
+      const tag =
+        ctx.rdChannel === "hidro"
+          ? " · inundação"
+          : ctx.rdChannel === "geo"
+            ? " · encosta"
+            : "";
+      rdEl.textContent = `${rd} — ${NIVEL_LABEL[rd]}${tag}`;
+    }
+  }
+}
+
 function focalShortLabel(p) {
   const rv = p.rodovia || "UA";
   const km = p.km != null ? ` km ${p.km}` : "";
@@ -477,6 +572,7 @@ function init() {
   renderHazardLegend();
   initLegendToggles();
   loadRoadNetwork();
+  renderStatusCard({ pending: true, timeLine: "—" });
   refresh();
   setInterval(() => {
     if (!state.historyMode && !state.timeline.active) refresh();
@@ -493,8 +589,6 @@ function initMap() {
     attributionControl: false,
   });
   state.map.fitBounds(SP_BOUNDS);
-
-  L.control.zoom({ position: "topright" }).addTo(state.map);
 
   // Painel Camadas persistente sobre o mapa.
   installMapLayerControl();
@@ -626,6 +720,14 @@ function attachEvents() {
     state.map.fitBounds(LITORAL_BOUNDS);
   });
 
+  document.getElementById("btn-zoom-in")?.addEventListener("click", () => {
+    state.map.zoomIn();
+  });
+
+  document.getElementById("btn-zoom-out")?.addEventListener("click", () => {
+    state.map.zoomOut();
+  });
+
   // ---- Linha do Tempo (animacao 96h) ----
   document
     .getElementById("btn-timeline-start")
@@ -648,35 +750,12 @@ function attachEvents() {
     state.timeline.step = Math.max(1, Number(e.target.value) || 1);
   });
 
-  // ---- Consulta histórica (badge de data/hora) ----
-  const badgeUpdate = document.getElementById("badge-update");
-  const timePanel = document.getElementById("time-travel-panel");
-  badgeUpdate?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (!timePanel) return;
-    const open = timePanel.hidden;
-    timePanel.hidden = !open;
-    if (open) {
-      const inp = document.getElementById("history-at");
-      if (inp && !inp.value) {
-        const d = new Date();
-        d.setMinutes(0, 0, 0);
-        inp.value = toDatetimeLocalValue(d);
-        inp.max = toDatetimeLocalValue(new Date());
-      }
-      loadHistoryHints();
-    }
-  });
+  // ---- Busca histórica (sidebar) ----
   document.getElementById("history-go")?.addEventListener("click", () => {
     runHistoricalConsultation();
   });
   document.getElementById("history-live")?.addEventListener("click", () => {
     exitHistoryMode(true);
-  });
-  document.addEventListener("click", (e) => {
-    const wrap = document.getElementById("time-travel-wrap");
-    if (!wrap || !timePanel || timePanel.hidden) return;
-    if (!wrap.contains(e.target)) timePanel.hidden = true;
   });
 
   document.getElementById("layer-regions").addEventListener("change", (e) => {
@@ -1067,8 +1146,27 @@ function initSidebarPanels() {
       const open = panel.classList.toggle("is-open");
       body.hidden = !open;
       btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open && panel.id === "history-search-panel") {
+        ensureHistorySearchReady();
+      }
     });
   });
+}
+
+function ensureHistorySearchReady() {
+  const inp = document.getElementById("history-at");
+  if (inp) {
+    if (!inp.value) {
+      const d = new Date();
+      d.setMinutes(0, 0, 0);
+      inp.value = toDatetimeLocalValue(d);
+    }
+    inp.max = toDatetimeLocalValue(new Date());
+  }
+  const hints = document.getElementById("history-hints");
+  if (hints?.querySelector(".history-hints-loading")) {
+    loadHistoryHints();
+  }
 }
 
 /** Abre painel da sidebar e rola até o alvo (links do bloco de boas-vindas). */
@@ -1083,6 +1181,9 @@ function initSidebarJumps() {
       const head = panel.querySelector(".sb-panel-head");
       if (body) body.hidden = false;
       if (head) head.setAttribute("aria-expanded", "true");
+      if (panel.id === "history-search-panel") {
+        ensureHistorySearchReady();
+      }
     }
     el.scrollIntoView({ behavior: "smooth", block: "nearest" });
   };
@@ -1481,7 +1582,7 @@ function renderHistoryHints(events, disclaimer) {
   });
   if (disclaimer) {
     const foot = document.createElement("p");
-    foot.className = "time-travel-hints-help";
+    foot.className = "history-search-hint";
     foot.style.marginTop = "0.25rem";
     foot.textContent = disclaimer;
     box.appendChild(foot);
@@ -1490,12 +1591,10 @@ function renderHistoryHints(events, disclaimer) {
 
 async function runHistoricalConsultation() {
   const inp = document.getElementById("history-at");
-  const panel = document.getElementById("time-travel-panel");
   if (!inp?.value) return;
   const atIso = new Date(inp.value).toISOString();
   state.historyMode = true;
   state.historyAtIso = atIso;
-  if (panel) panel.hidden = true;
   closeTimeline();
   setBadge("badge-update", "Consultando…", "loading");
   renderStatusCard({
@@ -1506,6 +1605,9 @@ async function runHistoricalConsultation() {
     timeLine: "Aguarde a resposta do servidor · pode levar alguns minutos",
     levelVisible: false,
     dotClass: "warn",
+    pending: true,
+    snap: state.lastSnapshot,
+    summary: state.lastSnapshot?.summary || null,
   });
   startDownloadPoll();
   setMapHistoryBanner("Carregando chuva MERGE/INPE da época…", true);
@@ -1526,8 +1628,6 @@ async function runHistoricalConsultation() {
 async function exitHistoryMode(refreshLive) {
   state.historyMode = false;
   state.historyAtIso = null;
-  const panel = document.getElementById("time-travel-panel");
-  if (panel) panel.hidden = true;
   if (refreshLive) {
     setBadge("badge-update", "Ao vivo…", "loading");
     setMapHistoryBanner(null);
@@ -1709,10 +1809,12 @@ function renderSnapshot(snap) {
       return;
     }
     renderStatusCard({
-      headline: `Consulta histórica — ${NIVEL_LABEL[maxRd]}`,
+      auxLine: "Consulta histórica",
       detail: statusDetailHtml(summary, focal),
       timeLine: statusTimeLine(summary, tConsult, "historical"),
       level: maxRd,
+      snap,
+      summary,
     });
     setBadge("badge-source", "MERGE / INPE (hist.)", "degraded");
     stopDownloadPoll();
@@ -1731,7 +1833,7 @@ function renderSnapshot(snap) {
     state.focalPoints = [];
     renderFocalBanner([]);
     renderStatusCard({
-      headline: "Preparando monitoramento",
+      auxLine: "Preparando monitoramento",
       detail:
         '<span class="status-detail-item">Baixando série horária MERGE/INPE '
         + "(últimas 96 h)</span>"
@@ -1740,8 +1842,10 @@ function renderSnapshot(snap) {
       timeLine:
         "Primeira carga: costuma levar de 3 a 8 min · progresso no cartão "
         + "abaixo",
-      level: 0,
       dotClass: "warn",
+      snap,
+      summary,
+      pending: true,
     });
     setBadge("badge-source", "MERGE / INPE", "loading");
     setBadge("badge-update", "carregando", "loading");
@@ -1789,10 +1893,12 @@ function renderSnapshot(snap) {
         ? " (teste)"
         : "";
   renderStatusCard({
-    headline: `${NIVEL_LABEL[maxRd]} — situação geral${statusSuffix}`,
+    auxLine: statusSuffix ? `Situação geral${statusSuffix}` : "",
     detail: statusDetailHtml(summary, focal),
     timeLine: statusTimeLine(summary, ts, status),
     level: maxRd,
+    snap,
+    summary,
   });
 
   // Badges da topbar
@@ -1879,8 +1985,9 @@ function renderSnapshotNoData(snap, summary, ts) {
     level: 0,
     dotClass: "alert",
     levelVisible: false,
+    snap,
+    summary,
   });
-  setBadge("badge-source", "Sem dado", "no-data");
   setBadge("badge-update", ts ? formatTime(ts) : "—", "no-data");
   renderPointsOnMap(snap);
   renderRegionsOnMap(snap.regions || []);
@@ -2328,6 +2435,8 @@ function setStatus(text, cls) {
     headline: text,
     dotClass: cls || "",
     levelVisible: false,
+    snap: state.lastSnapshot,
+    summary: state.lastSnapshot?.summary || null,
   });
 }
 
@@ -2368,13 +2477,6 @@ function statusDetailHtml(summary, focal) {
     );
   }
 
-  if (summary.max_rd_name) {
-    const canal = summary.max_rd_hazard === "hidro" ? "inundação" : "encosta";
-    items.push(
-      `Maior RD: <b>${escapeHtml(summary.max_rd_name)}</b> (${canal})`,
-    );
-  }
-
   return items
     .map((t) => `<span class="status-detail-item">${t}</span>`)
     .join("");
@@ -2412,6 +2514,32 @@ function statusTimeLine(summary, ts, status) {
   return parts.join(" · ");
 }
 
+function isPpdcDataPending(summary, opts = {}) {
+  if (opts.pending === true) return true;
+  const st = summary?.data_status;
+  return st === "loading" || st === undefined;
+}
+
+function applyPpdcStatusPending(badgeEl, nameEl, displayEl, card) {
+  if (badgeEl) {
+    badgeEl.textContent = "—";
+    badgeEl.style.background = "rgba(255, 255, 255, 0.12)";
+    badgeEl.style.color = "var(--sidebar-muted)";
+    badgeEl.hidden = false;
+  }
+  if (nameEl) nameEl.textContent = TRECHO_VALUE_PENDING;
+  if (displayEl) {
+    displayEl.classList.add("ppdc-status-display--pending");
+    displayEl.style.background = "rgba(255, 255, 255, 0.08)";
+    displayEl.style.color = "var(--sidebar-muted)";
+    displayEl.removeAttribute("data-rd-level");
+  }
+  if (card) {
+    card.style.borderLeftColor = "rgba(255, 255, 255, 0.12)";
+    card.removeAttribute("data-rd-level");
+  }
+}
+
 function renderStatusCard(opts = {}) {
   const {
     headline = "—",
@@ -2420,31 +2548,65 @@ function renderStatusCard(opts = {}) {
     level = 0,
     dotClass = "",
     levelVisible = true,
+    snap = null,
+    summary = null,
+    auxLine = "",
+    pending = false,
   } = opts;
   const lineEl = document.getElementById("status-line");
   const detailEl = document.getElementById("status-detail");
   const timeEl = document.getElementById("status-time");
   const badgeEl = document.getElementById("status-level-badge");
+  const nameEl = document.getElementById("status-level-name");
+  const displayEl = document.getElementById("ppdc-status-display");
   const dot = document.getElementById("status-dot");
   const card = document.getElementById("status-card");
 
-  if (lineEl) lineEl.textContent = headline;
+  if (lineEl) {
+    if (auxLine) {
+      lineEl.textContent = auxLine;
+      lineEl.hidden = false;
+    } else {
+      lineEl.textContent = headline;
+      lineEl.hidden = !headline || headline === "—";
+    }
+  }
   if (detailEl) {
     detailEl.innerHTML = detail;
     detailEl.hidden = !detail;
   }
   if (timeEl) timeEl.textContent = timeLine || "—";
 
+  if (isPpdcDataPending(summary, { pending })) {
+    applyPpdcStatusPending(badgeEl, nameEl, displayEl, card);
+    if (dot) dot.hidden = true;
+    renderMaxAlertPanel(snap, summary, null);
+    return;
+  }
+
   const lvl = Math.min(4, Math.max(0, Number(level) || 0));
   const color = NIVEL_COLOR[lvl];
+  displayEl?.classList.remove("ppdc-status-display--pending");
   if (badgeEl) {
     badgeEl.textContent = String(lvl);
     badgeEl.style.background = color;
     badgeEl.style.color = lvl === 1 ? "#0f172a" : "#fff";
     badgeEl.hidden = !levelVisible;
   }
+  if (nameEl) {
+    nameEl.textContent = levelVisible ? NIVEL_LABEL[lvl] : headline;
+  }
+  if (displayEl && levelVisible) {
+    displayEl.style.background = color;
+    displayEl.style.color = lvl === 1 ? "#0f172a" : "#fff";
+    displayEl.dataset.rdLevel = String(lvl);
+  } else if (displayEl && !levelVisible) {
+    displayEl.classList.add("ppdc-status-display--pending");
+    displayEl.style.background = "rgba(255, 255, 255, 0.08)";
+    displayEl.style.color = "var(--sidebar-muted)";
+  }
   if (dot) {
-    dot.hidden = levelVisible;
+    dot.hidden = true;
     dot.classList.remove("warn", "alert", "max");
     const cls = dotClass || statusDotClass(lvl);
     if (cls) dot.classList.add(cls);
@@ -2453,6 +2615,8 @@ function renderStatusCard(opts = {}) {
     card.style.borderLeftColor = levelVisible ? color : "";
     card.dataset.rdLevel = String(lvl);
   }
+
+  renderMaxAlertPanel(snap, summary, levelVisible ? lvl : null);
 }
 
 // ============================================================================
@@ -3937,9 +4101,7 @@ function renderActions(data) {
     container.innerHTML = `
       <div class="actions-empty actions-empty--normal">
         Operação normal — nenhuma ação extraordinária por enquanto.
-      </div>
-      <a class="acoes-btn-secondary" href="${url}" target="_blank"
-         rel="noopener">Plano de Prevenção e Defesa Civil (PPDC)</a>`;
+      </div>`;
   }
 }
 

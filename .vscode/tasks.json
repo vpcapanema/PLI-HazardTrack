@@ -3,6 +3,7 @@
   "tasks": [
     {
       "label": "Deploy: atualizar VM agora",
+      "detail": "Requer commit local limpo; faz push e atualiza a VM via GitHub",
       "type": "shell",
       "command": "${workspaceFolder}/sync-vm.bat",
       "options": {

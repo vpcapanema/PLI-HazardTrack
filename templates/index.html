@@ -2,7 +2,7 @@
 <html lang="pt-BR">
   {% from 'partials/trecho-picker.html' import trecho_picker %}
   {% from 'partials/trecho-metric-card.html' import trecho_metric_card %}
-  {% from 'partials/level-meter.html' import level_meter_block %}
+  {% from 'partials/ppdc-realtime.html' import ppdc_realtime_block %}
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -49,24 +49,39 @@
         <main class="sidebar-main">
           <div class="sb-block sb-block--intro">
             <section class="sb-section sb-section--welcome" aria-label="Boas-vindas">
-              <h2 class="sb-section-title">
-                <span class="sb-ico" aria-hidden="true">
-                  <img
-                    class="sb-icon-img"
-                    src="{{ url_for('static', filename='icons/png/001-poligono.png') }}"
-                    alt=""
-                  />
-                </span>
-                Boas-vindas
-              </h2>
-              <div class="sb-welcome" id="sb-welcome">
-              <p class="sb-welcome-text">
-                Módulo do <strong>PLI-SP 2050</strong> para monitoramento,
-                análise e alerta de risco geodinâmico em rodovias — adaptação do
-                <span class="sb-k">Sistema Automatizado de Análise,
-                Monitoramento e Alerta de Risco de Eventos Geodinâmicos</span>
-                (Produto 06, Contrato REGEA-NIPPON 20.595-3, DER-SP).
-              </p>
+              <div class="sb-panel" id="welcome-panel">
+                <button
+                  type="button"
+                  class="sb-panel-head"
+                  data-sb-toggle
+                  aria-expanded="false"
+                  aria-controls="welcome-panel-body"
+                >
+                  <span class="sb-panel-ico" aria-hidden="true">
+                    <img
+                      class="sb-icon-img"
+                      src="{{ url_for('static', filename='icons/png/001-poligono.png') }}"
+                      alt=""
+                    />
+                  </span>
+                  <span class="sb-panel-label">Boas-vindas</span>
+                  <span class="sb-chevron" aria-hidden="true">▾</span>
+                </button>
+
+                <p class="sb-welcome-text sb-welcome-lead">
+                  Módulo do <strong>PLI-SP 2050</strong> para monitoramento,
+                  análise e alerta de risco geodinâmico em rodovias — adaptação do
+                  <span class="sb-k">Sistema Automatizado de Análise,
+                  Monitoramento e Alerta de Risco de Eventos Geodinâmicos</span>
+                  (Produto 06, Contrato REGEA-NIPPON 20.595-3, DER-SP).
+                </p>
+
+                <div
+                  class="sb-panel-body"
+                  id="welcome-panel-body"
+                  hidden
+                >
+                  <div class="sb-welcome" id="sb-welcome">
               <p class="sb-welcome-text">
                 O <strong>PLI-HazardTrack</strong> implementa essa metodologia
                 para as Unidades Básicas de Atendimento (UBA) de Caraguatatuba,
@@ -142,7 +157,9 @@
                 de contingência. Consultas espaciais e referências técnicas
                 encontram-se em Busca espacial e Documentação.
               </p>
-            </div>
+                  </div>
+                </div>
+              </div>
             </section>
 
           </div>
@@ -159,41 +176,9 @@
             </span>
             Monitoramento
           </h2>
-          <div class="sb-card sb-status-card" id="status-card">
-            <div
-              class="status-bar"
-              title="Resumo operacional da área monitorada (809 UAs, 4 regiões)"
-            >
-              <div
-                class="status-level-badge"
-                id="status-level-badge"
-                aria-label="Nível PPDC máximo"
-              >
-                0
-              </div>
-              <div class="status-dot" id="status-dot" aria-hidden="true"></div>
-              <div class="status-text">
-                <div class="status-head">
-                  <div id="status-line" class="status-line">Iniciando…</div>
-                  <button
-                    type="button"
-                    id="btn-refresh"
-                    class="status-refresh"
-                    title="Atualizar leitura agora"
-                    aria-label="Atualizar leitura agora"
-                  >
-                    ↻
-                  </button>
-                </div>
-                <div id="status-detail" class="status-detail" hidden></div>
-                <div id="status-time" class="status-time">—</div>
-              </div>
-            </div>
-          </div>
-          <div id="ingest-progress" class="ingest-progress" hidden></div>
-          <p id="focal-banner" class="focal-banner sb-card" hidden></p>
-          {{ level_meter_block() }}
+
           <div class="sb-section-stack">
+          {{ ppdc_realtime_block() }}
           <div class="sb-panel is-open" id="actions-panel">
             <button
               type="button"
@@ -211,7 +196,7 @@
               <span class="sb-panel-label">Ações recomendadas</span>
               <span
                 class="sb-tip"
-                title="Orientações do Plano de Prevenção e Defesa Civil (PPDC) para o nível máximo entre as UAs prioritárias."
+                title="Orientações do Plano de Prevenção de Defesa Civil (PPDC) para o nível máximo entre as UAs prioritárias."
                 tabindex="0"
                 role="img"
                 aria-label="Ajuda"
@@ -221,7 +206,14 @@
             </button>
             <div class="sb-panel-body">
               <p class="sb-panel-intro">
-                Orientações do Plano de Prevenção e Defesa Civil (PPDC)
+                Orientações do
+                <a
+                  class="sb-jump"
+                  href="{{ url_for('acoes_page') }}"
+                  target="_blank"
+                  rel="noopener"
+                  >Plano de Prevenção de Defesa Civil (PPDC)</a
+                >
                 conforme o nível máximo de RD entre as UAs prioritárias (até
                 quatro com maior alerta). Com nível acima de 0, indica medidas
                 recomendadas e o vínculo ao plano detalhado. Em operação
@@ -231,7 +223,8 @@
                 <strong>Como usar?</strong> Com alerta ativo, o botão abre o
                 plano de contingência para o nível vigente; o resumo inferior
                 indica quantas UAs se encontram em Atenção ou Alerta. Sem
-                alerta, mantém o acesso ao PPDC para consulta.
+                alerta, confirma a ausência de ações extraordinárias; o plano
+                completo permanece acessível pelo link acima.
               </p>
               <div id="actions-content" class="actions-content">
                 <div class="actions-empty">Carregando...</div>
@@ -617,6 +610,77 @@
             </div>
           </div>
 
+          <div class="sb-panel" id="history-search-panel">
+            <button
+              type="button"
+              class="sb-panel-head"
+              data-sb-toggle
+              aria-expanded="false"
+            >
+              <span class="sb-panel-ico" aria-hidden="true">
+                <img
+                  class="sb-icon-img"
+                  src="{{ url_for('static', filename='icons/png/006-linha-do-tempo.png') }}"
+                  alt=""
+                />
+              </span>
+              <span class="sb-panel-label">Busca histórica</span>
+              <span
+                class="sb-tip"
+                title="Reconstitui o RD com chuva MERGE/INPE observada de uma data passada (sem previsão WRF)."
+                tabindex="0"
+                role="img"
+                aria-label="Ajuda"
+                >i</span
+              >
+              <span class="sb-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="sb-panel-body" hidden>
+              <p class="sb-panel-intro">
+                Reconstitui o mapa e os indicadores para uma
+                <strong>data e hora passadas</strong>, usando somente chuva
+                observada MERGE/INPE da época — sem previsão WRF. A operação
+                pode demandar alguns minutos.
+              </p>
+              <p class="sb-panel-intro sb-panel-guide">
+                <strong>Como usar?</strong> Escolha a data/hora ou selecione um
+                evento sugerido abaixo, clique em Consultar e use Ao vivo para
+                voltar ao monitoramento em tempo real.
+              </p>
+
+              <div class="history-search-form" id="history-search-form">
+                <p class="history-search-subtitle">Eventos com alerta elevado</p>
+                <p class="history-search-hint">
+                  Datas validadas — indicadas para verificar o sistema em
+                  condição real de alerta.
+                </p>
+                <div class="history-hints" id="history-hints" aria-live="polite">
+                  <span class="history-hints-loading">Carregando sugestões…</span>
+                </div>
+                <label class="history-search-label" for="history-at">
+                  Data e hora (seu fuso local)
+                </label>
+                <input
+                  type="datetime-local"
+                  id="history-at"
+                  class="history-search-input"
+                />
+                <div class="history-search-actions">
+                  <button type="button" id="history-go" class="btn btn-compact">
+                    Consultar
+                  </button>
+                  <button
+                    type="button"
+                    id="history-live"
+                    class="btn btn-secondary btn-compact"
+                  >
+                    Ao vivo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="sb-panel" id="documentation-panel">
             <button
               type="button"
@@ -777,51 +841,12 @@
             title="Origem dos dados pluviométricos"
             >MERGE / INPE</span
           >
-          <div class="time-travel-wrap" id="time-travel-wrap">
-            <button
-              type="button"
-              class="badge badge-time-btn"
-              id="badge-update"
-              title="Clique para consultar outra data/hora"
-            >
-              —
-            </button>
-            <div class="time-travel-panel" id="time-travel-panel" hidden>
-              <p class="time-travel-title">Consulta histórica</p>
-              <p class="time-travel-help">
-                Reconstitui o RD com chuva MERGE/INPE da época (observada, sem
-                previsão WRF). A operação pode demandar alguns minutos.
-              </p>
-              <p class="time-travel-hints-title">Eventos com alerta elevado</p>
-              <p class="time-travel-hints-help">
-                Selecione uma data validada — indicada para verificar o sistema
-                em condição real de alerta.
-              </p>
-              <div class="history-hints" id="history-hints" aria-live="polite">
-                <span class="history-hints-loading">Carregando sugestões…</span>
-              </div>
-              <label class="time-travel-label" for="history-at">
-                Data e hora (seu fuso local)
-              </label>
-              <input
-                type="datetime-local"
-                id="history-at"
-                class="time-travel-input"
-              />
-              <div class="time-travel-actions">
-                <button type="button" id="history-go" class="btn btn-sm">
-                  Consultar
-                </button>
-                <button
-                  type="button"
-                  id="history-live"
-                  class="btn btn-secondary btn-sm"
-                >
-                  Ao vivo
-                </button>
-              </div>
-            </div>
-          </div>
+          <span
+            class="badge"
+            id="badge-update"
+            title="Última atualização dos dados (ao vivo ou consulta histórica)"
+            >—</span
+          >
         </div>
       </header>
 
@@ -871,22 +896,44 @@
           </div>
         </div>
         <div class="map-view-tools" aria-label="Enquadramento do mapa">
-          <button
-            type="button"
-            id="btn-fit"
-            class="map-view-btn"
-            title="Centralizar no Estado de SP"
-          >
-            SP
-          </button>
-          <button
-            type="button"
-            id="btn-fit-litoral"
-            class="map-view-btn"
-            title="Centralizar no Litoral Norte"
-          >
-            LN
-          </button>
+          <div class="map-view-tools-group map-view-tools-group--zoom">
+            <button
+              type="button"
+              id="btn-zoom-in"
+              class="map-view-btn map-view-btn--zoom"
+              title="Aproximar"
+              aria-label="Aproximar"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              id="btn-zoom-out"
+              class="map-view-btn map-view-btn--zoom"
+              title="Afastar"
+              aria-label="Afastar"
+            >
+              −
+            </button>
+          </div>
+          <div class="map-view-tools-group map-view-tools-group--fit">
+            <button
+              type="button"
+              id="btn-fit"
+              class="map-view-btn"
+              title="Centralizar no Estado de SP"
+            >
+              SP
+            </button>
+            <button
+              type="button"
+              id="btn-fit-litoral"
+              class="map-view-btn"
+              title="Centralizar no Litoral Norte"
+            >
+              LN
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1092,15 +1139,15 @@
               <th>Ao vivo</th>
               <td>
                 Atualização automática (~10 min no servidor; painel a cada ~30
-                s). Badge de data/hora no topo.
+                s). Indicador de atualização no topo da página.
               </td>
             </tr>
             <tr>
               <th>Consulta histórica</th>
               <td>
-                Clique no badge de data/hora → escolha data passada ou evento
-                sugerido. Reconstitui RD com MERGE da época. Banner no topo do
-                mapa indica a data consultada.
+                Seção <b>Busca histórica</b> na sidebar → escolha data passada
+                ou evento sugerido. Reconstitui RD com MERGE da época. Banner
+                no topo do mapa indica a data consultada.
               </td>
             </tr>
             <tr>
@@ -1242,7 +1289,8 @@
             <dt>Consulta histórica</dt>
             <dd>
               Reconstitui o RD para uma data/hora passada usando MERGE observado
-              da época (até 96 GRIBs). Sem previsão WRF. Eventos sugeridos (ex.:
+              da época (até 96 GRIBs). Sem previsão WRF. Use a seção
+              <b>Busca histórica</b> na sidebar; eventos sugeridos (ex.:
               fev/2023 — São Sebastião) validam o backtest documentado.
             </dd>
 

@@ -43,7 +43,7 @@ TAR=/tmp/pli-merge-cache.tgz
 APP=/opt/pli-hazardtrack
 cd "$APP"
 docker compose -f docker-compose.vm.yml stop app
-docker run --rm -v "${VOL}:/cache" alpine:3.20 sh -c "rm -rf /cache/grib /cache/samples /cache/.ingest.lock"
+docker run --rm -v "${VOL}:/cache" alpine:3.20 sh -c "find /cache -mindepth 1 -maxdepth 1 -exec rm -rf {} +"
 docker run --rm -v "${VOL}:/cache" -v "${TAR}:${TAR}:ro" alpine:3.20 sh -c "cd /cache && tar xzf ${TAR} && rm -f ${TAR}"
 echo "Arquivos no volume:"
 docker run --rm -v "${VOL}:/cache" alpine:3.20 sh -c "find /cache -type f | wc -l; du -sh /cache"

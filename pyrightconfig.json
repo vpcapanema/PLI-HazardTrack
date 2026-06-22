@@ -1,0 +1,10 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "extraPaths": [
+    ".",
+    "core"
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "basic"
+}

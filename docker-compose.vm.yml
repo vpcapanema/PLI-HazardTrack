@@ -41,12 +41,13 @@ services:
       ADMIN_PASS: "${ADMIN_PASS:-}"
       ADMIN_SECRET: "${ADMIN_SECRET:-}"
       DEPLOY_ENV: "vm-aws-sa-east-1"
+      SAMAEG_MERGE_CACHE_DIR: "/app/data/_cache/merge"
     command: >
       sh -c "exec gunicorn app:app
         --bind 0.0.0.0:5050
         --workers ${GUNICORN_WORKERS:-2}
         --threads ${GUNICORN_THREADS:-8}
-        --timeout ${GUNICORN_TIMEOUT:-120}
+        --timeout ${GUNICORN_TIMEOUT:-3600}
         --graceful-timeout 30
         --worker-tmp-dir /dev/shm
         --access-logfile -
@@ -67,7 +68,7 @@ services:
         max-size: "10m"
         max-file: "5"
     volumes:
-      - pli_hazardtrack_cache:/app/cache
+      - pli_hazardtrack_merge_cache:/app/data/_cache/merge
     networks:
       - pli_hazardtrack_net
       - sra_net
@@ -80,5 +81,5 @@ networks:
     external: true
 
 volumes:
-  pli_hazardtrack_cache:
-    name: pli_hazardtrack_cache
+  pli_hazardtrack_merge_cache:
+    name: pli_hazardtrack_merge_cache

@@ -33,7 +33,17 @@ from typing import List, Optional, Tuple
 log = logging.getLogger("merge_cache")
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CACHE_ROOT = _PROJECT_ROOT / "data" / "_cache" / "merge"
+
+
+def _resolve_cache_root() -> Path:
+    """Raiz do cache MERGE (GRIB + samples). Configuravel na VM/docker."""
+    raw = os.environ.get("SAMAEG_MERGE_CACHE_DIR", "").strip()
+    if raw:
+        return Path(raw).expanduser().resolve()
+    return (_PROJECT_ROOT / "data" / "_cache" / "merge").resolve()
+
+
+CACHE_ROOT = _resolve_cache_root()
 GRIB_DIR = CACHE_ROOT / "grib"
 SAMPLES_DIR = CACHE_ROOT / "samples"
 

@@ -257,6 +257,15 @@ def _bootstrap():
 
     coords = [(p["lat"], p["lon"]) for p in geo]
     ingest.configure(coords)
+    from core.merge_leader import try_acquire_merge_leader
+
+    if not try_acquire_merge_leader():
+        ingest.start_disk_sync()
+        log.info(
+            "Worker secundario: ingest/scheduler no lider; sync disco ativo",
+        )
+        return
+
     ingest.start()
 
     if _DEV_LOG:
@@ -597,7 +606,7 @@ def api_forecast():
     points = snap.get("points_geo") or snap.get("points", [])
     coords = [(p["lat"], p["lon"]) for p in points]
     now_utc = datetime.now(timezone.utc)
-    forecast = fetch_forecast_accum_batch(coords, now_utc)
+    forecast = fetch_forecast_accum_batch(coords, now_utc) or []
     out = []
     for p, f in zip(points, forecast):
         entry = {
@@ -653,8 +662,9 @@ def api_timeline():
 def api_public_manifest():
     """Catalogo dos feeds publicos e requisitos de autenticacao."""
     base = request.url_root.rstrip("/")
-    if request.headers.get("X-Forwarded-Prefix"):
-        base += request.headers.get("X-Forwarded-Prefix").rstrip("/")
+    prefix = request.headers.get("X-Forwarded-Prefix")
+    if prefix:
+        base += prefix.rstrip("/")
     resp = jsonify(build_public_api_manifest(base))
     return apply_public_api_headers(resp, max_age=600)
 

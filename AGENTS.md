@@ -5,7 +5,9 @@ Sistema Automatizado de Monitoramento, Analise e Alerta Geodinamico
 para rodovias da Regiao do Litoral Norte de Sao Paulo (DER-SP).
 
 ## Build e Test
-- `python -m unittest discover -s tests -p "test_*.py"` - roda todos os testes
+- Interpretador: `.venv/Scripts/python.exe` (Python 3.12). Atalho: `.\run.ps1`.
+- `.\run.ps1 -m unittest discover -s tests -p "test_*.py"` - roda todos os testes
+- `.\run.ps1 -m flake8 .` - lint (Flake8 do venv)
 - Limite de linha: 79 caracteres (Flake8)
 
 ## Arquitetura

@@ -59,6 +59,7 @@ class MergeIngestStore:
         self._last_refresh_at: Optional[datetime] = None
         self._last_fetched = 0
         self._thread: Optional[Thread] = None
+        self._disk_sync_thread: Optional[Thread] = None
         self._stop = False
         self._refreshing = False
         # Ultima verificacao por hora ISO; usado pela politica de refetch
@@ -152,11 +153,39 @@ class MergeIngestStore:
         self._thread.start()
         log.info(
             "Ingest MERGE iniciado (intervalo=%ds, refetch fresh<%dh / "
-            "stale>=%dh, cache em disco)",
+            "stale>=%dh, cache em disco=%s)",
             INGEST_INTERVAL_S,
             merge_cache.REFETCH_FRESH_HOURS,
             merge_cache.REFETCH_STALE_HOURS,
+            merge_cache.CACHE_ROOT,
         )
+
+    def start_disk_sync(self) -> None:
+        """Workers secundarios: atualiza RAM a partir do disco (sem rede)."""
+        import multiprocessing as mp
+        if mp.current_process().name != "MainProcess":
+            return
+        if self._disk_sync_thread and self._disk_sync_thread.is_alive():
+            return
+        self._disk_sync_thread = Thread(
+            target=self._disk_sync_loop,
+            name="merge-disk-sync",
+            daemon=True,
+        )
+        self._disk_sync_thread.start()
+        log.info(
+            "Sync MERGE em disco ativo (intervalo=%ds, cache=%s)",
+            INGEST_INTERVAL_S,
+            merge_cache.CACHE_ROOT,
+        )
+
+    def _disk_sync_loop(self) -> None:
+        while not self._stop:
+            try:
+                self._hydrate_from_disk()
+            except Exception:  # noqa: BLE001
+                log.exception("falha ao sincronizar cache MERGE do disco")
+            time.sleep(INGEST_INTERVAL_S)
 
     def is_refreshing(self) -> bool:
         with self._lock:
@@ -250,12 +279,19 @@ class MergeIngestStore:
             if not todo and self._target_hour == target:
                 with self._lock:
                     self._last_refresh_at = datetime.now(timezone.utc)
+                log.debug(
+                    "MERGE ingest: nada a buscar (cache RAM+disco ok, "
+                    "target=%s)",
+                    target.isoformat(),
+                )
                 return
 
             if todo:
                 log.info(
-                    "MERGE ingest: %d hora(s) a buscar (target=%s)",
+                    "MERGE ingest: %d hora(s) a buscar (target=%s; "
+                    "%d ja em RAM)",
                     len(todo), target.isoformat(),
+                    HOURS_BACK_DEFAULT - len(todo),
                 )
                 with self._lock:
                     ok_before = sum(
@@ -430,6 +466,7 @@ class MergeIngestStore:
             return {
                 "ready": self._ready,
                 "refreshing": self._refreshing,
+                "cache_root": str(merge_cache.CACHE_ROOT),
                 "target_hour": (
                     self._target_hour.isoformat()
                     if self._target_hour else None

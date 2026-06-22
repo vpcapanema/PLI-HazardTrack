@@ -108,7 +108,7 @@ install_certbot
 ensure_dhparam
 sudo mkdir -p "$WEBROOT"
 
-if [[ -f "$CERT_DIR/fullchain.pem" ]]; then
+if sudo test -f "$CERT_DIR/fullchain.pem"; then
     ok "certificado ja presente em $CERT_DIR"
     sudo certbot renew --quiet --no-random-sleep-on-renew 2>/dev/null \
         || warn "renovacao nao executada (verifique certbot)"

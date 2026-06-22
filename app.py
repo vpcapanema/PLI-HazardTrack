@@ -793,8 +793,8 @@ def api_der_cameras():
 def api_der_hls(subpath: str):
     """Proxy same-origin para streams HLS das cameras DER."""
     from core.der_cameras import (
+        fetch_hls,
         hls_cache_control,
-        stream_hls,
         validate_hls_path,
     )
 
@@ -803,7 +803,7 @@ def api_der_hls(subpath: str):
         return jsonify({"error": "invalid path"}), 400
 
     try:
-        body_iter, content_type, status = stream_hls(safe)
+        manifest, body_iter, content_type, status = fetch_hls(safe)
     except Exception as exc:
         log.warning("api_der_hls(%s): %s", safe, exc)
         return jsonify({"error": "upstream unavailable"}), 502
@@ -811,11 +811,14 @@ def api_der_hls(subpath: str):
     if status != 200:
         return jsonify({"error": "upstream error"}), status
 
-    resp = Response(
-        stream_with_context(body_iter),
-        status=200,
-        content_type=content_type,
-    )
+    if manifest is not None:
+        resp = Response(manifest, status=200, content_type=content_type)
+    else:
+        resp = Response(
+            stream_with_context(body_iter),
+            status=200,
+            content_type=content_type,
+        )
     resp.headers["Cache-Control"] = hls_cache_control(safe)
     return resp
 

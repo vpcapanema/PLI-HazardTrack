@@ -131,19 +131,35 @@ def hls_cache_control(subpath: str) -> str:
     return "max-age=1"
 
 
-def stream_hls(subpath: str) -> Tuple[Iterator[bytes], str, int]:
-    """Abre stream HTTP do upstream HLS. Retorna (iter, content_type, status)."""
+def fetch_hls(
+    subpath: str,
+) -> Tuple[Optional[bytes], Optional[Iterator[bytes]], str, int]:
+    """Busca recurso HLS upstream.
+
+    m3u8: retorna bytes completos (manifest pequeno, parse confiavel).
+    ts: retorna iterator em streaming.
+    """
     url = hls_upstream_url(subpath)
-    resp = requests.get(url, timeout=HTTP_TIMEOUT, stream=True)
+    is_manifest = subpath.endswith(".m3u8")
+    resp = requests.get(
+        url,
+        timeout=HTTP_TIMEOUT,
+        stream=not is_manifest,
+    )
     if resp.status_code != 200:
         resp.close()
-        return iter(()), "text/plain", resp.status_code
+        return None, None, "text/plain", resp.status_code
 
     ctype = resp.headers.get("Content-Type") or (
         "application/vnd.apple.mpegurl"
-        if subpath.endswith(".m3u8")
+        if is_manifest
         else "video/mp2t"
     )
+
+    if is_manifest:
+        body = resp.content
+        resp.close()
+        return body, None, ctype, 200
 
     def _iter() -> Iterator[bytes]:
         try:
@@ -153,4 +169,12 @@ def stream_hls(subpath: str) -> Tuple[Iterator[bytes], str, int]:
         finally:
             resp.close()
 
-    return _iter(), ctype, 200
+    return None, _iter(), ctype, 200
+
+
+def stream_hls(subpath: str) -> Tuple[Iterator[bytes], str, int]:
+    """Abre stream HTTP do upstream HLS. Retorna (iter, content_type, status)."""
+    _, body_iter, ctype, status = fetch_hls(subpath)
+    if status != 200 or body_iter is None:
+        return iter(()), ctype, status
+    return body_iter, ctype, status

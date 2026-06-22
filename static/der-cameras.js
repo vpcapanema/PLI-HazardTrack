@@ -45,45 +45,68 @@
     }
   }
 
+  function showLoaderError(loader, message) {
+    if (!loader) return;
+    loader.textContent = message;
+    loader.classList.remove("hidden");
+  }
+
   function initHlsInPopup(popupEl) {
     const root = popupEl?.querySelector?.(".der-camera-popup");
     const video = root?.querySelector("video");
     const loader = root?.querySelector(".der-camera-loader");
     const streamPath = root?.dataset?.streamPath;
-    if (!video || !streamPath || !deps?.apiUrl) return;
+    if (!video || !streamPath || !deps?.apiUrl) {
+      showLoaderError(loader, "Player indisponivel");
+      return;
+    }
 
     const src = deps.apiUrl(`/api/der/hls/${streamPath}`);
+    let ready = false;
     const onReady = () => {
+      if (ready) return;
+      ready = true;
       loader?.classList.add("hidden");
       video.classList.add("ready");
       video.play().catch(() => {});
     };
     video.addEventListener("playing", onReady, { once: true });
+    video.addEventListener("loadeddata", onReady, { once: true });
 
     if (global.Hls?.isSupported()) {
       destroyHlsPlayer();
       hlsInstance = new global.Hls({
-        lowLatencyMode: true,
-        maxBufferLength: 4,
-        liveSyncDurationCount: 2,
-        liveMaxLatencyDurationCount: 6,
-        fragLoadingMaxRetry: 6,
-        startFragPrefetch: true,
+        maxBufferLength: 8,
+        liveSyncDurationCount: 3,
+        fragLoadingMaxRetry: 8,
+        manifestLoadingMaxRetry: 4,
+        levelLoadingMaxRetry: 4,
       });
       hlsInstance.loadSource(src);
       hlsInstance.attachMedia(video);
+      hlsInstance.on(global.Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(() => {});
+      });
       hlsInstance.on(global.Hls.Events.ERROR, (_, data) => {
         if (!data.fatal) return;
         if (data.type === global.Hls.ErrorTypes.NETWORK_ERROR) {
           hlsInstance.startLoad();
-        } else if (data.type === global.Hls.ErrorTypes.MEDIA_ERROR) {
-          hlsInstance.recoverMediaError();
+          return;
         }
+        if (data.type === global.Hls.ErrorTypes.MEDIA_ERROR) {
+          hlsInstance.recoverMediaError();
+          return;
+        }
+        showLoaderError(loader, "Stream indisponivel");
+        destroyHlsPlayer();
       });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
+      video.addEventListener("error", () => {
+        showLoaderError(loader, "Stream indisponivel");
+      }, { once: true });
     } else {
-      loader.textContent = "HLS indisponivel neste navegador";
+      showLoaderError(loader, "HLS indisponivel neste navegador");
     }
   }
 
@@ -128,13 +151,13 @@
       closeButton: true,
     })
       .setLatLng([cam.lat, cam.lng])
-      .setContent(html)
-      .openOn(map);
+      .setContent(html);
 
     popup.on("add", () => {
       initHlsInPopup(popup.getElement());
     });
     popup.on("remove", destroyHlsPlayer);
+    popup.openOn(map);
   }
 
   async function fetchCameras() {

@@ -14,7 +14,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, Response, render_template, jsonify, request, stream_with_context
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -460,7 +460,6 @@ def api_progress_stream():
     """
     import json as _json
     import time as _time
-    from flask import Response
 
     from core.merge_inpe import (
         get_download_progress,
@@ -754,6 +753,63 @@ def api_public_fire_risk_trecho(trecho_id):
         }), 404
     resp = jsonify(body)
     return apply_public_api_headers(resp, max_age=300)
+
+
+@app.route("/api/der/cameras")
+def api_der_cameras():
+    """Lista cameras DER-SP (proxy + cache em memoria)."""
+    from core.der_cameras import fetch_cameras
+
+    try:
+        cameras, cached = fetch_cameras()
+    except Exception as exc:
+        log.warning("api_der_cameras: %s", exc)
+        return jsonify({
+            "success": False,
+            "error": str(exc),
+            "cameras": [],
+            "total": 0,
+        }), 502
+
+    resp = jsonify({
+        "success": True,
+        "cameras": cameras,
+        "total": len(cameras),
+        "cached": cached,
+    })
+    resp.headers["Cache-Control"] = "public, max-age=60"
+    return resp
+
+
+@app.route("/api/der/hls/<path:subpath>")
+def api_der_hls(subpath: str):
+    """Proxy same-origin para streams HLS das cameras DER."""
+    from core.der_cameras import (
+        hls_cache_control,
+        stream_hls,
+        validate_hls_path,
+    )
+
+    safe = validate_hls_path(subpath)
+    if not safe:
+        return jsonify({"error": "invalid path"}), 400
+
+    try:
+        body_iter, content_type, status = stream_hls(safe)
+    except Exception as exc:
+        log.warning("api_der_hls(%s): %s", safe, exc)
+        return jsonify({"error": "upstream unavailable"}), 502
+
+    if status != 200:
+        return jsonify({"error": "upstream error"}), status
+
+    resp = Response(
+        stream_with_context(body_iter),
+        status=200,
+        content_type=content_type,
+    )
+    resp.headers["Cache-Control"] = hls_cache_control(safe)
+    return resp
 
 
 @app.route("/api/health")

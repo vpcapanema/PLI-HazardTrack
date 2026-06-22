@@ -25,6 +25,10 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='der-cameras.css') }}"
+    />
   </head>
   <body>
     <div class="sidebar-shell" id="sidebar-shell">
@@ -922,6 +926,10 @@
               <input type="checkbox" id="layer-roads" />
               Malha Rodoviária Estadual monitorada
             </label>
+            <label class="ck">
+              <input type="checkbox" id="layer-cameras" checked />
+              Câmeras DER-SP
+            </label>
             <div class="ck-group-title">Limites DER / IGC</div>
             <label class="ck">
               <input type="checkbox" id="layer-municipios" />
@@ -1038,6 +1046,7 @@
 
     <script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/leaflet/leaflet-heat.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
     <script>
       // Prefixo da app injetado pelo Flask. Quando atras de Nginx em path
       // (ex: /hazardtrack/), vira "/hazardtrack". Caso contrario, "".
@@ -1047,6 +1056,7 @@
     </script>
     <script src="{{ url_for('static', filename='risk-layers.js') }}"></script>
     <script src="{{ url_for('static', filename='query-filter.js') }}"></script>
+    <script src="{{ url_for('static', filename='der-cameras.js') }}"></script>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
   </body>
 </html>

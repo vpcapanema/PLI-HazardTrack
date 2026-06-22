@@ -1,0 +1,245 @@
+# PROMPT: Integrar câmeras DER-SP em mapa Leaflet
+
+## Objetivo
+
+Adicionar ao mapa Leaflet existente uma camada de câmeras online do DER-SP
+(Departamento de Estradas de Rodagem de São Paulo): ícones nas coordenadas
+reais, popup com vídeo ao vivo ao clicar, sem interferir em outras camadas ou
+lógica de roteamento.
+
+Referência oficial: http://200.144.30.103:8084/
+
+## API DER (upstream)
+
+| Recurso          | URL                                                     | Descrição                     |
+| ---------------- | ------------------------------------------------------- | ----------------------------- |
+| Lista de câmeras | GET http://200.144.30.103:8084/api/cameras              | JSON array (~34 câmeras)      |
+| Stream HLS       | GET http://200.144.30.103:8084/hls/cam_{id}/stream.m3u8 | Vídeo ao vivo (segmentos .ts) |
+
+Exemplo de registro:
+
+{
+"id": 5,
+"rodovia": "SP 055",
+"km": "KM 073+000",
+"nome": "Doutor Manoel Hypollito Rego",
+"local": "UBATUBA",
+"lat": -23.518319,
+"lng": -45.201084,
+"status": 1,
+"sentido": "MARANDUBA"
+}
+
+- status: 1 → operacional
+- status: 2 → manutenção (sem stream; exibir aviso)
+
+Campos derivados recomendados:
+
+- label: "SP 055 · KM 073+000"
+- stream_path: "cam_5/stream.m3u8"
+- maintenance: status === 2
+
+## Restrições técnicas (obrigatório)
+
+1. Proxy backend — o browser NÃO deve chamar 200.144.30.103 diretamente:
+   - sem CORS na API DER;
+   - mixed content se o app for HTTPS e o DER HTTP.
+
+2. Proxy HLS same-origin — servir manifest e segmentos pelo backend:
+   - GET /api/der/cameras → lista (com cache ~5 min)
+   - GET /api/der/hls/<path> → repassa /hls/<path> ao upstream, preferencialmente
+     em streaming (iter_content), não bufferizando segmentos inteiros.
+
+3. HLS.js — incluir hls.js (CDN ou vendor); Safari pode usar HLS nativo.
+
+4. Camada persistente — não incluir no pool de refresh automático de outras
+   camadas RT; cache longo (24 h); remontar só se o usuário desligar/ligar.
+
+5. Independente da rota — câmeras são overlay visual; não entram em cálculo de
+   exposição/risco, salvo feature opcional "câmeras próximas à rota".
+
+## Backend (Flask / Express / FastAPI — adaptar ao stack)
+
+Implementar:
+
+# GET /api/der/cameras
+
+# - fetch GET {DER_CAMERAS_URL}/api/cameras
+
+# - normalizar campos
+
+# - cache em memória (TTL configurável, ex.: 300s)
+
+# - retorno: { success, cameras: [...], total }
+
+# GET /api/der/hls/<path:subpath>
+
+# - validar path (sem "..")
+
+# - proxy para {DER_CAMERAS_URL}/hls/{subpath}
+
+# - stream chunks 64KB
+
+# - Cache-Control: max-age=1 (m3u8), max-age=2 (.ts)
+
+Variáveis de ambiente:
+
+DER_CAMERAS_URL=http://200.144.30.103:8084
+DER_CAMERAS_CACHE_TTL=300
+DER_ROUTE_CAMERA_MAX_M=2000 # opcional: detecção na rota
+
+Detecção opcional "câmeras na rota": para cada câmera, distância ponto→linha
+da rota (haversine); incluir se <= DER_ROUTE_CAMERA_MAX_M. Anexar ao payload
+da rota como route_cameras: [...].
+
+## Frontend Leaflet
+
+1. Carregar câmeras e criar camada
+
+// Fetch once, cache longo no cliente
+const res = await fetch('/api/der/cameras');
+const { cameras } = await res.json();
+
+const layerGroup = L.layerGroup().addTo(map);
+
+const CAMERA_ICON = L.divIcon({
+className: 'der-camera-icon',
+html: '<span class="der-camera-marker"><!-- SVG câmera --></span>',
+iconSize: [30, 30],
+iconAnchor: [15, 15],
+});
+
+cameras.forEach(cam => {
+const marker = L.marker([cam.lat, cam.lng], { icon: CAMERA_ICON });
+marker.on('click', () => openDerCameraPopup(map, cam));
+marker.addTo(layerGroup);
+});
+
+2. Popup com vídeo HLS
+
+function derStreamUrl(cam) {
+return `/api/der/hls/cam_${cam.id}/stream.m3u8`;
+}
+
+function openDerCameraPopup(map, cam) {
+if (cam.maintenance) {
+L.popup({ maxWidth: 340, className: 'der-camera-popup-wrap' })
+.setLatLng([cam.lat, cam.lng])
+.setContent('<strong>Câmera em manutenção</strong>')
+.openOn(map);
+return;
+}
+
+const html = `
+    <div class="der-camera-popup" data-stream-path="cam_${cam.id}/stream.m3u8">
+      <header><strong>${cam.label}</strong></header>
+      <div class="der-camera-video-wrap">
+        <div class="der-camera-loader">Conectando...</div>
+        <video muted playsinline autoplay preload="auto"></video>
+        <span class="der-camera-live">AO VIVO</span>
+      </div>
+      <div class="der-camera-meta">
+        <div>Rodovia: ${cam.rodovia} · ${cam.km}</div>
+        <div>Local: ${cam.local}</div>
+        <div>Sentido: ${cam.sentido || 'Ambos'}</div>
+      </div>
+    </div>`;
+
+const popup = L.popup({ maxWidth: 360, className: 'der-camera-popup-wrap', closeButton: true })
+.setLatLng([cam.lat, cam.lng])
+.setContent(html)
+.openOn(map);
+
+popup.on('add', () => initHlsInPopup(popup.getElement()));
+popup.on('remove', destroyHlsPlayer);
+}
+
+3. Player HLS (baixa latência)
+
+let hlsInstance = null;
+
+function initHlsInPopup(popupEl) {
+const video = popupEl.querySelector('video');
+const loader = popupEl.querySelector('.der-camera-loader');
+const streamPath = popupEl.querySelector('.der-camera-popup')?.dataset.streamPath;
+const src = `/api/der/hls/${streamPath}`;
+
+const onReady = () => {
+loader?.classList.add('hidden');
+video?.classList.add('ready');
+video?.play().catch(() => {});
+};
+
+video?.addEventListener('playing', onReady, { once: true });
+
+if (window.Hls?.isSupported()) {
+hlsInstance = new Hls({
+lowLatencyMode: true,
+maxBufferLength: 4,
+liveSyncDurationCount: 2,
+liveMaxLatencyDurationCount: 6,
+fragLoadingMaxRetry: 6,
+startFragPrefetch: true,
+});
+hlsInstance.loadSource(src);
+hlsInstance.attachMedia(video);
+hlsInstance.on(Hls.Events.ERROR, (\_, data) => {
+if (!data.fatal) return;
+if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hlsInstance.startLoad();
+else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hlsInstance.recoverMediaError();
+});
+} else if (video?.canPlayType('application/vnd.apple.mpegurl')) {
+video.src = src;
+}
+}
+
+function destroyHlsPlayer() {
+hlsInstance?.destroy();
+hlsInstance = null;
+}
+
+4. Controle de camada (Layer Control)
+
+- Toggle "Câmeras DER-SP" no L.control.layers.
+- Ativar por padrão (camada persistente).
+- Salvar preferência em localStorage se o usuário desligar.
+- NÃO incluir em setInterval de refresh de camadas RT.
+
+5. Opcional — câmeras na rota
+
+Se o app calcula rotas:
+
+- Backend retorna route_cameras no payload.
+- No painel de análise, exibir botões-ícone por câmera.
+- Clique → openDerCameraPopup(map, cam) (popup separado, sem substituir o painel).
+
+## CSS mínimo
+
+- Marcador: ícone SVG câmera, drop-shadow, opacidade reduzida se maintenance.
+- Popup: header escuro, vídeo 16:9, loader overlay, badge "AO VIVO".
+- Vídeo: opacity 0 até playing, depois opacity 1.
+
+## Critérios de aceite
+
+[ ] ~34 marcadores nas posições corretas
+[ ] Clique abre popup com vídeo em < ~10 s (rede normal)
+[ ] Câmera em manutenção mostra mensagem, sem player
+[ ] Stream não cai quando outras camadas atualizam
+[ ] Funciona em Chrome/Firefox (HLS.js) e Safari (nativo)
+[ ] App HTTPS funciona via proxy backend
+[ ] Toggle liga/desliga camada sem quebrar o mapa
+
+## O que NÃO fazer
+
+- Chamar API DER direto do frontend
+- Marcar camada como realtime: true ou incluí-la em auto-refresh
+- Remontar marcadores a cada pan/zoom ou cálculo de rota
+- Usar iframe para o site do DER dentro do popup (preferir HLS integrado)
+
+## Referência de implementação
+
+Projeto: pli-SmartRouter
+
+- geo/der_cameras.py
+- rotas /api/der/\* em app_flask.py
+- UI em static/app.js (funções derCamera\*, ensurePersistentLayers)

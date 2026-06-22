@@ -145,6 +145,7 @@ const MAP_LAYER_DEFAULTS = {
   heatmap: false,
   roads: false,
   fireRisk: true,
+  cameras: true,
   municipios: false,
   rc: false,
   uba: false,
@@ -152,6 +153,14 @@ const MAP_LAYER_DEFAULTS = {
 };
 
 function loadMapLayerState() {
+  try {
+    const raw = localStorage.getItem(MAP_LAYER_STORAGE_KEY);
+    if (raw) {
+      return { ...MAP_LAYER_DEFAULTS, ...JSON.parse(raw) };
+    }
+  } catch {
+    /* storage invalido */
+  }
   return { ...MAP_LAYER_DEFAULTS };
 }
 
@@ -675,6 +684,7 @@ function initMap() {
   state.layers.regions = L.layerGroup(); // criada vazia, ligada via toggle
   state.layers.roads = L.layerGroup().addTo(state.map);
   state.layers.fireRisk = L.layerGroup();
+  state.layers.cameras = L.layerGroup();
   // Camadas administrativas (criadas vazias; carregadas sob demanda no toggle)
   state.layers.municipios = L.layerGroup();
   state.layers.rc = L.layerGroup();
@@ -877,6 +887,11 @@ function attachEvents() {
   });
 
   attachAdminLayerEvents();
+  window.PLI_DER_CAMERAS?.attachEvents?.(state, {
+    apiUrl,
+    MAP_LAYER_STATE,
+    saveMapLayerState,
+  });
   restoreMapLayerState();
   initTrechoPickers();
   initTrechoMetricCards();
@@ -1241,6 +1256,12 @@ async function restoreMapLayerState() {
       state.map.addLayer(state.layers[key]);
     }),
   );
+
+  await window.PLI_DER_CAMERAS?.restore?.(state, {
+    apiUrl,
+    MAP_LAYER_STATE,
+    saveMapLayerState,
+  });
 }
 
 /**
@@ -4406,6 +4427,7 @@ function syncInteractiveLayerOrder() {
   bringGroupToBack(state.layers.roads);
   bringGroupToBack(state.layers.fireRisk);
   bringGroupToFront(state.layers.fireRisk);
+  window.PLI_DER_CAMERAS?.bringToFront?.(state);
   bringGroupToFront(state.layers.hazardZones?.inundacao);
   bringGroupToFront(state.layers.hazardZones?.encosta);
 }

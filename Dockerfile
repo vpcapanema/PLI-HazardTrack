@@ -49,4 +49,4 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -fsS "http://127.0.0.1:${PORT}/api/health" || exit 1
 
 # CMD em shell para expandir $PORT
-CMD ["sh", "-c", "exec gunicorn app:app --bind 0.0.0.0:${PORT} --workers 1 --threads 4 --timeout 180 --graceful-timeout 30 --access-logfile - --error-logfile -"]
+CMD ["sh", "-c", "exec gunicorn app:app --bind 0.0.0.0:${PORT} --worker-class gthread --workers 1 --threads 4 --timeout 180 --graceful-timeout 30 --access-logfile - --error-logfile -"]

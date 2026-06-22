@@ -2132,12 +2132,15 @@ function stopDownloadPoll() {
     _dl.poll = null;
   }
   if (_dl.es) {
+    const es = _dl.es;
+    _dl.es = null;
+    es.onerror = null;
+    es.onmessage = null;
     try {
-      _dl.es.close();
+      es.close();
     } catch (e) {
       /* noop */
     }
-    _dl.es = null;
   }
   if (_dl.esRetry) {
     clearTimeout(_dl.esRetry);
@@ -2337,6 +2340,12 @@ function dlProcessingSubtitle(d) {
   return "A chuva do INPE já foi carregada; as etapas abaixo rodam em sequência.";
 }
 
+function maybeStopDownloadPoll(d) {
+  if (!_dl.es && !_dl.poll) return;
+  if (!d || isIngestProgressBusy(d)) return;
+  stopDownloadPoll();
+}
+
 function startDownloadPoll() {
   if (_dl.poll || _dl.es) return;
   _dl.mode = "download";
@@ -2374,17 +2383,18 @@ function _startProgressSSE() {
       }
     };
     es.onerror = () => {
-      if (_dl.esClosing) return;
+      if (_dl.esClosing || _dl.es !== es) return;
       _dl.esFailures = (_dl.esFailures || 0) + 1;
       // 3 falhas seguidas: desiste do SSE e cai para polling.
-      // EventSource ja reconecta sozinho entre erros isolados.
       if (_dl.esFailures >= 3) {
+        es.onerror = null;
+        es.onmessage = null;
         try {
           es.close();
         } catch (e) {
           /* noop */
         }
-        _dl.es = null;
+        if (_dl.es === es) _dl.es = null;
         _startProgressPolling();
       }
     };
@@ -2452,6 +2462,7 @@ function renderDownloadFrame() {
   const el = document.getElementById("ingest-progress");
   const d = _dl.data;
   if (!el || !d) return;
+  maybeStopDownloadPoll(d);
   const ingestBusy = isIngestProgressBusy(d);
   const batchBusy = d.total > 0 && d.done < d.total;
   const mode =

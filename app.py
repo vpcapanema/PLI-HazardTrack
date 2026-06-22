@@ -518,7 +518,6 @@ def api_progress_stream():
     )
     resp.headers["Cache-Control"] = "no-cache, no-transform"
     resp.headers["X-Accel-Buffering"] = "no"  # nginx
-    resp.headers["Connection"] = "keep-alive"
     return resp
 
 

@@ -504,22 +504,43 @@ Sem download HTTP no request cycle.
 
 Autenticacao: mesma politica dos feeds publicos UA.
 
-### 7.3 Scheduler
+### 7.3 Scheduler (automatizado — implementado)
 
-Job **separado** do ciclo MERGE 120 s:
+Runner automatico **dentro do backend**, isolado do ciclo MERGE, em
+`core/fire_pipeline.py` e ativado no boot por `app.py` (mesmo
+`BackgroundScheduler` do MERGE, job `fire_refresh`):
 
-- Cron diario ex.: `0 9 * * *` America/Sao_Paulo (ajustar apos teste de
-  latencia dos arquivos INPE).
-- Ou script externo (systemd/cron) que roda pipeline 05..07 e toca
-  reload via SIGHUP/arquivo flag.
+1. **Polling barato**: a cada `QUEIMADAS_POLL_MIN` (default 30 min) le
+   apenas a **listagem HTML** do diretorio observado do INPE e descobre o
+   ultimo arquivo `INPE_FireRiskModel_2.2_FireRisk_YYYYMMDD.nc` publicado.
+2. **Disparo condicional**: so roda o pipeline pesado `05 -> 06 -> 07`
+   (via **subprocess isolado**) quando aparece arquivo novo (ou quando os
+   produtos locais estao defasados/ausentes). Um arquivo novo do INPE eh
+   processado no proximo ciclo de polling — comportamento "quase tempo
+   real" para um produto que o INPE publica diariamente.
+3. **Boot catch-up**: no start, se ja existe produto com a data de hoje,
+   apenas registra o marker e entra em modo polling; se estiver defasado,
+   roda o pipeline em background sem bloquear o boot do gunicorn.
+4. **Isolamento e seguranca**: subprocess evita que download/rasterio/
+   geopandas derrubem o web worker; `data/queimadas/metadata/auto_runner.json`
+   guarda o ultimo arquivo processado; lock em arquivo
+   (`.auto_runner.lock`) evita execucoes concorrentes entre workers do
+   gunicorn. `core/fire_risk.py` recarrega o cache por mtime apos cada
+   atualizacao.
 
-Variaveis de ambiente sugeridas:
+Como o runner escreve direto em `data/queimadas/` e
+`static/data/queimadas/` do proprio container, **nao** ha mais
+necessidade de `sync-data-vm.bat` para o ciclo diario de queimadas (o
+sync manual segue util apenas para a malha base e cargas pontuais).
+
+Variaveis de ambiente:
 
 | Variavel | Default | Uso |
 | --- | --- | --- |
-| `QUEIMADAS_ENABLED` | `0` | Liga endpoints e camada mapa |
+| `QUEIMADAS_AUTO` | `1` | Liga/desliga o runner automatico |
+| `QUEIMADAS_POLL_MIN` | `30` | Intervalo de polling do INPE (min) |
+| `QUEIMADAS_RUN_TIMEOUT_S` | `1800` | Timeout de cada etapa do pipeline |
 | `QUEIMADAS_DATA_DIR` | `data/queimadas` | Raiz do modulo |
-| `QUEIMADAS_PIPELINE_CRON` | `0 9 * * *` | Documentacao operacional |
 
 Variaveis como `QUEIMADAS_BUFFER_M`, `QUEIMADAS_GFS_CYCLE`,
 `QUEIMADAS_PREC_SOURCE` e `EARTHDATA_TOKEN` ficam reservadas para

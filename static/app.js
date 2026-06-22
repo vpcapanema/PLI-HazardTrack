@@ -1,10 +1,10 @@
 /**
- * SAMAEG-PLI - Frontend
- * Sistema de Alerta de Risco Geodinâmico Rodoviário
+ * PLI-HazardTrack - Frontend
+ * Sistema de monitoramento de riscos climáticos extremos em rodovias
  *
  * - Auto-refresh do snapshot a cada 30s
- * - Mapa Leaflet (CARTO Light) com camadas: pontos, regiões, malha rodoviária estadual, heatmap
- * - Filtros interativos da malha rodoviária
+ * - Mapa Leaflet (CARTO Light) com camadas de risco e bases DER/IGC
+ * - Filtros interativos por camada
  */
 
 const REFRESH_MS = 30_000;
@@ -40,7 +40,7 @@ const NIVEL_DESC = [
   "Risco severo",
 ];
 const HAZARD_ALERT_LABEL = {
-  geo: "Instabilidade de encosta (risco geológico)",
+  geo: "Movimentos de massa (risco geológico)",
   hidro: "Inundação (risco hidrológico)",
 };
 
@@ -55,7 +55,7 @@ const TRECHO_VALUE_PENDING = "Aguardando dados";
 
 const HAZARDS = {
   encosta: {
-    label: "Instabilidade de encosta",
+    label: "Movimentos de massa",
     description:
       "Engloba escorregamento e queda de bloco. Pelo método em uso (REGEA-NIPPON 2021), são tratados na mesma envoltória crítica.",
     // Mesma escala dos pontos (niveis operacionais oficiais).
@@ -77,8 +77,7 @@ const HAZARDS = {
   },
 };
 
-// Estado das camadas, persistido em localStorage (controle do usuario).
-// Default: todas as disponiveis ligadas; o que o usuario alterar fica salvo.
+// Estado das camadas de risco (UA geo/hidro). Recarrega sempre ligadas.
 const HAZARD_STORAGE_KEY = "pli_hazardtrack.hazard_layers.v2";
 const LEGEND_COLLAPSE_KEY = "pli_hazardtrack.legend_collapsed.v1";
 const LAYER_PANEL_COLLAPSE_KEY = "pli_hazardtrack.layer_panel_collapsed.v1";
@@ -105,20 +104,11 @@ function saveLegendCollapsed() {
 const LEGEND_COLLAPSED = _loadLegendCollapsed();
 
 function _loadHazardState() {
-  const defaults = Object.fromEntries(
+  return Object.fromEntries(
     Object.entries(HAZARDS)
       .filter(([, h]) => h.available)
       .map(([k]) => [k, true]),
   );
-  try {
-    const raw = localStorage.getItem(HAZARD_STORAGE_KEY);
-    if (!raw) return defaults;
-    const saved = JSON.parse(raw);
-    // Mescla: chaves novas (versoes futuras) entram como default
-    return { ...defaults, ...saved };
-  } catch {
-    return defaults;
-  }
 }
 
 function saveHazardState() {
@@ -134,8 +124,8 @@ const HAZARD_LAYER_KEY = { geo: "encosta", hidro: "inundacao" };
 const MAP_LAYER_DEFAULTS = {
   regions: false,
   heatmap: false,
-  roads: true,
-  fireRisk: false,
+  roads: false,
+  fireRisk: true,
   municipios: false,
   rc: false,
   uba: false,
@@ -143,14 +133,7 @@ const MAP_LAYER_DEFAULTS = {
 };
 
 function loadMapLayerState() {
-  try {
-    const raw = localStorage.getItem(MAP_LAYER_STORAGE_KEY);
-    return raw ? { ...MAP_LAYER_DEFAULTS, ...JSON.parse(raw) } : {
-      ...MAP_LAYER_DEFAULTS,
-    };
-  } catch {
-    return { ...MAP_LAYER_DEFAULTS };
-  }
+  return { ...MAP_LAYER_DEFAULTS };
 }
 
 const MAP_LAYER_STATE = loadMapLayerState();
@@ -562,7 +545,24 @@ const state = {
 
 document.addEventListener("DOMContentLoaded", init);
 
+const SB_PANELS_OPEN_DEFAULT = new Set([
+  "ppdc-max-panel",
+  "fire-panel",
+]);
+
+function applyDefaultSidebarPanels() {
+  document.querySelectorAll(".sb-panel").forEach((panel) => {
+    const open = SB_PANELS_OPEN_DEFAULT.has(panel.id);
+    const body = panel.querySelector(".sb-panel-body");
+    const head = panel.querySelector(".sb-panel-head[data-sb-toggle]");
+    panel.classList.toggle("is-open", open);
+    if (body) body.hidden = !open;
+    if (head) head.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+}
+
 function init() {
+  applyDefaultSidebarPanels();
   initMap();
   attachEvents();
   initSidebarPanels();
@@ -600,6 +600,7 @@ function init() {
     },
   };
   if (window.QueryFilter) window.QueryFilter.init();
+  loadFireRiskSnapshot();
   renderHazardPanel();
   renderHazardLegend();
   initLegendToggles();
@@ -4319,6 +4320,90 @@ async function loadFireRiskLayer(horizonte = state.fireRiskHorizon) {
   }
 }
 
+const FIRE_SUMMARY_ORDER = [...FIRE_RISK_ORDER, "SEM_DADO"];
+
+async function loadFireRiskSnapshot() {
+  const box = document.getElementById("fire-summary");
+  if (!box) return;
+  // Fonte leve (~0,5 KB) com o mesmo resumo do snapshot. Cai para o
+  // endpoint publico se o estatico nao estiver presente.
+  const sources = [
+    apiUrl("/static/data/queimadas/risco_trechos_der_stats.json"),
+    apiUrl("/api/public/fire-risk/snapshot"),
+  ];
+  for (const url of sources) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const snap = await res.json();
+      if (snap && snap.total_trechos) {
+        renderFireRiskSummary(snap);
+        return;
+      }
+    } catch (e) {
+      console.warn("panorama de risco de fogo:", url, e);
+    }
+  }
+  box.innerHTML =
+    '<p class="fire-summary-loading">Panorama indisponível no momento.</p>';
+}
+
+function renderFireRiskSummary(snap) {
+  const box = document.getElementById("fire-summary");
+  if (!box) return;
+  const classes = (snap && snap.classes) || {};
+  const total = Number(snap?.total_trechos) || 0;
+  const semDado = Number(classes.SEM_DADO) || 0;
+  const avaliados = Math.max(total - semDado, 0);
+  if (!total) {
+    box.innerHTML =
+      '<p class="fire-summary-loading">Sem produto de fogo publicado.</p>';
+    return;
+  }
+  const maxCount = FIRE_SUMMARY_ORDER.reduce(
+    (m, cls) => Math.max(m, Number(classes[cls]) || 0),
+    0,
+  ) || 1;
+  const rows = FIRE_SUMMARY_ORDER.map((cls) => {
+    const count = Number(classes[cls]) || 0;
+    const pct = total ? Math.round((count / total) * 100) : 0;
+    const width = Math.round((count / maxCount) * 100);
+    const color = FIRE_RISK_COLORS[cls] || FIRE_RISK_COLORS.SEM_DADO;
+    return `
+      <div class="fire-sum-row">
+        <span class="fire-sum-label">
+          <span class="fire-sum-dot" style="background:${color}"></span>
+          ${escapeHtml(fireRiskClassLabel(cls))}
+        </span>
+        <span class="fire-sum-track">
+          <span class="fire-sum-bar"
+                style="width:${width}%;background:${color}"></span>
+        </span>
+        <span class="fire-sum-count">
+          ${count.toLocaleString("pt-BR")}
+          <small>${pct}%</small>
+        </span>
+      </div>`;
+  }).join("");
+  box.innerHTML = `
+    <div class="fire-sum-head">
+      <div class="fire-sum-stat">
+        <span class="fire-sum-stat-num">${avaliados.toLocaleString("pt-BR")}</span>
+        <span class="fire-sum-stat-lbl">trechos com risco</span>
+      </div>
+      <div class="fire-sum-stat">
+        <span class="fire-sum-stat-num">${total.toLocaleString("pt-BR")}</span>
+        <span class="fire-sum-stat-lbl">trechos no Estado</span>
+      </div>
+    </div>
+    <div class="fire-sum-bars">${rows}</div>
+    <p class="fire-sum-foot">
+      Produto observado · referência ${escapeHtml(
+        formatDateOnlyBR(snap?.data_referencia),
+      )}
+    </p>`;
+}
+
 function renderFireRiskLayer() {
   const gj = state.fireRiskGeoJSON[state.fireRiskHorizon];
   if (!gj || !state.layers.fireRisk) return;
@@ -4634,7 +4719,7 @@ function fireRiskLegendEntry() {
   return [
     "fireRisk",
     {
-      label: "Risco de queimadas (INPE)",
+      label: "Risco de fogo (INPE)",
       legendSubtitle: `Risco de Fogo · ${state.fireRiskHorizon || "observado"}`,
       palette: FIRE_RISK_ORDER.map((cls) => FIRE_RISK_COLORS[cls]),
       labels: FIRE_RISK_ORDER.map((cls) => fireRiskClassLabel(cls)),
@@ -4705,9 +4790,53 @@ function renderHazardLegend() {
     .join("");
 
   root.innerHTML = blocks;
+  scheduleLegendPanelLayout();
+}
+
+/** Igualar largura (maior linha entre os paineis) e altura (stretch). */
+function syncLegendPanelLayout() {
+  const root = document.getElementById("hazard-legend");
+  if (!root) return;
+
+  root.style.removeProperty("--legend-panel-w");
+  const blocks = [...root.querySelectorAll(".legend-block:not(.collapsed)")];
+  if (!blocks.length) return;
+
+  blocks.forEach((block) => {
+    block.style.width = "max-content";
+  });
+
+  const maxW = blocks.reduce(
+    (max, block) => Math.max(max, Math.ceil(block.getBoundingClientRect().width)),
+    0,
+  );
+  blocks.forEach((block) => {
+    block.style.width = "";
+  });
+
+  if (maxW > 0) {
+    root.style.setProperty("--legend-panel-w", `${maxW}px`);
+  }
+}
+
+function scheduleLegendPanelLayout() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(syncLegendPanelLayout);
+  });
+}
+
+function initLegendPanelLayout() {
+  if (window.__pliLegendLayoutBound) return;
+  window.__pliLegendLayoutBound = true;
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(scheduleLegendPanelLayout, 120);
+  });
 }
 
 function initLegendToggles() {
+  initLegendPanelLayout();
   const root = document.getElementById("hazard-legend");
   if (!root || root.dataset.toggleBound) return;
   root.dataset.toggleBound = "1";
@@ -4731,6 +4860,7 @@ function initLegendToggles() {
       LEGEND_COLLAPSED[key] = collapsed;
       saveLegendCollapsed();
     }
+    scheduleLegendPanelLayout();
   });
 }
 

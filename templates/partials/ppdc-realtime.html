@@ -1,12 +1,12 @@
 {% from 'partials/level-meter.html' import level_meter_block %}
 
 {% macro ppdc_realtime_block() %}
-<div class="sb-panel" id="ppdc-max-panel">
+<div class="sb-panel is-open" id="ppdc-max-panel">
   <button
     type="button"
     class="sb-panel-head"
     data-sb-toggle
-    aria-expanded="false"
+    aria-expanded="true"
     aria-controls="ppdc-max-panel-body"
   >
     <span class="sb-panel-ico" aria-hidden="true">
@@ -60,7 +60,6 @@
   <div
     class="sb-panel-body"
     id="ppdc-max-panel-body"
-    hidden
   >
     <div class="ppdc-status-block">
       <div class="sb-card sb-status-card" id="status-card">

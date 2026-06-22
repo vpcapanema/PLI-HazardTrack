@@ -272,6 +272,33 @@ def _bootstrap():
     # pode ter
     # republicacao, atualizamos com mais frequencia para nao perder)
     scheduler.add_job(state.update, "interval", minutes=10, id="merge_refresh")
+
+    # --- Risco de fogo (queimadas): runner automatico, isolado do MERGE -----
+    if os.environ.get("QUEIMADAS_AUTO", "1") != "0":
+        from core import fire_pipeline
+
+        threading.Thread(
+            target=fire_pipeline.bootstrap_initial, daemon=True
+        ).start()
+        try:
+            fire_poll_min = int(
+                os.environ.get("QUEIMADAS_POLL_MIN", "30") or 30
+            )
+        except ValueError:
+            fire_poll_min = 30
+        scheduler.add_job(
+            fire_pipeline.poll_and_maybe_run,
+            "interval",
+            minutes=fire_poll_min,
+            id="fire_refresh",
+            max_instances=1,
+            coalesce=True,
+        )
+        log.info(
+            "Scheduler de risco de fogo ativo (poll a cada %d min)",
+            fire_poll_min,
+        )
+
     scheduler.start()
     log.info("Scheduler ativo (refresh a cada 10 min)")
     if _DEV_LOG:

@@ -1,6 +1,6 @@
 /**
  * Busca avançada — filtro por atributo nas camadas monitoradas.
- * Camadas: malha rodoviária, UAs encosta, UAs inundação e queimadas.
+ * Camadas: malha rodoviária, movimentos de massa, inundação e risco de fogo.
  */
 (function () {
   "use strict";
@@ -37,7 +37,7 @@
       ],
     },
     encosta: {
-      label: "UAs · Encosta",
+      label: "Movimentos de massa",
       kind: "ua",
       hazard: "encosta",
       fields: [
@@ -61,7 +61,7 @@
       ],
     },
     inundacao: {
-      label: "UAs · Inundação",
+      label: "Inundação",
       kind: "ua",
       hazard: "inundacao",
       fields: [
@@ -83,7 +83,7 @@
       ],
     },
     fireRisk: {
-      label: "Queimadas · INPE",
+      label: "Risco de fogo (INPE)",
       kind: "fireRisk",
       fields: [
         { key: "rf_classe", label: "Classe RF", type: "enum", enumKey: "rf_classes" },

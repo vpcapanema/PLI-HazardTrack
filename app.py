@@ -470,7 +470,13 @@ def api_progress_stream():
     def generate():
         # Hint para proxies (nginx) nao bufferizarem o stream
         yield "retry: 5000\n\n"
-        last_version = -1
+        last_version = get_progress_version()
+        try:
+            payload = get_download_progress()
+            payload["_version"] = last_version
+            yield f"data: {_json.dumps(payload, default=str)}\n\n"
+        except (TypeError, ValueError):
+            pass
         last_sent_at = 0.0
         # Rate limit: no maximo 1 evento real a cada 100ms (10/s).
         min_gap_s = 0.1
@@ -506,7 +512,10 @@ def api_progress_stream():
         except GeneratorExit:
             return
 
-    resp = Response(generate(), mimetype="text/event-stream")
+    resp = Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+    )
     resp.headers["Cache-Control"] = "no-cache, no-transform"
     resp.headers["X-Accel-Buffering"] = "no"  # nginx
     resp.headers["Connection"] = "keep-alive"

@@ -4337,6 +4337,11 @@ a.sb-jump:visited {
   gap: 0.45rem;
   padding-left: 1.25rem;
 }
+.map-layer-control .ck--sub-select {
+  display: block;
+  margin: 0 0 0.35rem 1.25rem;
+  width: calc(100% - 1.25rem);
+}
 .map-layer-control .layer-mini-select {
   border: 1px solid var(--gray-200);
   border-radius: 0.45rem;
@@ -5467,4 +5472,16 @@ a.sb-jump:visited {
   .legend-block {
     transition: none;
   }
+}
+
+.visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }

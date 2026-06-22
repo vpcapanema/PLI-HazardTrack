@@ -695,6 +695,7 @@
                 <input
                   type="datetime-local"
                   id="history-at"
+                  name="history-at"
                   class="history-search-input"
                 />
                 <div class="history-search-actions">
@@ -898,53 +899,55 @@
             <div class="ck-group-title">Riscos associados a eventos climáticos extremos</div>
             <div id="hazard-toggles"></div>
             <label class="ck ck--risk-layer" title="Risco de fogo · INPE (RF)">
-              <input type="checkbox" id="layer-fireRisk" checked />
+              <input type="checkbox" id="layer-fireRisk" name="layer-fireRisk" checked />
               <span class="ck-risk-text">
                 <span class="ck-risk-alias">Risco a incêndios</span>
                 <span class="ck-risk-tech">Risco de fogo</span>
               </span>
             </label>
-            <label class="ck ck--sub">
-              Horizonte
-              <select id="layer-fireRisk-horizon" class="layer-mini-select">
-                <option value="observado">Observado</option>
-                <option value="D+1">D+1</option>
-                <option value="D+2">D+2</option>
-                <option value="D+3">D+3</option>
-              </select>
-            </label>
+            <label class="ck ck--sub" for="layer-fireRisk-horizon">Horizonte</label>
+            <select
+              id="layer-fireRisk-horizon"
+              name="layer-fireRisk-horizon"
+              class="layer-mini-select ck--sub-select"
+            >
+              <option value="observado">Observado</option>
+              <option value="D+1">D+1</option>
+              <option value="D+2">D+2</option>
+              <option value="D+3">D+3</option>
+            </select>
             <div class="ck-group-title">Camadas de apoio</div>
             <label class="ck">
-              <input type="checkbox" id="layer-regions" />
+              <input type="checkbox" id="layer-regions" name="layer-regions" />
               Regiões monitoradas
             </label>
             <label class="ck">
-              <input type="checkbox" id="layer-heatmap" />
+              <input type="checkbox" id="layer-heatmap" name="layer-heatmap" />
               Mapa de calor
             </label>
             <label class="ck">
-              <input type="checkbox" id="layer-roads" />
+              <input type="checkbox" id="layer-roads" name="layer-roads" />
               Malha Rodoviária Estadual monitorada
             </label>
             <label class="ck">
-              <input type="checkbox" id="layer-cameras" checked />
+              <input type="checkbox" id="layer-cameras" name="layer-cameras" checked />
               Câmeras DER-SP
             </label>
             <div class="ck-group-title">Limites DER / IGC</div>
             <label class="ck">
-              <input type="checkbox" id="layer-municipios" />
+              <input type="checkbox" id="layer-municipios" name="layer-municipios" />
               Municípios (IGC, 2021)
             </label>
             <label class="ck">
-              <input type="checkbox" id="layer-rc" />
+              <input type="checkbox" id="layer-rc" name="layer-rc" />
               Residência de Conserva - DER
             </label>
             <label class="ck">
-              <input type="checkbox" id="layer-uba" />
+              <input type="checkbox" id="layer-uba" name="layer-uba" />
               Unidade Básica de Atendimento - DER
             </label>
             <label class="ck">
-              <input type="checkbox" id="layer-cgr" />
+              <input type="checkbox" id="layer-cgr" name="layer-cgr" />
               Coordenadoria Geral Regional - DER
             </label>
           </div>
@@ -1010,9 +1013,9 @@
           <button id="tl-prev" class="tl-btn" title="Anterior">⏮</button>
           <button id="tl-next" class="tl-btn" title="Próximo">⏭</button>
           <span class="tl-time" id="tl-time">—</span>
-          <label class="tl-step-label"
-            >Passo
-            <select id="tl-step">
+          <label class="tl-step-label" for="tl-step">
+            Passo
+            <select id="tl-step" name="tl-step">
               <option value="1">1 h</option>
               <option value="2">2 h</option>
               <option value="3">3 h</option>
@@ -1024,9 +1027,11 @@
             ×
           </button>
         </div>
+        <label class="visually-hidden" for="tl-range">Posição na linha do tempo</label>
         <input
           type="range"
           id="tl-range"
+          name="tl-range"
           class="tl-range"
           min="0"
           max="0"

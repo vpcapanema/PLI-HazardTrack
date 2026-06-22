@@ -132,6 +132,16 @@
   /** Uma consulta por camada monitorada. */
   let activeRules = [];
   let rowSeq = 0;
+  let joinSeq = 0;
+
+  function fieldIds(rowId) {
+    const rid = String(rowId);
+    return {
+      field: `qf-field-${rid}`,
+      op: `qf-op-${rid}`,
+      value: `qf-value-${rid}`,
+    };
+  }
 
   function bridge() {
     return window.pliMapBridge || {};
@@ -241,12 +251,15 @@
     });
   }
 
-  function connectorHtml(join) {
+  function connectorHtml(join, joinId) {
     const andSel = join === "and" ? " selected" : "";
     const orSel = join === "or" ? " selected" : "";
+    const selId = `qf-join-${joinId}`;
     return (
       '<span class="qf-connector-label">Relação entre critérios</span>'
-      + '<select class="qf-join-select" aria-label="Relação entre critérios">'
+      + `<label class="visually-hidden" for="${selId}">Relação entre critérios</label>`
+      + `<select class="qf-join-select" id="${selId}" name="${selId}"`
+      + ` aria-label="Relação entre critérios">`
       + `<option value="and"${andSel}>E — todos os critérios ligados</option>`
       + `<option value="or"${orSel}>OU — qualquer critério ligado</option>`
       + "</select>"
@@ -265,7 +278,9 @@
     const conn = document.createElement("div");
     conn.className = "qf-connector";
     conn.setAttribute("role", "group");
-    conn.innerHTML = connectorHtml(join || "and");
+    const jid = ++joinSeq;
+    conn.dataset.joinId = String(jid);
+    conn.innerHTML = connectorHtml(join || "and", jid);
     bindConnector(conn);
     return conn;
   }
@@ -293,13 +308,18 @@
     return { layerId, conditions, join: readJoin() };
   }
 
-  function valueInputHtml(field) {
+  function valueInputHtml(field, rowId) {
+    const ids = fieldIds(rowId);
     if (!field) {
-      return '<input class="qf-value" type="text" disabled aria-label="Valor">';
+      return (
+        `<input class="qf-value" id="${ids.value}" name="${ids.value}"`
+        + ' type="text" disabled aria-label="Valor">'
+      );
     }
     if (field.type === "bool") {
       return (
-        '<select class="qf-value" aria-label="Valor">'
+        `<select class="qf-value" id="${ids.value}" name="${ids.value}"`
+        + ' aria-label="Valor">'
         + '<option value="true">Sim</option>'
         + '<option value="false">Não</option>'
         + "</select>"
@@ -312,13 +332,17 @@
         return `<option value="${v}">${l}</option>`;
       }).join("");
       return (
-        '<select class="qf-value" aria-label="Valor">'
+        `<select class="qf-value" id="${ids.value}" name="${ids.value}"`
+        + ' aria-label="Valor">'
         + `<option value="">—</option>${opts}</select>`
       );
     }
     const step = field.type === "number" ? ' step="any"' : "";
     const type = field.type === "number" ? "number" : "text";
-    return `<input class="qf-value" type="${type}"${step} aria-label="Valor">`;
+    return (
+      `<input class="qf-value" id="${ids.value}" name="${ids.value}"`
+      + ` type="${type}"${step} aria-label="Valor">`
+    );
   }
 
   function updatePreview() {
@@ -341,7 +365,7 @@
         (o) => `<option value="${o.id}">${o.label}</option>`
       ).join("");
       if (ops.some((o) => o.id === cur)) opSel.value = cur;
-      valWrap.innerHTML = valueInputHtml(f);
+      valWrap.innerHTML = valueInputHtml(f, row.dataset.id);
       const hideVal = ["empty", "not_empty"].includes(opSel.value);
       valWrap.hidden = hideVal;
       valWrap.closest(".qf-clause-val")?.classList.toggle("is-hidden", hideVal);
@@ -360,19 +384,22 @@
     refresh();
   }
 
-  function clauseHtml(fieldOpts) {
+  function clauseHtml(fieldOpts, rowId) {
+    const ids = fieldIds(rowId);
     return (
       '<div class="qf-clause-grid">'
       + '<div class="filter-group qf-clause-field">'
-      + '<label class="qf-inline-label">Campo</label>'
-      + `<select class="qf-field" aria-label="Campo">${fieldOpts}</select>`
+      + `<label class="qf-inline-label" for="${ids.field}">Campo</label>`
+      + `<select class="qf-field" id="${ids.field}" name="${ids.field}"`
+      + ` aria-label="Campo">${fieldOpts}</select>`
       + "</div>"
       + '<div class="filter-group qf-clause-op">'
-      + '<label class="qf-inline-label">Operador</label>'
-      + '<select class="qf-op" aria-label="Operador"></select>'
+      + `<label class="qf-inline-label" for="${ids.op}">Operador</label>`
+      + `<select class="qf-op" id="${ids.op}" name="${ids.op}"`
+      + ' aria-label="Operador"></select>'
       + "</div>"
       + '<div class="filter-group qf-clause-val">'
-      + '<label class="qf-inline-label">Valor</label>'
+      + `<label class="qf-inline-label" for="${ids.value}">Valor</label>`
       + '<span class="qf-value-wrap"></span>'
       + "</div>"
       + "</div>"
@@ -391,7 +418,7 @@
     const fieldOpts = L.fields.map(
       (f) => `<option value="${f.key}">${f.label}</option>`
     ).join("");
-    row.innerHTML = clauseHtml(fieldOpts);
+    row.innerHTML = clauseHtml(fieldOpts, row.dataset.id);
     box.appendChild(row);
     bindClause(row, layerId);
     rebuildConnectors();

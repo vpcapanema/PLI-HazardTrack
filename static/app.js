@@ -2117,6 +2117,7 @@ const _dl = {
   es: null,
   esRetry: null,
   esFailures: 0,
+  esClosing: false,
   data: null,
   mode: null,
   procStart: null,
@@ -2125,6 +2126,7 @@ const _dl = {
 };
 
 function stopDownloadPoll() {
+  _dl.esClosing = true;
   if (_dl.poll) {
     clearInterval(_dl.poll);
     _dl.poll = null;
@@ -2147,6 +2149,7 @@ function stopDownloadPoll() {
   _dl.doneAt = null;
   _dl.refreshed = false;
   _dl.esFailures = 0;
+  _dl.esClosing = false;
   const el = document.getElementById("ingest-progress");
   if (el) {
     el.hidden = true;
@@ -2371,6 +2374,7 @@ function _startProgressSSE() {
       }
     };
     es.onerror = () => {
+      if (_dl.esClosing) return;
       _dl.esFailures = (_dl.esFailures || 0) + 1;
       // 3 falhas seguidas: desiste do SSE e cai para polling.
       // EventSource ja reconecta sozinho entre erros isolados.

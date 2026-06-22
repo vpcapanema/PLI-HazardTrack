@@ -65,6 +65,9 @@ para rodovias da Regiao do Litoral Norte de Sao Paulo (DER-SP).
     (CPTEC pode republicar)
   * idade >= `SAMAEG_REFETCH_STALE_H` (24h): nunca re-baixa (dado final)
   * faixa intermediaria: no maximo 1x/dia
+- **VM**: volume Docker `pli_hazardtrack_merge_cache` em
+  `/app/data/_cache/merge` (`SAMAEG_MERGE_CACHE_DIR`). Volume legado
+  `/app/cache` nao era usado. Seed do dev: `.\sync-merge-cache-vm.ps1`.
 - Download HTTP: `SAMAEG_WORKERS` (12) com sessao keep-alive + cache disco
 - Decode eccodes: `SAMAEG_DECODE_WORKERS` (6) em `ProcessPoolExecutor`
   singleton mantido vivo entre waves/ciclos (elimina overhead de spawn

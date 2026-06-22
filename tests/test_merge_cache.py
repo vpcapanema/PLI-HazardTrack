@@ -231,5 +231,27 @@ class TestPruneOld(_TmpCacheMixin, unittest.TestCase):
         self.assertIsNotNone(mc.read_grib(dt))
 
 
+class TestDiskStats(_TmpCacheMixin, unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self._patch_cache_root(Path(self._tmp.name))
+
+    def test_vazio(self):
+        stats = mc.disk_stats()
+        self.assertEqual(stats["grib_files"], 0)
+        self.assertEqual(stats["sample_files"], 0)
+        self.assertEqual(stats["bytes_total"], 0)
+
+    def test_conta_arquivos(self):
+        dt = _utc(2026, 6, 22, 5)
+        mc.write_grib(dt, b"GRIB" + b"x" * 5000)
+        mc.write_samples("abc123def456", dt, [1.0, 2.0])
+        stats = mc.disk_stats()
+        self.assertEqual(stats["grib_files"], 1)
+        self.assertEqual(stats["sample_files"], 1)
+        self.assertGreater(stats["bytes_total"], 5000)
+
+
 if __name__ == "__main__":
     unittest.main()

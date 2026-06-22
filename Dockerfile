@@ -35,7 +35,12 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=5050 \
     SAMAEG_WORKERS=12 \
     SAMAEG_DECODE_WORKERS=6 \
-    SAMAEG_INGEST_INTERVAL_S=120
+    SAMAEG_INGEST_INTERVAL_S=120 \
+    SAMAEG_MERGE_CACHE_DIR=/app/data/_cache/merge \
+    SAMAEG_REFETCH_FRESH_H=4 \
+    SAMAEG_REFETCH_STALE_H=24
+
+RUN mkdir -p /app/data/_cache/merge/grib /app/data/_cache/merge/samples
 
 EXPOSE 5050
 

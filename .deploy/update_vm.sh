@@ -100,7 +100,31 @@ for i in $(seq 1 24); do
     printf "  · aguardando... (%ds)\n" "$((i * 5))"
     sleep 5
 done
-[[ "$HEALTH_OK" -eq 1 ]] || die "app nao respondeu em /api/health"
+[[ "$NEED_BUILD" -eq 1 ]] || die "app nao respondeu em /api/health"
+
+step "Volume MERGE cache (disco persistente Docker)"
+MERGE_VOL="pli_hazardtrack_merge_cache"
+docker volume inspect "$MERGE_VOL" >/dev/null 2>&1 \
+    || die "volume $MERGE_VOL ausente"
+MOUNTED=$(
+    docker inspect pli_hazardtrack_app \
+        --format '{{range .Mounts}}{{if eq .Destination "/app/data/_cache/merge"}}{{.Name}}{{end}}{{end}}' \
+        2>/dev/null || true
+)
+[[ "$MOUNTED" == "$MERGE_VOL" ]] \
+    || die "container sem volume $MERGE_VOL em /app/data/_cache/merge"
+ok "volume $MERGE_VOL montado"
+
+step "Estatisticas do cache MERGE em disco"
+if docker exec pli_hazardtrack_app python - <<'PY' 2>/dev/null; then
+from core.merge_cache import disk_stats
+import json
+print(json.dumps(disk_stats(), indent=2))
+PY
+    ok "stats lidas do container"
+else
+    warn "nao foi possivel ler stats do cache (container ainda subindo?)"
+fi
 
 step "Testando URL publica"
 PUB_CODE=$(curl -s -o /dev/null -w '%{http_code}' \

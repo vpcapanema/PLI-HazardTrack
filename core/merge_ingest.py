@@ -112,9 +112,14 @@ class MergeIngestStore:
             with self._lock:
                 self._target_hour = target
                 self._ready = loaded >= MIN_OK_HOURS
+            stats = merge_cache.disk_stats()
             log.info(
-                "MERGE cache em disco: hidratadas %d/%d horas do alvo %s",
+                "MERGE cache em disco: hidratadas %d/%d horas do alvo %s "
+                "(%d GRIBs, %d samples, %.1f MB em %s)",
                 loaded, HOURS_BACK_DEFAULT, target.isoformat(),
+                stats["grib_files"], stats["sample_files"],
+                stats["bytes_total"] / (1024 * 1024),
+                stats["cache_root"],
             )
 
     def _hours_to_fetch_by_age(
@@ -180,12 +185,21 @@ class MergeIngestStore:
         )
 
     def _disk_sync_loop(self) -> None:
+        syncs = 0
         while not self._stop:
             try:
                 self._hydrate_from_disk()
             except Exception:  # noqa: BLE001
                 log.exception("falha ao sincronizar cache MERGE do disco")
-            time.sleep(INGEST_INTERVAL_S)
+            syncs += 1
+            with self._lock:
+                ready = self._ready
+            # Ate o cache RAM ficar pronto, poll rapido (lider pode estar
+            # gravando samples no volume enquanto este worker e secundario).
+            if not ready and syncs < 60:
+                time.sleep(10)
+            else:
+                time.sleep(INGEST_INTERVAL_S)
 
     def is_refreshing(self) -> bool:
         with self._lock:
@@ -467,6 +481,7 @@ class MergeIngestStore:
                 "ready": self._ready,
                 "refreshing": self._refreshing,
                 "cache_root": str(merge_cache.CACHE_ROOT),
+                "cache_disk": merge_cache.disk_stats(),
                 "target_hour": (
                     self._target_hour.isoformat()
                     if self._target_hour else None

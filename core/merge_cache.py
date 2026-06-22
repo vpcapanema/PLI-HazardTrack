@@ -28,7 +28,7 @@ import logging
 import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, TypedDict
 
 log = logging.getLogger("merge_cache")
 
@@ -196,6 +196,52 @@ def should_refetch(
     if last_check.tzinfo is None:
         last_check = last_check.replace(tzinfo=timezone.utc)
     return (now - last_check).total_seconds() > 24 * 3600
+
+
+# ---------------------------------------------------------------------------
+# Estatisticas (monitoramento / health)
+# ---------------------------------------------------------------------------
+
+class MergeDiskStats(TypedDict):
+    cache_root: str
+    grib_files: int
+    sample_files: int
+    bytes_total: int
+    refetch_fresh_h: int
+    refetch_stale_h: int
+    ttl_days: int
+
+
+def disk_stats() -> MergeDiskStats:
+    """Contagem e tamanho do cache em disco (volume Docker na VM)."""
+    grib_files = 0
+    sample_files = 0
+    bytes_total = 0
+    for root in (GRIB_DIR, SAMPLES_DIR):
+        if not root.exists():
+            continue
+        for p in root.rglob("*"):
+            if not p.is_file():
+                continue
+            if p.suffix in (".tmp",):
+                continue
+            try:
+                bytes_total += p.stat().st_size
+            except OSError:
+                continue
+            if p.suffix == ".grib2":
+                grib_files += 1
+            elif p.suffix == ".json":
+                sample_files += 1
+    return {
+        "cache_root": str(CACHE_ROOT),
+        "grib_files": grib_files,
+        "sample_files": sample_files,
+        "bytes_total": bytes_total,
+        "refetch_fresh_h": REFETCH_FRESH_HOURS,
+        "refetch_stale_h": REFETCH_STALE_HOURS,
+        "ttl_days": CACHE_TTL_DAYS,
+    }
 
 
 # ---------------------------------------------------------------------------

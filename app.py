@@ -258,6 +258,16 @@ def _bootstrap():
     coords = [(p["lat"], p["lon"]) for p in geo]
     ingest.configure(coords)
     from core.merge_leader import try_acquire_merge_leader
+    from core import merge_cache
+
+    disk = merge_cache.disk_stats()
+    log.info(
+        "MERGE cache em disco: %s (%d GRIBs, %d samples, %.1f MB)",
+        disk["cache_root"],
+        disk["grib_files"],
+        disk["sample_files"],
+        disk["bytes_total"] / (1024 * 1024),
+    )
 
     if not try_acquire_merge_leader():
         ingest.start_disk_sync()

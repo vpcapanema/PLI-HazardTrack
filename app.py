@@ -813,12 +813,14 @@ def api_der_hls(subpath: str):
 
     if manifest is not None:
         resp = Response(manifest, status=200, content_type=content_type)
-    else:
+    elif body_iter is not None:
         resp = Response(
             stream_with_context(body_iter),
             status=200,
             content_type=content_type,
         )
+    else:
+        return jsonify({"error": "upstream empty"}), 502
     resp.headers["Cache-Control"] = hls_cache_control(safe)
     return resp
 

@@ -1,0 +1,21 @@
+# PLI-HazardTrack — HTTP only (bootstrap ACME / sem certificado ainda)
+# Hostname: pli-hazardtrack.56-125-163-194.sslip.io
+
+upstream pli_hazardtrack_app {
+    server 127.0.0.1:5050;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name pli-hazardtrack.56-125-163-194.sslip.io;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    include /etc/nginx/snippets/pli-hazardtrack-locations.conf;
+}

@@ -1,4 +1,4 @@
-# PLI-HazardTrack - virtual host Nginx do host da VM
+# PLI-HazardTrack — virtual host Nginx (HTTP redirect + HTTPS)
 # Hostname: pli-hazardtrack.56-125-163-194.sslip.io
 
 upstream pli_hazardtrack_app {
@@ -12,79 +12,26 @@ server {
 
     server_name pli-hazardtrack.56-125-163-194.sslip.io;
 
-    client_max_body_size 4m;
-    proxy_connect_timeout  10s;
-    proxy_send_timeout     120s;
-    proxy_read_timeout     120s;
-    send_timeout           120s;
-
-    access_log /var/log/nginx/pli-hazardtrack.access.log;
-    error_log  /var/log/nginx/pli-hazardtrack.error.log warn;
-
-    location = /api/health {
-        proxy_pass http://pli_hazardtrack_app;
-        proxy_http_version 1.1;
-        proxy_set_header Host              $host;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Connection "";
-        access_log off;
-    }
-
-    # SSE — progresso MERGE (nao bufferizar; timeout longo)
-    location = /api/progress/stream {
-        gzip off;
-        proxy_pass http://pli_hazardtrack_app;
-        proxy_http_version 1.1;
-        proxy_set_header Host              $host;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Connection        "";
-        proxy_set_header Accept-Encoding   "";
-        proxy_buffering off;
-        proxy_request_buffering off;
-        proxy_cache off;
-        proxy_read_timeout 3600s;
-        proxy_send_timeout 3600s;
-        send_timeout 3600s;
-    }
-
-    # HLS cameras DER — segmentos ao vivo (nao bufferizar)
-    location ^~ /api/der/hls/ {
-        gzip off;
-        proxy_pass http://pli_hazardtrack_app;
-        proxy_http_version 1.1;
-        proxy_set_header Host              $host;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Connection        "";
-        proxy_buffering off;
-        proxy_request_buffering off;
-        proxy_cache off;
-        proxy_read_timeout 120s;
-        proxy_send_timeout 120s;
-    }
-
-    location ~* ^/static/.+\.(?:css|js|svg|png|jpg|jpeg|ico|woff2?)$ {
-        proxy_pass http://pli_hazardtrack_app;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header Connection "";
-        expires 1h;
-        add_header Cache-Control "public, max-age=3600";
-        access_log off;
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
     }
 
     location / {
-        proxy_pass http://pli_hazardtrack_app;
-        proxy_http_version 1.1;
-        proxy_set_header Host              $host;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Connection "";
+        return 301 https://$host$request_uri;
     }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name pli-hazardtrack.56-125-163-194.sslip.io;
+
+    ssl_certificate     /etc/letsencrypt/live/pli-hazardtrack.56-125-163-194.sslip.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pli-hazardtrack.56-125-163-194.sslip.io/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    include /etc/nginx/snippets/pli-hazardtrack-locations.conf;
 }

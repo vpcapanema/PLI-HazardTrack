@@ -7,6 +7,7 @@ COMPOSE_FILE="docker-compose.vm.yml"
 NGINX_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack"
 NGINX_DST="/etc/nginx/sites-available/pli-hazardtrack"
 PUBLIC_HOST="pli-hazardtrack.56-125-163-194.sslip.io"
+PUBLIC_URL="https://$PUBLIC_HOST"
 EXPECTED_REPO_FRAGMENT="vpcapanema/PLI-HazardTrack"
 RUNTIME_RE='^(Dockerfile|docker-compose\.vm\.yml|requirements|app\.py|core/|static/|templates/|data/ua_)'
 
@@ -47,8 +48,18 @@ fi
 
 [[ -f "$COMPOSE_FILE" ]] || die "docker-compose.vm.yml nao encontrado"
 
-step "Verificando proxy Nginx"
-if [[ -f "$NGINX_SRC" ]]; then
+step "Verificando proxy Nginx + HTTPS"
+NGINX_SNIPPET_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack-locations.conf"
+HTTPS_SCRIPT="$APP_DIR/.deploy/ensure_https_vm.sh"
+[[ -f "$NGINX_SRC" ]] || die "config nginx nao encontrada em $NGINX_SRC"
+[[ -f "$NGINX_SNIPPET_SRC" ]] \
+    || die "snippet nginx nao encontrado em $NGINX_SNIPPET_SRC"
+
+if [[ -f "$HTTPS_SCRIPT" ]]; then
+    sed -i 's/\r$//' "$HTTPS_SCRIPT" 2>/dev/null || true
+    bash "$HTTPS_SCRIPT"
+else
+    warn "ensure_https_vm.sh ausente — copia nginx HTTP legado"
     if ! sudo cmp -s "$NGINX_SRC" "$NGINX_DST" 2>/dev/null; then
         sudo cp "$NGINX_DST" "${NGINX_DST}.bak.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
         sudo cp "$NGINX_SRC" "$NGINX_DST"
@@ -58,8 +69,6 @@ if [[ -f "$NGINX_SRC" ]]; then
     else
         ok "Nginx ja estava atualizado"
     fi
-else
-    warn "config nginx nao encontrada em $NGINX_SRC"
 fi
 
 NEED_BUILD=0
@@ -128,14 +137,22 @@ PUB_OK=0
 PUB_CODE="000"
 for i in $(seq 1 24); do
     PUB_CODE=$(curl -s -o /dev/null -w '%{http_code}' \
+        "https://$PUBLIC_HOST/api/health" 2>/dev/null || echo "000")
+    if [[ "$PUB_CODE" == "200" ]]; then
+        PUB_OK=1
+        ok "HTTPS publico OK (HTTP $PUB_CODE, tentativa $i)"
+        break
+    fi
+    PUB_CODE=$(curl -s -o /dev/null -w '%{http_code}' \
         -H "Host: $PUBLIC_HOST" \
         http://127.0.0.1/api/health 2>/dev/null || echo "000")
     if [[ "$PUB_CODE" == "200" ]]; then
         PUB_OK=1
-        ok "proxy publico OK (HTTP $PUB_CODE, tentativa $i)"
+        warn "app OK em HTTP — HTTPS ainda indisponivel (HTTP $PUB_CODE)"
+        PUBLIC_URL="http://$PUBLIC_HOST"
         break
     fi
-    printf "  · aguardando proxy... (%ds, HTTP %s)\n" "$((i * 5))" \
+    printf "  · aguardando proxy... (%ds, HTTPS/HTTP %s)\n" "$((i * 5))" \
         "$PUB_CODE"
     sleep 5
 done
@@ -148,5 +165,5 @@ printf "\n\033[1;32m════════════════════
 printf "\033[1;32m  DEPLOY NA VM CONCLUIDO\033[0m\n"
 printf "\033[1;32m════════════════════════════════════════\033[0m\n"
 echo "  commit:  $NEW_SHA"
-echo "  url:     http://$PUBLIC_HOST"
+echo "  url:     $PUBLIC_URL"
 echo ""

@@ -46,6 +46,7 @@ services:
       ADMIN_PASS: "${ADMIN_PASS:-}"
       ADMIN_SECRET: "${ADMIN_SECRET:-}"
       DEPLOY_ENV: "vm-aws-sa-east-1"
+      FORCE_HTTPS_COOKIES: "1"
       SAMAEG_MERGE_CACHE_DIR: "/app/data/_cache/merge"
     command: >
       sh -c "exec gunicorn app:app

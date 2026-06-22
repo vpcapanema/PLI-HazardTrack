@@ -63,7 +63,7 @@ echo   Host: %VM%
 echo   A VM executa git fetch + reset --hard origin/!BRANCH! e reinicia o container.
 echo.
 
-set "REMOTE=cd /opt/pli-hazardtrack && bash .deploy/update_vm.sh"
+set "REMOTE=cd /opt/pli-hazardtrack && sed -i 's/\r$//' .deploy/update_vm.sh && bash .deploy/update_vm.sh"
 "%PLINK%" -ssh %VM% -i "%PPK%" -batch "%REMOTE%"
 if errorlevel 1 goto :fail
 

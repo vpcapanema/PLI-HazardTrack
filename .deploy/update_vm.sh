@@ -47,10 +47,6 @@ fi
 
 [[ -f "$COMPOSE_FILE" ]] || die "docker-compose.vm.yml nao encontrado"
 
-if [[ -f "$APP_DIR/.deploy/update_vm.sh" ]]; then
-    sed -i 's/\r$//' "$APP_DIR/.deploy/update_vm.sh" 2>/dev/null || true
-fi
-
 step "Verificando proxy Nginx"
 if [[ -f "$NGINX_SRC" ]]; then
     if ! sudo cmp -s "$NGINX_SRC" "$NGINX_DST" 2>/dev/null; then
@@ -100,7 +96,8 @@ for i in $(seq 1 24); do
     printf "  · aguardando... (%ds)\n" "$((i * 5))"
     sleep 5
 done
-[[ "$HEALTH_OK" -eq 1 ]] || die "app nao respondeu em /api/health"
+[[ "${HEALTH_OK//[$'\r\n']/}" == "1" ]] \
+    || die "app nao respondeu em /api/health"
 
 step "Volume MERGE cache (disco persistente Docker)"
 MERGE_VOL="pli_hazardtrack_merge_cache"
@@ -126,14 +123,24 @@ else
     warn "nao foi possivel ler stats do cache (container ainda subindo?)"
 fi
 
-step "Testando URL publica"
-PUB_CODE=$(curl -s -o /dev/null -w '%{http_code}' \
-    -H "Host: $PUBLIC_HOST" http://127.0.0.1/api/health || echo "000")
-if [[ "$PUB_CODE" == "200" ]]; then
-    ok "proxy publico OK (HTTP $PUB_CODE)"
-else
-    warn "proxy retornou HTTP $PUB_CODE (verifique nginx)"
-fi
+step "Testando URL publica (ate 120 s)"
+PUB_OK=0
+PUB_CODE="000"
+for i in $(seq 1 24); do
+    PUB_CODE=$(curl -s -o /dev/null -w '%{http_code}' \
+        -H "Host: $PUBLIC_HOST" \
+        http://127.0.0.1/api/health 2>/dev/null || echo "000")
+    if [[ "$PUB_CODE" == "200" ]]; then
+        PUB_OK=1
+        ok "proxy publico OK (HTTP $PUB_CODE, tentativa $i)"
+        break
+    fi
+    printf "  · aguardando proxy... (%ds, HTTP %s)\n" "$((i * 5))" \
+        "$PUB_CODE"
+    sleep 5
+done
+[[ "$PUB_OK" -eq 1 ]] \
+    || warn "proxy retornou HTTP $PUB_CODE (app interna pode estar OK)"
 
 docker image prune -f >/dev/null 2>&1 || true
 

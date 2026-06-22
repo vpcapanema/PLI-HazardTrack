@@ -100,7 +100,7 @@ for i in $(seq 1 24); do
     printf "  · aguardando... (%ds)\n" "$((i * 5))"
     sleep 5
 done
-[[ "$NEED_BUILD" -eq 1 ]] || die "app nao respondeu em /api/health"
+[[ "$HEALTH_OK" -eq 1 ]] || die "app nao respondeu em /api/health"
 
 step "Volume MERGE cache (disco persistente Docker)"
 MERGE_VOL="pli_hazardtrack_merge_cache"

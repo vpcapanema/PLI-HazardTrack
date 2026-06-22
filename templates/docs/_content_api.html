@@ -67,6 +67,82 @@
             seção <b>Diretrizes de acesso</b>).
           </p>
 
+          <h3>Simbologia das camadas de risco</h3>
+          <p>
+            Cores, níveis e espessuras usados no mapa web PLI-HazardTrack.
+            Integradores devem aplicar a mesma convenção ao estilizar o GeoJSON
+            retornado pela API (símbolo = cor de traço sobre
+            <code>LineString</code> de UA ou trecho).
+          </p>
+          <p class="modal-note">
+            <b>Campos na API:</b> UAs → inteiro <code>rd</code> (0–4) e rótulo
+            <code>nivel</code> (PPDC); fogo → enum <code>rf_classe</code>
+            (<code>minimo</code> … <code>critico</code>, ou
+            <code>SEM_DADO</code>). Valor contínuo de fogo:
+            <code>rf_valor</code> (0–1).
+          </p>
+
+          <div
+            class="docs-map-preview"
+            aria-label="Pré-visualização das legendas do mapa operacional"
+          >
+            <div class="docs-map-preview-bg" aria-hidden="true"></div>
+            <p class="docs-map-preview-hint">Mapa · canto inferior</p>
+            <div class="docs-map-preview-legend">
+              <div
+                id="api-legend-preview"
+                class="legend-stack docs-legend-stack"
+              ></div>
+            </div>
+          </div>
+          <p class="docs-symb-caption">
+            Quadros de legenda gerados automaticamente — mesma aparência do mapa
+            quando as três camadas de risco estão ligadas.
+          </p>
+
+          <h4 class="docs-symb-layer">
+            Risco geológico
+            <span class="docs-symb-alias">Risco a movimentos de massa</span>
+          </h4>
+          <p class="docs-symb-lead">
+            Paleta <b>verde → amarelo → laranja → vermelho → roxo</b> (canal
+            RD<sub>geo</sub>, metodologia REGEA-NIPPON / PPDC).
+          </p>
+          <table
+            class="modal-table docs-symb-table"
+            id="api-symb-geo"
+            aria-label="Simbologia risco geológico"
+          ></table>
+
+          <h4 class="docs-symb-layer">
+            Risco hidrológico
+            <span class="docs-symb-alias">Risco a inundação</span>
+          </h4>
+          <p class="docs-symb-lead">
+            Paleta <b>verde → azuis → magenta</b> (canal RD<sub>hid</sub>;
+            nível 4 em magenta para destaque máximo).
+          </p>
+          <table
+            class="modal-table docs-symb-table"
+            id="api-symb-hidro"
+            aria-label="Simbologia risco hidrológico"
+          ></table>
+
+          <h4 class="docs-symb-layer">
+            Risco de fogo
+            <span class="docs-symb-alias">Risco a incêndios · RF INPE</span>
+          </h4>
+          <p class="docs-symb-lead">
+            Classes discretas do produto INPE (escala contínua
+            <code>rf_valor</code> 0–1 agregada por trecho). Independente dos
+            cinco níveis PPDC do RD.
+          </p>
+          <table
+            class="modal-table docs-symb-table"
+            id="api-symb-fire"
+            aria-label="Simbologia risco de fogo"
+          ></table>
+
           <h3>Diretrizes de acesso</h3>
           <table class="modal-table">
             <tr>

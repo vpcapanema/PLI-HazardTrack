@@ -5,8 +5,8 @@
 {% block page_lead %}
 <p class="docs-lead">
   Feeds abertos para integração externa: risco geológico, risco hidrológico
-  (UAs) e risco de fogo INPE (trechos). Inclui mapeamento entre aliases da
-  interface e parâmetros da API.
+  (UAs) e risco de fogo INPE (trechos). Inclui nomenclatura, simbologia
+  (cores por nível) e mapeamento entre aliases da interface e parâmetros da API.
 </p>
 {% endblock %}
 {% block content %}
@@ -18,5 +18,6 @@
   window.PLI_PUBLIC_API_KEY = {{ public_api_key|tojson }};
   window.PLI_PUBLIC_API_AUTH = {{ public_api_auth_required|tojson }};
 </script>
+<script src="{{ url_for('static', filename='risk-layers.js') }}"></script>
 <script src="{{ url_for('static', filename='docs-api.js') }}"></script>
 {% endblock %}

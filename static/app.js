@@ -629,6 +629,9 @@ function init() {
   setInterval(() => {
     if (!state.historyMode && !state.timeline.active) refresh();
   }, REFRESH_MS);
+  // Fecha SSE/polling ao sair do mapa (ex.: /docs/*) — evita
+  // ERR_INCOMPLETE_CHUNKED_ENCODING no console.
+  window.addEventListener("pagehide", stopDownloadPoll);
 }
 
 // ============================================================================

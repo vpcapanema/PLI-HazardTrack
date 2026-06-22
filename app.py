@@ -455,31 +455,38 @@ def api_progress_stream():
         last_version = -1
         last_sent_at = 0.0
         # Rate limit: no maximo 1 evento real a cada 100ms (10/s).
-        # Throttle em _progress_bytes ja amortece, mas mantemos
-        # uma protecao extra na borda do stream.
         min_gap_s = 0.1
-        while True:
-            try:
-                new_version = wait_for_progress_change(
-                    last_version, timeout_s=15.0,
-                )
-            except GeneratorExit:
-                return
-            if new_version == last_version:
-                yield ": keepalive\n\n"
-                continue
-            gap = _time.monotonic() - last_sent_at
-            if gap < min_gap_s:
-                _time.sleep(min_gap_s - gap)
-            last_version = get_progress_version()
-            payload = get_download_progress()
-            payload["_version"] = last_version
-            try:
-                data = _json.dumps(payload, default=str)
-            except (TypeError, ValueError):
-                continue
-            yield f"data: {data}\n\n"
-            last_sent_at = _time.monotonic()
+        try:
+            while True:
+                try:
+                    new_version = wait_for_progress_change(
+                        last_version, timeout_s=15.0,
+                    )
+                except GeneratorExit:
+                    return
+                if new_version == last_version:
+                    try:
+                        yield ": keepalive\n\n"
+                    except (GeneratorExit, BrokenPipeError, ConnectionResetError):
+                        return
+                    continue
+                gap = _time.monotonic() - last_sent_at
+                if gap < min_gap_s:
+                    _time.sleep(min_gap_s - gap)
+                last_version = get_progress_version()
+                payload = get_download_progress()
+                payload["_version"] = last_version
+                try:
+                    data = _json.dumps(payload, default=str)
+                except (TypeError, ValueError):
+                    continue
+                try:
+                    yield f"data: {data}\n\n"
+                except (GeneratorExit, BrokenPipeError, ConnectionResetError):
+                    return
+                last_sent_at = _time.monotonic()
+        except GeneratorExit:
+            return
 
     resp = Response(generate(), mimetype="text/event-stream")
     resp.headers["Cache-Control"] = "no-cache, no-transform"

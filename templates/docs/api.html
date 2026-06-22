@@ -1,0 +1,22 @@
+{% extends "docs/_base.html" %}
+{% block toc_label %}Referência API{% endblock %}
+{% block doc_title %}API pública{% endblock %}
+{% block page_heading %}API pública — três camadas de risco{% endblock %}
+{% block page_lead %}
+<p class="docs-lead">
+  Feeds abertos para integração externa: risco geológico, risco hidrológico
+  (UAs) e risco de fogo INPE (trechos). Inclui mapeamento entre aliases da
+  interface e parâmetros da API.
+</p>
+{% endblock %}
+{% block content %}
+{% include "docs/_content_api.html" %}
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  window.APP_BASE = {{ request.script_root|tojson }};
+  window.PLI_PUBLIC_API_KEY = {{ public_api_key|tojson }};
+  window.PLI_PUBLIC_API_AUTH = {{ public_api_auth_required|tojson }};
+</script>
+<script src="{{ url_for('static', filename='docs-api.js') }}"></script>
+{% endblock %}

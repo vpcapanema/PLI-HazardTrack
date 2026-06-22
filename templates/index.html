@@ -83,22 +83,23 @@
                   <div class="sb-welcome" id="sb-welcome">
               <p class="sb-welcome-text">
                 A página reúne, sobre a mesma malha rodoviária estadual, três
-                produtos de risco que operam em paralelo:
+                produtos de risco que operam em paralelo — riscos associados a
+                eventos climáticos extremos:
                 <strong>movimentos de massa</strong>, <strong>inundação</strong>
-                e <strong>risco de fogo</strong>.
+                e <strong>incêndios</strong>.
               </p>
-              <div class="risk-module-grid" aria-label="Riscos monitorados">
+              <div class="risk-module-grid" aria-label="Riscos associados a eventos climáticos extremos">
                 <article class="risk-module-card risk-module-card--mass">
-                  <strong>Movimentos de massa</strong>
-                  <span>RD geológico por Unidade de Análise, com chuva MERGE/INPE e previsão WRF.</span>
+                  <strong>Risco a movimentos de massa</strong>
+                  <span>Risco geológico (RD) por Unidade de Análise, com chuva MERGE/INPE e previsão WRF.</span>
                 </article>
                 <article class="risk-module-card risk-module-card--flood">
-                  <strong>Inundação</strong>
-                  <span>RD hidrológico por Unidade de Análise, com janela de chuva acumulada.</span>
+                  <strong>Risco a inundação</strong>
+                  <span>Risco hidrológico (RD) por Unidade de Análise, com janela de chuva acumulada.</span>
                 </article>
                 <article class="risk-module-card risk-module-card--fire">
-                  <strong>Risco de fogo</strong>
-                  <span>Produto INPE agregado por trecho rodoviário DER-SP, com cobertura estadual.</span>
+                  <strong>Risco a incêndios</strong>
+                  <span>Risco de fogo (RF INPE) agregado por trecho rodoviário DER-SP, com cobertura estadual.</span>
                 </article>
               </div>
               <p class="sb-welcome-text sb-panel-guide">
@@ -112,7 +113,7 @@
                 </button>
                 e
                 <button type="button" class="sb-jump" data-sb-jump="fire-panel">
-                  Risco de fogo
+                  Risco a incêndios
                 </button>. As ferramentas de busca atuam sobre todas as camadas.
               </p>
                   </div>
@@ -135,9 +136,9 @@
             Monitoramento geodinâmico
           </h2>
           <p class="sb-section-lead">
-            Movimentos de massa e inundação por Unidade de Análise (UA), nas
-            rodovias SP-055 e SP-098. Risco Dinâmico (RD) com chuva MERGE/INPE e
-            previsão WRF (CPTEC/INPE).
+            Risco geológico e risco hidrológico por Unidade de Análise (UA), nas
+            rodovias SP-055 e SP-098 — movimentos de massa e inundação. Risco
+            Dinâmico (RD) com chuva MERGE/INPE e previsão WRF (CPTEC/INPE).
           </p>
 
           <div class="sb-section-stack">
@@ -352,9 +353,9 @@
                 UA correspondente ao trecho — <strong>sem previsão WRF</strong>.
               </p>
               <p class="sb-panel-intro">
-                As UAs de <strong>instabilidade de encosta</strong> (risco
-                geológico) e de <strong>inundação</strong> (risco hidrológico)
-                constituem conjuntos distintos no mapa. A animação exibe
+                As UAs de <strong>risco geológico</strong> (movimentos de massa)
+                e de <strong>risco hidrológico</strong> (inundação) constituem
+                conjuntos distintos no mapa. A animação exibe
                 <strong>um canal por vez</strong>, com a paleta e os níveis de RD
                 daquele processo.
               </p>
@@ -372,10 +373,10 @@
                     aria-label="Tipo de risco para a animação"
                   >
                     <option value="encosta">
-                      Movimentos de massa (RD geológico)
+                      Risco a movimentos de massa (RD geológico)
                     </option>
                     <option value="inundacao">
-                      Inundação (RD hidrológico)
+                      Risco a inundação (RD hidrológico)
                     </option>
                   </select>
                 </div>
@@ -392,7 +393,7 @@
           </div>
         </section>
 
-        <section class="sb-section" aria-label="Monitoramento de risco de fogo">
+        <section class="sb-section" aria-label="Risco a incêndios">
           <h2 class="sb-section-title">
             <span class="sb-ico" aria-hidden="true">
               <img
@@ -401,10 +402,10 @@
                 alt=""
               />
             </span>
-            Risco de fogo (INPE)
+            Risco a incêndios
           </h2>
           <p class="sb-section-lead">
-            Produto INPE Risco de Fogo (RF) agregado por trecho rodoviário, com
+            Risco de fogo (RF INPE) agregado por trecho rodoviário, com
             cobertura de todo o Estado de São Paulo.
           </p>
 
@@ -443,7 +444,7 @@
               </p>
               <p class="sb-panel-intro sb-panel-guide">
                 <strong>Como usar?</strong> Ligue a camada
-                <strong>Risco de fogo (INPE)</strong> no painel Camadas e troque
+                <strong>Risco a incêndios</strong> no painel Camadas e troque
                 o horizonte (observado, D+1 a D+3) para ver a previsão no mapa.
                 Clique em um trecho para o detalhe.
               </p>
@@ -737,8 +738,8 @@
               <p class="sb-panel-intro">
                 Referências técnicas e operacionais: interpretação do mapa,
                 glossário, <b>API pública das três camadas de risco</b>
-                (Movimentos de massa, Inundação e Risco de fogo INPE) e painel
-                administrativo.
+                (risco geológico, risco hidrológico e risco de fogo INPE) e
+                painel administrativo.
               </p>
               <p class="sb-panel-intro sb-panel-guide">
                 <strong>Como usar?</strong> O minicard <b>API</b> traz diretrizes
@@ -747,8 +748,7 @@
               </p>
               <div class="doc-mini-grid" aria-label="Documentação e referências">
                 <a
-                  href="#"
-                  id="link-help"
+                  href="{{ url_for('docs_ajuda') }}"
                   class="doc-mini-card"
                   title="Como ler o mapa?"
                 >
@@ -757,8 +757,7 @@
                   <small>Como interpretar mapa, alertas e camadas.</small>
                 </a>
                 <a
-                  href="#"
-                  id="link-glossary"
+                  href="{{ url_for('docs_glossario') }}"
                   class="doc-mini-card"
                   title="Glossário técnico"
                 >
@@ -767,8 +766,7 @@
                   <small>Termos técnicos, níveis, RA, ICC e RD.</small>
                 </a>
                 <a
-                  href="#"
-                  id="link-api"
+                  href="{{ url_for('docs_api') }}"
                   class="doc-mini-card"
                   title="API pública — três camadas de risco"
                 >
@@ -893,11 +891,14 @@
             </button>
           </div>
           <div class="map-layer-control-body">
-            <div class="ck-group-title">Riscos Monitorados</div>
+            <div class="ck-group-title">Riscos associados a eventos climáticos extremos</div>
             <div id="hazard-toggles"></div>
-            <label class="ck">
+            <label class="ck ck--risk-layer" title="Risco de fogo · INPE (RF)">
               <input type="checkbox" id="layer-fireRisk" checked />
-              Risco de fogo (INPE)
+              <span class="ck-risk-text">
+                <span class="ck-risk-alias">Risco a incêndios</span>
+                <span class="ck-risk-tech">Risco de fogo</span>
+              </span>
             </label>
             <label class="ck ck--sub">
               Horizonte
@@ -1034,929 +1035,6 @@
       </div>
     </main>
 
-    <!-- ============================================================
-         MODAL: Como ler os dados
-         ============================================================ -->
-    <div class="modal-backdrop" id="modal-help" hidden>
-      <div class="modal" role="dialog" aria-labelledby="modal-help-title">
-        <header class="modal-header">
-          <h2 id="modal-help-title">Como ler os dados no mapa</h2>
-          <button class="modal-close" data-close-modal aria-label="Fechar">
-            ×
-          </button>
-        </header>
-        <div class="modal-body">
-          <p class="modal-intro">
-            O mapa reúne produtos de risco com metodologias distintas:
-            <b>movimentos de massa</b> e <b>inundação</b> por Unidade de Análise
-            (UA), além de <b>risco de fogo</b> por trecho rodoviário DER-SP. A
-            malha rodoviária estadual serve como referência comum e, no módulo de
-            fogo, também como unidade de agregação do produto INPE.
-          </p>
-
-          <h3>1. Camadas de risco no mapa</h3>
-          <p>Use o painel <b>Camadas</b> sobre o mapa:</p>
-          <table class="modal-table">
-            <tr>
-              <th>Movimentos de massa</th>
-              <td>
-                Canal geológico (RD<sub>geo</sub>). Escorregamento, queda de
-                bloco e processos associados. Paleta verde → roxo.
-              </td>
-            </tr>
-            <tr>
-              <th>Inundação</th>
-              <td>
-                Canal hidrológico (RD<sub>hid</sub>). Alagamento e enxurrada
-                (janela 24 h). Paleta verde → azul → magenta.
-              </td>
-            </tr>
-            <tr>
-              <th>Risco de fogo</th>
-              <td>
-                Produto INPE Risco de Fogo (RF), agregado por trecho rodoviário
-                estadual. Escala 0 a 1, com classes de mínimo a crítico.
-              </td>
-            </tr>
-            <tr>
-              <th>Malha Rodoviária Estadual</th>
-              <td>
-                Trechos oficiais do sistema rodoviário estadual, usados como
-                apoio cartográfico e como base do módulo de fogo.
-              </td>
-            </tr>
-          </table>
-          <p class="modal-note">
-            O cartão PPDC resume o núcleo geodinâmico. O risco de fogo aparece
-            como camada independente, com legenda e popup próprios.
-          </p>
-
-          <h3>2. Chuva e gatilho meteorológico</h3>
-          <p>
-            Fonte operacional: <b>MERGE/CPTEC/INPE</b> (grade horária,
-            calibrada para o Brasil). O sistema mantém uma janela móvel das
-            <b>últimas 96 h</b> em memória, alimentada por uma thread de
-            ingest contínua (ciclo de 120 s). Em modo ao vivo, o RD incorpora
-            também previsão <b>WRF horária do CPTEC</b> nas janelas do
-            Produto 6:
-          </p>
-          <table class="modal-table">
-            <tr>
-              <th>Canal encosta</th>
-              <td>
-                Acumulado <b>96 h</b> = 72 h observadas (MERGE) + 24 h
-                previstas (WRF), quando disponível.
-              </td>
-            </tr>
-            <tr>
-              <th>Canal inundação</th>
-              <td>
-                Janela <b>24 h</b> = 18 h observadas + 6 h previstas (WRF),
-                quando disponível.
-              </td>
-            </tr>
-            <tr>
-              <th>Intensidade</th>
-              <td>Chuva na última hora medida (mm/h) — observada.</td>
-            </tr>
-            <tr>
-              <th>CPC</th>
-              <td>
-                Coeficiente de Precipitação Crítica: intensidade ÷ envoltória
-                mínima da região. <b>CPC ≥ 1</b> indica limiar deflagrador
-                atingido (gatilho geo).
-              </td>
-            </tr>
-          </table>
-          <p class="modal-note">
-            Se o WRF falhar, o sistema usa <b>somente chuva observada</b>
-            (popup e API marcam a fonte como <code>OBS_ONLY</code>) — o RD
-            pode ficar conservador. Na <b>consulta histórica</b>, só entra
-            MERGE observado da época (sem WRF).
-          </p>
-
-          <h3>3. Vulnerabilidade estática (RA)</h3>
-          <p>
-            <b>Risco Analisado (RA)</b> por UA, mapeado a partir do relatório
-            REGEA-NIPPON (tabelas oficiais nos trechos SP-055/SP-098 e
-            digitalização das figuras 3.3.3). Não varia com a chuva do dia.
-          </p>
-          <table class="modal-table">
-            <tr>
-              <th>RA0–RA4</th>
-              <td>
-                Escala 0 (nulo) a 4 (muito alto), conforme evidências de
-                instabilidade ou suscetibilidade hidrológica do trecho.
-              </td>
-            </tr>
-            <tr>
-              <th>SEM DADO</th>
-              <td>
-                UA fora da cobertura das tabelas oficiais — exibida em cinza,
-                sem RD calculado.
-              </td>
-            </tr>
-          </table>
-
-          <h3>4. Risco Dinâmico (RD) — o que gera o alerta</h3>
-          <p>
-            Combina RA com o índice de chuva (ICC).
-            <b>Dispara o nível operacional PPDC</b> (Monitoramento → Alerta
-            Máximo).
-          </p>
-          <table class="modal-table">
-            <tr>
-              <th>ICC geológico</th>
-              <td>Faixa 0–4 derivada do CPC (encosta).</td>
-            </tr>
-            <tr>
-              <th>ICC hidrológico</th>
-              <td>Faixa 0–4 derivada do acumulado 24 h (inundação).</td>
-            </tr>
-          </table>
-          <p class="formula">
-            RD<sub>geo</sub> = RA<sub>geo</sub> × ICC<sub>geo</sub>
-            &nbsp;·&nbsp; RD<sub>hid</sub> = RA<sub>hid</sub> × ICC<sub
-              >hid</sub
-            >
-            &nbsp;·&nbsp; RD = max(RD<sub>geo</sub>, RD<sub>hid</sub>)
-          </p>
-          <p class="modal-note">
-            Pela matriz oficial DER-SP, ICC = 0 implica RD = 0, mesmo com RA
-            alto: sem gatilho pluviométrico, a UA permanece em
-            <b>Monitoramento</b> em dias secos.
-          </p>
-
-          <h3>5. Modos de operação da interface</h3>
-          <table class="modal-table">
-            <tr>
-              <th>Ao vivo</th>
-              <td>
-                Ciclo de risco no servidor a cada ~10 min; ingest de chuva a
-                cada 120 s; painel atualiza por <b>Server-Sent Events</b>
-                (push) com fallback para polling. Indicador de atualização
-                no topo da página.
-              </td>
-            </tr>
-            <tr>
-              <th>Consulta histórica</th>
-              <td>
-                Seção <b>Busca histórica</b> na sidebar → escolha data
-                passada ou evento sugerido. Reconstitui RD com MERGE da época
-                (até 4 anos passados). Banner no topo do mapa indica a data
-                consultada.
-              </td>
-            </tr>
-            <tr>
-              <th>Linha do tempo</th>
-              <td>
-                Anima as últimas 96 h de RD observado (MERGE). Escolha
-                encosta ou inundação na seção Evolução 96 h — um canal por
-                vez, pois as UAs são distintas em cada tipo.
-              </td>
-            </tr>
-            <tr>
-              <th>Primeira carga</th>
-              <td>
-                Barra de progresso no Monitoramento exibe a ingestão da
-                série horária MERGE (até 96 GRIBs) antes de liberar o mapa.
-                Em reinícios, o sistema <b>hidrata do cache em disco</b>
-                (decodificação previamente armazenada) e baixa apenas as
-                horas frescas ou ausentes — partida tipicamente em segundos.
-              </td>
-            </tr>
-          </table>
-
-          <h3>6. Risco de fogo (INPE)</h3>
-          <p>
-            Módulo <b>independente</b> do PPDC: não usa RA, ICC nem o cálculo de
-            RD. Emprega o produto <b>Risco de Fogo (RF)</b> do INPE, agregado por
-            trecho rodoviário estadual, com cobertura de todo o Estado de SP.
-          </p>
-          <table class="modal-table">
-            <tr>
-              <th>Escala RF</th>
-              <td>
-                Valor de 0 a 1; quanto mais próximo de 1, maior a condição
-                ambiental favorável à ignição e à propagação do fogo na
-                vegetação.
-              </td>
-            </tr>
-            <tr>
-              <th>Classes</th>
-              <td>Mínimo, Baixo, Médio, Alto e Crítico (mais SEM DADO).</td>
-            </tr>
-            <tr>
-              <th>Horizontes</th>
-              <td>
-                Observado e previsão D+1, D+2 e D+3 — selecionáveis no painel
-                <b>Camadas</b>.
-              </td>
-            </tr>
-            <tr>
-              <th>Resolução</th>
-              <td>
-                Fonte com resolução efetiva de ~10 km, agregada ao trecho DER.
-                Metodologia INPE-RF-v11.
-              </td>
-            </tr>
-          </table>
-          <p class="modal-note">
-            O panorama estadual (distribuição por classe) fica na seção
-            <b>Risco de fogo (INPE)</b> da barra lateral.
-          </p>
-
-          <h3>Exemplo prático</h3>
-          <div class="modal-example">
-            <p>
-              <b>Popup (encosta):</b> Acum. 96h = 11 mm · Intensidade = 0 mm/h ·
-              CPC = 0 · RA2 · ICC<sub>geo</sub> = 0 · Nível 0 — Monitoramento
-            </p>
-            <p>
-              <b>Leitura:</b> UA com vulnerabilidade média (RA2), mas sem chuva
-              relevante na janela geo. RD<sub>geo</sub> = 0 — rotina. Se a
-              camada <b>Inundação</b> estiver ligada e houver acumulado 24 h
-              elevado, o mesmo polígono pode apresentar RD<sub>hid</sub> maior.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================================================
-         MODAL: Glossário técnico
-         ============================================================ -->
-    <div class="modal-backdrop" id="modal-glossary" hidden>
-      <div class="modal" role="dialog" aria-labelledby="modal-glossary-title">
-        <header class="modal-header">
-          <h2 id="modal-glossary-title">Glossário técnico</h2>
-          <button class="modal-close" data-close-modal aria-label="Fechar">
-            ×
-          </button>
-        </header>
-        <div class="modal-body">
-          <dl class="modal-glossary">
-            <dt>PLI-HazardTrack</dt>
-            <dd>
-              Interface web de monitoramento geodinâmico adaptada do Produto 06
-              (Contrato REGEA-NIPPON 20.595-3), integrada ao
-              <a href="https://pli.semil.sp.gov.br/" target="_blank" rel="noopener">PLI-SP 2050</a>
-              — Plano de Logística e Investimentos do Estado de São Paulo. Reúne
-              mapa, painéis analíticos e alertas PPDC para rodovias do litoral
-              norte e da Baixada Santista.
-            </dd>
-
-            <dt>SAMAEG</dt>
-            <dd>
-              Denominação operacional do Sistema Automatizado de Análise,
-              Monitoramento e Alerta de Risco de Eventos Geodinâmicos (Produto
-              06, Contrato REGEA-NIPPON 20.595-3, 2021). Constitui a base
-              metodológica desta adaptação.
-            </dd>
-
-            <dt>Área monitorada</dt>
-            <dd>
-              Trechos rodoviários do litoral norte e da Baixada Santista
-              abrangidos pelo plano de contingência REGEA-NIPPON (SP-055,
-              SP-098 e correlatas). Não se confunde com a malha DER estadual
-              integral.
-            </dd>
-
-            <dt>Unidade de Análise (UA)</dt>
-            <dd>
-              Segmento linear elementar de monitoramento ao longo da malha
-              coberta. O sistema opera <b>809 UAs</b>, cada uma com RA e RD
-              nos canais geo e hidro. Atributo nativo de identificação:
-              <code>ua_id</code>; chave estável usada por API, popups e
-              spatial join externo.
-            </dd>
-
-            <dt>UTB — Unidade Territorial Básica</dt>
-            <dd>
-              Tipo de UA com cobertura <b>regular contígua</b> ao longo de
-              cada (Região × Município), nas escalas <b>1:25.000</b> e
-              <b>1:10.000</b>. Cobre trechos <b>não-críticos</b> da rodovia.
-              Soma 398 das 809 UAs.
-            </dd>
-
-            <dt>Setor de Risco (SR)</dt>
-            <dd>
-              Tipo de UA na escala <b>1:1.000</b>, posicionada
-              <b>dentro de trechos críticos</b> oficiais (Tabelas 3.3.3.1 do
-              Produto 7). Soma 411 das 809 UAs. Resolução muito mais fina que
-              UTB; tipicamente onde os alertas operacionais se concentram.
-            </dd>
-
-            <dt>Trecho crítico</dt>
-            <dd>
-              Trecho rodoviário com histórico oficial de instabilidade
-              geológica ou suscetibilidade hidrológica, listado nas Tabelas
-              3.3.3.1-1 (geo) e 3.3.3.1-2 (hid) do Produto 7. Cada UA carrega
-              os flags <code>trecho_critico_geo</code> e
-              <code>trecho_critico_hid</code>.
-            </dd>
-
-            <dt>Risco Dinâmico (RD)</dt>
-            <dd>
-              Risco que varia com a chuva. Cinco níveis operacionais PPDC:
-              <b>0 Monitoramento</b>, <b>1 Observação</b>, <b>2 Atenção</b>,
-              <b>3 Alerta</b>, <b>4 Alerta Máximo</b>.
-            </dd>
-
-            <dt>RD<sub>geo</sub> / RD<sub>hid</sub></dt>
-            <dd>
-              Risco Dinâmico calculado separadamente para encosta (geológico) e
-              inundação (hidrológico). O RD exibido no mapa segue o canal da
-              camada ativa; com ambas ligadas, usa-se o pior caso.
-            </dd>
-
-            <dt>Risco Analisado (RA)</dt>
-            <dd>
-              Vulnerabilidade estática da UA (0–4), derivada das tabelas e
-              figuras oficiais REGEA-NIPPON. Trechos sem mapeamento oficial
-              aparecem como <b>SEM DADO</b>.
-            </dd>
-
-            <dt>ICC — Índice de Correlação com Chuvas</dt>
-            <dd>
-              Faixa 0–4 que classifica o gatilho pluviométrico atual:
-              <b>ICC<sub>geo</sub></b> a partir do CPC (encosta);
-              <b>ICC<sub>hid</sub></b> a partir do acumulado 24 h (inundação).
-            </dd>
-
-            <dt>CPC — Coeficiente de Precipitação Crítica</dt>
-            <dd>
-              Razão entre a intensidade horária observada e a envoltória crítica
-              mínima da região. CPC ≥ 1 indica limiar deflagrador atingido.
-            </dd>
-
-            <dt>Sensibilidade K</dt>
-            <dd>
-              Constante regional da envoltória crítica
-              <code>I = K · Ac96h⁻⁰·⁹</code>. Ex.: <b>K = 200</b> (São
-              Sebastião) é mais sensível que <b>K = 1000</b> (Mogi-Bertioga).
-            </dd>
-
-            <dt>MERGE / CPTEC / INPE</dt>
-            <dd>
-              Produto de chuva horária do INPE (satélite + pluviômetros
-              brasileiros, grade ~0,1°). Ingerido continuamente em paralelo
-              (downloads HTTP + decodificação eccodes em
-              <i>process pool</i>); cache de dois níveis (RAM com janela
-              móvel de 96 h + disco persistente) para cálculo do RD em
-              segundos a cada ciclo.
-            </dd>
-
-            <dt>Cache de chuva em disco</dt>
-            <dd>
-              Diretório <code>data/_cache/merge/</code>: GRIB brutos e
-              <i>samples</i> já interpolados nos centroides das UAs. Permite
-              reinício do sistema sem rebaixar 96 horas; só horas frescas
-              (idade &lt; 4 h, sujeitas a republicação) e ausentes vão à
-              rede. Idade ≥ 24 h é tratada como dado final.
-            </dd>
-
-            <dt>WRF (CPTEC/INPE)</dt>
-            <dd>
-              Previsão horária de precipitação usada na composição das janelas
-              geo ( +24 h) e hidro (+6 h) em modo ao vivo. Ausente na consulta
-              histórica e quando indisponível no ciclo.
-            </dd>
-
-            <dt>Consulta histórica</dt>
-            <dd>
-              Reconstitui o RD para uma data/hora passada usando MERGE observado
-              da época (até 96 GRIBs). Sem previsão WRF. Use a seção
-              <b>Busca histórica</b> na sidebar; eventos sugeridos (ex.:
-              fev/2023 — São Sebastião) validam o backtest documentado.
-            </dd>
-
-            <dt>Linha do tempo</dt>
-            <dd>
-              Animação das últimas 96 horas de RD observado (MERGE), frame a
-              frame. Na seção Evolução 96 h, selecione encosta (geológico) ou
-              inundação (hidrológico) e confirme com OK — a animação usa só as
-              UAs daquele canal.
-            </dd>
-
-            <dt>Malha Rodoviária Estadual</dt>
-            <dd>
-              Shapefile oficial do Sistema Rodoviário Estadual
-              (DER-SP, 2024; dadosabertos.sp.gov.br). Camada cartográfica neutra; não
-              substitui a simbologia de alerta das UAs.
-            </dd>
-
-            <dt>Região meteorológica (1–4)</dt>
-            <dd>
-              Quatro regiões climático-geológico-geomorfológicas da área
-              monitorada, cada uma com limiares CPC e tabelas ICC hidrológicas
-              próprias.
-            </dd>
-
-            <dt>Movimento de massa</dt>
-            <dd>
-              Processos de instabilização de encostas: escorregamento, queda de
-              bloco, corrida de lama, solapamento — canal geológico.
-            </dd>
-
-            <dt>Eventos hidrológicos</dt>
-            <dd>
-              Inundação, enxurrada e alagamento por chuva intensa — canal
-              hidrológico (janela 24 h).
-            </dd>
-
-            <dt>UBA — Unidade Básica de Atendimento</dt>
-            <dd>
-              Unidade Básica de Atendimento do DER-SP, referência operacional
-              de campo. Atributos nativos: <code>uba_codigo</code> e
-              <code>uba_nome</code>.
-            </dd>
-
-            <dt>Subtrecho DER</dt>
-            <dd>
-              Recorte cadastral oficial DER-SP do
-              <i>Sistema Rodoviário Estadual</i>. As 4 regiões monitoradas
-              são compostas pela união de 23 subtrechos contíguos. Atributo
-              nativo: <code>subtrecho_der</code>.
-            </dd>
-
-            <dt>Residência de Conservação</dt>
-            <dd>
-              Unidade do DER-SP responsável pela conservação rotineira de um
-              conjunto de rodovias. Atributo nativo:
-              <code>residencia_dr</code> (também aparece como “Residência DR”
-              na interface).
-            </dd>
-
-            <dt>Regional DER</dt>
-            <dd>
-              Divisão administrativa DER-SP que agrupa residências e UBAs.
-              Atributo nativo: <code>regional</code>.
-            </dd>
-
-            <dt>GeoPackage <code>pli-hazardtrack.gpkg</code></dt>
-            <dd>
-              Fonte canônica das camadas estruturais do sistema (EPSG:4326):
-              4 regiões, 7 municípios, 23 subtrechos auxiliares e 809 UAs com
-              RA/ICC/flags de trecho crítico. Os GeoJSONs consumidos pelo
-              backend (<code>data/ua_zones/</code>,
-              <code>data/regioes/</code>) são exportações diretas do GPKG —
-              alterações na metodologia oficial entram pelos scripts de
-              geração em <code>ferramentas/geracao-geopackage/</code>.
-            </dd>
-
-            <dt>PPDC</dt>
-            <dd>
-              Plano de Prevenção e Defesa Civil. Define a nomenclatura dos cinco
-              níveis operacionais e as ações recomendadas no painel Ações
-              recomendadas.
-            </dd>
-
-            <dt>Risco de Fogo (RF)</dt>
-            <dd>
-              Produto do INPE que estima, em escala de <b>0 a 1</b>, a condição
-              ambiental favorável à ignição e propagação do fogo na vegetação.
-              No sistema, é agregado por trecho rodoviário estadual e exibido em
-              camada independente do RD/PPDC.
-            </dd>
-
-            <dt>Classes de RF</dt>
-            <dd>
-              Faixas de leitura do RF: <b>Mínimo</b>, <b>Baixo</b>,
-              <b>Médio</b>, <b>Alto</b> e <b>Crítico</b>. Trechos sem produto
-              disponível aparecem como <b>SEM DADO</b>.
-            </dd>
-
-            <dt>Horizonte de fogo</dt>
-            <dd>
-              Recorte temporal do RF: <b>observado</b> (mais recente) e previsão
-              <b>D+1</b>, <b>D+2</b> e <b>D+3</b>. Selecionável no painel
-              Camadas; o popup indica o horizonte exibido.
-            </dd>
-
-            <dt>INPE — Programa Queimadas</dt>
-            <dd>
-              Fonte oficial do Risco de Fogo. Resolução efetiva de ~10 km,
-              reamostrada e agregada à malha rodoviária estadual (metodologia
-              INPE-RF-v11).
-            </dd>
-          </dl>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================================================
-         MODAL: API pública (integração externa)
-         ============================================================ -->
-    <div class="modal-backdrop" id="modal-api" hidden>
-      <div
-        class="modal modal-wide"
-        role="dialog"
-        aria-labelledby="modal-api-title"
-      >
-        <header class="modal-header">
-          <h2 id="modal-api-title">API pública — três camadas de risco</h2>
-          <button class="modal-close" data-close-modal aria-label="Fechar">
-            ×
-          </button>
-        </header>
-        <div class="modal-body">
-          <p class="modal-intro">
-            Feeds abertos para integração externa das <b>três camadas de risco</b>
-            exibidas no painel <b>Camadas</b>:
-            <b>Movimentos de massa</b>, <b>Inundação</b> (809 UAs, RD + chuva
-            MERGE/INPE) e <b>Risco de fogo (INPE)</b> (~4.583 trechos
-            rodoviários estaduais). Respostas em GeoJSON
-            (<code>application/geo+json</code>) ou JSON.
-          </p>
-          <p class="modal-note">
-            Contrato UA (<code>metadata.api_version = 2</code>): features com
-            <b>atributos nativos</b> de <code>uas_area_estudo</code> + campos
-            calculados (RD, chuva, ICC). Spatial join direto em
-            <code>ua_id</code>. Fogo: produto INPE independente do PPDC (sem
-            RA/ICC/RD).
-          </p>
-
-          <h3>Diretrizes de acesso</h3>
-          <table class="modal-table">
-            <tr>
-              <th>Catálogo</th>
-              <td>
-                <code id="api-url-catalog">GET /api/public</code> — JSON com
-                URLs canônicas de todas as camadas, versão
-                (<code>api_version</code>) e bloco <code>auth</code>.
-              </td>
-            </tr>
-            <tr>
-              <th>Método</th>
-              <td>Somente <code>GET</code> (preflight <code>OPTIONS</code> liberado).</td>
-            </tr>
-            <tr>
-              <th>Autenticação</th>
-              <td>
-                {% if public_api_auth_required %}
-                <b>Obrigatória</b> neste ambiente. Envie
-                <code>X-API-Key: &lt;chave&gt;</code> ou
-                <code>Authorization: Bearer &lt;chave&gt;</code> em toda
-                requisição <code>/api/public/*</code>. Sem chave válida: HTTP
-                <code>401</code> com <code>{"error":"unauthorized"}</code>.
-                {% else %}
-                Opcional: se o servidor define <code>PUBLIC_API_KEY</code>, exige
-                <code>X-API-Key</code> ou <code>Authorization: Bearer</code>.
-                Sem a variável, o feed fica aberto (desenvolvimento).
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th>CORS</th>
-              <td>
-                <code>Access-Control-Allow-Origin: *</code> — integradores web
-                podem consumir de outro domínio.
-              </td>
-            </tr>
-            <tr>
-              <th>Cabeçalhos de resposta</th>
-              <td>
-                <code>X-Public-Api-Version</code>,
-                <code>X-Public-Api-Auth</code> (<code>open</code> ou
-                <code>required</code>),
-                <code>Cache-Control: public, max-age=…</code>.
-              </td>
-            </tr>
-            <tr>
-              <th>Atualização sugerida</th>
-              <td>
-                UAs: polling ~30 s (<code>metadata.refresh_hint_s</code>).
-                Fogo: polling ~5 min (cache 300 s).
-              </td>
-            </tr>
-          </table>
-
-          <h3>Três camadas — endpoints e parâmetros</h3>
-          <p class="modal-note">
-            Nomes como no painel <b>Camadas</b>. UAs usam
-            <code>hazard=geo|hidro</code> (não <code>encosta</code> /
-            <code>inundacao</code>).
-          </p>
-          <table class="modal-table">
-            <tr>
-              <th>Camada (UI)</th>
-              <th>Endpoint</th>
-              <th>Parâmetros</th>
-              <th>Formato</th>
-            </tr>
-            <tr>
-              <th>Movimentos de massa</th>
-              <td><code id="api-url-geo">—</code></td>
-              <td>
-                <code>hazard=geo</code> (obrigatório para esta camada)<br />
-                <code>min_rd=0..4</code> (opcional)<br />
-                <code>at=ISO8601</code> (opcional, histórico)
-              </td>
-              <td>GeoJSON · cache 30 s</td>
-            </tr>
-            <tr>
-              <th>Inundação</th>
-              <td><code id="api-url-hidro">—</code></td>
-              <td>
-                <code>hazard=hidro</code> (sinônimos:
-                <code>hidrologico</code>, <code>inundacao</code>)<br />
-                <code>min_rd</code>, <code>at</code> (opcionais)
-              </td>
-              <td>GeoJSON · cache 30 s</td>
-            </tr>
-            <tr>
-              <th>Risco de fogo (INPE)</th>
-              <td><code id="api-url-fire-layers">—</code></td>
-              <td>
-                <code>horizonte=observado</code> (padrão),
-                <code>D+1</code>, <code>D+2</code>, <code>D+3</code><br />
-                <code>classe=minimo|baixo|medio|alto|critico</code> (opcional)
-              </td>
-              <td>GeoJSON · cache 300 s</td>
-            </tr>
-          </table>
-
-          <h3>Parâmetros — Movimentos de massa e Inundação</h3>
-          <p class="modal-note">
-            Base: <code id="api-url-all">—</code> (ambos os canais,
-            <code>hazard=all</code>). Alertas: <code id="api-url-alerts">—</code>
-            (<code>min_rd=3</code>).
-          </p>
-          <table class="modal-table">
-            <tr>
-              <th><code>hazard</code></th>
-              <td>
-                <code>geo</code> = Movimentos de massa (809 UAs canal geológico);
-                <code>hidro</code> = Inundação (809 UAs canal hidrológico);
-                <code>all</code> = ambos (1618 features, padrão).
-              </td>
-            </tr>
-            <tr>
-              <th><code>min_rd</code></th>
-              <td>
-                Inteiro 0–4 — retorna UAs com <code>rd ≥</code> valor
-                (ex.: <code>3</code> = Alerta e Alerta Máximo).
-              </td>
-            </tr>
-            <tr>
-              <th><code>at</code></th>
-              <td>
-                Data/hora ISO 8601 UTC — snapshot histórico (ex.:
-                <code>2023-02-19T12:00:00Z</code>). Reconstrói RD com MERGE
-                observado; <b>WRF não entra</b> no histórico.
-              </td>
-            </tr>
-          </table>
-
-          <h3>Parâmetros — Risco de fogo (INPE)</h3>
-          <table class="modal-table">
-            <tr>
-              <th>GeoJSON (mapa)</th>
-              <td>
-                <code id="api-url-fire-layers-ref">—</code> — trechos coloridos
-                por <code>rf_classe</code>.
-              </td>
-            </tr>
-            <tr>
-              <th>Resumo estadual</th>
-              <td>
-                <code id="api-url-fire-snapshot">—</code> — contagens por classe,
-                <code>total_trechos</code>, <code>data_referencia</code>,
-                <code>horizontes_disponiveis</code> (~0,5 KB).
-              </td>
-            </tr>
-            <tr>
-              <th>Detalhe de trecho</th>
-              <td>
-                <code>/api/public/fire-risk/trecho/&lt;trecho_id&gt;</code> —
-                mesmos parâmetros <code>horizonte</code> da camada.
-              </td>
-            </tr>
-            <tr>
-              <th><code>horizonte</code></th>
-              <td>
-                Igual ao seletor do painel Camadas:
-                <code>observado</code> (padrão), <code>D+1</code>,
-                <code>D+2</code>, <code>D+3</code>.
-              </td>
-            </tr>
-            <tr>
-              <th><code>classe</code></th>
-              <td>
-                Filtra features da camada GeoJSON:
-                <code>minimo</code>, <code>baixo</code>, <code>medio</code>,
-                <code>alto</code>, <code>critico</code>.
-              </td>
-            </tr>
-            <tr>
-              <th>Propriedades (feature)</th>
-              <td>
-                <code>trecho_id</code>, <code>rf_classe</code>,
-                <code>rf_valor</code>, <code>rf_p90</code>,
-                <code>rf_media</code>, <code>horizonte</code>,
-                <code>data_referencia</code>, <code>data_alvo</code>,
-                <code>metodologia</code> + DER (<code>rodovia</code>,
-                <code>uba_codigo</code>, <code>residencia_dr</code>,
-                <code>municipio</code>…).
-              </td>
-            </tr>
-          </table>
-
-          <h3>URL base — Movimentos de massa (exemplo ao vivo)</h3>
-          <p class="modal-code-line">
-            <code id="api-url-live" class="modal-code-block">—</code>
-          </p>
-          <p class="modal-note">
-            Compatível com Leaflet, Mapbox, QGIS, ArcGIS Online e qualquer
-            cliente HTTP/GeoJSON.
-          </p>
-
-          <h3>Outras camadas do mapa (sem API pública dedicada)</h3>
-          <table class="modal-table">
-            <tr>
-              <th>Malha Rodoviária Estadual</th>
-              <td><code>/api/road-network</code> (GeoJSON interno)</td>
-            </tr>
-            <tr>
-              <th>Regiões monitoradas</th>
-              <td>
-                <code>/api/snapshot</code> → chave <code>regions</code> (uso
-                operacional, não faz parte do contrato <code>/api/public/*</code>).
-              </td>
-            </tr>
-          </table>
-
-          <h3>Propriedades de cada feature (UA)</h3>
-          <p class="modal-note">
-            Os nomes em <code>monospace</code> abaixo são os nomes
-            <b>literais</b> entregues no GeoJSON. Convenção:
-            <code>RAGEO</code>/<code>RAHID</code> em CAIXA ALTA porque vêm
-            assim da camada-mãe oficial.
-          </p>
-          <table class="modal-table">
-            <tr>
-              <th>Identificação</th>
-              <td>
-                <code>ua_id</code>, <code>sigla_rodovia</code>,
-                <code>km_inicial</code>, <code>km_final</code>,
-                <code>extensao_km</code>, <code>escala</code>
-                (<code>25K</code>/<code>10K</code>/<code>1K</code>),
-                <code>tipo</code> (<code>UTB</code>/<code>SR</code>),
-                <code>ordem_no_grupo</code>, <code>subtrecho_der</code>
-              </td>
-            </tr>
-            <tr>
-              <th>Região e malha</th>
-              <td>
-                <code>regiao_id</code> (1..4), <code>regiao_nome</code>,
-                <code>municipio</code>, <code>centroide_lon</code>,
-                <code>centroide_lat</code>, <code>buffer_lateral_m</code>
-              </td>
-            </tr>
-            <tr>
-              <th>DER (operacional)</th>
-              <td>
-                <code>regional</code>, <code>residencia_dr</code>,
-                <code>uba_codigo</code>, <code>uba_nome</code>,
-                <code>jurisdicao</code>, <code>conservado_por</code>
-              </td>
-            </tr>
-            <tr>
-              <th>Risco analisado (RA, estático)</th>
-              <td>
-                Canal geo: <code>RAGEO</code>,
-                <code>icc_geo_thresholds</code> (lista de 4 floats em CPC),
-                <code>trecho_critico_geo</code> (bool).<br />
-                Canal hidro: <code>RAHID</code>,
-                <code>icc_hid_thresholds</code> (4 floats em mm/24 h),
-                <code>trecho_critico_hid</code>.
-              </td>
-            </tr>
-            <tr>
-              <th>Risco dinâmico (RD)</th>
-              <td>
-                <code>rd</code>, <code>rd_geo</code>, <code>rd_hid</code>,
-                <code>nivel</code>, <code>hazard</code>
-                (<code>geo</code> = Movimentos de massa;
-                <code>hidro</code> = Inundação),
-                <code>hazard_label</code>
-              </td>
-            </tr>
-            <tr>
-              <th>Chuva e gatilho</th>
-              <td>
-                <code>ac96h_mm</code>, <code>ac24h_mm</code>,
-                <code>ac72h_obs_mm</code>, <code>ac18h_obs_mm</code>,
-                <code>intensity_mmh</code>, <code>cpc</code>,
-                <code>icc_geo</code>, <code>icc_hid</code>,
-                <code>prev24h_mm</code>, <code>prev6h_mm</code>,
-                <code>fonte_chuva</code> (<code>WRF</code> ou
-                <code>OBS_ONLY</code>)
-              </td>
-            </tr>
-            <tr>
-              <th>Estado do monitoramento</th>
-              <td>
-                <code>monitoramento</code>: <code>ativo</code> ou
-                <code>indisponivel</code> (UA sem chuva observada no ciclo).
-                Detalhe operacional em <code>rd_unidades</code>.
-              </td>
-            </tr>
-          </table>
-
-          <h3>Metadados (<code>metadata</code>)</h3>
-          <p>
-            O objeto raiz da <code>FeatureCollection</code> inclui:
-            <code>api_version</code>, <code>timestamp_utc</code>,
-            <code>data_status</code> (<code>ok</code>, <code>degraded</code>,
-            <code>loading</code>, <code>no_data</code>),
-            <code>data_source</code>, <code>historical</code>,
-            <code>hazard</code> (<code>geo</code> = Movimentos de massa,
-            <code>hidro</code> = Inundação, ou <code>all</code>), <code>feature_count</code>,
-            <code>total_geo</code>, <code>total_hidro</code>,
-            <code>max_rd</code>, <code>by_level_geo</code>,
-            <code>by_level_hidro</code>, <code>refresh_hint_s</code> e
-            <code>endpoints</code> (URLs canônicas).
-          </p>
-
-          <h3>Exemplos de consumo (JavaScript)</h3>
-          <pre class="modal-pre" id="api-fetch-example">—</pre>
-          <p class="modal-note">
-            {% if public_api_auth_required %}
-            Chave obrigatória neste ambiente — substitua
-            <code>&lt;sua-chave&gt;</code> pelo valor fornecido pela operação.
-            {% else %}
-            Sem <code>PUBLIC_API_KEY</code> no servidor, omita o bloco
-            <code>headers</code>.
-            {% endif %}
-          </p>
-
-          <h3>Endpoints internos (uso da UI / diagnóstico)</h3>
-          <p class="modal-note">
-            Não fazem parte do contrato <code>/api/public/*</code>, mas são
-            documentados para clientes próximos da operação.
-          </p>
-          <table class="modal-table">
-            <tr>
-              <th><code>GET /api/snapshot</code></th>
-              <td>
-                Snapshot operacional completo (pontos + regiões + summary).
-                Aceita <code>?at=ISO8601</code> para consulta histórica.
-              </td>
-            </tr>
-            <tr>
-              <th><code>GET /api/timeline</code></th>
-              <td>
-                Série de 96 quadros horários de RD. Aceita
-                <code>?hazard=geo|hidro</code>.
-              </td>
-            </tr>
-            <tr>
-              <th><code>GET /api/forecast</code></th>
-              <td>
-                Previsão WRF por UA (próximas 24 h, fonte CPTEC).
-              </td>
-            </tr>
-            <tr>
-              <th><code>GET /api/actions</code></th>
-              <td>
-                Ações operacionais PPDC por nível, do snapshot atual ou
-                <code>?at=</code>.
-              </td>
-            </tr>
-            <tr>
-              <th><code>GET /api/progress</code></th>
-              <td>
-                Snapshot único do progresso do ingest MERGE.
-              </td>
-            </tr>
-            <tr>
-              <th><code>GET /api/progress/stream</code></th>
-              <td>
-                <b>Server-Sent Events</b> — empurra atualizações em push em
-                vez de polling. Keepalive a cada 15 s; auto-reconnect via
-                <code>EventSource</code>.
-              </td>
-            </tr>
-            <tr>
-              <th><code>GET /api/health</code></th>
-              <td>
-                Liveness/readiness, idade do ingest, contagem de horas
-                válidas.
-              </td>
-            </tr>
-            <tr>
-              <th><code>POST /api/refresh</code></th>
-              <td>
-                Força ciclo manual (requer permissão; usado pelo
-                <code>/admin</code>).
-              </td>
-            </tr>
-          </table>
-        </div>
-      </div>
-    </div>
 
     <script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/leaflet/leaflet-heat.js') }}"></script>
@@ -1967,6 +1045,7 @@
       window.PLI_PUBLIC_API_KEY = {{ public_api_key|tojson }};
       window.PLI_PUBLIC_API_AUTH = {{ public_api_auth_required|tojson }};
     </script>
+    <script src="{{ url_for('static', filename='risk-layers.js') }}"></script>
     <script src="{{ url_for('static', filename='query-filter.js') }}"></script>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
   </body>

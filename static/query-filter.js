@@ -1,9 +1,13 @@
 /**
  * Busca avançada — filtro por atributo nas camadas monitoradas.
- * Camadas: malha rodoviária, movimentos de massa, inundação e risco de fogo.
  */
 (function () {
   "use strict";
+
+  const RL = window.PLI_RISK_LAYERS;
+  const GEO = RL.LAYERS.geo;
+  const HIDRO = RL.LAYERS.hidro;
+  const FIRE = RL.LAYERS.fire;
 
   const OPS = [
     { id: "eq", label: "=", types: ["text", "enum", "number", "bool"] },
@@ -37,7 +41,7 @@
       ],
     },
     encosta: {
-      label: "Movimentos de massa",
+      label: `${GEO.alias} (${GEO.label})`,
       kind: "ua",
       hazard: "encosta",
       fields: [
@@ -61,7 +65,7 @@
       ],
     },
     inundacao: {
-      label: "Inundação",
+      label: `${HIDRO.alias} (${HIDRO.label})`,
       kind: "ua",
       hazard: "inundacao",
       fields: [
@@ -83,7 +87,7 @@
       ],
     },
     fireRisk: {
-      label: "Risco de fogo (INPE)",
+      label: `${FIRE.alias} (${FIRE.label} · ${FIRE.source})`,
       kind: "fireRisk",
       fields: [
         { key: "rf_classe", label: "Classe RF", type: "enum", enumKey: "rf_classes" },

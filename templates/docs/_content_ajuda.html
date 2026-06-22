@@ -1,0 +1,300 @@
+          <p class="modal-intro">
+            O mapa reúne três produtos de <b>riscos associados a eventos
+            climáticos extremos</b>: <b>risco geológico</b> (movimentos de
+            massa) e <b>risco hidrológico</b> (inundação) por Unidade de
+            Análise (UA), além de <b>risco de fogo</b> (incêndios) por trecho
+            rodoviário DER-SP. Cada camada usa um <b>alias amistoso</b> na
+            interface (“Risco a…”) e um <b>rótulo técnico oficial</b> — veja a
+            seção <b>1. Nomenclatura</b> abaixo.
+          </p>
+
+          <h3>1. Nomenclatura oficial e aliases</h3>
+          <p>
+            As três camadas de risco formam o grupo
+            <b>Riscos associados a eventos climáticos extremos</b>, no painel
+            <b>Camadas</b> sobre o mapa. Para padronizar a leitura, o sistema
+            distingue dois níveis de nome:
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>Alias amistoso</th>
+              <td>
+                Rótulo principal na interface (checkboxes, legenda, popups,
+                busca avançada). Formato fixo: <b>Risco a …</b> — indica o
+                <i>processo</i> afetado (movimentos de massa, inundação,
+                incêndios), sem exigir conhecimento de siglas.
+              </td>
+            </tr>
+            <tr>
+              <th>Nome técnico oficial</th>
+              <td>
+                Termo metodológico (linha secundária na UI, tooltips,
+                documentação, relatórios). Alinhado aos índices
+                <b>RD</b> (geo/hidro) e <b>RF</b> (fogo INPE).
+              </td>
+            </tr>
+          </table>
+          <p>Use o alias para operação diária; use o nome oficial quando citar
+            metodologia DER-SP, PPDC ou integração via API.</p>
+          <table class="modal-table">
+            <tr>
+              <th>Alias (interface)</th>
+              <th>Nome oficial</th>
+              <th>Índice</th>
+              <th>Unidade espacial</th>
+            </tr>
+            <tr>
+              <td><b>Risco a movimentos de massa</b></td>
+              <td>Risco geológico</td>
+              <td>RD<sub>geo</sub></td>
+              <td>809 UAs (canal geo)</td>
+            </tr>
+            <tr>
+              <td><b>Risco a inundação</b></td>
+              <td>Risco hidrológico</td>
+              <td>RD<sub>hid</sub></td>
+              <td>809 UAs (canal hidro)</td>
+            </tr>
+            <tr>
+              <td><b>Risco a incêndios</b></td>
+              <td>Risco de fogo</td>
+              <td>RF (INPE)</td>
+              <td>~4.583 trechos rodoviários estaduais</td>
+            </tr>
+          </table>
+          <p class="modal-note">
+            <b>Onde cada nome aparece:</b> painel Camadas e legenda → alias em
+            destaque, técnico abaixo; popups de UA e de trecho (fogo) → mesmo
+            padrão; medidores PPDC na sidebar → alias no título, técnico no
+            <code>title</code> ao passar o mouse; busca avançada →
+            <code>alias (técnico)</code> no seletor de camada.
+          </p>
+
+          <h3>2. Camadas de risco no mapa</h3>
+          <p>Use o painel <b>Camadas</b> sobre o mapa:</p>
+          <table class="modal-table">
+            <tr>
+              <th>Risco a movimentos de massa<br /><small>Risco geológico</small></th>
+              <td>
+                Canal geológico (RD<sub>geo</sub>). Escorregamento, queda de
+                bloco e processos associados. Paleta verde → roxo.
+              </td>
+            </tr>
+            <tr>
+              <th>Risco a inundação<br /><small>Risco hidrológico</small></th>
+              <td>
+                Canal hidrológico (RD<sub>hid</sub>). Alagamento e enxurrada
+                (janela 24 h). Paleta verde → azul → magenta.
+              </td>
+            </tr>
+            <tr>
+              <th>Risco a incêndios<br /><small>Risco de fogo</small></th>
+              <td>
+                Produto INPE Risco de Fogo (RF), agregado por trecho rodoviário
+                estadual. Escala 0 a 1, com classes de mínimo a crítico.
+              </td>
+            </tr>
+            <tr>
+              <th>Malha Rodoviária Estadual</th>
+              <td>
+                Trechos oficiais do sistema rodoviário estadual, usados como
+                apoio cartográfico e como base do módulo de fogo.
+              </td>
+            </tr>
+          </table>
+          <p class="modal-note">
+            O cartão PPDC resume o núcleo geodinâmico. O risco de fogo aparece
+            como camada independente, com legenda e popup próprios.
+          </p>
+
+          <h3>3. Chuva e gatilho meteorológico</h3>
+          <p>
+            Fonte operacional: <b>MERGE/CPTEC/INPE</b> (grade horária,
+            calibrada para o Brasil). O sistema mantém uma janela móvel das
+            <b>últimas 96 h</b> em memória, alimentada por uma thread de
+            ingest contínua (ciclo de 120 s). Em modo ao vivo, o RD incorpora
+            também previsão <b>WRF horária do CPTEC</b> nas janelas do
+            Produto 6:
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>Canal geo (risco geológico)</th>
+              <td>
+                Acumulado <b>96 h</b> = 72 h observadas (MERGE) + 24 h
+                previstas (WRF), quando disponível.
+              </td>
+            </tr>
+            <tr>
+              <th>Canal hidro (risco hidrológico)</th>
+              <td>
+                Janela <b>24 h</b> = 18 h observadas + 6 h previstas (WRF),
+                quando disponível.
+              </td>
+            </tr>
+            <tr>
+              <th>Intensidade</th>
+              <td>Chuva na última hora medida (mm/h) — observada.</td>
+            </tr>
+            <tr>
+              <th>CPC</th>
+              <td>
+                Coeficiente de Precipitação Crítica: intensidade ÷ envoltória
+                mínima da região. <b>CPC ≥ 1</b> indica limiar deflagrador
+                atingido (gatilho geo).
+              </td>
+            </tr>
+          </table>
+          <p class="modal-note">
+            Se o WRF falhar, o sistema usa <b>somente chuva observada</b>
+            (popup e API marcam a fonte como <code>OBS_ONLY</code>) — o RD
+            pode ficar conservador. Na <b>consulta histórica</b>, só entra
+            MERGE observado da época (sem WRF).
+          </p>
+
+          <h3>4. Vulnerabilidade estática (RA)</h3>
+          <p>
+            <b>Risco Analisado (RA)</b> por UA, mapeado a partir do relatório
+            REGEA-NIPPON (tabelas oficiais nos trechos SP-055/SP-098 e
+            digitalização das figuras 3.3.3). Não varia com a chuva do dia.
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>RA0–RA4</th>
+              <td>
+                Escala 0 (nulo) a 4 (muito alto), conforme evidências de
+                instabilidade ou suscetibilidade hidrológica do trecho.
+              </td>
+            </tr>
+            <tr>
+              <th>SEM DADO</th>
+              <td>
+                UA fora da cobertura das tabelas oficiais — exibida em cinza,
+                sem RD calculado.
+              </td>
+            </tr>
+          </table>
+
+          <h3>5. Risco Dinâmico (RD) — o que gera o alerta</h3>
+          <p>
+            Combina RA com o índice de chuva (ICC).
+            <b>Dispara o nível operacional PPDC</b> (Monitoramento → Alerta
+            Máximo).
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>ICC geológico</th>
+              <td>Faixa 0–4 derivada do CPC (encosta).</td>
+            </tr>
+            <tr>
+              <th>ICC hidrológico</th>
+              <td>Faixa 0–4 derivada do acumulado 24 h (inundação).</td>
+            </tr>
+          </table>
+          <p class="formula">
+            RD<sub>geo</sub> = RA<sub>geo</sub> × ICC<sub>geo</sub>
+            &nbsp;·&nbsp; RD<sub>hid</sub> = RA<sub>hid</sub> × ICC<sub
+              >hid</sub
+            >
+            &nbsp;·&nbsp; RD = max(RD<sub>geo</sub>, RD<sub>hid</sub>)
+          </p>
+          <p class="modal-note">
+            Pela matriz oficial DER-SP, ICC = 0 implica RD = 0, mesmo com RA
+            alto: sem gatilho pluviométrico, a UA permanece em
+            <b>Monitoramento</b> em dias secos.
+          </p>
+
+          <h3>6. Modos de operação da interface</h3>
+          <table class="modal-table">
+            <tr>
+              <th>Ao vivo</th>
+              <td>
+                Ciclo de risco no servidor a cada ~10 min; ingest de chuva a
+                cada 120 s; painel atualiza por <b>Server-Sent Events</b>
+                (push) com fallback para polling. Indicador de atualização
+                no topo da página.
+              </td>
+            </tr>
+            <tr>
+              <th>Consulta histórica</th>
+              <td>
+                Seção <b>Busca histórica</b> na sidebar → escolha data
+                passada ou evento sugerido. Reconstitui RD com MERGE da época
+                (até 4 anos passados). Banner no topo do mapa indica a data
+                consultada.
+              </td>
+            </tr>
+            <tr>
+              <th>Linha do tempo</th>
+              <td>
+                Anima as últimas 96 h de RD observado (MERGE). Escolha
+                <b>risco geológico</b> ou <b>risco hidrológico</b> na seção
+                Evolução 96 h (aliases: movimentos de massa / inundação) — um
+                canal por vez, pois as UAs são distintas em cada tipo.
+              </td>
+            </tr>
+            <tr>
+              <th>Primeira carga</th>
+              <td>
+                Barra de progresso no Monitoramento exibe a ingestão da
+                série horária MERGE (até 96 GRIBs) antes de liberar o mapa.
+                Em reinícios, o sistema <b>hidrata do cache em disco</b>
+                (decodificação previamente armazenada) e baixa apenas as
+                horas frescas ou ausentes — partida tipicamente em segundos.
+              </td>
+            </tr>
+          </table>
+
+          <h3>7. Risco a incêndios (RF INPE)</h3>
+          <p>
+            Módulo <b>independente</b> do PPDC: não usa RA, ICC nem o cálculo de
+            RD. Emprega o produto <b>Risco de Fogo (RF)</b> do INPE — nome
+            técnico oficial: <b>risco de fogo</b>; alias na interface:
+            <b>Risco a incêndios</b>. Agregado por trecho rodoviário estadual,
+            com cobertura de todo o Estado de SP.
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>Escala RF</th>
+              <td>
+                Valor de 0 a 1; quanto mais próximo de 1, maior a condição
+                ambiental favorável à ignição e à propagação do fogo na
+                vegetação.
+              </td>
+            </tr>
+            <tr>
+              <th>Classes</th>
+              <td>Mínimo, Baixo, Médio, Alto e Crítico (mais SEM DADO).</td>
+            </tr>
+            <tr>
+              <th>Horizontes</th>
+              <td>
+                Observado e previsão D+1, D+2 e D+3 — selecionáveis no painel
+                <b>Camadas</b>.
+              </td>
+            </tr>
+            <tr>
+              <th>Resolução</th>
+              <td>
+                Fonte com resolução efetiva de ~10 km, agregada ao trecho DER.
+                Metodologia INPE-RF-v11.
+              </td>
+            </tr>
+          </table>
+          <p class="modal-note">
+            O panorama estadual (distribuição por classe) fica na seção
+            <b>Risco a incêndios</b> da barra lateral.
+          </p>
+
+          <h3>Exemplo prático</h3>
+          <div class="modal-example">
+            <p>
+              <b>Popup (risco geológico):</b> Acum. 96h = 11 mm · Intensidade = 0 mm/h ·
+              CPC = 0 · RA2 · ICC<sub>geo</sub> = 0 · Nível 0 — Monitoramento
+            </p>
+            <p>
+              <b>Leitura:</b> UA com vulnerabilidade média (RA2), mas sem chuva
+              relevante na janela geo. RD<sub>geo</sub> = 0 — rotina. Se a
+              camada <b>Risco a inundação</b> (risco hidrológico) estiver
+              ligada e houver acumulado 24 h elevado, o mesmo polígono pode
+              apresentar RD<sub>hid</sub> maior.
+            </p>

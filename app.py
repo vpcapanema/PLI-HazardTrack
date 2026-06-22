@@ -340,6 +340,33 @@ def index():
     )
 
 
+def _doc_page(active: str):
+    return render_template(
+        f"docs/{active}.html",
+        active=active,
+        public_api_key=os.environ.get("PUBLIC_API_KEY", "").strip(),
+        public_api_auth_required=public_api_key_configured(),
+    )
+
+
+@app.route("/docs/ajuda")
+def docs_ajuda():
+    """Guia publico de interpretacao do mapa."""
+    return _doc_page("ajuda")
+
+
+@app.route("/docs/glossario")
+def docs_glossario():
+    """Glossario tecnico publico."""
+    return _doc_page("glossario")
+
+
+@app.route("/docs/api")
+def docs_api():
+    """Documentacao da API publica."""
+    return _doc_page("api")
+
+
 @app.before_request
 def _guard_public_api():
     path = request.path or ""

@@ -33,7 +33,7 @@
   <div class="worst-dual">
     <section class="worst-channel" data-channel="encosta">
       <h4 class="worst-channel-title" data-bind="encosta-title">
-        {% if mode == 'forecast' %}Encosta (+24 h){% elif mode == 'region' %}Região do trecho{% else %}Encosta{% endif %}
+        {% if mode == 'forecast' %}Risco a movimentos de massa (+24 h){% elif mode == 'region' %}Região do trecho{% else %}Risco a movimentos de massa{% endif %}
       </h4>
       <span
         class="worst-level"
@@ -60,7 +60,7 @@
     {% if mode == 'indicators' or mode == 'forecast' %}
     <section class="worst-channel" data-channel="inundacao">
       <h4 class="worst-channel-title" data-bind="hidro-title">
-        {% if mode == 'forecast' %}Inundação (+6 h){% else %}Inundação{% endif %}
+        {% if mode == 'forecast' %}Risco a inundação (+6 h){% else %}Risco a inundação{% endif %}
       </h4>
       <span
         class="worst-level"

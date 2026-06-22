@@ -4353,12 +4353,39 @@ a.sb-jump:visited {
   color: var(--gray-400);
 }
 
+.map-layer-control .ck--risk-layer {
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.ck-risk-text {
+  display: grid;
+  gap: 0.08rem;
+  line-height: 1.25;
+}
+
+.ck-risk-alias {
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.ck-risk-tech {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--gray-500);
+  text-transform: none;
+}
+
 .map-layer-control .ck-group-title {
   color: var(--gray-800);
   border-top: 1px solid var(--gray-200);
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  hyphens: auto;
 }
 
 /* Estado recolhido: esconde titulo e corpo; so o botao permanece visivel */
@@ -4644,6 +4671,14 @@ a.sb-jump:visited {
   font-weight: 600;
   line-height: 1.18;
   color: #fff;
+}
+
+.ua-popup-risk-tech {
+  margin-top: 0.12rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .ua-popup-meta-row {

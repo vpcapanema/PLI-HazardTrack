@@ -1,0 +1,296 @@
+<dl class="modal-glossary">
+            <dt>PLI-HazardTrack</dt>
+            <dd>
+              Interface web de monitoramento geodinâmico adaptada do Produto 06
+              (Contrato REGEA-NIPPON 20.595-3), integrada ao
+              <a href="https://pli.semil.sp.gov.br/" target="_blank" rel="noopener">PLI-SP 2050</a>
+              — Plano de Logística e Investimentos do Estado de São Paulo. Reúne
+              mapa, painéis analíticos e alertas PPDC para rodovias do litoral
+              norte e da Baixada Santista.
+            </dd>
+
+            <dt>SAMAEG</dt>
+            <dd>
+              Denominação operacional do Sistema Automatizado de Análise,
+              Monitoramento e Alerta de Risco de Eventos Geodinâmicos (Produto
+              06, Contrato REGEA-NIPPON 20.595-3, 2021). Constitui a base
+              metodológica desta adaptação.
+            </dd>
+
+            <dt>Riscos associados a eventos climáticos extremos</dt>
+            <dd>
+              Nome do <b>grupo</b> das três camadas de risco no painel
+              <b>Camadas</b> do mapa: risco geológico, risco hidrológico e
+              risco de fogo. Alinhado ao escopo do PLI-HazardTrack (eventos
+              climáticos extremos sobre a malha rodoviária).
+            </dd>
+
+            <dt>Alias amistoso</dt>
+            <dd>
+              Rótulo operacional exibido em destaque na interface. Padrão fixo
+              <b>Risco a …</b> (movimentos de massa, inundação, incêndios).
+              Indica o processo afetado sem exigir siglas. Cada alias possui um
+              <b>nome técnico oficial</b> correspondente (ver entradas abaixo).
+              Fonte canônica: <code>static/risk-layers.js</code>.
+            </dd>
+
+            <dt>Risco geológico</dt>
+            <dd>
+              Nome técnico oficial da camada de <b>movimentos de massa</b>
+              (escorregamento, queda de bloco, corrida de lama). Índice:
+              RD<sub>geo</sub>. Alias na UI: <b>Risco a movimentos de massa</b>.
+              Unidade espacial: 809 UAs (canal <code>geo</code>). API:
+              <code>hazard=geo</code>.
+            </dd>
+
+            <dt>Risco hidrológico</dt>
+            <dd>
+              Nome técnico oficial da camada de <b>inundação, enxurrada e
+              alagamento</b> (janela 24 h). Índice: RD<sub>hid</sub>. Alias na
+              UI: <b>Risco a inundação</b>. Unidade espacial: 809 UAs (canal
+              <code>hidro</code>). API: <code>hazard=hidro</code>.
+            </dd>
+
+            <dt>Risco de fogo</dt>
+            <dd>
+              Nome técnico oficial da camada de <b>incêndios florestais</b>
+              (produto INPE). Índice: RF (escala 0–1). Alias na UI:
+              <b>Risco a incêndios</b>. Unidade espacial: trechos rodoviários
+              estaduais (~4.583). API:
+              <code>/api/public/fire-risk/*</code> — independente do PPDC
+              (sem RA/ICC/RD).
+            </dd>
+
+            <dt>Área monitorada</dt>
+            <dd>
+              Trechos rodoviários do litoral norte e da Baixada Santista
+              abrangidos pelo plano de contingência REGEA-NIPPON (SP-055,
+              SP-098 e correlatas). Não se confunde com a malha DER estadual
+              integral.
+            </dd>
+
+            <dt>Unidade de Análise (UA)</dt>
+            <dd>
+              Segmento linear elementar de monitoramento ao longo da malha
+              coberta. O sistema opera <b>809 UAs</b>, cada uma com RA e RD
+              nos canais geo e hidro. Atributo nativo de identificação:
+              <code>ua_id</code>; chave estável usada por API, popups e
+              spatial join externo.
+            </dd>
+
+            <dt>UTB — Unidade Territorial Básica</dt>
+            <dd>
+              Tipo de UA com cobertura <b>regular contígua</b> ao longo de
+              cada (Região × Município), nas escalas <b>1:25.000</b> e
+              <b>1:10.000</b>. Cobre trechos <b>não-críticos</b> da rodovia.
+              Soma 398 das 809 UAs.
+            </dd>
+
+            <dt>Setor de Risco (SR)</dt>
+            <dd>
+              Tipo de UA na escala <b>1:1.000</b>, posicionada
+              <b>dentro de trechos críticos</b> oficiais (Tabelas 3.3.3.1 do
+              Produto 7). Soma 411 das 809 UAs. Resolução muito mais fina que
+              UTB; tipicamente onde os alertas operacionais se concentram.
+            </dd>
+
+            <dt>Trecho crítico</dt>
+            <dd>
+              Trecho rodoviário com histórico oficial de instabilidade
+              geológica ou suscetibilidade hidrológica, listado nas Tabelas
+              3.3.3.1-1 (geo) e 3.3.3.1-2 (hid) do Produto 7. Cada UA carrega
+              os flags <code>trecho_critico_geo</code> e
+              <code>trecho_critico_hid</code>.
+            </dd>
+
+            <dt>Risco Dinâmico (RD)</dt>
+            <dd>
+              Risco que varia com a chuva. Cinco níveis operacionais PPDC:
+              <b>0 Monitoramento</b>, <b>1 Observação</b>, <b>2 Atenção</b>,
+              <b>3 Alerta</b>, <b>4 Alerta Máximo</b>.
+            </dd>
+
+            <dt>RD<sub>geo</sub> / RD<sub>hid</sub></dt>
+            <dd>
+              Risco Dinâmico calculado separadamente para encosta (geológico) e
+              inundação (hidrológico). O RD exibido no mapa segue o canal da
+              camada ativa; com ambas ligadas, usa-se o pior caso.
+            </dd>
+
+            <dt>Risco Analisado (RA)</dt>
+            <dd>
+              Vulnerabilidade estática da UA (0–4), derivada das tabelas e
+              figuras oficiais REGEA-NIPPON. Trechos sem mapeamento oficial
+              aparecem como <b>SEM DADO</b>.
+            </dd>
+
+            <dt>ICC — Índice de Correlação com Chuvas</dt>
+            <dd>
+              Faixa 0–4 que classifica o gatilho pluviométrico atual:
+              <b>ICC<sub>geo</sub></b> a partir do CPC (encosta);
+              <b>ICC<sub>hid</sub></b> a partir do acumulado 24 h (inundação).
+            </dd>
+
+            <dt>CPC — Coeficiente de Precipitação Crítica</dt>
+            <dd>
+              Razão entre a intensidade horária observada e a envoltória crítica
+              mínima da região. CPC ≥ 1 indica limiar deflagrador atingido.
+            </dd>
+
+            <dt>Sensibilidade K</dt>
+            <dd>
+              Constante regional da envoltória crítica
+              <code>I = K · Ac96h⁻⁰·⁹</code>. Ex.: <b>K = 200</b> (São
+              Sebastião) é mais sensível que <b>K = 1000</b> (Mogi-Bertioga).
+            </dd>
+
+            <dt>MERGE / CPTEC / INPE</dt>
+            <dd>
+              Produto de chuva horária do INPE (satélite + pluviômetros
+              brasileiros, grade ~0,1°). Ingerido continuamente em paralelo
+              (downloads HTTP + decodificação eccodes em
+              <i>process pool</i>); cache de dois níveis (RAM com janela
+              móvel de 96 h + disco persistente) para cálculo do RD em
+              segundos a cada ciclo.
+            </dd>
+
+            <dt>Cache de chuva em disco</dt>
+            <dd>
+              Diretório <code>data/_cache/merge/</code>: GRIB brutos e
+              <i>samples</i> já interpolados nos centroides das UAs. Permite
+              reinício do sistema sem rebaixar 96 horas; só horas frescas
+              (idade &lt; 4 h, sujeitas a republicação) e ausentes vão à
+              rede. Idade ≥ 24 h é tratada como dado final.
+            </dd>
+
+            <dt>WRF (CPTEC/INPE)</dt>
+            <dd>
+              Previsão horária de precipitação usada na composição das janelas
+              geo ( +24 h) e hidro (+6 h) em modo ao vivo. Ausente na consulta
+              histórica e quando indisponível no ciclo.
+            </dd>
+
+            <dt>Consulta histórica</dt>
+            <dd>
+              Reconstitui o RD para uma data/hora passada usando MERGE observado
+              da época (até 96 GRIBs). Sem previsão WRF. Use a seção
+              <b>Busca histórica</b> na sidebar; eventos sugeridos (ex.:
+              fev/2023 — São Sebastião) validam o backtest documentado.
+            </dd>
+
+            <dt>Linha do tempo</dt>
+            <dd>
+              Animação das últimas 96 horas de RD observado (MERGE), frame a
+              frame. Na seção Evolução 96 h, selecione
+              <b>risco geológico</b> ou <b>risco hidrológico</b> (aliases:
+              movimentos de massa / inundação) e confirme com OK — a animação
+              usa só as UAs daquele canal.
+            </dd>
+
+            <dt>Malha Rodoviária Estadual</dt>
+            <dd>
+              Shapefile oficial do Sistema Rodoviário Estadual
+              (DER-SP, 2024; dadosabertos.sp.gov.br). Camada cartográfica neutra; não
+              substitui a simbologia de alerta das UAs.
+            </dd>
+
+            <dt>Região meteorológica (1–4)</dt>
+            <dd>
+              Quatro regiões climático-geológico-geomorfológicas da área
+              monitorada, cada uma com limiares CPC e tabelas ICC hidrológicas
+              próprias.
+            </dd>
+
+            <dt>Movimento de massa</dt>
+            <dd>
+              Processos de instabilização de encostas: escorregamento, queda de
+              bloco, corrida de lama, solapamento — canal geológico. Na
+              nomenclatura oficial do sistema, corresponde ao
+              <b>risco geológico</b> (alias: Risco a movimentos de massa).
+            </dd>
+
+            <dt>Eventos hidrológicos</dt>
+            <dd>
+              Inundação, enxurrada e alagamento por chuva intensa — canal
+              hidrológico (janela 24 h). Na nomenclatura oficial,
+              corresponde ao <b>risco hidrológico</b> (alias: Risco a
+              inundação).
+            </dd>
+
+            <dt>UBA — Unidade Básica de Atendimento</dt>
+            <dd>
+              Unidade Básica de Atendimento do DER-SP, referência operacional
+              de campo. Atributos nativos: <code>uba_codigo</code> e
+              <code>uba_nome</code>.
+            </dd>
+
+            <dt>Subtrecho DER</dt>
+            <dd>
+              Recorte cadastral oficial DER-SP do
+              <i>Sistema Rodoviário Estadual</i>. As 4 regiões monitoradas
+              são compostas pela união de 23 subtrechos contíguos. Atributo
+              nativo: <code>subtrecho_der</code>.
+            </dd>
+
+            <dt>Residência de Conservação</dt>
+            <dd>
+              Unidade do DER-SP responsável pela conservação rotineira de um
+              conjunto de rodovias. Atributo nativo:
+              <code>residencia_dr</code> (também aparece como “Residência DR”
+              na interface).
+            </dd>
+
+            <dt>Regional DER</dt>
+            <dd>
+              Divisão administrativa DER-SP que agrupa residências e UBAs.
+              Atributo nativo: <code>regional</code>.
+            </dd>
+
+            <dt>GeoPackage <code>pli-hazardtrack.gpkg</code></dt>
+            <dd>
+              Fonte canônica das camadas estruturais do sistema (EPSG:4326):
+              4 regiões, 7 municípios, 23 subtrechos auxiliares e 809 UAs com
+              RA/ICC/flags de trecho crítico. Os GeoJSONs consumidos pelo
+              backend (<code>data/ua_zones/</code>,
+              <code>data/regioes/</code>) são exportações diretas do GPKG —
+              alterações na metodologia oficial entram pelos scripts de
+              geração em <code>ferramentas/geracao-geopackage/</code>.
+            </dd>
+
+            <dt>PPDC</dt>
+            <dd>
+              Plano de Prevenção e Defesa Civil. Define a nomenclatura dos cinco
+              níveis operacionais e as ações recomendadas no painel Ações
+              recomendadas.
+            </dd>
+
+            <dt>Risco de Fogo (RF)</dt>
+            <dd>
+              Produto do INPE que estima, em escala de <b>0 a 1</b>, a condição
+              ambiental favorável à ignição e propagação do fogo na vegetação.
+              Nome técnico oficial: <b>risco de fogo</b>; alias na UI:
+              <b>Risco a incêndios</b>. Agregado por trecho rodoviário estadual;
+              camada independente do RD/PPDC.
+            </dd>
+
+            <dt>Classes de RF</dt>
+            <dd>
+              Faixas de leitura do RF: <b>Mínimo</b>, <b>Baixo</b>,
+              <b>Médio</b>, <b>Alto</b> e <b>Crítico</b>. Trechos sem produto
+              disponível aparecem como <b>SEM DADO</b>.
+            </dd>
+
+            <dt>Horizonte de fogo</dt>
+            <dd>
+              Recorte temporal do RF: <b>observado</b> (mais recente) e previsão
+              <b>D+1</b>, <b>D+2</b> e <b>D+3</b>. Selecionável no painel
+              Camadas; o popup indica o horizonte exibido.
+            </dd>
+
+            <dt>INPE — Programa Queimadas</dt>
+            <dd>
+              Fonte oficial do Risco de Fogo. Resolução efetiva de ~10 km,
+              reamostrada e agregada à malha rodoviária estadual (metodologia
+              INPE-RF-v11).
+            </dd>
+          </dl>

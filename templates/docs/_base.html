@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <title>{% block doc_title %}Documentação{% endblock %} · PLI-HazardTrack</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='docs.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="docs-page">
+  <div class="docs-shell">
+    <aside class="sidebar docs-sidebar" aria-label="Navegação da página">
+      <a href="{{ url_for('index') }}" class="sidebar-header docs-home-link">
+        <div class="logo">
+          <div class="logo-mark">
+            <img
+              class="logo-icon sb-icon-img"
+              src="{{ url_for('static', filename='icons/png/008-mapa-de-pesquisa.png') }}"
+              alt=""
+              aria-hidden="true"
+            />
+            <span>PLI-HazardTrack</span>
+          </div>
+          <p class="logo-sub">
+            Monitoramento de riscos climáticos extremos · PLI-SP / DER-SP
+          </p>
+        </div>
+      </a>
+
+      <nav class="docs-sidebar-nav" aria-label="Seções desta página">
+        <div class="sb-panel is-open" id="docs-toc-panel">
+          <button
+            type="button"
+            class="sb-panel-head docs-toc-toggle"
+            data-docs-toc-toggle
+            aria-expanded="true"
+            aria-controls="docs-toc-body"
+          >
+            <span class="sb-panel-label">{% block toc_label %}Nesta página{% endblock %}</span>
+            <span class="sb-chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="sb-panel-body" id="docs-toc-body">
+            <ul class="docs-toc" id="docs-toc"></ul>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <div class="docs-content" id="docs-content">
+      <div class="docs-body modal-body" id="docs-body">
+        <header class="docs-page-header">
+          <h1>{% block page_heading %}Documentação{% endblock %}</h1>
+          {% block page_lead %}{% endblock %}
+        </header>
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='docs.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

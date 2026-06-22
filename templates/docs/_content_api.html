@@ -1,0 +1,448 @@
+<p class="modal-intro">
+            Feeds abertos para integração externa das <b>três camadas de risco</b>
+            (grupo <b>Riscos associados a eventos climáticos extremos</b>):
+            <b>risco geológico</b> / alias <b>Risco a movimentos de massa</b>,
+            <b>risco hidrológico</b> / alias <b>Risco a inundação</b> (809 UAs,
+            RD + chuva MERGE/INPE) e <b>risco de fogo</b> / alias
+            <b>Risco a incêndios</b> (INPE, ~4.583 trechos rodoviários
+            estaduais). Respostas em GeoJSON
+            (<code>application/geo+json</code>) ou JSON.
+          </p>
+          <p class="modal-note">
+            Contrato UA (<code>metadata.api_version = 2</code>): features com
+            <b>atributos nativos</b> de <code>uas_area_estudo</code> + campos
+            calculados (RD, chuva, ICC). Spatial join direto em
+            <code>ua_id</code>. Fogo: produto INPE independente do PPDC (sem
+            RA/ICC/RD).
+          </p>
+
+          <h3>Nomenclatura — interface e API</h3>
+          <p>
+            A interface web usa <b>aliases amistosos</b> (“Risco a…”) nos
+            painéis e popups; a API e os metadados GeoJSON usam
+            <b>identificadores técnicos</b>. Integradores devem consumir os
+            parâmetros abaixo — <b>não</b> os textos exibidos na UI.
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>Alias (UI)</th>
+              <th>Nome oficial</th>
+              <th>Parâmetro API</th>
+              <th>Endpoint principal</th>
+            </tr>
+            <tr>
+              <td>Risco a movimentos de massa</td>
+              <td>Risco geológico</td>
+              <td><code>hazard=geo</code></td>
+              <td><code>/api/public/ua-layers?hazard=geo</code></td>
+            </tr>
+            <tr>
+              <td>Risco a inundação</td>
+              <td>Risco hidrológico</td>
+              <td>
+                <code>hazard=hidro</code> (sinônimos aceitos:
+                <code>hidrologico</code>, <code>inundacao</code>)
+              </td>
+              <td><code>/api/public/ua-layers?hazard=hidro</code></td>
+            </tr>
+            <tr>
+              <td>Risco a incêndios</td>
+              <td>Risco de fogo (RF INPE)</td>
+              <td><code>horizonte=observado|D+1|…</code></td>
+              <td><code>/api/public/fire-risk/layers</code></td>
+            </tr>
+          </table>
+          <p class="modal-note">
+            <b>Regras para integradores:</b><br />
+            · UAs: sempre filtrar por <code>hazard=geo</code> ou
+            <code>hazard=hidro</code> — não confundir com IDs internos da UI
+            de animação (<code>encosta</code> / <code>inundacao</code>), que
+            são equivalentes semânticos mas distintos do contrato público.<br />
+            · Fogo: não passa por <code>/api/public/ua-layers</code>; use o
+            namespace <code>/api/public/fire-risk/*</code>.<br />
+            · Em cada feature UA, o campo <code>hazard</code> repete
+            <code>geo</code> ou <code>hidro</code>; <code>hazard_label</code>
+            traz o nome oficial em português.<br />
+            · Catálogo canônico de URLs: <code>GET /api/public</code> (ver
+            seção <b>Diretrizes de acesso</b>).
+          </p>
+
+          <h3>Diretrizes de acesso</h3>
+          <table class="modal-table">
+            <tr>
+              <th>Catálogo</th>
+              <td>
+                <code id="api-url-catalog">GET /api/public</code> — JSON com
+                URLs canônicas de todas as camadas, versão
+                (<code>api_version</code>) e bloco <code>auth</code>.
+              </td>
+            </tr>
+            <tr>
+              <th>Método</th>
+              <td>Somente <code>GET</code> (preflight <code>OPTIONS</code> liberado).</td>
+            </tr>
+            <tr>
+              <th>Autenticação</th>
+              <td>
+                {% if public_api_auth_required %}
+                <b>Obrigatória</b> neste ambiente. Envie
+                <code>X-API-Key: &lt;chave&gt;</code> ou
+                <code>Authorization: Bearer &lt;chave&gt;</code> em toda
+                requisição <code>/api/public/*</code>. Sem chave válida: HTTP
+                <code>401</code> com <code>{"error":"unauthorized"}</code>.
+                {% else %}
+                Opcional: se o servidor define <code>PUBLIC_API_KEY</code>, exige
+                <code>X-API-Key</code> ou <code>Authorization: Bearer</code>.
+                Sem a variável, o feed fica aberto (desenvolvimento).
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th>CORS</th>
+              <td>
+                <code>Access-Control-Allow-Origin: *</code> — integradores web
+                podem consumir de outro domínio.
+              </td>
+            </tr>
+            <tr>
+              <th>Cabeçalhos de resposta</th>
+              <td>
+                <code>X-Public-Api-Version</code>,
+                <code>X-Public-Api-Auth</code> (<code>open</code> ou
+                <code>required</code>),
+                <code>Cache-Control: public, max-age=…</code>.
+              </td>
+            </tr>
+            <tr>
+              <th>Atualização sugerida</th>
+              <td>
+                UAs: polling ~30 s (<code>metadata.refresh_hint_s</code>).
+                Fogo: polling ~5 min (cache 300 s).
+              </td>
+            </tr>
+          </table>
+
+          <h3>Três camadas — endpoints e parâmetros</h3>
+          <p class="modal-note">
+            Nomes como no painel <b>Camadas</b> (grupo
+            <b>Riscos associados a eventos climáticos extremos</b>). UAs usam
+            <code>hazard=geo|hidro</code> na API (não
+            <code>encosta</code> / <code>inundacao</code> do seletor interno
+            de animação).
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>Camada (UI)</th>
+              <th>Endpoint</th>
+              <th>Parâmetros</th>
+              <th>Formato</th>
+            </tr>
+            <tr>
+              <th>Risco a movimentos de massa<br /><small>Risco geológico</small></th>
+              <td><code id="api-url-geo">—</code></td>
+              <td>
+                <code>hazard=geo</code> (obrigatório para esta camada)<br />
+                <code>min_rd=0..4</code> (opcional)<br />
+                <code>at=ISO8601</code> (opcional, histórico)
+              </td>
+              <td>GeoJSON · cache 30 s</td>
+            </tr>
+            <tr>
+              <th>Risco a inundação<br /><small>Risco hidrológico</small></th>
+              <td><code id="api-url-hidro">—</code></td>
+              <td>
+                <code>hazard=hidro</code> (sinônimos:
+                <code>hidrologico</code>, <code>inundacao</code>)<br />
+                <code>min_rd</code>, <code>at</code> (opcionais)
+              </td>
+              <td>GeoJSON · cache 30 s</td>
+            </tr>
+            <tr>
+              <th>Risco a incêndios<br /><small>Risco de fogo · INPE</small></th>
+              <td><code id="api-url-fire-layers">—</code></td>
+              <td>
+                <code>horizonte=observado</code> (padrão),
+                <code>D+1</code>, <code>D+2</code>, <code>D+3</code><br />
+                <code>classe=minimo|baixo|medio|alto|critico</code> (opcional)
+              </td>
+              <td>GeoJSON · cache 300 s</td>
+            </tr>
+          </table>
+
+          <h3>Parâmetros — Risco geológico e risco hidrológico</h3>
+          <p class="modal-note">
+            Base: <code id="api-url-all">—</code> (ambos os canais,
+            <code>hazard=all</code>). Alertas: <code id="api-url-alerts">—</code>
+            (<code>min_rd=3</code>).
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th><code>hazard</code></th>
+              <td>
+                <code>geo</code> = risco geológico (809 UAs canal geológico);
+                <code>hidro</code> = risco hidrológico (809 UAs canal hidrológico);
+                <code>all</code> = ambos (1618 features, padrão).
+              </td>
+            </tr>
+            <tr>
+              <th><code>min_rd</code></th>
+              <td>
+                Inteiro 0–4 — retorna UAs com <code>rd ≥</code> valor
+                (ex.: <code>3</code> = Alerta e Alerta Máximo).
+              </td>
+            </tr>
+            <tr>
+              <th><code>at</code></th>
+              <td>
+                Data/hora ISO 8601 UTC — snapshot histórico (ex.:
+                <code>2023-02-19T12:00:00Z</code>). Reconstrói RD com MERGE
+                observado; <b>WRF não entra</b> no histórico.
+              </td>
+            </tr>
+          </table>
+
+          <h3>Parâmetros — Risco de fogo (INPE)</h3>
+          <table class="modal-table">
+            <tr>
+              <th>GeoJSON (mapa)</th>
+              <td>
+                <code id="api-url-fire-layers-ref">—</code> — trechos coloridos
+                por <code>rf_classe</code>.
+              </td>
+            </tr>
+            <tr>
+              <th>Resumo estadual</th>
+              <td>
+                <code id="api-url-fire-snapshot">—</code> — contagens por classe,
+                <code>total_trechos</code>, <code>data_referencia</code>,
+                <code>horizontes_disponiveis</code> (~0,5 KB).
+              </td>
+            </tr>
+            <tr>
+              <th>Detalhe de trecho</th>
+              <td>
+                <code>/api/public/fire-risk/trecho/&lt;trecho_id&gt;</code> —
+                mesmos parâmetros <code>horizonte</code> da camada.
+              </td>
+            </tr>
+            <tr>
+              <th><code>horizonte</code></th>
+              <td>
+                Igual ao seletor do painel Camadas:
+                <code>observado</code> (padrão), <code>D+1</code>,
+                <code>D+2</code>, <code>D+3</code>.
+              </td>
+            </tr>
+            <tr>
+              <th><code>classe</code></th>
+              <td>
+                Filtra features da camada GeoJSON:
+                <code>minimo</code>, <code>baixo</code>, <code>medio</code>,
+                <code>alto</code>, <code>critico</code>.
+              </td>
+            </tr>
+            <tr>
+              <th>Propriedades (feature)</th>
+              <td>
+                <code>trecho_id</code>, <code>rf_classe</code>,
+                <code>rf_valor</code>, <code>rf_p90</code>,
+                <code>rf_media</code>, <code>horizonte</code>,
+                <code>data_referencia</code>, <code>data_alvo</code>,
+                <code>metodologia</code> + DER (<code>rodovia</code>,
+                <code>uba_codigo</code>, <code>residencia_dr</code>,
+                <code>municipio</code>…).
+              </td>
+            </tr>
+          </table>
+
+          <h3>URL base — Risco geológico (exemplo ao vivo)</h3>
+          <p class="modal-code-line">
+            <code id="api-url-live" class="modal-code-block">—</code>
+          </p>
+          <p class="modal-note">
+            Compatível com Leaflet, Mapbox, QGIS, ArcGIS Online e qualquer
+            cliente HTTP/GeoJSON.
+          </p>
+
+          <h3>Outras camadas do mapa (sem API pública dedicada)</h3>
+          <table class="modal-table">
+            <tr>
+              <th>Malha Rodoviária Estadual</th>
+              <td><code>/api/road-network</code> (GeoJSON interno)</td>
+            </tr>
+            <tr>
+              <th>Regiões monitoradas</th>
+              <td>
+                <code>/api/snapshot</code> → chave <code>regions</code> (uso
+                operacional, não faz parte do contrato <code>/api/public/*</code>).
+              </td>
+            </tr>
+          </table>
+
+          <h3>Propriedades de cada feature (UA)</h3>
+          <p class="modal-note">
+            Os nomes em <code>monospace</code> abaixo são os nomes
+            <b>literais</b> entregues no GeoJSON. Convenção:
+            <code>RAGEO</code>/<code>RAHID</code> em CAIXA ALTA porque vêm
+            assim da camada-mãe oficial.
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th>Identificação</th>
+              <td>
+                <code>ua_id</code>, <code>sigla_rodovia</code>,
+                <code>km_inicial</code>, <code>km_final</code>,
+                <code>extensao_km</code>, <code>escala</code>
+                (<code>25K</code>/<code>10K</code>/<code>1K</code>),
+                <code>tipo</code> (<code>UTB</code>/<code>SR</code>),
+                <code>ordem_no_grupo</code>, <code>subtrecho_der</code>
+              </td>
+            </tr>
+            <tr>
+              <th>Região e malha</th>
+              <td>
+                <code>regiao_id</code> (1..4), <code>regiao_nome</code>,
+                <code>municipio</code>, <code>centroide_lon</code>,
+                <code>centroide_lat</code>, <code>buffer_lateral_m</code>
+              </td>
+            </tr>
+            <tr>
+              <th>DER (operacional)</th>
+              <td>
+                <code>regional</code>, <code>residencia_dr</code>,
+                <code>uba_codigo</code>, <code>uba_nome</code>,
+                <code>jurisdicao</code>, <code>conservado_por</code>
+              </td>
+            </tr>
+            <tr>
+              <th>Risco analisado (RA, estático)</th>
+              <td>
+                Canal geo: <code>RAGEO</code>,
+                <code>icc_geo_thresholds</code> (lista de 4 floats em CPC),
+                <code>trecho_critico_geo</code> (bool).<br />
+                Canal hidro: <code>RAHID</code>,
+                <code>icc_hid_thresholds</code> (4 floats em mm/24 h),
+                <code>trecho_critico_hid</code>.
+              </td>
+            </tr>
+            <tr>
+              <th>Risco dinâmico (RD)</th>
+              <td>
+                <code>rd</code>, <code>rd_geo</code>, <code>rd_hid</code>,
+                <code>nivel</code>, <code>hazard</code>
+                (<code>geo</code> = risco geológico;
+                <code>hidro</code> = risco hidrológico),
+                <code>hazard_label</code>
+              </td>
+            </tr>
+            <tr>
+              <th>Chuva e gatilho</th>
+              <td>
+                <code>ac96h_mm</code>, <code>ac24h_mm</code>,
+                <code>ac72h_obs_mm</code>, <code>ac18h_obs_mm</code>,
+                <code>intensity_mmh</code>, <code>cpc</code>,
+                <code>icc_geo</code>, <code>icc_hid</code>,
+                <code>prev24h_mm</code>, <code>prev6h_mm</code>,
+                <code>fonte_chuva</code> (<code>WRF</code> ou
+                <code>OBS_ONLY</code>)
+              </td>
+            </tr>
+            <tr>
+              <th>Estado do monitoramento</th>
+              <td>
+                <code>monitoramento</code>: <code>ativo</code> ou
+                <code>indisponivel</code> (UA sem chuva observada no ciclo).
+                Detalhe operacional em <code>rd_unidades</code>.
+              </td>
+            </tr>
+          </table>
+
+          <h3>Metadados (<code>metadata</code>)</h3>
+          <p>
+            O objeto raiz da <code>FeatureCollection</code> inclui:
+            <code>api_version</code>, <code>timestamp_utc</code>,
+            <code>data_status</code> (<code>ok</code>, <code>degraded</code>,
+            <code>loading</code>, <code>no_data</code>),
+            <code>data_source</code>, <code>historical</code>,
+            <code>hazard</code> (<code>geo</code> = risco geológico,
+            <code>hidro</code> = risco hidrológico, ou <code>all</code>), <code>feature_count</code>,
+            <code>total_geo</code>, <code>total_hidro</code>,
+            <code>max_rd</code>, <code>by_level_geo</code>,
+            <code>by_level_hidro</code>, <code>refresh_hint_s</code> e
+            <code>endpoints</code> (URLs canônicas).
+          </p>
+
+          <h3>Exemplos de consumo (JavaScript)</h3>
+          <pre class="modal-pre" id="api-fetch-example">—</pre>
+          <p class="modal-note">
+            {% if public_api_auth_required %}
+            Chave obrigatória neste ambiente — substitua
+            <code>&lt;sua-chave&gt;</code> pelo valor fornecido pela operação.
+            {% else %}
+            Sem <code>PUBLIC_API_KEY</code> no servidor, omita o bloco
+            <code>headers</code>.
+            {% endif %}
+          </p>
+
+          <h3>Endpoints internos (uso da UI / diagnóstico)</h3>
+          <p class="modal-note">
+            Não fazem parte do contrato <code>/api/public/*</code>, mas são
+            documentados para clientes próximos da operação.
+          </p>
+          <table class="modal-table">
+            <tr>
+              <th><code>GET /api/snapshot</code></th>
+              <td>
+                Snapshot operacional completo (pontos + regiões + summary).
+                Aceita <code>?at=ISO8601</code> para consulta histórica.
+              </td>
+            </tr>
+            <tr>
+              <th><code>GET /api/timeline</code></th>
+              <td>
+                Série de 96 quadros horários de RD. Aceita
+                <code>?hazard=geo|hidro</code>.
+              </td>
+            </tr>
+            <tr>
+              <th><code>GET /api/forecast</code></th>
+              <td>
+                Previsão WRF por UA (próximas 24 h, fonte CPTEC).
+              </td>
+            </tr>
+            <tr>
+              <th><code>GET /api/actions</code></th>
+              <td>
+                Ações operacionais PPDC por nível, do snapshot atual ou
+                <code>?at=</code>.
+              </td>
+            </tr>
+            <tr>
+              <th><code>GET /api/progress</code></th>
+              <td>
+                Snapshot único do progresso do ingest MERGE.
+              </td>
+            </tr>
+            <tr>
+              <th><code>GET /api/progress/stream</code></th>
+              <td>
+                <b>Server-Sent Events</b> — empurra atualizações em push em
+                vez de polling. Keepalive a cada 15 s; auto-reconnect via
+                <code>EventSource</code>.
+              </td>
+            </tr>
+            <tr>
+              <th><code>GET /api/health</code></th>
+              <td>
+                Liveness/readiness, idade do ingest, contagem de horas
+                válidas.
+              </td>
+            </tr>
+            <tr>
+              <th><code>POST /api/refresh</code></th>
+              <td>
+                Força ciclo manual (requer permissão; usado pelo
+                <code>/admin</code>).
+              </td>
+            </tr>
+          </table>

@@ -57,8 +57,8 @@ const NIVEL_DESC = [
   "Risco severo",
 ];
 const HAZARD_ALERT_LABEL = {
-  geo: "Movimentos de massa (risco geológico)",
-  hidro: "Inundação (risco hidrológico)",
+  geo: PLI_RISK_LAYERS.LAYERS.geo.alias,
+  hidro: PLI_RISK_LAYERS.LAYERS.hidro.alias,
 };
 
 // ============================================================================
@@ -72,7 +72,8 @@ const TRECHO_VALUE_PENDING = "Aguardando dados";
 
 const HAZARDS = {
   encosta: {
-    label: "Movimentos de massa",
+    label: PLI_RISK_LAYERS.LAYERS.geo.label,
+    alias: PLI_RISK_LAYERS.LAYERS.geo.alias,
     description:
       "Engloba escorregamento e queda de bloco. Pelo método em uso (REGEA-NIPPON 2021), são tratados na mesma envoltória crítica.",
     // Mesma escala dos pontos (niveis operacionais oficiais).
@@ -82,7 +83,8 @@ const HAZARDS = {
     rdFrom: (point) => (Number.isInteger(point?.rd) ? point.rd : null),
   },
   inundacao: {
-    label: "Inundação",
+    label: PLI_RISK_LAYERS.LAYERS.hidro.label,
+    alias: PLI_RISK_LAYERS.LAYERS.hidro.alias,
     description:
       "Alagamento e enxurrada por chuva intensa de curto prazo (24h).",
     // Nivel 0 = mesmo verde dos pontos (Monitoramento). Niveis 1-3 sobem em azul,
@@ -873,7 +875,6 @@ function attachEvents() {
 
   attachAdminLayerEvents();
   restoreMapLayerState();
-  attachModalEvents();
   initTrechoPickers();
   initTrechoMetricCards();
   initLevelMeters();
@@ -1460,95 +1461,6 @@ function installMapLayerControl() {
 }
 
 // ============================================================================
-// MODAIS (ajuda e glossário)
-// ============================================================================
-
-function fillApiModalUrls() {
-  const paths = {
-    "api-url-catalog": "/api/public",
-    "api-url-live": "/api/public/ua-layers?hazard=geo",
-    "api-url-all": "/api/public/ua-layers",
-    "api-url-geo": "/api/public/ua-layers?hazard=geo",
-    "api-url-hidro": "/api/public/ua-layers?hazard=hidro",
-    "api-url-alerts": "/api/public/ua-layers?min_rd=3",
-    "api-url-fire-layers": "/api/public/fire-risk/layers?horizonte=observado",
-    "api-url-fire-layers-ref": "/api/public/fire-risk/layers?horizonte=observado",
-    "api-url-fire-snapshot": "/api/public/fire-risk/snapshot",
-  };
-  const origin = window.location.origin || "";
-  Object.entries(paths).forEach(([id, path]) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = origin + apiUrl(path);
-  });
-  const ex = document.getElementById("api-fetch-example");
-  if (ex) {
-    const authHdr = PUBLIC_API_KEY
-      ? '  headers: { "X-API-Key": "<sua-chave>" },\n'
-      : "";
-    const geo = origin + apiUrl("/api/public/ua-layers?hazard=geo");
-    const hidro = origin + apiUrl("/api/public/ua-layers?hazard=hidro");
-    const fogo = origin + apiUrl(
-      "/api/public/fire-risk/layers?horizonte=observado",
-    );
-    ex.textContent =
-      `const opts = {${authHdr ? `\n${authHdr}` : ""}};\n\n` +
-      `// Movimentos de massa\n` +
-      `const geo = await (await fetch("${geo}", opts)).json();\n\n` +
-      `// Inundacao\n` +
-      `const hidro = await (await fetch("${hidro}", opts)).json();\n\n` +
-      `// Risco de fogo (INPE)\n` +
-      `const fogo = await (await fetch("${fogo}", opts)).json();`;
-  }
-}
-
-function attachModalEvents() {
-  const openModal = (id) => {
-    const m = document.getElementById(id);
-    if (m) {
-      if (id === "modal-api") fillApiModalUrls();
-      m.hidden = false;
-      document.body.style.overflow = "hidden";
-    }
-  };
-  const closeAll = () => {
-    document
-      .querySelectorAll(".modal-backdrop")
-      .forEach((el) => (el.hidden = true));
-    document.body.style.overflow = "";
-  };
-
-  document.getElementById("link-help")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    openModal("modal-help");
-  });
-  document.getElementById("link-glossary")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    openModal("modal-glossary");
-  });
-  document.getElementById("link-api")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    openModal("modal-api");
-  });
-
-  // Fechar pelo X
-  document.querySelectorAll("[data-close-modal]").forEach((btn) => {
-    btn.addEventListener("click", closeAll);
-  });
-
-  // Fechar clicando fora
-  document.querySelectorAll(".modal-backdrop").forEach((bd) => {
-    bd.addEventListener("click", (e) => {
-      if (e.target === bd) closeAll();
-    });
-  });
-
-  // Fechar com Esc
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeAll();
-  });
-}
-
-// ============================================================================
 // REFRESH GERAL
 // ============================================================================
 
@@ -1594,13 +1506,13 @@ function tlActiveChannelMessage() {
   }
   if (hazardKey === "encosta") {
     return (
-      `Animação: ${h?.label || "Encosta"} — níveis de RD geológico ` +
-      "(paleta verde→roxo)."
+      `Animação: ${h?.alias || h?.label || PLI_RISK_LAYERS.LAYERS.geo.alias} — ` +
+      "níveis de RD geológico (paleta verde→roxo)."
     );
   }
   return (
-    `Animação: ${h?.label || "Inundação"} — níveis de RD hidrológico ` +
-    "(paleta verde→azul→magenta)."
+    `Animação: ${h?.alias || h?.label || PLI_RISK_LAYERS.LAYERS.hidro.alias} — ` +
+    "níveis de RD hidrológico (paleta verde→azul→magenta)."
   );
 }
 
@@ -3793,12 +3705,13 @@ function raClassLabel(hazardKey, p) {
 }
 
 function popupHeaderHtml(p, hazardKey) {
-  const title = hazardKey === "inundacao"
-    ? "Risco de Inundação"
-    : "Risco de Movimentos de Massa";
+  const layer = hazardKey === "inundacao"
+    ? PLI_RISK_LAYERS.LAYERS.hidro
+    : PLI_RISK_LAYERS.LAYERS.geo;
   return `
     <header class="ua-popup-header">
-      <div class="ua-popup-risk">${escapeHtml(title)}</div>
+      <div class="ua-popup-risk">${escapeHtml(layer.alias)}</div>
+      <div class="ua-popup-risk-tech">${escapeHtml(layer.label)}</div>
     </header>`;
 }
 
@@ -4291,9 +4204,8 @@ function fireRiskPopupHtml(props, options = {}) {
   return `
     <div class="ua-popup ua-popup--fire" style="${popupRiskStyle(color)}">
       <header class="ua-popup-header">
-        <div class="ua-popup-risk">
-          Risco de Fogo por Trecho Rodoviário
-        </div>
+        <div class="ua-popup-risk">${escapeHtml(PLI_RISK_LAYERS.LAYERS.fire.alias)}</div>
+        <div class="ua-popup-risk-tech">${escapeHtml(PLI_RISK_LAYERS.LAYERS.fire.label)} · trecho rodoviário</div>
       </header>
       <div class="ua-popup-body">
         <div class="ua-popup-meta"><b>Classificação trecho</b></div>
@@ -4580,7 +4492,7 @@ function collectLayerInfosAt(latlng) {
     if (layer?._pliLayerProps) {
       entries.push({
         key,
-        label: HAZARDS[key].label,
+        label: HAZARDS[key].alias || HAZARDS[key].label,
         html: buildPopup(layer._pliLayerProps, key, { includeUnifiedButton: false }),
       });
     }
@@ -4590,7 +4502,7 @@ function collectLayerInfosAt(latlng) {
     if (layer?._pliLayerProps) {
       entries.push({
         key: "fireRisk",
-        label: "Risco de Fogo (INPE)",
+        label: PLI_RISK_LAYERS.LAYERS.fire.alias,
         html: fireRiskPopupHtml(
           layer._pliLayerProps,
           { includeUnifiedButton: false },
@@ -4677,22 +4589,40 @@ function openUnifiedLayerPopup(latlng) {
 // PAINEL DE CAMADAS DE HAZARD + LEGENDA DINAMICA
 // ============================================================================
 
+/** Checkbox de camada de risco: alias amistoso + rotulo tecnico. */
+function riskLayerCkHtml(opts) {
+  const layer = PLI_RISK_LAYERS.LAYERS[opts.layerKey];
+  const checked = opts.checked ? "checked" : "";
+  const dataAttr = opts.dataAttr
+    ? ` data-${opts.dataAttr}="${escapeHtml(opts.dataVal)}"`
+    : "";
+  return (
+    `<label class="ck ck--risk-layer" title="${escapeHtml(PLI_RISK_LAYERS.tooltip(layer))}">`
+    + `<input type="checkbox" id="${escapeHtml(opts.inputId)}"`
+    + ` name="${escapeHtml(opts.inputName || opts.inputId)}"${dataAttr} ${checked}>`
+    + `<span class="ck-risk-text">`
+    + `<span class="ck-risk-alias">${escapeHtml(layer.alias)}</span>`
+    + `<span class="ck-risk-tech">${escapeHtml(layer.label)}</span>`
+    + `</span></label>`
+  );
+}
+
 /** Toggles das camadas de hazard, no mesmo estilo das outras camadas do mapa. */
 function renderHazardPanel() {
   const root = document.getElementById("hazard-toggles");
   if (!root) return;
   const items = Object.entries(HAZARDS)
     .filter(([, h]) => h.available)
-    .map(([key, h]) => {
-      const checked = HAZARD_STATE[key] ? "checked" : "";
-      return `
-        <label class="ck">
-          <input type="checkbox" id="hazard-${escapeHtml(key)}"
-                 name="hazard-${escapeHtml(key)}"
-                 data-hazard="${escapeHtml(key)}" ${checked}>
-          ${escapeHtml(h.label)}
-        </label>
-      `;
+    .map(([key]) => {
+      const layerKey = key === "encosta" ? "geo" : "hidro";
+      return riskLayerCkHtml({
+        inputId: `hazard-${key}`,
+        inputName: `hazard-${key}`,
+        dataAttr: "hazard",
+        dataVal: key,
+        layerKey,
+        checked: HAZARD_STATE[key],
+      });
     })
     .join("");
   // Sempre mostra a secao; sem camadas disponiveis, exibe uma linha vazia.
@@ -4735,9 +4665,11 @@ function renderHazardPanel() {
 
 /** Cabeçalho compacto da legenda: tipo de risco + níveis operacionais. */
 function legendHeadHtml(h) {
-  const risk = escapeHtml(h.label || "—");
+  const risk = escapeHtml(h.alias || h.label || "—");
+  const tech = h.alias && h.label ? escapeHtml(h.label) : "";
   const subtitle = escapeHtml(
-    h.legendSubtitle || "Níveis operacionais de alerta",
+    h.legendSubtitle
+    || (tech ? `${tech} · níveis operacionais` : "Níveis operacionais de alerta"),
   );
   return (
     `<div class="legend-title">`
@@ -4749,11 +4681,13 @@ function legendHeadHtml(h) {
 
 function fireRiskLegendEntry() {
   if (!MAP_LAYER_STATE.fireRisk) return null;
+  const fire = PLI_RISK_LAYERS.LAYERS.fire;
   return [
     "fireRisk",
     {
-      label: "Risco de fogo (INPE)",
-      legendSubtitle: `Risco de Fogo · ${state.fireRiskHorizon || "observado"}`,
+      label: fire.label,
+      alias: fire.alias,
+      legendSubtitle: `${fire.label} · ${state.fireRiskHorizon || "observado"}`,
       palette: FIRE_RISK_ORDER.map((cls) => FIRE_RISK_COLORS[cls]),
       labels: FIRE_RISK_ORDER.map((cls) => fireRiskClassLabel(cls)),
       ndLabel: "Sem dado",

@@ -14,7 +14,7 @@
 {% macro level_meter_block() %}
 <div id="operational-status" class="operational-status" aria-label="Distribuição por nível PPDC">
   <section class="hazard-meter">
-    <h3 class="hazard-meter-title">Instabilidade de encosta</h3>
+    <h3 class="hazard-meter-title" title="Risco geológico (RD)">Risco a movimentos de massa</h3>
     <div class="alert-meter alert-meter--vertical">
       {{ level_meter_cell('encosta', 'geo', 0, 'Monitoramento', 'Sem chuva relevante') }}
       {{ level_meter_cell('encosta', 'geo', 1, 'Observação', 'Chuva próxima ao limiar') }}
@@ -24,7 +24,7 @@
     </div>
   </section>
   <section class="hazard-meter">
-    <h3 class="hazard-meter-title">Inundação</h3>
+    <h3 class="hazard-meter-title" title="Risco hidrológico (RD)">Risco a inundação</h3>
     <div class="alert-meter alert-meter--vertical">
       {{ level_meter_cell('inundacao', 'hidro', 0, 'Monitoramento', 'Sem chuva relevante') }}
       {{ level_meter_cell('inundacao', 'hidro', 1, 'Observação', 'Chuva próxima ao limiar') }}

@@ -30,7 +30,7 @@ server {
 
     ssl_certificate     /etc/letsencrypt/live/pli-hazardtrack.56-125-163-194.sslip.io/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/pli-hazardtrack.56-125-163-194.sslip.io/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
+    include /etc/nginx/snippets/pli-hazardtrack-ssl-params.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     include /etc/nginx/snippets/pli-hazardtrack-locations.conf;

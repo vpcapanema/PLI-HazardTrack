@@ -7,14 +7,16 @@ PUBLIC_HOST="${PUBLIC_HOST:-pli-hazardtrack.56-125-163-194.sslip.io}"
 WEBROOT="/var/www/certbot"
 SNIPPET_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack-locations.conf"
 SNIPPET_DST="/etc/nginx/snippets/pli-hazardtrack-locations.conf"
+SSL_PARAMS_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack-ssl-params.conf"
+SSL_PARAMS_DST="/etc/nginx/snippets/pli-hazardtrack-ssl-params.conf"
 NGINX_HTTPS_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack"
 NGINX_HTTP_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack-http-bootstrap"
 NGINX_DST="/etc/nginx/sites-available/pli-hazardtrack"
 CERT_DIR="/etc/letsencrypt/live/$PUBLIC_HOST"
 
-step() { printf "\n\033[1;36m▶ %s\033[0m\n" "$1"; }
-ok()   { printf "  \033[1;32m✓\033[0m %s\n" "$1"; }
-info() { printf "  \033[1;34m·\033[0m %s\n" "$1"; }
+step() { printf "\n\033[1;36mâ–¶ %s\033[0m\n" "$1"; }
+ok()   { printf "  \033[1;32mâœ“\033[0m %s\n" "$1"; }
+info() { printf "  \033[1;34mÂ·\033[0m %s\n" "$1"; }
 warn() { printf "  \033[1;33m!\033[0m %s\n" "$1"; }
 
 certbot_email() {
@@ -43,14 +45,10 @@ install_certbot() {
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq certbot
 }
 
-ensure_ssl_params() {
+ensure_dhparam() {
     sudo mkdir -p /etc/letsencrypt
-    if [[ ! -f /etc/letsencrypt/options-ssl-nginx.conf ]]; then
-        sudo curl -fsSL \
-            "https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf" \
-            -o /etc/letsencrypt/options-ssl-nginx.conf
-    fi
     if [[ ! -f /etc/letsencrypt/ssl-dhparams.pem ]]; then
+        info "gerando dhparam (2048 bits, uma vez)..."
         sudo openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048
     fi
 }
@@ -58,6 +56,7 @@ ensure_ssl_params() {
 deploy_snippet() {
     sudo mkdir -p /etc/nginx/snippets
     sudo cp "$SNIPPET_SRC" "$SNIPPET_DST"
+    sudo cp "$SSL_PARAMS_SRC" "$SSL_PARAMS_DST"
 }
 
 reload_nginx() {
@@ -73,6 +72,15 @@ deploy_http_bootstrap() {
 deploy_https_vhost() {
     sudo cp "$NGINX_HTTPS_SRC" "$NGINX_DST"
     reload_nginx
+}
+
+recover_broken_nginx() {
+    if sudo nginx -t 2>/dev/null; then
+        return
+    fi
+    warn "nginx invalido â€” restaurando HTTP bootstrap"
+    deploy_snippet
+    deploy_http_bootstrap
 }
 
 obtain_certificate() {
@@ -91,11 +99,13 @@ obtain_certificate() {
 
 step "Preparando snippet Nginx"
 deploy_snippet
-ok "snippet instalado"
+ok "snippets instalados"
+
+recover_broken_nginx
 
 step "Certificado TLS (Let's Encrypt)"
 install_certbot
-ensure_ssl_params
+ensure_dhparam
 sudo mkdir -p "$WEBROOT"
 
 if [[ -f "$CERT_DIR/fullchain.pem" ]]; then
@@ -108,8 +118,8 @@ else
     if obtain_certificate; then
         ok "certificado emitido"
     else
-        warn "nao foi possivel emitir TLS — app continua em HTTP"
-        warn "confira: porta 443 aberta, DNS/sslip.io, CERTBOT_EMAIL no .env"
+        warn "nao foi possivel emitir TLS â€” app continua em HTTP"
+        warn "confira: porta 443 aberta no SG AWS, DNS/sslip.io, CERTBOT_EMAIL"
         exit 0
     fi
 fi

@@ -34,6 +34,22 @@ ENV/
 cache/
 *.grib2
 *.idx
+data/_cache/
+
+# Modulo queimadas - downloads brutos e intermediarios pesados
+data/queimadas/raw/**
+!data/queimadas/raw/**/.gitkeep
+data/queimadas/interim/**
+!data/queimadas/interim/**/.gitkeep
+data/queimadas/**/*.nc
+data/queimadas/**/*.nc4
+data/queimadas/**/*.tif
+data/queimadas/**/*.tiff
+data/queimadas/**/*.vrt
+data/queimadas/**/*.grb
+data/queimadas/**/*.grib
+data/queimadas/**/*.grib2
+data/queimadas/**/*.idx
 
 # Logs
 *.log

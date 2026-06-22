@@ -1,0 +1,107 @@
+"""Re-extrai as figuras 3.3.3-3..9 (RAGEO) e 3.3.3-13..19 (RAHID)
+em ALTA RESOLUCAO (300 DPI) renderizando a pagina inteira e cortando
+a area da figura.
+
+Tambem aplica REMOCAO AUTOMATICA DO FUNDO SATELLITE: pixels que
+nao sao da paleta (RA0..4 + magenta + branco/preto) ficam transparentes.
+"""
+import sys
+from pathlib import Path
+
+import numpy as np
+import fitz
+from PIL import Image
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+PDF = Path("data/PDFs_sistema_monitoramento__IPA-DER") / \
+      "4 PRODUTO 7 Plano de Contingência.pdf"
+OUT = Path("ferramentas/extracao-ra/_imgs_hires")
+OUT.mkdir(parents=True, exist_ok=True)
+
+DPI = 300       # alvo de resolucao (default PDF eh 72)
+ESCALA = DPI / 72.0
+
+# Mapeamento pagina(1-idx) -> (tipo, regiao, fig_id)
+FIGS = {
+    50: ("rageo", 0, "3.3.3-1"),
+    52: ("rageo", 1, "3.3.3-3"),
+    54: ("rageo", 2, "3.3.3-5"),
+    56: ("rageo", 3, "3.3.3-7"),
+    58: ("rageo", 4, "3.3.3-9"),
+    61: ("rahid", 0, "3.3.3-11"),
+    63: ("rahid", 1, "3.3.3-13"),
+    65: ("rahid", 2, "3.3.3-15"),
+    67: ("rahid", 3, "3.3.3-17"),
+    69: ("rahid", 4, "3.3.3-19"),
+}
+
+
+def remove_fundo(rgb):
+    """Aplica alpha=0 em pixels do fundo satellite.
+
+    Mantem APENAS:
+      - RA1..RA4 (cores saturadas da paleta)
+      - magenta (contorno da regiao)
+      - preto puro (tics, textos, frame)
+
+    RA0 NAO eh segmentado aqui (cinza escuro confunde com vegetacao).
+    Sera inferido do gap no eixo.
+    """
+    R = rgb[..., 0].astype(np.int16)
+    G = rgb[..., 1].astype(np.int16)
+    B = rgb[..., 2].astype(np.int16)
+    mx = np.maximum(np.maximum(R, G), B)
+    mn = np.minimum(np.minimum(R, G), B)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    lum = (R + G + B) // 3
+
+    sat_ok = sat >= 0.65
+    m4 = sat_ok & (R >= 210) & (G <= 80) & (B <= 80)
+    m3 = sat_ok & (R >= 220) & (G >= 110) & (G <= 200) & (B <= 90) & ~m4
+    m2 = sat_ok & (R >= 220) & (G >= 220) & (B <= 110) & ~m4 & ~m3
+    m1 = (sat_ok & (G >= 200) & (R <= 210) & (B <= 100)
+          & ~m4 & ~m3 & ~m2)
+    magenta = sat_ok & (R >= 160) & (B >= 110) & (G <= 80)
+    preto = (lum < 50) & (sat < 0.25)
+    # RA0 cinza puro (lum 100-150, sat <0.08) - exclui cinza-verde
+    # (vegetacao) e cinza-claro de demais regioes (~176)
+    m0 = (sat < 0.08) & (lum >= 100) & (lum <= 150)
+
+    manter = m0 | m1 | m2 | m3 | m4 | magenta | preto
+    alpha = np.where(manter, 255, 0).astype(np.uint8)
+    return alpha
+
+
+doc = fitz.open(PDF)
+mat = fitz.Matrix(ESCALA, ESCALA)
+
+for page1, (tipo, rid, fig_id) in FIGS.items():
+    page = doc[page1 - 1]
+    pix = page.get_pixmap(matrix=mat, alpha=False)
+    arr = np.frombuffer(pix.samples, dtype=np.uint8).reshape(
+        pix.height, pix.width, 3)
+    print(f"\nP{page1}: pagina renderizada {pix.width}x{pix.height} "
+          f"(@ {DPI} DPI)")
+
+    # bbox da figura na pagina (em pt) - hardcoded a partir do check
+    # bbox aproximada do mapa: (112, 78, 730, 489) em pt
+    bbox_pt = (110, 78, 732, 491)
+    x0_px = int(bbox_pt[0] * ESCALA)
+    y0_px = int(bbox_pt[1] * ESCALA)
+    x1_px = int(bbox_pt[2] * ESCALA)
+    y1_px = int(bbox_pt[3] * ESCALA)
+    crop = arr[y0_px:y1_px, x0_px:x1_px]
+    print(f"  cropped: {crop.shape}")
+
+    alpha = remove_fundo(crop)
+    n_visible = int(alpha.sum() / 255)
+    print(f"  pixels mantidos: {n_visible} "
+          f"({100 * n_visible / alpha.size:.1f}%)")
+
+    rgba = np.dstack([crop, alpha])
+    fname = f"{tipo}_r{rid}_p{page1}_{fig_id.replace('.', '_')}.png"
+    Image.fromarray(rgba).save(OUT / fname)
+    print(f"  -> {fname}")
+
+print(f"\nSalvo em: {OUT}")

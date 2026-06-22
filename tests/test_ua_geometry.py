@@ -1,71 +1,41 @@
-"""Geometria das UAs: sem cordas longas nem sobreposicao."""
+"""Geometria das UAs (linhas): integridade do GeoJSON ua_geo.
+
+A camada `uas_area_estudo` e composta por LineStrings. Este teste valida
+apenas a integridade basica do GeoJSON consumido pelo backend.
+"""
 import json
-import math
 import unittest
 from pathlib import Path
 
 from shapely.geometry import shape
-from shapely.strtree import STRtree
 
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "data" / "ua_zones" / "ua_geo.geojson"
-
-
-def _max_edge_m(geom, lat):
-    polys = list(geom.geoms) if geom.geom_type == "MultiPolygon" else [geom]
-    mx = 0.0
-    for poly in polys:
-        coords = list(poly.exterior.coords)
-        for i in range(len(coords) - 1):
-            a, b = coords[i], coords[i + 1]
-            d = math.hypot(b[0] - a[0], b[1] - a[1])
-            mx = max(mx, d * 111320 * math.cos(math.radians(lat)))
-    return mx
-
-
-def _overlap_pairs(feats, min_m2=0.5):
-    polys = []
-    for f in feats:
-        g = shape(f["geometry"]).buffer(0)
-        polys.append(g)
-    tree = STRtree(polys)
-    pairs = []
-    for i, pi in enumerate(polys):
-        for j in tree.query(pi):
-            if j <= i:
-                continue
-            inter = pi.intersection(polys[j])
-            if not inter.is_empty and inter.area > min_m2:
-                pairs.append((feats[i]["properties"]["id"],
-                              feats[j]["properties"]["id"],
-                              inter.area))
-    return pairs
+HID = ROOT / "data" / "ua_zones" / "ua_hidro.geojson"
 
 
 @unittest.skipUnless(GEO.exists(), "ua_geo.geojson ausente")
 class TestUaGeometry(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.data = json.loads(GEO.read_text(encoding="utf-8"))
-        cls.feats = cls.data["features"]
+        cls.data_geo = json.loads(GEO.read_text(encoding="utf-8"))
+        cls.feats_geo = cls.data_geo["features"]
+        cls.data_hid = json.loads(HID.read_text(encoding="utf-8"))
+        cls.feats_hid = cls.data_hid["features"]
 
     def test_total_809(self):
-        self.assertEqual(len(self.feats), 809)
+        self.assertEqual(len(self.feats_geo), 809)
+        self.assertEqual(len(self.feats_hid), 809)
 
-    def test_no_long_chords_r3(self):
-        r3 = [f for f in self.feats if f["properties"].get("regiao") == 3]
-        bad = []
-        for f in r3:
+    def test_geometria_linestring(self):
+        for f in self.feats_geo:
             g = shape(f["geometry"])
-            lat = g.centroid.y
-            mx = _max_edge_m(g, lat)
-            if mx > 2000:
-                bad.append((f["properties"]["id"], mx))
-        self.assertEqual(bad, [], f"cordas >2 km: {bad}")
+            self.assertIn(g.geom_type, ("LineString", "MultiLineString"))
+            self.assertGreater(g.length, 0)
 
-    def test_no_overlaps_globally(self):
-        pairs = _overlap_pairs(self.feats)
-        self.assertEqual(pairs, [], f"sobreposicoes: {pairs[:5]}")
+    def test_ua_ids_unicos(self):
+        ids = [f["properties"]["ua_id"] for f in self.feats_geo]
+        self.assertEqual(len(ids), len(set(ids)))
 
 
 if __name__ == "__main__":

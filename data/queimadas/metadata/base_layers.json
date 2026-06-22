@@ -1,0 +1,42 @@
+{
+  "modulo": "queimadas",
+  "status": "base_estatica_parcial",
+  "gerado_em": "2026-06-22T10:11:17.122921+00:00",
+  "layers": {
+    "trechos_der_sp": {
+      "path": "data\\queimadas\\base\\trechos_der_sp.gpkg",
+      "layer": "trechos",
+      "features": 4583,
+      "crs": "EPSG:4326",
+      "bbox": [
+        -53.05548756314513,
+        -25.059498313451225,
+        -44.166338020652184,
+        -19.84726508583349
+      ],
+      "sha256": "636c1bbf5a27b76ecc8ca069f6a9dab773d70ede938ac171b73d8541655a8c73"
+    },
+    "limite_sp": {
+      "path": "data\\queimadas\\base\\limite_sp.gpkg",
+      "source_raw": "data\\queimadas\\base\\limite_sp_ibge.geojson",
+      "layer": "limite_sp",
+      "features": 1,
+      "crs": "EPSG:4326",
+      "bbox": [
+        -53.1101,
+        -25.3089,
+        -44.1614,
+        -19.7799
+      ],
+      "sha256": "7d09db2362ebfc3d6eb7dd4946a8383ef06ed0fb688000921486935f6d48265c",
+      "source_url": "https://servicodados.ibge.gov.br/api/v3/malhas/estados/35?formato=application/vnd.geo+json&qualidade=maxima"
+    }
+  },
+  "fontes_admin_der": {
+    "residencias_conserva_poligonos": "data\\RESIDENCIAS_CONSERVA_POLIGONOS.zip"
+  },
+  "pendentes": {
+    "mapbiomas": "baixar/preparar vegetacao_inpe.tif",
+    "dem": "baixar/preparar altitude_sp.tif"
+  }
+}

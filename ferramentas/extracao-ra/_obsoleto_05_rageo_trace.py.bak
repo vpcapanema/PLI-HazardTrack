@@ -1,0 +1,403 @@
+"""RAGEO via TRACE da linha desenhada no PDF (abordagem do usuario).
+
+Pipeline:
+  1. Carrega imagem dedicada da regiao (fundo ja removido = alpha=0).
+  2. Constroi 4 mascaras (RA1..RA4) por cor saturada.
+  3. Combina em mascara_linha = uniao das 4.
+  4. Restringe mascara_linha aos pixels dentro de um buffer pixel do
+     eixo cadastral DER da regiao (elimina outras rodovias visiveis
+     no mesmo recorte de mapa).
+  5. Esqueletoniza para 1 px.
+  6. Trace ordenado a partir da extremidade.
+  7. Atribui classe a cada pixel do trace consultando a mascara
+     original mais proxima (com dilation).
+  8. Detecta transicoes de classe -> pontos de quebra (em pixel).
+  9. Converte cada quebra para UTM e projeta no eixo DER -> km.
+ 10. Corta o eixo DER nesses km e atribui a classe ao segmento.
+"""
+import sys
+import numpy as np
+import geopandas as gpd
+from pathlib import Path
+from PIL import Image, ImageDraw
+from shapely.geometry import LineString, MultiLineString
+from shapely.ops import linemerge, unary_union, substring
+from skimage.morphology import skeletonize, binary_dilation
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = Path("data/pli-hazardtrack.gpkg")
+IMG_DIR = Path("ferramentas/extracao-ra/_imgs")
+EPSG_UTM = 31983
+
+# raio do buffer (em px) ao redor do eixo cadastral para filtrar a
+# mascara - aceita offset entre eixo cadastral e linha desenhada
+BUFFER_EIXO_PX = 30
+# dilation para casar pixels do skeleton com mascara original
+DILATION_CLASSE = 3
+
+REGIOES_CFG = {
+    1: {
+        "img": "rageo_r1_p52_3_3_3-3.png",
+        "utm": (350000, 430000, 7370000, 7420000),
+    },
+    2: {"img": "rageo_r2_p54_3_3_3-5.png", "utm": None},
+    3: {"img": "rageo_r3_p56_3_3_3-7.png", "utm": None},
+    4: {"img": "rageo_r4_p58_3_3_3-9.png", "utm": None},
+}
+
+
+# ---------------- IO e helpers basicos ----------------
+
+def carrega(img_path):
+    arr = np.array(Image.open(img_path))
+    if arr.shape[-1] == 4:
+        rgb = arr[..., :3]
+        alpha = arr[..., 3]
+    else:
+        rgb = arr
+        alpha = np.full(arr.shape[:2], 255, dtype=np.uint8)
+    return rgb, alpha
+
+
+def detecta_frame(rgb, alpha):
+    H, W, _ = rgb.shape
+    preto = (
+        (rgb[..., 0] < 70)
+        & (rgb[..., 1] < 70)
+        & (rgb[..., 2] < 70)
+        & (alpha > 0)
+    )
+    col_score = preto[H // 4 : 3 * H // 4, :].sum(axis=0)
+    row_score = preto[:, W // 4 : 3 * W // 4].sum(axis=1)
+    x0 = int(col_score[: W // 2].argmax())
+    x1 = int(W // 2 + col_score[W // 2 :].argmax())
+    y0 = int(row_score[: H // 2].argmax())
+    y1 = int(H // 2 + row_score[H // 2 :].argmax())
+    return x0, y0, x1, y1
+
+
+def utm_to_pixel(x, y, frame, bounds):
+    x0, y0, x1, y1 = frame
+    xmn, xmx, ymn, ymx = bounds
+    fx = (x - xmn) / (xmx - xmn)
+    fy = (ymx - y) / (ymx - ymn)
+    return int(round(x0 + fx * (x1 - x0))), int(round(y0 + fy * (y1 - y0)))
+
+
+def pixel_to_utm(px, py, frame, bounds):
+    x0, y0, x1, y1 = frame
+    xmn, xmx, ymn, ymx = bounds
+    fx = (px - x0) / (x1 - x0)
+    fy = (py - y0) / (y1 - y0)
+    x = xmn + fx * (xmx - xmn)
+    y = ymx - fy * (ymx - ymn)
+    return x, y
+
+
+def constroi_mapa_classes(rgb, alpha):
+    """Devolve mapa[H,W] com classe (1..4) ou 0 (nao-classe)."""
+    R = rgb[..., 0].astype(np.int16)
+    G = rgb[..., 1].astype(np.int16)
+    B = rgb[..., 2].astype(np.int16)
+    valid = alpha > 0
+    mx = np.maximum(np.maximum(R, G), B)
+    mn = np.minimum(np.minimum(R, G), B)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    sat_ok = (sat >= 0.55) & valid
+    magenta = sat_ok & (R >= 150) & (B >= 100) & (G <= 80)
+
+    m4 = sat_ok & (R >= 200) & (G <= 60) & (B <= 60) & ~magenta
+    m3 = (sat_ok & (R >= 220) & (G >= 100) & (G <= 200)
+          & (B <= 90) & ~m4 & ~magenta)
+    m2 = (sat_ok & (R >= 200) & (G >= 200) & (B <= 110)
+          & ~m4 & ~m3 & ~magenta)
+    m1 = (sat_ok & (G >= 180) & (R <= 200) & (B <= 110)
+          & ~m4 & ~m3 & ~m2 & ~magenta)
+
+    mapa = np.zeros(rgb.shape[:2], dtype=np.uint8)
+    mapa[m1] = 1
+    mapa[m2] = 2
+    mapa[m3] = 3
+    mapa[m4] = 4
+    return mapa
+
+
+def _to_line(g):
+    if isinstance(g, LineString):
+        return g
+    if isinstance(g, MultiLineString):
+        m = linemerge(list(g.geoms))
+        if isinstance(m, LineString):
+            return m
+        return max(m.geoms, key=lambda x: x.length)
+    raise TypeError(f"geom inesperada: {type(g)}")
+
+
+def _dissolve(grupo):
+    geoms = []
+    for g in grupo.geometry:
+        if isinstance(g, MultiLineString):
+            geoms.extend(list(g.geoms))
+        elif isinstance(g, LineString):
+            geoms.append(g)
+    u = unary_union(geoms)
+    if isinstance(u, LineString):
+        return u
+    return _to_line(u)
+
+
+# ---------------- buffer pixel do eixo ----------------
+
+def rasteriza_buffer_eixo(eixo_utm, shape_hw, frame, bounds, raio_px):
+    """Cria mascara HxW = True dentro do buffer do eixo (em pixel)."""
+    H, W = shape_hw
+    img = Image.new("L", (W, H), 0)
+    draw = ImageDraw.Draw(img)
+    coords_px = [
+        utm_to_pixel(c[0], c[1], frame, bounds) for c in eixo_utm.coords
+    ]
+    # desenha o eixo com largura = 2*raio (ImageDraw line width)
+    draw.line(coords_px, fill=255, width=raio_px * 2)
+    return np.array(img) > 0
+
+
+# ---------------- skeleton + trace ----------------
+
+def trace_skeleton(skel):
+    """Recebe mascara bool de skeleton (1px). Procura uma extremidade
+    (pixel com 1 vizinho) e percorre em sequencia. Devolve lista
+    [(y, x), ...] do caminho ordenado."""
+    coords = np.argwhere(skel)
+    if len(coords) == 0:
+        return []
+    H, W = skel.shape
+    # mapa de vizinhos 8-conectados
+    pad = np.pad(skel, 1, mode="constant", constant_values=False)
+    cnt = np.zeros_like(skel, dtype=np.int16)
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            if dy == 0 and dx == 0:
+                continue
+            cnt += pad[1 + dy:1 + dy + H, 1 + dx:1 + dx + W]
+    cnt[~skel] = 0
+    # extremidade: pixel do skeleton com apenas 1 vizinho
+    extrem = np.argwhere((cnt == 1))
+    if len(extrem) == 0:
+        # nenhum endpoint (loop) - pega qualquer pixel
+        start = tuple(coords[0])
+    else:
+        start = tuple(extrem[0])
+
+    visitado = np.zeros_like(skel, dtype=bool)
+    caminho = [start]
+    visitado[start] = True
+    atual = start
+    while True:
+        y, x = atual
+        prox = None
+        # prioriza vizinhos 4-conectados; depois diagonais
+        for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1),
+                       (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            ny, nx = y + dy, x + dx
+            if 0 <= ny < H and 0 <= nx < W and skel[ny, nx] \
+                    and not visitado[ny, nx]:
+                prox = (ny, nx)
+                break
+        if prox is None:
+            break
+        visitado[prox] = True
+        caminho.append(prox)
+        atual = prox
+    return caminho
+
+
+def classe_por_pixel(caminho, mapa_classes, raio=3):
+    """Para cada pixel do caminho, busca a classe predominante
+    numa janela [raio] ao redor (votacao majoritaria)."""
+    H, W = mapa_classes.shape
+    saida = []
+    for y, x in caminho:
+        y0 = max(0, y - raio)
+        y1 = min(H, y + raio + 1)
+        x0 = max(0, x - raio)
+        x1 = min(W, x + raio + 1)
+        win = mapa_classes[y0:y1, x0:x1]
+        votos = {}
+        for c in win.ravel():
+            if c == 0:
+                continue
+            votos[int(c)] = votos.get(int(c), 0) + 1
+        if votos:
+            saida.append(max(votos.items(), key=lambda kv: kv[1])[0])
+        else:
+            saida.append(0)
+    return saida
+
+
+def suaviza(classes, janela=5):
+    n = len(classes)
+    out = list(classes)
+    for i in range(n):
+        ini = max(0, i - janela // 2)
+        fim = min(n, i + janela // 2 + 1)
+        votos = {}
+        for c in out[ini:fim]:
+            votos[c] = votos.get(c, 0) + 1
+        out[i] = max(votos.items(), key=lambda kv: kv[1])[0]
+    return out
+
+
+# ---------------- pipeline por regiao ----------------
+
+def processa(rid, cfg, aux_utm):
+    img_path = IMG_DIR / cfg["img"]
+    rgb, alpha = carrega(img_path)
+    bounds = cfg["utm"]
+    if bounds is None:
+        print(f"R{rid}: SKIP (bounds UTM nao definidos)")
+        return []
+    frame = detecta_frame(rgb, alpha)
+    print(f"\nR{rid}: {cfg['img']} {rgb.shape}  "
+          f"frame_px={frame}  bounds={bounds}")
+
+    mapa = constroi_mapa_classes(rgb, alpha)
+    qtd = {k: int((mapa == k).sum()) for k in range(1, 5)}
+    print(f"  Pixels por classe: " + "  ".join(
+        f"RA{k}={v}" for k, v in qtd.items()))
+
+    # eixo cadastral da regiao
+    grupo = aux_utm[aux_utm["regiao_id"] == rid]
+    eixo = _dissolve(grupo)
+    L_eixo = eixo.length
+
+    # filtra mapa de classes ao buffer do eixo
+    H, W = mapa.shape
+    buf_mask = rasteriza_buffer_eixo(
+        eixo, (H, W), frame, bounds, BUFFER_EIXO_PX
+    )
+    mapa_r = mapa.copy()
+    mapa_r[~buf_mask] = 0
+    qtd_r = {k: int((mapa_r == k).sum()) for k in range(1, 5)}
+    print(f"  Pixels dentro do buffer R{rid}: " + "  ".join(
+        f"RA{k}={v}" for k, v in qtd_r.items()))
+
+    # mascara da linha (uniao) + skeleton
+    linha = mapa_r > 0
+    if not linha.any():
+        print("  Mascara da linha vazia!")
+        return []
+    skel = skeletonize(linha)
+    print(f"  skeleton: {int(skel.sum())} pixels")
+
+    # trace ordenado
+    caminho = trace_skeleton(skel)
+    if not caminho:
+        print("  Trace vazio!")
+        return []
+    print(f"  trace: {len(caminho)} pixels")
+
+    # classe por pixel do trace (com dilation)
+    classes = classe_por_pixel(caminho, mapa_r, raio=DILATION_CLASSE)
+    sem_classe = sum(1 for c in classes if c == 0)
+    classes = suaviza(classes, janela=7)
+    classes = [c if c != 0 else 0 for c in classes]  # mantem 0
+    print(f"  trace sem classe: {sem_classe}/{len(classes)} "
+          f"({100*sem_classe/len(classes):.1f}%)")
+
+    # detecta transicoes
+    transicoes = [0]  # indices no caminho
+    for i in range(1, len(classes)):
+        if classes[i] != classes[i - 1]:
+            transicoes.append(i)
+    transicoes.append(len(classes) - 1)
+
+    # gera segmentos [(classe, lista_pixels)]
+    segmentos = []
+    for k in range(len(transicoes) - 1):
+        i0 = transicoes[k]
+        i1 = transicoes[k + 1]
+        cls = classes[i0]
+        if cls == 0:
+            continue  # ignora RA0 (sera atribuido implicitamente)
+        segmentos.append((cls, caminho[i0:i1 + 1]))
+
+    print(f"  segmentos coloridos (sem RA0): {len(segmentos)}")
+
+    # para cada segmento: converte extremos para UTM e projeta no eixo
+    segs_out = []
+    km_breaks = []  # (km_ini, km_fim, classe)
+    for cls, pts in segmentos:
+        if len(pts) < 2:
+            continue
+        # extremos
+        y_ini, x_ini = pts[0]
+        y_fim, x_fim = pts[-1]
+        ux_ini, uy_ini = pixel_to_utm(x_ini, y_ini, frame, bounds)
+        ux_fim, uy_fim = pixel_to_utm(x_fim, y_fim, frame, bounds)
+        # projeta no eixo (distancia ao longo do eixo, em metros)
+        from shapely.geometry import Point
+        km_ini = eixo.project(Point(ux_ini, uy_ini))
+        km_fim = eixo.project(Point(ux_fim, uy_fim))
+        if km_ini > km_fim:
+            km_ini, km_fim = km_fim, km_ini
+        km_breaks.append((km_ini, km_fim, cls))
+
+    # ordena por km_ini, depois preenche gaps com RA0
+    km_breaks.sort()
+    cobertura = []  # (m_ini, m_fim, classe)
+    m_atual = 0.0
+    for m_ini, m_fim, cls in km_breaks:
+        if m_ini > m_atual + 5:  # > 5m: gap -> RA0
+            cobertura.append((m_atual, m_ini, 0))
+        cobertura.append((max(m_ini, m_atual), m_fim, cls))
+        m_atual = max(m_atual, m_fim)
+    if m_atual < L_eixo - 5:
+        cobertura.append((m_atual, L_eixo, 0))
+
+    # corta o eixo segundo cobertura
+    for m_ini, m_fim, cls in cobertura:
+        if m_fim - m_ini < 1:
+            continue
+        s = substring(eixo, m_ini, m_fim)
+        if s.is_empty or s.length < 1:
+            continue
+        segs_out.append({
+            "regiao_id": rid,
+            "classe_ra_geo": int(cls),
+            "geometry": s,
+        })
+
+    dist = {k: 0.0 for k in range(5)}
+    for s in segs_out:
+        dist[s["classe_ra_geo"]] += s["geometry"].length / 1000.0
+    print(f"  extensoes (km): " +
+          "  ".join(f"RA{k}={dist[k]:.2f}" for k in range(5)))
+    return segs_out
+
+
+def main():
+    aux = gpd.read_file(GPKG, layer="auxilio_regioes_estudo")
+    aux_utm = aux.to_crs(EPSG_UTM)
+
+    todos = []
+    for rid, cfg in REGIOES_CFG.items():
+        segs = processa(rid, cfg, aux_utm)
+        todos.extend(segs)
+    if not todos:
+        print("Nenhum segmento gerado")
+        return
+
+    gdf = gpd.GeoDataFrame(todos, geometry="geometry", crs=EPSG_UTM)
+    gdf["extensao_km"] = gdf.geometry.length / 1000.0
+    gdf = gdf.to_crs(4326)
+    out_layer = "ra_geologico_continuo_v3"
+    gdf.to_file(GPKG, layer=out_layer, driver="GPKG")
+    print(f"\nCamada '{out_layer}' salva: {len(gdf)} segmentos")
+    print("\nResumo por Regiao x Classe (km):")
+    print(gdf.groupby(["regiao_id", "classe_ra_geo"])["extensao_km"]
+          .sum().unstack(fill_value=0).round(2).to_string())
+
+
+if __name__ == "__main__":
+    main()

@@ -13,13 +13,12 @@ import threading
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
-import core.env  # noqa: F401  pylint: disable=unused-import
-
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
-from apscheduler.schedulers.background import BackgroundScheduler
 
+import core.env  # noqa: F401  pylint: disable=unused-import
 from core.aggregator import state
 from core.admin import admin_bp
 from core.actions import get_summary_actions, get_protocolo_completo
@@ -355,6 +354,64 @@ def api_progress():
     return jsonify(get_download_progress())
 
 
+@app.route("/api/progress/stream")
+def api_progress_stream():
+    """Server-Sent Events: empurra progresso ao inves de pollar 1-2 req/s.
+
+    A UI abre uma EventSource e recebe cada mudanca em push (versao
+    monotonica acordada por Condition em core.merge_inpe). Sem mudanca,
+    mantem a conexao viva com comentario `: keepalive` a cada ~15s. Cai
+    pro polling do `/api/progress` se SSE falhar no cliente.
+    """
+    import json as _json
+    import time as _time
+    from flask import Response
+
+    from core.merge_inpe import (
+        get_download_progress,
+        get_progress_version,
+        wait_for_progress_change,
+    )
+
+    def generate():
+        # Hint para proxies (nginx) nao bufferizarem o stream
+        yield "retry: 5000\n\n"
+        last_version = -1
+        last_sent_at = 0.0
+        # Rate limit: no maximo 1 evento real a cada 100ms (10/s).
+        # Throttle em _progress_bytes ja amortece, mas mantemos
+        # uma protecao extra na borda do stream.
+        min_gap_s = 0.1
+        while True:
+            try:
+                new_version = wait_for_progress_change(
+                    last_version, timeout_s=15.0,
+                )
+            except GeneratorExit:
+                return
+            if new_version == last_version:
+                yield ": keepalive\n\n"
+                continue
+            gap = _time.monotonic() - last_sent_at
+            if gap < min_gap_s:
+                _time.sleep(min_gap_s - gap)
+            last_version = get_progress_version()
+            payload = get_download_progress()
+            payload["_version"] = last_version
+            try:
+                data = _json.dumps(payload, default=str)
+            except (TypeError, ValueError):
+                continue
+            yield f"data: {data}\n\n"
+            last_sent_at = _time.monotonic()
+
+    resp = Response(generate(), mimetype="text/event-stream")
+    resp.headers["Cache-Control"] = "no-cache, no-transform"
+    resp.headers["X-Accel-Buffering"] = "no"  # nginx
+    resp.headers["Connection"] = "keep-alive"
+    return resp
+
+
 @app.route("/api/road-network")
 def api_road_network():
     """Serve a malha rodoviaria DER completa (GeoJSON otimizado para mapa)."""
@@ -461,10 +518,13 @@ def api_forecast():
     out = []
     for p, f in zip(points, forecast):
         entry = {
-            "id": p["id"],
-            "nome": p["nome"],
-            "lat": p["lat"],
-            "lon": p["lon"],
+            "ua_id": p["ua_id"],
+            "sigla_rodovia": p.get("sigla_rodovia"),
+            "km_inicial": p.get("km_inicial"),
+            "km_final": p.get("km_final"),
+            "regiao_id": p.get("regiao_id"),
+            "lat": p.get("centroide_lat") or p.get("lat"),
+            "lon": p.get("centroide_lon") or p.get("lon"),
         }
         if f is not None:
             entry.update({
@@ -543,6 +603,50 @@ def api_public_ua_layers():
     resp = jsonify(body)
     resp.headers["Content-Type"] = "application/geo+json; charset=utf-8"
     resp.headers["Cache-Control"] = "public, max-age=30"
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
+
+
+@app.route("/api/public/fire-risk/layers")
+def api_public_fire_risk_layers():
+    """Feed publico GeoJSON do risco estadual de queimadas por trecho DER."""
+    from core.fire_risk import get_fire_risk_geojson
+
+    horizonte = request.args.get("horizonte", "observado")
+    min_class = request.args.get("classe")
+    body = get_fire_risk_geojson(horizonte=horizonte, min_class=min_class)
+    resp = jsonify(body)
+    resp.headers["Content-Type"] = "application/geo+json; charset=utf-8"
+    resp.headers["Cache-Control"] = "public, max-age=300"
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
+
+
+@app.route("/api/public/fire-risk/snapshot")
+def api_public_fire_risk_snapshot():
+    """Resumo estadual do ultimo produto de risco de queimadas publicado."""
+    from core.fire_risk import get_fire_risk_snapshot
+
+    resp = jsonify(get_fire_risk_snapshot())
+    resp.headers["Cache-Control"] = "public, max-age=300"
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
+
+
+@app.route("/api/public/fire-risk/trecho/<trecho_id>")
+def api_public_fire_risk_trecho(trecho_id):
+    """Detalhe de risco de queimadas para um trecho DER-SP."""
+    from core.fire_risk import get_fire_risk_by_trecho
+
+    horizonte = request.args.get("horizonte", "observado")
+    body = get_fire_risk_by_trecho(trecho_id, horizonte=horizonte)
+    if body is None:
+        return jsonify({
+            "error": "trecho_id nao encontrado",
+            "trecho_id": trecho_id,
+        }), 404
+    resp = jsonify(body)
+    resp.headers["Cache-Control"] = "public, max-age=300"
     resp.headers["Access-Control-Allow-Origin"] = "*"
     return resp
 

@@ -1,0 +1,195 @@
+"""
+Atribui RAGEO e RAHID a cada UA de `uas_area_estudo` seguindo
+ESTRITAMENTE as quantidades oficiais por (Regiao x Escala x Classe)
+das Tabelas 3.3.1-2 (RAGEO) e 3.3.2-2 (RAHID) do PRODUTO 7.
+
+A ORDENACAO ESPACIAL e guiada pela "classe sugerida" obtida por
+overlap espacial com as camadas `ra_geologico_continuo` e
+`ra_hidrologico_continuo` (extracao de cor das Figuras 3.3.3-x).
+
+Algoritmo por grupo (Regiao x Escala):
+  1. Obter cotas oficiais: e.g. R3/10K = {0:0, 1:103, 2:0, 3:0, 4:0}
+  2. Para cada UA do grupo, calcular `classe_sugerida` (0..4) via
+     intersecao espacial com a camada continua (modo majoritario).
+  3. Ordenar UAs por classe_sugerida DESC (mais arriscadas primeiro).
+  4. Distribuir as classes oficiais nesta ordem: as primeiras N4 UAs
+     viram RA4, as proximas N3 viram RA3, ..., e as ultimas N0 viram RA0.
+
+Isso GARANTE:
+  - Totais por (Regiao x Escala x Classe) EXATAMENTE iguais ao PDF
+  - Ordenacao espacial sensata: trechos visualmente mais vermelhos no
+    PDF recebem RA4, trechos verdes recebem RA1.
+"""
+import sys
+from pathlib import Path
+from collections import defaultdict
+from importlib import import_module
+
+import geopandas as gpd
+
+sys.path.insert(0, str(Path("ferramentas/extracao-ra").resolve()))
+ot = import_module("40_oficial_tabelas")
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = Path("data/pli-hazardtrack.gpkg")
+EPSG_UTM = 31983
+
+
+def classe_sugerida(uas_utm, continuo_utm, col_classe):
+    """Para cada UA, retorna a classe RA (0..4) majoritaria do overlap
+    com a camada continua (em comprimento). Se nao ha overlap, devolve
+    None.
+    """
+    # Spatial join via intersection com buffer pequeno (15 m) para
+    # acomodar pequenos desvios geometricos entre UA e linha continua.
+    BUFFER_M = 15.0
+    sugest = []
+    cont_buf = continuo_utm.copy()
+    cont_buf["geometry"] = cont_buf.geometry.buffer(BUFFER_M)
+    sidx = cont_buf.sindex
+    for ua_geom in uas_utm.geometry:
+        ua_buf = ua_geom.buffer(1.0)  # pequeno buffer para evitar 0-area
+        cand = list(sidx.query(ua_buf, predicate="intersects"))
+        if not cand:
+            sugest.append(None)
+            continue
+        soma_por_classe = defaultdict(float)
+        for i in cand:
+            interseccao = ua_buf.intersection(
+                cont_buf.iloc[i].geometry)
+            if interseccao.is_empty:
+                continue
+            area = interseccao.area
+            cls = int(cont_buf.iloc[i][col_classe])
+            soma_por_classe[cls] += area
+        if not soma_por_classe:
+            sugest.append(None)
+            continue
+        cls_maj = max(soma_por_classe.items(), key=lambda x: x[1])[0]
+        sugest.append(cls_maj)
+    return sugest
+
+
+def distribuir(uas_grupo, sugestao, cotas_oficiais):
+    """Atribui classes oficiais `cotas_oficiais` (dict {RA: qtd}) a cada
+    UA do grupo. UAs com `sugestao` mais alta recebem as classes mais
+    altas das cotas. Retorna lista de classes atribuidas alinhada a
+    uas_grupo.
+    """
+    n_uas = len(uas_grupo)
+    total_cotas = sum(cotas_oficiais.values())
+    assert n_uas == total_cotas, (
+        f"Mismatch: {n_uas} UAs vs {total_cotas} cotas oficiais"
+    )
+
+    # Lista de classes a distribuir, ordenada DESC (RA4 primeiro)
+    classes_a_distribuir = []
+    for ra in [4, 3, 2, 1, 0]:
+        classes_a_distribuir.extend([ra] * cotas_oficiais.get(ra, 0))
+
+    # Ordena UAs por sugestao DESC (com tiebreak pela ordem original
+    # para preservar continuidade espacial)
+    indices = list(range(n_uas))
+    # Substitui None por -1 para ficar no final
+    sug_safe = [s if s is not None else -1 for s in sugestao]
+    indices_ord = sorted(
+        indices, key=lambda i: (-sug_safe[i], i)
+    )
+
+    atribuido = [None] * n_uas
+    for posicao, idx_ua in enumerate(indices_ord):
+        atribuido[idx_ua] = classes_a_distribuir[posicao]
+    return atribuido
+
+
+def main():
+    print("=" * 70)
+    print("ATRIBUICAO RAGEO/RAHID (fiel as Tabelas 3.3.1-2 e 3.3.2-2)")
+    print("=" * 70)
+
+    uas = gpd.read_file(GPKG, layer="uas_area_estudo")
+    uas_utm = uas.to_crs(EPSG_UTM)
+    print(f"  uas_area_estudo: {len(uas)} UAs")
+
+    rgeo = gpd.read_file(
+        GPKG, layer="ra_geologico_continuo").to_crs(EPSG_UTM)
+    rhid = gpd.read_file(
+        GPKG, layer="ra_hidrologico_continuo").to_crs(EPSG_UTM)
+    print(f"  ra_geologico_continuo:    {len(rgeo)} segmentos")
+    print(f"  ra_hidrologico_continuo:  {len(rhid)} segmentos")
+
+    # Sugere classes via overlap
+    print()
+    print("  Calculando classes sugeridas (overlap espacial)...")
+    uas["sug_geo"] = classe_sugerida(uas_utm, rgeo, "classe_ra_geo")
+    uas["sug_hid"] = classe_sugerida(uas_utm, rhid, "classe_ra_hid")
+
+    print(f"    GEO sugerida: "
+          f"{uas['sug_geo'].value_counts(dropna=False).to_dict()}")
+    print(f"    HID sugerida: "
+          f"{uas['sug_hid'].value_counts(dropna=False).to_dict()}")
+
+    # Atribui RAGEO por grupo (Regiao x Escala)
+    print()
+    print("  Atribuindo RAGEO conforme Tab 3.3.1-2:")
+    rageo_col = [None] * len(uas)
+    for (rid, esc), cotas in ot.TAB_3_3_1_2_RAGEO.items():
+        if sum(cotas.values()) == 0:
+            continue
+        mask = (uas["regiao_id"] == rid) & (uas["escala"] == esc)
+        grupo = uas[mask]
+        sugest = grupo["sug_geo"].tolist()
+        # Ordena espacialmente: sort por offset cadastral (km_inicial)
+        grupo_ord = grupo.sort_values("km_inicial")
+        indices_orig = grupo_ord.index.tolist()
+        sug_ord = grupo_ord["sug_geo"].tolist()
+        classes = distribuir(grupo_ord, sug_ord, cotas)
+        for idx, cls in zip(indices_orig, classes):
+            rageo_col[idx] = cls
+        cnt = {ra: classes.count(ra) for ra in [0, 1, 2, 3, 4]}
+        print(f"    R{rid}/{esc}: {len(grupo)} UAs -> {cnt}")
+
+    print()
+    print("  Atribuindo RAHID conforme Tab 3.3.2-2:")
+    rahid_col = [None] * len(uas)
+    for (rid, esc), cotas in ot.TAB_3_3_2_2_RAHID.items():
+        if sum(cotas.values()) == 0:
+            continue
+        mask = (uas["regiao_id"] == rid) & (uas["escala"] == esc)
+        grupo = uas[mask]
+        sugest = grupo["sug_hid"].tolist()
+        grupo_ord = grupo.sort_values("km_inicial")
+        indices_orig = grupo_ord.index.tolist()
+        sug_ord = grupo_ord["sug_hid"].tolist()
+        classes = distribuir(grupo_ord, sug_ord, cotas)
+        for idx, cls in zip(indices_orig, classes):
+            rahid_col[idx] = cls
+        cnt = {ra: classes.count(ra) for ra in [0, 1, 2, 3, 4]}
+        print(f"    R{rid}/{esc}: {len(grupo)} UAs -> {cnt}")
+
+    uas["RAGEO"] = rageo_col
+    uas["RAHID"] = rahid_col
+    uas = uas.drop(columns=["sug_geo", "sug_hid"])
+
+    # Salva
+    uas.to_file(GPKG, layer="uas_area_estudo", driver="GPKG",
+                index=False)
+    print()
+    print(f"  Camada 'uas_area_estudo' atualizada: {len(uas)} feats")
+
+    # Validacao final: totalizacoes devem bater com PDF
+    print()
+    print("=" * 70)
+    print("VALIDACAO vs Tabela 3.3.1-2 (RAGEO):")
+    print("=" * 70)
+    g = uas.groupby(["regiao_id", "escala"])["RAGEO"].value_counts()
+    print(g.to_string())
+    print()
+    print("VALIDACAO vs Tabela 3.3.2-2 (RAHID):")
+    h = uas.groupby(["regiao_id", "escala"])["RAHID"].value_counts()
+    print(h.to_string())
+
+
+if __name__ == "__main__":
+    main()

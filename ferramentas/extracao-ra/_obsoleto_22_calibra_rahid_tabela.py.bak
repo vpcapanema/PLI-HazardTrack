@@ -1,0 +1,135 @@
+"""Atribui classes RAHID as UAs, calibrando pela Tabela 3.3.2-2 oficial.
+
+Pipeline identico ao 20_calibra_rageo_tabela.py, mas para RAHID.
+"""
+import sys
+from pathlib import Path
+from collections import defaultdict
+
+import geopandas as gpd
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = Path("data/pli-hazardtrack.gpkg")
+
+# Tabela 3.3.2-2 do PRODUTO 7 (RAHID)
+QTDS_HID = {
+    (1, "25K"): {0: 44, 1: 19, 2: 0,  3: 0,  4: 0},
+    (1, "10K"): {0: 0,  1: 11, 2: 0,  3: 0,  4: 0},
+    (1, "1K"):  {0: 37, 1: 0,  2: 0,  3: 0,  4: 0},
+    (2, "10K"): {0: 0,  1: 89, 2: 9,  3: 0,  4: 0},
+    (2, "1K"):  {0: 84, 1: 0,  2: 0,  3: 6,  4: 0},
+    (3, "10K"): {0: 0,  1: 99, 2: 4,  3: 0,  4: 0},
+    (3, "1K"):  {0: 248, 1: 0, 2: 0,  3: 4,  4: 0},
+    (4, "10K"): {0: 0,  1: 117, 2: 6, 3: 0,  4: 0},
+    (4, "1K"):  {0: 28, 1: 0,  2: 0,  3: 4,  4: 0},
+}
+
+
+def atribui_classe_inicial(uas, ra_ext):
+    uas_utm = uas.to_crs(31983)
+    ra_utm = ra_ext.to_crs(31983)
+    resultado = {}
+    for idx, ua in uas_utm.iterrows():
+        cand = ra_utm[ra_utm.intersects(ua.geometry)]
+        if len(cand) == 0:
+            resultado[idx] = -1
+            continue
+        por_classe = defaultdict(float)
+        for _, seg in cand.iterrows():
+            inter = ua.geometry.intersection(seg.geometry)
+            if inter.is_empty:
+                continue
+            try:
+                comp = inter.length
+            except Exception:
+                comp = 0.0
+            por_classe[int(seg["classe_ra_hid"])] += comp
+        if not por_classe:
+            resultado[idx] = -1
+        else:
+            resultado[idx] = max(por_classe.items(),
+                                 key=lambda kv: kv[1])[0]
+    return resultado
+
+
+def calibra_grupo(uas_grupo, classes_atuais, alvo):
+    N = len(uas_grupo)
+    assert sum(alvo.values()) == N
+    classes = [c if c >= 0 else 0 for c in classes_atuais]
+    cnt = {k: classes.count(k) for k in range(5)}
+    max_iter = 5000
+    it = 0
+    while it < max_iter:
+        excesso = {k: cnt[k] - alvo[k] for k in range(5)
+                   if cnt[k] > alvo[k]}
+        falta = {k: alvo[k] - cnt[k] for k in range(5)
+                 if cnt[k] < alvo[k]}
+        if not excesso or not falta:
+            break
+        c_e = max(excesso.items(), key=lambda kv: kv[1])[0]
+        c_f = max(falta.items(), key=lambda kv: kv[1])[0]
+        idxs_e = [i for i, c in enumerate(classes) if c == c_e]
+        idxs_f = [i for i, c in enumerate(classes) if c == c_f]
+        if not idxs_e:
+            break
+        if idxs_f:
+            best_i, best_d = None, float("inf")
+            for i in idxs_e:
+                d = min(abs(i - j) for j in idxs_f)
+                if d < best_d:
+                    best_d = d
+                    best_i = i
+        else:
+            best_i = idxs_e[0]
+        classes[best_i] = c_f
+        cnt[c_e] -= 1
+        cnt[c_f] += 1
+        it += 1
+    return classes
+
+
+def main():
+    print("Carregando camadas...")
+    uas = gpd.read_file(GPKG, layer="uas_area_estudo")
+    ra_ext = gpd.read_file(GPKG, layer="ra_hidrologico_continuo")
+    print(f"  UAs: {len(uas)}  segmentos extracao: {len(ra_ext)}")
+
+    print("\nAtribuindo classe inicial por overlap...")
+    cls_inicial = atribui_classe_inicial(uas, ra_ext)
+    n_sem = sum(1 for v in cls_inicial.values() if v < 0)
+    print(f"  UAs sem overlap: {n_sem}")
+
+    print("\nCalibrando por (Regiao, Escala) -> Tabela 3.3.2-2...")
+    uas["RAHID_extracao"] = uas.index.map(cls_inicial).fillna(-1).astype(int)
+    uas["RAHID"] = -1
+    for (rid, escala), alvo in QTDS_HID.items():
+        grupo = uas[(uas["regiao_id"] == rid)
+                    & (uas["escala"] == escala)].sort_values("ordem_no_grupo")
+        if len(grupo) == 0:
+            continue
+        classes_at = grupo["RAHID_extracao"].tolist()
+        classes_cal = calibra_grupo(grupo, classes_at, alvo)
+        cnt_pos = {k: classes_cal.count(k) for k in range(5)}
+        ok = all(cnt_pos[k] == alvo[k] for k in range(5))
+        n_mud = sum(1 for a, b in zip(classes_at, classes_cal) if a != b)
+        print(f"  R{rid} {escala}: N={len(grupo)}  "
+              f"mudancas={n_mud}/{len(grupo)}  ok={ok}")
+        uas.loc[grupo.index, "RAHID"] = classes_cal
+
+    uas = uas.drop(columns=["RAHID_extracao"])
+    uas.to_file(GPKG, layer="uas_area_estudo", driver="GPKG")
+    print("\n[OK] Camada uas_area_estudo atualizada com coluna RAHID.")
+
+    print("\nResumo (UAs por Regiao x Classe):")
+    print(uas.groupby(["regiao_id", "RAHID"]).size().unstack(fill_value=0)
+          .to_string())
+    print("\nResumo (km por Regiao x Classe):")
+    uas_utm = uas.to_crs(31983)
+    uas_utm["len_km"] = uas_utm.geometry.length / 1000.0
+    print(uas_utm.groupby(["regiao_id", "RAHID"])["len_km"]
+          .sum().unstack(fill_value=0).round(2).to_string())
+
+
+if __name__ == "__main__":
+    main()

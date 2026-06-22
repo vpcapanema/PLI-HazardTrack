@@ -1,0 +1,12 @@
+{
+  "modulo": "queimadas",
+  "step": "03_fetch_gfs",
+  "data_referencia": "2026-06-22",
+  "gerado_em": "2026-06-22T08:37:19.183851+00:00",
+  "source": "GFS/NOAA",
+  "cycle": "00",
+  "target_dir": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\raw\\gfs\\2026\\06\\22",
+  "status": "no_data",
+  "message": "Rotina GFS ainda nao conectada. Implementar download GRIB2 NOMADS/AWS para Tmax, URmin e precipitacao D+1..D+5.",
+  "files": []
+}

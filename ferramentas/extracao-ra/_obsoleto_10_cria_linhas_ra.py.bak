@@ -1,0 +1,65 @@
+"""PASSO 1: cria duas copias dissolvidas da camada auxiliar de regioes:
+  - ra_geologico_linha (1 LineString continua por regiao)
+  - ra_hidrologico_linha (idem)
+"""
+import sys
+import geopandas as gpd
+from pathlib import Path
+from shapely.geometry import LineString, MultiLineString
+from shapely.ops import linemerge, unary_union
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = Path("data/pli-hazardtrack.gpkg")
+
+
+def to_line(g):
+    if isinstance(g, LineString):
+        return g
+    if isinstance(g, MultiLineString):
+        m = linemerge(list(g.geoms))
+        if isinstance(m, LineString):
+            return m
+        return max(m.geoms, key=lambda x: x.length)
+    raise TypeError(type(g))
+
+
+def dissolve_por_regiao(aux):
+    out = []
+    for rid in sorted(aux["regiao_id"].unique()):
+        grupo = aux[aux["regiao_id"] == rid]
+        geoms = []
+        for g in grupo.geometry:
+            if isinstance(g, MultiLineString):
+                geoms.extend(list(g.geoms))
+            else:
+                geoms.append(g)
+        u = unary_union(geoms)
+        linha = to_line(u)
+        nome = grupo.iloc[0].get("regiao_nome", f"R{rid}")
+        out.append({
+            "regiao_id": int(rid),
+            "regiao_nome": nome,
+            "extensao_km": round(linha.length / 1000.0, 3),
+            "geometry": linha,
+        })
+    return out
+
+
+aux = gpd.read_file(GPKG, layer="auxilio_regioes_estudo").to_crs(31983)
+print(f"aux carregado: {len(aux)} feicoes")
+print(f"  CRS: {aux.crs}")
+print(f"  Colunas: {list(aux.columns)[:10]}")
+
+regs = dissolve_por_regiao(aux)
+print(f"\nDissolvido em {len(regs)} linhas (1 por regiao):")
+for r in regs:
+    print(f"  R{r['regiao_id']} {r['regiao_nome']}: "
+          f"{r['extensao_km']:.3f} km")
+
+gdf = gpd.GeoDataFrame(regs, geometry="geometry", crs=31983).to_crs(4326)
+gdf.to_file(GPKG, layer="ra_geologico_linha", driver="GPKG")
+gdf.to_file(GPKG, layer="ra_hidrologico_linha", driver="GPKG")
+print("\nSalvas no GeoPackage:")
+print("  - ra_geologico_linha")
+print("  - ra_hidrologico_linha")

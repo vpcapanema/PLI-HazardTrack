@@ -1,0 +1,23 @@
+{
+  "modulo": "queimadas",
+  "metodologia": "INPE-RF-v11",
+  "data_referencia": "2026-06-22",
+  "data_status": "ok",
+  "horizontes_disponiveis": [
+    "D+1",
+    "D+2",
+    "D+3",
+    "observado"
+  ],
+  "horizonte_publicado": "observado",
+  "total_trechos": 4583,
+  "classes": {
+    "alto": 2002,
+    "critico": 1446,
+    "SEM_DADO": 656,
+    "baixo": 187,
+    "medio": 166,
+    "minimo": 126
+  },
+  "source": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\processed\\risco_trechos_der.gpkg"
+}

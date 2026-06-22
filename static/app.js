@@ -56,8 +56,6 @@ const TRECHO_VALUE_PENDING = "Aguardando dados";
 const HAZARDS = {
   encosta: {
     label: "Instabilidade de encosta",
-    legendTitle:
-      "Situação operacional dos trechos<br>rodoviários considerando: instabilidade de encosta",
     description:
       "Engloba escorregamento e queda de bloco. Pelo método em uso (REGEA-NIPPON 2021), são tratados na mesma envoltória crítica.",
     // Mesma escala dos pontos (niveis operacionais oficiais).
@@ -68,8 +66,6 @@ const HAZARDS = {
   },
   inundacao: {
     label: "Inundação",
-    legendTitle:
-      "Situação operacional dos trechos<br>rodoviários considerando: inundação",
     description:
       "Alagamento e enxurrada por chuva intensa de curto prazo (24h).",
     // Nivel 0 = mesmo verde dos pontos (Monitoramento). Niveis 1-3 sobem em azul,
@@ -85,6 +81,7 @@ const HAZARDS = {
 // Default: todas as disponiveis ligadas; o que o usuario alterar fica salvo.
 const HAZARD_STORAGE_KEY = "pli_hazardtrack.hazard_layers.v2";
 const LEGEND_COLLAPSE_KEY = "pli_hazardtrack.legend_collapsed.v1";
+const LAYER_PANEL_COLLAPSE_KEY = "pli_hazardtrack.layer_panel_collapsed.v1";
 const MAP_LAYER_STORAGE_KEY = "pli_hazardtrack.map_layers.v2";
 const PROGRESS_POLL_MS = 1500;
 
@@ -138,6 +135,7 @@ const MAP_LAYER_DEFAULTS = {
   regions: false,
   heatmap: false,
   roads: true,
+  fireRisk: false,
   municipios: false,
   rc: false,
   uba: false,
@@ -171,9 +169,30 @@ function snapshotPoints(snap) {
   if (geo.length || hid.length) return { geo, hid };
   const legacy = snap?.points || [];
   return {
-    geo: legacy.filter((p) => p.hazard === "geo" || p.ra_hid == null),
-    hid: legacy.filter((p) => p.hazard === "hidro" || p.ra_geo == null),
+    geo: legacy.filter((p) => p.hazard === "geo" || p.RAHID == null),
+    hid: legacy.filter((p) => p.hazard === "hidro" || p.RAGEO == null),
   };
+}
+
+// ============================================================================
+// Helpers UA - leem ATRIBUTOS NATIVOS de uas_area_estudo nos pontos
+// retornados por /api/snapshot (sem normalizacao intermediaria).
+// ============================================================================
+function uaKmMid(p) {
+  if (p == null) return null;
+  if (p.km_inicial != null && p.km_final != null) {
+    return (Number(p.km_inicial) + Number(p.km_final)) / 2;
+  }
+  return null;
+}
+function uaLabel(p) {
+  if (!p) return "—";
+  const rod = p.sigla_rodovia || "UA";
+  const ki = p.km_inicial, kf = p.km_final;
+  if (ki != null && kf != null) {
+    return `${rod} km ${formatTrechoKm(ki)}-${formatTrechoKm(kf)}`;
+  }
+  return rod;
 }
 
 function activeByLevel(summary) {
@@ -214,10 +233,10 @@ function activePointPool(snap) {
     return existing;
   };
   for (const p of geo) {
-    byId.set(p.id, pick(byId.get(p.id), p, "geo"));
+    byId.set(p.ua_id, pick(byId.get(p.ua_id), p, "geo"));
   }
   for (const p of hid) {
-    byId.set(p.id, pick(byId.get(p.id), p, "hidro"));
+    byId.set(p.ua_id, pick(byId.get(p.ua_id), p, "hidro"));
   }
   return [...byId.values()];
 }
@@ -282,14 +301,14 @@ function resolvePanelUaId(snap) {
   if (state.trechoRegion) {
     const rid = Number(state.trechoRegion);
     const inReg = focal.filter((p) => uaRegionId(p) === rid);
-    if (inReg.length) return inReg[0].id;
+    if (inReg.length) return inReg[0].ua_id;
     const { geo } = snapshotPoints(snap);
     const ranked = geo
       .filter((p) => uaRegionId(p) === rid)
       .sort((a, b) => (b.rd || 0) - (a.rd || 0));
-    return ranked[0]?.id || null;
+    return ranked[0]?.ua_id || null;
   }
-  return focal[0]?.id || null;
+  return focal[0]?.ua_id || null;
 }
 
 function renderFocalBanner(focal) {
@@ -333,19 +352,17 @@ function renderFocalBanner(focal) {
 
 function formatRaValue(pt, channel) {
   if (!pt) return "—";
-  const raw =
-    channel === "geo"
-      ? pt.ra_geo ?? pt.ra
-      : pt.ra_hid ?? pt.ra;
+  const raw = channel === "geo" ? pt.RAGEO : pt.RAHID;
   if (raw == null || raw === "") return "SEM DADO";
   return String(raw);
 }
 
 function formatTrechoLabel(pt) {
   if (!pt) return "—";
-  const km = formatTrechoKm(pt.km);
-  if (pt.nome) return `${pt.nome} · km ${km}`;
-  return `km ${km}`;
+  if (pt.km_inicial != null && pt.km_final != null) {
+    return `km ${formatTrechoKm(pt.km_inicial)}-${formatTrechoKm(pt.km_final)}`;
+  }
+  return uaLabel(pt);
 }
 
 function resolveMaxAlertContext(snap, summary) {
@@ -370,8 +387,8 @@ function resolveMaxAlertContext(snap, summary) {
   const rdAlert = alertPt?.rd ?? summary.max_rd ?? 0;
   return {
     hazardLabel: HAZARD_ALERT_LABEL[hazard] || HAZARD_ALERT_LABEL.geo,
-    region: ref.region_name || "—",
-    rodovia: ref.rodovia || "—",
+    region: ref.regiao_nome || "—",
+    rodovia: ref.sigla_rodovia || "—",
     trecho: formatTrechoLabel(ref),
     raGeo: formatRaValue(pair.geo, "geo"),
     raHid: formatRaValue(pair.hid, "hidro"),
@@ -423,9 +440,7 @@ function renderMaxAlertPanel(snap, summary, level) {
 }
 
 function focalShortLabel(p) {
-  const rv = p.rodovia || "UA";
-  const km = p.km != null ? ` km ${p.km}` : "";
-  return `${rv}${km}`;
+  return uaLabel(p);
 }
 
 function sidebarLevelCounts(summary, focal) {
@@ -498,11 +513,19 @@ const HAZARD_STATE = _loadHazardState();
 
 const state = {
   map: null,
-  layers: { hazardZones: {}, regions: null, heat: null, roads: null },
+  layers: {
+    hazardZones: {},
+    regions: null,
+    heat: null,
+    roads: null,
+    fireRisk: null,
+  },
   pointMarkers: new Map(),
   pointData: new Map(), // id -> dados completos do ponto (para heatmap)
   regionPolys: [],
   roadGeoJSON: null,
+  fireRiskGeoJSON: {},
+  fireRiskHorizon: "observado",
   roadFilters: {
     tipo_pista: "",
     regional: "",
@@ -529,6 +552,11 @@ const state = {
   trechoRoad: "",
   trechoApoioId: "",
   trechoFocus: { markerKeys: [], overlay: null, lastKey: "" },
+  lastPopupLatLng: null,
+  // Halo visual aplicado ao clicar numa UA (separado de trechoFocus,
+  // que e disparado por seletores da sidebar). Persiste ate o usuario
+  // clicar fora ou em outra UA.
+  uaClickFocus: { markerKey: null, halo: null },
   forecastData: null,
 };
 
@@ -543,15 +571,19 @@ function init() {
   window.pliMapBridge = {
     onFiltersChanged() {
       renderRoadsOnMap();
+      renderFireRiskLayer();
       if (state.lastSnapshot) renderPointsOnMap(state.lastSnapshot);
     },
     getLayerValues(layerId, fieldKey) {
       let rows = [];
       if (layerId === "roads") {
         rows = state.roadGeoJSON?.features?.map((f) => f.properties || {}) || [];
+      } else if (layerId === "fireRisk") {
+        rows = state.fireRiskGeoJSON[state.fireRiskHorizon]?.features
+          ?.map((f) => f.properties || {}) || [];
       } else if (layerId === "encosta" || layerId === "inundacao") {
         const snap = state.lastSnapshot || {};
-        const [geo, hid] = snapshotPoints(snap);
+        const { geo, hid } = snapshotPoints(snap);
         rows = layerId === "inundacao" ? hid : geo;
       }
 
@@ -619,6 +651,7 @@ function initMap() {
   });
   state.layers.regions = L.layerGroup(); // criada vazia, ligada via toggle
   state.layers.roads = L.layerGroup().addTo(state.map);
+  state.layers.fireRisk = L.layerGroup();
   // Camadas administrativas (criadas vazias; carregadas sob demanda no toggle)
   state.layers.municipios = L.layerGroup();
   state.layers.rc = L.layerGroup();
@@ -628,6 +661,9 @@ function initMap() {
   // Mascara visual: tudo fora do estado de SP fica esmaecido. Carregamento
   // assincrono - se falhar, o mapa funciona normal sem mascara.
   loadSpMask();
+
+  // Click no mapa (fora de qualquer feature) limpa o halo de UA clicada.
+  state.map.on("click", () => clearUaClickFocus());
 }
 
 /**
@@ -779,6 +815,44 @@ function attachEvents() {
     else state.map.removeLayer(state.layers.roads);
   });
 
+  document.getElementById("layer-fireRisk")?.addEventListener("change", async (e) => {
+    MAP_LAYER_STATE.fireRisk = e.target.checked;
+    saveMapLayerState();
+    if (e.target.checked) {
+      await loadFireRiskLayer();
+      state.map.addLayer(state.layers.fireRisk);
+    } else {
+      state.map.removeLayer(state.layers.fireRisk);
+    }
+    syncInteractiveLayerOrder();
+    renderHazardLegend();
+  });
+
+  document.getElementById("layer-fireRisk-horizon")?.addEventListener(
+    "change",
+    async (e) => {
+      state.fireRiskHorizon = e.target.value || "observado";
+      state.fireRiskGeoJSON[state.fireRiskHorizon] = null;
+      if (MAP_LAYER_STATE.fireRisk) {
+        await loadFireRiskLayer(state.fireRiskHorizon);
+        renderHazardLegend();
+      }
+    },
+  );
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".js-unified-layers");
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const lat = Number(btn.dataset.lat);
+    const lng = Number(btn.dataset.lng);
+    const latlng = Number.isFinite(lat) && Number.isFinite(lng)
+      ? L.latLng(lat, lng)
+      : state.lastPopupLatLng;
+    if (latlng) openUnifiedLayerPopup(latlng);
+  });
+
   attachAdminLayerEvents();
   restoreMapLayerState();
   attachModalEvents();
@@ -789,7 +863,8 @@ function attachEvents() {
 
 function uaRegionId(p) {
   if (!p) return null;
-  const v = p.region_id ?? p.regiao;
+  // Aceita tanto UA (regiao_id nativo) quanto malha DER (region_id normalizado)
+  const v = p.regiao_id ?? p.region_id;
   return v != null ? Number(v) : null;
 }
 
@@ -797,12 +872,12 @@ function trechoIndexByRoad(snap) {
   const { geo } = snapshotPoints(snap);
   const byRod = new Map();
   for (const p of geo) {
-    const rod = p.rodovia || "—";
+    const rod = p.sigla_rodovia || "—";
     if (!byRod.has(rod)) byRod.set(rod, []);
     byRod.get(rod).push(p);
   }
   for (const pts of byRod.values()) {
-    pts.sort((a, b) => (a.km || 0) - (b.km || 0));
+    pts.sort((a, b) => (uaKmMid(a) || 0) - (uaKmMid(b) || 0));
   }
   return byRod;
 }
@@ -882,9 +957,9 @@ function trechoKmOptionsHtml(byRod, road, regId) {
   let html = `<option value="">${TRECHO_SELECT_PLACEHOLDER}</option>`;
   for (const p of pts) {
     const rdTag = (p.rd || 0) > 0 ? ` · RD ${p.rd}` : "";
-    html += `<option value="${escapeHtml(String(p.id))}">km ${
-      formatTrechoKm(p.km)
-    }${rdTag}</option>`;
+    html += `<option value="${escapeHtml(String(p.ua_id))}">km ${
+      formatTrechoKm(p.km_inicial)
+    }-${formatTrechoKm(p.km_final)}${rdTag}</option>`;
   }
   return html;
 }
@@ -934,10 +1009,14 @@ function syncTrechoKmOptions(snap) {
 }
 
 function buildRegionOptionsHtml(snap) {
-  const regions = (snap?.regions || []).slice().sort((a, b) => a.id - b.id);
+  const regions = (snap?.regions || []).slice().sort(
+    (a, b) => (a.regiao_id ?? a.id) - (b.regiao_id ?? b.id),
+  );
   let html = `<option value="">${TRECHO_SELECT_PLACEHOLDER}</option>`;
   for (const r of regions) {
-    html += `<option value="${r.id}">${r.id} · ${escapeHtml(r.nome)}</option>`;
+    const rid = r.regiao_id ?? r.id;
+    const nome = r.regiao_nome ?? r.nome ?? "—";
+    html += `<option value="${rid}">${rid} · ${escapeHtml(nome)}</option>`;
   }
   return html;
 }
@@ -987,8 +1066,8 @@ function rebuildTrechoPickers(snap) {
   if (state.uaPickerId) {
     const pair = getUaPair(snap, state.uaPickerId);
     const ref = pair.geo || pair.hid;
-    if (ref?.rodovia) {
-      state.trechoRoad = ref.rodovia;
+    if (ref?.sigla_rodovia) {
+      state.trechoRoad = ref.sigla_rodovia;
       state.trechoApoioId = "";
     }
     const rid = uaRegionId(ref);
@@ -1013,7 +1092,7 @@ function rebuildTrechoPickers(snap) {
   syncTrechoKmOptions(snap);
   if (state.uaPickerId && filteredUaPoints(
     byRod, state.trechoRoad, regId,
-  ).some((p) => String(p.id) === state.uaPickerId)) {
+  ).some((p) => String(p.ua_id) === state.uaPickerId)) {
     syncTrechoKmValue(state.uaPickerId);
   } else if (state.trechoApoioId) {
     syncTrechoKmValue(state.trechoApoioId);
@@ -1082,8 +1161,8 @@ function handleTrechoSelection(value) {
   if (state.uaPickerId && state.lastSnapshot) {
     const pair = getUaPair(state.lastSnapshot, state.uaPickerId);
     const ref = pair.geo || pair.hid;
-    if (ref?.rodovia) {
-      state.trechoRoad = ref.rodovia;
+    if (ref?.sigla_rodovia) {
+      state.trechoRoad = ref.sigla_rodovia;
       syncTrechoRoadValue(state.trechoRoad);
       const rid = uaRegionId(ref);
       if (rid != null) {
@@ -1120,6 +1199,15 @@ async function restoreMapLayerState() {
   } else {
     state.map.removeLayer(state.layers.roads);
   }
+
+  if (MAP_LAYER_STATE.fireRisk) {
+    await loadFireRiskLayer(state.fireRiskHorizon);
+    state.map.addLayer(state.layers.fireRisk);
+  } else {
+    state.map.removeLayer(state.layers.fireRisk);
+  }
+  syncInteractiveLayerOrder();
+  renderHazardLegend();
 
   if (MAP_LAYER_STATE.heatmap) addHeatmap();
   else removeHeatmap();
@@ -1314,7 +1402,43 @@ function initSidebarChrome() {
 
 /** Camadas: markup persistente em index.html; IDs preservados para eventos. */
 function installMapLayerControl() {
-  /* Sem inicializacao imperativa: o painel ja nasce aberto no mapa. */
+  const panel = document.getElementById("map-layer-control");
+  const toggle = panel?.querySelector(".map-layer-control-toggle");
+  if (!panel || !toggle) return;
+
+  let collapsed = false;
+  try {
+    collapsed = localStorage.getItem(LAYER_PANEL_COLLAPSE_KEY) === "1";
+  } catch {
+    /* ignora */
+  }
+
+  const applyCollapsed = (isCollapsed) => {
+    panel.classList.toggle("collapsed", isCollapsed);
+    toggle.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
+    toggle.setAttribute(
+      "aria-label",
+      isCollapsed
+        ? "Expandir painel de camadas"
+        : "Recolher painel de camadas",
+    );
+    toggle.title = isCollapsed ? "Expandir" : "Recolher";
+    toggle.textContent = isCollapsed ? "\u25B8" : "\u25C2";
+  };
+
+  applyCollapsed(collapsed);
+
+  toggle.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    collapsed = !panel.classList.contains("collapsed");
+    applyCollapsed(collapsed);
+    try {
+      localStorage.setItem(LAYER_PANEL_COLLAPSE_KEY, collapsed ? "1" : "0");
+    } catch {
+      /* ignora */
+    }
+  });
 }
 
 // ============================================================================
@@ -2021,6 +2145,9 @@ function renderWorstNoData(message) {
 // concluidos), cada um com barra real vinda do servidor, mais total X/Y.
 const _dl = {
   poll: null,
+  es: null,
+  esRetry: null,
+  esFailures: 0,
   data: null,
   mode: null,
   procStart: null,
@@ -2033,11 +2160,24 @@ function stopDownloadPoll() {
     clearInterval(_dl.poll);
     _dl.poll = null;
   }
+  if (_dl.es) {
+    try {
+      _dl.es.close();
+    } catch (e) {
+      /* noop */
+    }
+    _dl.es = null;
+  }
+  if (_dl.esRetry) {
+    clearTimeout(_dl.esRetry);
+    _dl.esRetry = null;
+  }
   _dl.data = null;
   _dl.mode = null;
   _dl.procStart = null;
   _dl.doneAt = null;
   _dl.refreshed = false;
+  _dl.esFailures = 0;
   const el = document.getElementById("ingest-progress");
   if (el) {
     el.hidden = true;
@@ -2226,9 +2366,62 @@ function dlProcessingSubtitle(d) {
 }
 
 function startDownloadPoll() {
-  if (_dl.poll) return;
+  if (_dl.poll || _dl.es) return;
   _dl.mode = "download";
   buildDownloadCard();
+  // Tenta SSE primeiro (push, ~0 req/s em idle). Fallback automatico
+  // para polling tradicional se EventSource indisponivel ou se houver
+  // varias falhas de conexao em sequencia.
+  if (typeof EventSource !== "undefined") {
+    _startProgressSSE();
+  } else {
+    _startProgressPolling();
+  }
+}
+
+function _startProgressSSE() {
+  // Snapshot inicial via GET (UI ja preenchida antes do 1o push).
+  fetch(apiUrl("/api/progress"))
+    .then((r) => r.json())
+    .then((d) => {
+      _dl.data = d;
+      renderDownloadFrame();
+    })
+    .catch(() => {});
+  try {
+    const es = new EventSource(apiUrl("/api/progress/stream"));
+    _dl.es = es;
+    _dl.esFailures = 0;
+    es.onmessage = (ev) => {
+      _dl.esFailures = 0;
+      try {
+        _dl.data = JSON.parse(ev.data);
+        renderDownloadFrame();
+      } catch {
+        /* payload malformado: ignora */
+      }
+    };
+    es.onerror = () => {
+      _dl.esFailures = (_dl.esFailures || 0) + 1;
+      // 3 falhas seguidas: desiste do SSE e cai para polling.
+      // EventSource ja reconecta sozinho entre erros isolados.
+      if (_dl.esFailures >= 3) {
+        try {
+          es.close();
+        } catch (e) {
+          /* noop */
+        }
+        _dl.es = null;
+        _startProgressPolling();
+      }
+    };
+  } catch (e) {
+    _startProgressPolling();
+  }
+}
+
+function _startProgressPolling() {
+  if (_dl.poll) return;
   const poll = async () => {
     try {
       const r = await fetch(apiUrl("/api/progress"));
@@ -2736,7 +2929,7 @@ function fillIndicatorsChannel(card, channel, pt, isGeo) {
     return;
   }
   setCardLevel(card, `${bind}-level`, pt.rd);
-  const ra = isGeo ? (pt.ra_geo ?? pt.ra) : (pt.ra_hid ?? pt.ra);
+  const ra = isGeo ? pt.RAGEO : pt.RAHID;
   const icc = isGeo ? pt.icc_geo : pt.icc_hid;
   setCardStat(card, channel, "ra", ra != null ? ra : null);
   setCardStat(card, channel, "icc", icc != null ? icc : null);
@@ -2763,12 +2956,12 @@ function fillIndicatorsCard(geo, hid) {
   }
   const maxRd = Math.max(geo?.rd || 0, hid?.rd || 0);
   applyTrechoCardChrome(card, maxRd);
-  setCardBind(card, "name", ref.nome || ref.id);
+  setCardBind(card, "name", uaLabel(ref) || ref.ua_id);
   setCardBind(
     card,
     "subtitle",
-    `${ref.rodovia || "—"} · km ${formatTrechoKm(ref.km)} · ${
-      ref.region_name || "—"
+    `${ref.sigla_rodovia || "—"} · ${formatTrechoLabel(ref)} · ${
+      ref.regiao_nome || "—"
     }`,
   );
   setCardBind(card, "note", TRECHO_SCALAR_NOTE, { html: true });
@@ -2851,8 +3044,8 @@ function fillForecastCard(data, snap) {
 
   const order = new Map(targetIds.map((id, i) => [id, i]));
   const comDados = (data?.forecast || [])
-    .filter((f) => order.has(f.id))
-    .sort((a, b) => order.get(a.id) - order.get(b.id));
+    .filter((f) => order.has(f.ua_id))
+    .sort((a, b) => order.get(a.ua_id) - order.get(b.ua_id));
   const f = comDados[0];
   const hasGeo = f?.ac24h_forecast_mm != null;
   const hasHid = f?.ac6h_forecast_mm != null;
@@ -2867,19 +3060,19 @@ function fillForecastCard(data, snap) {
     return;
   }
 
-  const pair = snap ? getUaPair(snap, f.id) : { geo: null, hid: null };
+  const pair = snap ? getUaPair(snap, f.ua_id) : { geo: null, hid: null };
   const ref = pair.geo || pair.hid || f;
   const modeLabel = state.uaPickerId
     ? "Trecho selecionado"
     : "Trecho em alerta";
 
   applyTrechoCardChrome(card, 0);
-  setCardBind(card, "name", ref.nome || f.nome || f.id);
+  setCardBind(card, "name", uaLabel(ref) || ref.ua_id);
   setCardBind(
     card,
     "subtitle",
-    `${ref.rodovia || "—"} · km ${formatTrechoKm(ref.km)} · ${
-      ref.region_name || "—"
+    `${ref.sigla_rodovia || "—"} · ${formatTrechoLabel(ref)} · ${
+      ref.regiao_nome || "—"
     }`,
   );
   setCardBind(
@@ -2932,7 +3125,10 @@ function fillRegionCard(regions, snap) {
 
   const hlIds = snap ? resolveRegionHighlightIds(snap) : [];
   const activeId = hlIds[0];
-  const activeReg = (regions || []).find((r) => r.id === activeId);
+  const activeReg = (regions || []).find(
+    (r) => (r.regiao_id ?? r.id) === activeId,
+  );
+  const activeRegName = activeReg?.regiao_nome ?? activeReg?.nome;
   const ctx = snap ? resolveUaPickerContext(snap) : null;
 
   if (!activeReg && !ctx) {
@@ -2945,14 +3141,18 @@ function fillRegionCard(regions, snap) {
 
   applyTrechoCardChrome(card, 0);
   const ref = ctx || {};
-  setCardBind(card, "name", ref.nome || ref.id || activeReg?.nome || "—");
+  setCardBind(
+    card, "name", uaLabel(ref) || ref.ua_id || activeRegName || "—",
+  );
   const subParts = [
-    ref.rodovia ? escapeHtml(ref.rodovia) : null,
-    ref.km != null ? `km ${formatTrechoKm(ref.km)}` : null,
-    ref.region_name
-      ? escapeHtml(ref.region_name)
-      : activeReg
-        ? escapeHtml(activeReg.nome)
+    ref.sigla_rodovia ? escapeHtml(ref.sigla_rodovia) : null,
+    ref.km_inicial != null
+      ? `km ${formatTrechoKm(ref.km_inicial)}-${formatTrechoKm(ref.km_final)}`
+      : null,
+    ref.regiao_nome
+      ? escapeHtml(ref.regiao_nome)
+      : activeRegName
+        ? escapeHtml(activeRegName)
         : null,
   ].filter(Boolean);
   setCardBind(card, "subtitle", subParts.join(" · ") || "—", { html: true });
@@ -2966,8 +3166,8 @@ function fillRegionCard(regions, snap) {
   setCardLevel(card, "encosta-level", null);
   if (activeReg) {
     setCardStat(card, "encosta", "k_geo", activeReg.k_geo);
-    setCardStat(card, "encosta", "reg_id", activeReg.id);
-    setCardStat(card, "encosta", "reg_nome", activeReg.nome);
+    setCardStat(card, "encosta", "reg_id", activeReg.regiao_id ?? activeReg.id);
+    setCardStat(card, "encosta", "reg_nome", activeRegName);
   }
   setCardBind(card, "footer", TRECHO_VALUE_PENDING, { hide: true });
 }
@@ -2979,8 +3179,8 @@ function fillRegionCard(regions, snap) {
 function getUaPair(snap, id) {
   const { geo, hid } = snapshotPoints(snap);
   return {
-    geo: geo.find((p) => p.id === id) || null,
-    hid: hid.find((p) => p.id === id) || null,
+    geo: geo.find((p) => p.ua_id === id) || null,
+    hid: hid.find((p) => p.ua_id === id) || null,
   };
 }
 
@@ -3048,7 +3248,7 @@ function renderWorst(snap, focal) {
     return;
   }
 
-  const pair = getUaPair(snap, points[0].id);
+  const pair = getUaPair(snap, points[0].ua_id);
   renderWorstUaPair(pair.geo, pair.hid);
 }
 
@@ -3070,8 +3270,8 @@ function renderWorstPointBody(worst, withSparkline) {
         : "";
   return `
     <div class="${wrapCls}${infoCls}${blinkCls}" style="border-left-color:${infoAccentForRd(worst.rd)}">
-      <div class="worst-name">${escapeHtml(worst.nome)}</div>
-      <div class="worst-rod">${escapeHtml(worst.rodovia)} · km ${worst.km} · ${escapeHtml(worst.region_name || "—")}${hazardTag}</div>
+      <div class="worst-name">${escapeHtml(uaLabel(worst))}</div>
+      <div class="worst-rod">${escapeHtml(worst.sigla_rodovia || "")} · ${escapeHtml(formatTrechoLabel(worst))} · ${escapeHtml(worst.regiao_nome || "—")}${hazardTag}</div>
       <span class="worst-level${levelBlink}" style="background:${NIVEL_COLOR[worst.rd]};color:${levelTextColor}">
         Nível ${worst.rd} — ${NIVEL_LABEL[worst.rd]}
       </span>
@@ -3101,6 +3301,48 @@ function renderRegions(regions, snap) {
   fillRegionCard(regions, snap);
 }
 
+function regionTooltipHtml(r) {
+  const rid = r.regiao_id ?? r.id;
+  const nome = r.regiao_nome ?? r.nome ?? "—";
+  const rod = r.sigla_rodovia ?? r.rodovia ?? "—";
+  const km = (r.km_inicial != null && r.km_final != null)
+    ? `km ${formatTrechoKm(r.km_inicial)}–${formatTrechoKm(r.km_final)}`
+    : null;
+  const extKm = r.extensao_oficial_km != null
+    ? `${Number(r.extensao_oficial_km).toFixed(1)} km (cadastral)`
+    : null;
+  const areaKm2 = r.area_km2 != null
+    ? `${Number(r.area_km2).toFixed(1)} km²`
+    : null;
+  const municipios = r.municipios
+    ? String(r.municipios).split(/;|,/).map((s) => s.trim()).filter(Boolean)
+    : [];
+  const residencias = r.residencias_dr
+    ? String(r.residencias_dr).split(/;|,/).map((s) => s.trim()).filter(Boolean)
+    : [];
+  const conserva = r.conservado_por || null;
+  const kGeo = r.k_geo != null ? r.k_geo : "—";
+
+  const subParts = [escapeHtml(rod), km, extKm].filter(Boolean);
+  const lines = [
+    `<b>Região ${escapeHtml(String(rid))} · ${escapeHtml(nome)}</b>`,
+    subParts.length ? `<small>${subParts.join(" · ")}</small>` : null,
+    areaKm2 ? `<small>Área monitorada: ${areaKm2}</small>` : null,
+    municipios.length
+      ? `<small>Municípios: ${escapeHtml(municipios.join(", "))}</small>`
+      : null,
+    residencias.length
+      ? `<small>Residências DR: ${escapeHtml(residencias.join(", "))}</small>`
+      : null,
+    conserva
+      ? `<small>Conservado por: ${escapeHtml(conserva)}</small>`
+      : null,
+    `<small>Sensibilidade K: <b>${escapeHtml(String(kGeo))}`
+      + `</b> (menor = reage mais cedo)</small>`,
+  ].filter(Boolean);
+  return lines.join("<br>");
+}
+
 function renderRegionsOnMap(regions) {
   state.layers.regions.clearLayers();
   state.regionPolys = [];
@@ -3115,10 +3357,13 @@ function renderRegionsOnMap(regions) {
       opacity: 0.85,
       fillOpacity: 0.05,
       dashArray: "6,4",
-    }).bindTooltip(
-      `Região ${r.id}: ${r.nome} (${r.rodovia})<br><small>Sensibilidade: ${r.k_geo} (menor = reage mais cedo)</small>`,
-      { sticky: true },
-    );
+    }).bindTooltip(regionTooltipHtml(r), { sticky: true });
+    poly._pliLayerKind = "regions";
+    poly._pliLayerProps = r;
+    poly.on("click", (e) => {
+      setPopupClickLatLng(e);
+      L.DomEvent.stopPropagation(e);
+    });
     poly.addTo(state.layers.regions);
     state.regionPolys.push(poly);
   });
@@ -3183,6 +3428,42 @@ function clearTrechoMapFocus() {
     restoreTrechoMarkerStyle(key);
   }
   state.trechoFocus.markerKeys = [];
+}
+
+function clearUaClickFocus() {
+  if (state.uaClickFocus?.halo && state.map) {
+    state.map.removeLayer(state.uaClickFocus.halo);
+  }
+  state.uaClickFocus = { markerKey: null, halo: null };
+}
+
+function applyUaClickFocus(markerKey) {
+  clearUaClickFocus();
+  const p = state.pointData.get(markerKey);
+  if (!p || !Array.isArray(p.geometry) || p.geometry.length < 2) return;
+  if (!state.map) return;
+  const isPoly = p.geometry_type === "polygon" && p.geometry.length >= 3;
+  const baseOpts = {
+    color: "#22d3ee",
+    interactive: false,
+    className: "ua-click-halo",
+  };
+  const halo = isPoly
+    ? L.polygon(p.geometry, {
+        ...baseOpts,
+        weight: 9,
+        opacity: 0.55,
+        fillColor: "#22d3ee",
+        fillOpacity: 0,
+      })
+    : L.polyline(p.geometry, {
+        ...baseOpts,
+        weight: 14,
+        opacity: 0.45,
+      });
+  halo.addTo(state.map);
+  halo.bringToBack();
+  state.uaClickFocus = { markerKey, halo };
 }
 
 function applyTrechoUaFocus(uaId, { zoom = true } = {}) {
@@ -3276,6 +3557,8 @@ function renderPointsOnMap(snap) {
   Object.values(groups).forEach((g) => g.clearLayers());
   state.pointMarkers.clear();
   state.pointData.clear();
+  // Halo de clique fica orfao se a UA foi removida; limpa por seguranca
+  clearUaClickFocus();
 
   const { geo, hid } = snapshotPoints(snap || {});
   const layers = [
@@ -3290,7 +3573,7 @@ function renderPointsOnMap(snap) {
 
     points.forEach((p) => {
       if (window.QueryFilter && !QueryFilter.matchUa(hazardKey, p)) return;
-      const markerKey = `${p.id}:${hazardKey}`;
+      const markerKey = `${p.ua_id}:${hazardKey}`;
       state.pointData.set(markerKey, p);
       if (!Array.isArray(p.geometry) || p.geometry.length < 2) return;
 
@@ -3319,10 +3602,21 @@ function renderPointsOnMap(snap) {
             maxWidth: 360,
             minWidth: 280,
           });
+      // Click destaca o vetor da UA com um halo (separado do focus
+      // disparado por seletor da sidebar - aquele e amarelo no proprio
+      // stroke; este e um halo ciano por baixo, mantendo a cor da RD).
+      layer.on("click", (e) => {
+        setPopupClickLatLng(e);
+        L.DomEvent.stopPropagation(e);
+        applyUaClickFocus(markerKey);
+      });
+      layer._pliLayerKind = hazardKey;
+      layer._pliLayerProps = p;
       layer.addTo(g);
       state.pointMarkers.set(markerKey, [layer]);
     });
   });
+  syncInteractiveLayerOrder();
   updateTrechoMapFocus(snap);
 }
 
@@ -3358,9 +3652,106 @@ function formatKmRange(kmIni, kmFim) {
   return `km ${a}–${b}`;
 }
 
+function formatKmiKmf(kmIni, kmFim) {
+  const a = kmIni != null && kmIni !== "" ? formatKm(kmIni) : "—";
+  const b = kmFim != null && kmFim !== "" ? formatKm(kmFim) : "—";
+  return `${a} - ${b}`;
+}
+
+function formatCodeName(code, name, sep = " - ") {
+  const c = fixText(code);
+  const n = fixText(name);
+  if (c && n && c !== n) return `${escapeHtml(c)}${sep}${escapeHtml(n)}`;
+  return escapeHtml(c || n || "—");
+}
+
+function hexToRgba(hex, alpha) {
+  const raw = String(hex || "").replace("#", "");
+  if (raw.length !== 6) return `rgba(100, 116, 139, ${alpha})`;
+  const r = parseInt(raw.slice(0, 2), 16);
+  const g = parseInt(raw.slice(2, 4), 16);
+  const b = parseInt(raw.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function popupRiskStyle(color) {
+  const c = color || "#64748b";
+  return `--popup-risk-color:${c};--popup-risk-bg:${hexToRgba(c, 0.10)};`;
+}
+
+function unifiedLayersButtonHtml() {
+  return `
+    <button type="button" class="ua-popup-all-layers js-unified-layers"
+            title="Mostrar informações de todas as camadas"
+            aria-label="Mostrar informações de todas as camadas">
+      <span aria-hidden="true">▣</span>
+      <span>Mostrar informações de todas as camadas</span>
+    </button>`;
+}
+
+function flattenLatLngLines(latlngs) {
+  if (!Array.isArray(latlngs) || !latlngs.length) return [];
+  if (latlngs[0]?.lat != null) return [latlngs];
+  return latlngs.flatMap((part) => flattenLatLngLines(part));
+}
+
+function pointInRing(latlng, ring) {
+  let inside = false;
+  const x = latlng.lng;
+  const y = latlng.lat;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i].lng;
+    const yi = ring[i].lat;
+    const xj = ring[j].lng;
+    const yj = ring[j].lat;
+    const intersect = ((yi > y) !== (yj > y))
+      && (x < ((xj - xi) * (y - yi)) / ((yj - yi) || 1e-12) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function distanceToSegmentPx(p, a, b) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  if (dx === 0 && dy === 0) return p.distanceTo(a);
+  const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / (
+    dx * dx + dy * dy
+  )));
+  return p.distanceTo(L.point(a.x + t * dx, a.y + t * dy));
+}
+
+function distanceToLatLngLinePx(latlng, line) {
+  const p = state.map.latLngToLayerPoint(latlng);
+  let best = Infinity;
+  for (let i = 1; i < line.length; i++) {
+    const a = state.map.latLngToLayerPoint(line[i - 1]);
+    const b = state.map.latLngToLayerPoint(line[i]);
+    best = Math.min(best, distanceToSegmentPx(p, a, b));
+  }
+  return best;
+}
+
+function layerContainsLatLng(layer, latlng, tolerancePx = 10) {
+  if (!layer || !latlng) return false;
+  if (layer.getBounds && !layer.getBounds().pad(0.01).contains(latlng)) {
+    return false;
+  }
+  if (!layer.getLatLngs) return false;
+  const lines = flattenLatLngLines(layer.getLatLngs());
+  if (layer instanceof L.Polygon) {
+    return lines.some((ring) => pointInRing(latlng, ring));
+  }
+  return lines.some((line) => distanceToLatLngLinePx(latlng, line) <= tolerancePx);
+}
+
+function setPopupClickLatLng(e) {
+  if (e?.latlng) state.lastPopupLatLng = e.latlng;
+}
+
 function raClassLabel(hazardKey, p) {
   const isGeo = hazardKey === "encosta" || p.hazard === "geo";
-  const ra = isGeo ? (p.ra_geo ?? p.ra) : (p.ra_hid ?? p.ra);
+  const ra = isGeo ? p.RAGEO : p.RAHID;
   const kind = isGeo ? "geológico" : "hidrológico";
   if (ra === null || ra === undefined) {
     return `RA ${kind} = sem dado`;
@@ -3369,97 +3760,96 @@ function raClassLabel(hazardKey, p) {
 }
 
 function popupHeaderHtml(p, hazardKey) {
-  const regionName = escapeHtml(fixText(p.region_name || "—"));
-  const channelLabel = escapeHtml(
-    fixText(HAZARDS[hazardKey]?.label || hazardKey || ""),
-  );
-  const rod = fixText(p.rodovia || "");
-  const trecho =
-    rod && p.km != null && p.km !== ""
-      ? `${escapeHtml(rod)} km ${formatKm(p.km)}`
-      : rod
-        ? escapeHtml(rod)
-        : "—";
-  const raLine = escapeHtml(raClassLabel(hazardKey, p));
+  const title = hazardKey === "inundacao"
+    ? "Risco de Inundação"
+    : "Risco de Movimentos de Massa";
   return `
     <header class="ua-popup-header">
-      <div class="ua-popup-region">Região: ${regionName}</div>
-      <div class="ua-popup-risk">${channelLabel}</div>
-      <div class="ua-popup-meta-row">
-        <span class="ua-popup-trecho">${trecho}</span>
-        <span class="ua-popup-ra">${raLine}</span>
-      </div>
+      <div class="ua-popup-risk">${escapeHtml(title)}</div>
     </header>`;
 }
 
 function popupRainRows(p, hazardKey) {
   const isGeo = hazardKey === "encosta" || p.hazard === "geo";
   if (isGeo) {
-    let rows = `<tr><th>Acum. 96h (geo)</th><td>${formatNum(p.ac96h_mm)} mm</td></tr>`;
-    if (p.fonte_chuva === "WRF") {
-      rows += `<tr><th>Composição</th><td>${formatNum(p.ac72h_obs_mm)} mm obs. + ${formatNum(p.prev24h_mm)} mm prev.</td></tr>`;
-    }
-    return rows;
+    const prev = p.prev24h_mm;
+    const obs = p.ac72h_obs_mm ?? p.ac72h_mm;
+    return `
+      <tr><th>Chuva prevista próximas 24 horas</th><td>${formatNum(prev)} mm</td></tr>
+      <tr><th>Chuva acumulada nas últimas 72 horas</th><td>${formatNum(obs)} mm</td></tr>
+      <tr>
+        <th><span class="coef-label">Coeficiente de Precipitação Crítica (CPC)</span></th>
+        <td>${formatNum(obs)} mm obs. + ${formatNum(prev)} mm prev. = ${formatNum(p.ac96h_mm)} mm</td>
+      </tr>`;
   }
-  let rows = `<tr><th>Janela 24h (hidro)</th><td>${formatNum(p.ac24h_mm)} mm</td></tr>`;
-  if (p.fonte_chuva === "WRF") {
-    rows += `<tr><th>Composição</th><td>${formatNum(p.ac18h_obs_mm)} mm obs. + ${formatNum(p.prev6h_mm)} mm prev.</td></tr>`;
-  }
-  return rows;
+  const prev = p.prev6h_mm;
+  const obs = p.ac18h_obs_mm ?? p.ac18h_mm;
+  return `
+    <tr><th>Chuva prevista próximas 6 horas</th><td>${formatNum(prev)} mm</td></tr>
+    <tr><th>Chuva acumulada nas últimas 18 horas</th><td>${formatNum(obs)} mm</td></tr>
+    <tr>
+      <th><span class="coef-label">Índice de Correlação com Chuvas hidrológico (ICCHID)</span></th>
+      <td>${formatNum(obs)} mm obs. + ${formatNum(prev)} mm prev. = ${formatNum(p.ac24h_mm)} mm</td>
+    </tr>`;
 }
 
 function formatUbaDisplay(p) {
-  const code = fixText(p.uba_codigo || p.uba);
+  const code = fixText(p.uba_codigo);
   const nome = fixText(p.uba_nome);
-  if (code && nome && code !== nome) {
-    return `${escapeHtml(code)} — ${escapeHtml(nome)}`;
-  }
-  return escapeHtml(code || nome || "—");
+  return formatCodeName(code, nome);
 }
 
 function popupDerSection(p) {
-  const cgr = fixText(p.regional_cgr || p.regional);
-  const rc = fixText(p.residencia_conserva || p.rc);
+  const rod = fixText(p.sigla_rodovia || p.rodovia || "—");
+  const trecho = formatKmiKmf(p.km_inicial ?? p.km_ini, p.km_final ?? p.km_fim);
+  const regional = fixText(p.regional);
+  const dr = fixText(p.residencia_dr);
+  const regionalDisplay = formatCodeName(dr, regional);
+  const residenciaDisplay = formatCodeName(dr, regional);
   const uba = formatUbaDisplay(p);
-  const missing = !cgr && !rc && uba === "—";
-  if (missing) {
-    return `
-      <p class="ua-popup-note">
-        Unidades DER (CGR, UBA e Residência de Conserva) não identificadas
-        automaticamente para o trecho desta UA.
-      </p>`;
-  }
+  const municipio = fixText(p.municipio);
+  const jurisdicao = fixText(p.jurisdicao);
+  const conserv = fixText(p.conservado_por);
+  const conservDisplay = formatCodeName(conserv, p.uba_nome || regional);
   return `
     <table class="modal-table ua-popup-table">
+      <tr><th>Rodovia</th><td><b>${escapeHtml(rod)}</b></td></tr>
+      <tr><th>Trecho (kmi - kmf)</th><td>${escapeHtml(trecho)}</td></tr>
       <tr>
-        <th>CGR (Coord. Geral Regional)</th>
-        <td><b>${escapeHtml(cgr || "—")}</b></td>
+        <th>Sede Regional DER</th>
+        <td><b>${regionalDisplay}</b></td>
+      </tr>
+      <tr>
+        <th>Residência DER</th>
+        <td><b>${residenciaDisplay}</b></td>
       </tr>
       <tr>
         <th>UBA (atendimento)</th>
         <td><b>${uba}</b></td>
       </tr>
-      <tr>
-        <th>Residência de Conserva</th>
-        <td>${escapeHtml(rc || "—")}</td>
-      </tr>
-      ${p.municipio ? `<tr><th>Município</th><td>${escapeHtml(fixText(p.municipio))}</td></tr>` : ""}
+      <tr><th>Município</th><td>${escapeHtml(municipio || "—")}</td></tr>
+      <tr><th>Jurisdição</th><td>${escapeHtml(jurisdicao || "—")}</td></tr>
+      <tr><th>Conservado por</th><td>${conservDisplay}</td></tr>
     </table>`;
 }
 
-function buildPopup(p, hazardKey) {
+function buildPopup(p, hazardKey, options = {}) {
+  const includeUnifiedButton = options.includeUnifiedButton !== false;
   const isNoData = p.source === "NO_DATA";
   const header = popupHeaderHtml(p, hazardKey);
 
   if (isNoData) {
+    const ndColor = "#64748b";
     return `
-      <div class="ua-popup">
+      <div class="ua-popup" style="${popupRiskStyle(ndColor)}">
         ${header}
         <div class="ua-popup-body">
-          <h3 class="ua-popup-section">Unidades DER do trecho</h3>
-          ${popupDerSection(p)}
+          <div class="ua-popup-meta"><b>Classificação trecho</b></div>
           <div class="ua-popup-level ua-popup-level--nd">Sem dado disponível</div>
+          <div class="ua-popup-meta"><b>Informações cadastrais:</b></div>
+          ${popupDerSection(p)}
           <p class="ua-popup-foot">Fonte MERGE/INPE indisponível neste ciclo.</p>
+          ${includeUnifiedButton ? unifiedLayersButtonHtml() : ""}
         </div>
       </div>`;
   }
@@ -3468,31 +3858,33 @@ function buildPopup(p, hazardKey) {
   const palette = HAZARDS[hazardKey]?.palette || NIVEL_COLOR;
   const isGeo = hazardKey === "encosta" || p.hazard === "geo";
   const iccRow = isGeo
-    ? `<tr><th>ICC geológico</th><td>${formatNum(p.icc_geo, 0)}</td></tr>`
-    : `<tr><th>ICC hidrológico</th><td>${formatNum(p.icc_hid, 0)}</td></tr>`;
+    ? `<tr><th><span class="coef-label">Índice de Correlação com Chuvas geológico (ICCGEO)</span></th><td>${formatNum(p.icc_geo, 0)}</td></tr>`
+    : `<tr><th><span class="coef-label">Índice de Correlação com Chuvas hidrológico (ICCHID)</span></th><td>${formatNum(p.icc_hid, 0)}</td></tr>`;
   const warnWrf =
     p.fonte_chuva === "OBS_ONLY"
       ? `<p class="ua-popup-note">Previsão WRF indisponível — cálculo usa só chuva observada (pode subestimar).</p>`
       : "";
 
   return `
-    <div class="ua-popup">
+    <div class="ua-popup" style="${popupRiskStyle(palette[p.rd])}">
       ${header}
       <div class="ua-popup-body">
-        <h3 class="ua-popup-section">Unidades DER do trecho</h3>
-        ${popupDerSection(p)}
-        <h3 class="ua-popup-section">Chuva e risco</h3>
-        <table class="modal-table ua-popup-table">
-          ${popupRainRows(p, hazardKey)}
-          <tr><th>Intensidade (obs.)</th><td>${formatNum(p.intensity_mmh)} mm/h</td></tr>
-          <tr><th>CPC</th><td>${p.cpc !== null ? formatNum(p.cpc) : "—"}</td></tr>
-          ${iccRow}
-        </table>
-        ${warnWrf}
+        <div class="ua-popup-meta"><b>Classificação trecho</b></div>
         <div class="ua-popup-level"
              style="background:${palette[p.rd]};color:${levelTextColor}">
           Nível ${p.rd} — ${NIVEL_LABEL[p.rd]}
         </div>
+        <div class="ua-popup-meta"><b>Informações cadastrais:</b></div>
+        ${popupDerSection(p)}
+        <div class="ua-popup-meta"><b>Informações do risco:</b></div>
+        <table class="modal-table ua-popup-table">
+          ${popupRainRows(p, hazardKey)}
+          <tr><th>Intensidade observada</th><td>${formatNum(p.intensity_mmh)} mm/h</td></tr>
+          <tr><th><span class="coef-label">Coeficiente de Precipitação Crítica (CPC)</span></th><td>${p.cpc !== null ? formatNum(p.cpc) : "—"}</td></tr>
+          ${iccRow}
+        </table>
+        ${warnWrf}
+        ${includeUnifiedButton ? unifiedLayersButtonHtml() : ""}
       </div>
     </div>`;
 }
@@ -3638,7 +4030,17 @@ async function loadAdminLayer(key) {
   if (!cfg) return;
   try {
     const gj = await (await fetch(apiUrl(cfg.file))).json();
-    L.geoJSON(gj, { style: cfg.style }).addTo(state.layers[key]);
+    L.geoJSON(gj, {
+      style: cfg.style,
+      onEachFeature: (feat, layer) => {
+        layer._pliLayerKind = key;
+        layer._pliLayerProps = feat.properties || {};
+        layer.on("click", (e) => {
+          setPopupClickLatLng(e);
+          L.DomEvent.stopPropagation(e);
+        });
+      },
+    }).addTo(state.layers[key]);
     adminLoaded.add(key);
   } catch (e) {
     console.warn(`falha ao carregar camada ${key}:`, e);
@@ -3757,6 +4159,12 @@ function renderRoadsOnMap() {
         : `<b>${escapeHtml(fixText(p.rodovia || "?"))}</b><br>` +
           `Fora da cobertura · ${formatKmRange(p.km_ini, p.km_fim)}`;
       layer.bindTooltip(tipTitle, { sticky: true, direction: "top" });
+      layer._pliLayerKind = "roads";
+      layer._pliLayerProps = p;
+      layer.on("click", (e) => {
+        setPopupClickLatLng(e);
+        L.DomEvent.stopPropagation(e);
+      });
       layer.on("mouseover", () =>
         layer.setStyle({
           ...baseStyle,
@@ -3768,6 +4176,383 @@ function renderRoadsOnMap() {
     },
   });
   gj.addTo(state.layers.roads);
+  syncInteractiveLayerOrder();
+}
+
+const FIRE_RISK_COLORS = {
+  minimo: "#2aa358",
+  baixo: "#a3d977",
+  medio: "#f1c40f",
+  alto: "#e67e22",
+  critico: "#7f1d1d",
+  SEM_DADO: "#94a3b8",
+};
+const FIRE_RISK_LABELS = {
+  minimo: "Mínimo",
+  baixo: "Baixo",
+  medio: "Médio",
+  alto: "Alto",
+  critico: "Crítico",
+  SEM_DADO: "Sem dado",
+};
+const FIRE_RISK_ORDER = ["minimo", "baixo", "medio", "alto", "critico"];
+
+function fireRiskClassLabel(cls) {
+  return FIRE_RISK_LABELS[cls] || fixText(cls || "Sem dado");
+}
+
+function fireRiskTextColor(cls) {
+  return cls === "baixo" || cls === "medio" ? "#0f172a" : "#ffffff";
+}
+
+function formatRfScore(value) {
+  const txt = formatNum(value, 2);
+  return txt === "—" ? "—" : `${txt} de 1`;
+}
+
+function formatDateOnlyBR(value) {
+  if (!value) return "—";
+  const text = String(value);
+  const match = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+  const d = new Date(text);
+  if (Number.isNaN(d.getTime())) return fixText(text);
+  return d.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function styleForFireRiskFeature(props) {
+  const cls = props?.rf_classe || "SEM_DADO";
+  return {
+    color: FIRE_RISK_COLORS[cls] || FIRE_RISK_COLORS.SEM_DADO,
+    weight: cls === "critico" ? 4.5 : 3.2,
+    opacity: cls === "SEM_DADO" ? 0.45 : 0.92,
+  };
+}
+
+function fireRiskPopupHtml(props, options = {}) {
+  const includeUnifiedButton = options.includeUnifiedButton !== false;
+  const cls = props?.rf_classe || "SEM_DADO";
+  const color = FIRE_RISK_COLORS[cls] || FIRE_RISK_COLORS.SEM_DADO;
+  const label = fireRiskClassLabel(cls);
+  const rod = fixText(props?.rodovia || props?.sigla_rodovia || "Trecho DER");
+  const km = formatKmiKmf(
+    props?.km_ini ?? props?.km_inicial,
+    props?.km_fim ?? props?.km_final,
+  );
+  const sedeRegional = fixText(props?.sede_regional || props?.regional);
+  const residencia = fixText(props?.residencia_dr || props?.residencia);
+  const sedeRegionalDisplay = formatCodeName(residencia, sedeRegional);
+  const residenciaDisplay = formatCodeName(residencia, sedeRegional);
+  const uba = formatUbaDisplay(props);
+  const municipio = fixText(props?.municipio);
+  const jurisdicao = fixText(props?.jurisdicao);
+  const conservado = fixText(props?.conservado_por || props?.conservado);
+  const horizonte = fixText(props?.horizonte || state.fireRiskHorizon || "observado");
+  const dataRef = formatDateOnlyBR(props?.data_referencia);
+  const metodologia = fixText(props?.metodologia || "INPE-RF-v11");
+  return `
+    <div class="ua-popup ua-popup--fire" style="${popupRiskStyle(color)}">
+      <header class="ua-popup-header">
+        <div class="ua-popup-risk">
+          Risco de Fogo por Trecho Rodoviário
+        </div>
+      </header>
+      <div class="ua-popup-body">
+        <div class="ua-popup-meta"><b>Classificação trecho</b></div>
+        <div class="ua-popup-level"
+             style="background:${color};color:${fireRiskTextColor(cls)}">
+          ${escapeHtml(label)}
+        </div>
+        <div class="ua-popup-meta"><b>Informações cadastrais:</b></div>
+        <table class="modal-table ua-popup-table">
+          <tr><th>Rodovia</th><td><b>${escapeHtml(rod)}</b></td></tr>
+          <tr><th>Trecho (kmi - kmf)</th><td>${escapeHtml(km)}</td></tr>
+          <tr><th>Sede Regional DER</th><td>${sedeRegionalDisplay}</td></tr>
+          <tr><th>Residência DER</th><td>${residenciaDisplay}</td></tr>
+          <tr><th>UBA (atendimento)</th><td>${uba}</td></tr>
+          <tr><th>Município</th><td>${escapeHtml(municipio || "—")}</td></tr>
+          <tr><th>Jurisdição</th><td>${escapeHtml(jurisdicao || "—")}</td></tr>
+          <tr><th>Conservado por</th><td>${formatCodeName(conservado, props?.uba_nome || sedeRegional)}</td></tr>
+        </table>
+        <div class="ua-popup-meta"><b>Informações do risco:</b></div>
+        <table class="modal-table ua-popup-table">
+          <tr><th>Risco medido</th><td>${formatRfScore(props?.rf_valor)}</td></tr>
+          <tr><th>Horizonte</th><td>${escapeHtml(horizonte)}</td></tr>
+          <tr><th>Data da geração do risco</th><td>${escapeHtml(dataRef)}</td></tr>
+        </table>
+        <p class="ua-popup-note">
+          RF significa <b>Risco de Fogo</b>. A escala vai de 0 a 1:
+          quanto mais perto de 1, maior a condição ambiental favorável
+          à ignição e propagação do fogo na vegetação.
+        </p>
+        <p class="ua-popup-note">
+          Produto oficial INPE, agregado ao trecho rodoviário. Resolução
+          efetiva da fonte: ~10 km. Metodologia: ${escapeHtml(metodologia)}.
+        </p>
+        ${includeUnifiedButton ? unifiedLayersButtonHtml() : ""}
+      </div>
+    </div>`;
+}
+
+async function loadFireRiskLayer(horizonte = state.fireRiskHorizon) {
+  const horizon = horizonte || "observado";
+  state.fireRiskHorizon = horizon;
+  if (state.fireRiskGeoJSON[horizon]) {
+    renderFireRiskLayer();
+    return;
+  }
+  try {
+    const url = apiUrl(
+      "/api/public/fire-risk/layers?horizonte=" +
+      encodeURIComponent(horizon),
+    );
+    const gj = await (await fetch(url)).json();
+    state.fireRiskGeoJSON[horizon] = gj;
+    renderFireRiskLayer();
+  } catch (e) {
+    console.warn("falha ao carregar risco de queimadas:", e);
+  }
+}
+
+function renderFireRiskLayer() {
+  const gj = state.fireRiskGeoJSON[state.fireRiskHorizon];
+  if (!gj || !state.layers.fireRisk) return;
+  state.layers.fireRisk.clearLayers();
+  L.geoJSON(gj, {
+    filter: (feat) => (
+      !window.QueryFilter
+      || window.QueryFilter.matchFireRisk(feat.properties || {})
+    ),
+    style: (feat) => styleForFireRiskFeature(feat.properties || {}),
+    onEachFeature: (feat, layer) => {
+      const p = feat.properties || {};
+      const baseStyle = styleForFireRiskFeature(p);
+      layer.bindPopup(fireRiskPopupHtml(p), {
+        className: "ua-popup-wrap",
+        maxWidth: 360,
+      });
+      layer._pliLayerKind = "fireRisk";
+      layer._pliLayerProps = p;
+      layer.on("click", (e) => {
+        setPopupClickLatLng(e);
+        L.DomEvent.stopPropagation(e);
+      });
+      layer.on("mouseover", () =>
+        layer.setStyle({
+          ...baseStyle,
+          weight: (baseStyle.weight || 3) + 2,
+          opacity: 1,
+        }),
+      );
+      layer.on("mouseout", () => layer.setStyle(baseStyle));
+    },
+  }).addTo(state.layers.fireRisk);
+  syncInteractiveLayerOrder();
+}
+
+function bringGroupToFront(group) {
+  group?.eachLayer?.((layer) => {
+    if (layer.bringToFront) layer.bringToFront();
+  });
+}
+
+function bringGroupToBack(group) {
+  group?.eachLayer?.((layer) => {
+    if (layer.bringToBack) layer.bringToBack();
+  });
+}
+
+function syncInteractiveLayerOrder() {
+  // Ordem do painel: encosta, inundação, Risco de Fogo, apoio.
+  // Como `bringToFront` coloca por cima, aplicamos de baixo para cima.
+  bringGroupToBack(state.layers.roads);
+  bringGroupToBack(state.layers.fireRisk);
+  bringGroupToFront(state.layers.fireRisk);
+  bringGroupToFront(state.layers.hazardZones?.inundacao);
+  bringGroupToFront(state.layers.hazardZones?.encosta);
+}
+
+function firstHitInGroup(group, latlng) {
+  let hit = null;
+  group?.eachLayer?.((layer) => {
+    if (hit) return;
+    if (layerContainsLatLng(layer, latlng)) {
+      hit = layer;
+      return;
+    }
+    if (layer.eachLayer) {
+      hit = firstHitInGroup(layer, latlng);
+    }
+  });
+  return hit;
+}
+
+function adminLayerTitle(key) {
+  return {
+    municipios: "Municípios (IGC, 2021)",
+    rc: "Residência de Conserva - DER",
+    uba: "Unidade Básica de Atendimento - DER",
+    cgr: "Coordenadoria Geral Regional - DER",
+  }[key] || key;
+}
+
+function simplePropsTable(props, keys) {
+  const rows = keys
+    .map(([key, label]) => {
+      const value = props?.[key];
+      if (value == null || value === "") return "";
+      return `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(fixText(value))}</td></tr>`;
+    })
+    .filter(Boolean)
+    .join("");
+  return rows
+    ? `<table class="modal-table ua-popup-table">${rows}</table>`
+    : '<p class="ua-popup-note">Sem atributos disponíveis para esta camada.</p>';
+}
+
+function roadLayerInfoHtml(props) {
+  return `
+    <div class="ua-popup-meta"><b>Malha Rodoviária Estadual</b></div>
+    ${simplePropsTable(props, [
+      ["rodovia", "Rodovia"],
+      ["km_ini", "Km inicial"],
+      ["km_fim", "Km final"],
+      ["municipio", "Município"],
+      ["regional", "Regional DER"],
+      ["administra", "Administração"],
+      ["conservado", "Conservado por"],
+      ["jurisdicao", "Jurisdição"],
+    ])}`;
+}
+
+function regionLayerInfoHtml(props) {
+  return `
+    <div class="ua-popup-meta"><b>Região monitorada</b></div>
+    ${simplePropsTable(props, [
+      ["regiao_id", "Região"],
+      ["regiao_nome", "Nome"],
+      ["sigla_rodovia", "Rodovia"],
+      ["km_inicial", "Km inicial"],
+      ["km_final", "Km final"],
+      ["municipios", "Municípios"],
+      ["residencias_dr", "Residências DER"],
+      ["k_geo", "Sensibilidade K"],
+    ])}`;
+}
+
+function genericAdminInfoHtml(key, props) {
+  return `
+    <div class="ua-popup-meta"><b>${escapeHtml(adminLayerTitle(key))}</b></div>
+    ${simplePropsTable(props, Object.keys(props || {})
+      .filter((k) => k !== "geometry")
+      .slice(0, 8)
+      .map((k) => [k, k]))}`;
+}
+
+function collectLayerInfosAt(latlng) {
+  const entries = [];
+  for (const key of ["encosta", "inundacao"]) {
+    if (!HAZARD_STATE[key]) continue;
+    const layer = firstHitInGroup(state.layers.hazardZones?.[key], latlng);
+    if (layer?._pliLayerProps) {
+      entries.push({
+        key,
+        label: HAZARDS[key].label,
+        html: buildPopup(layer._pliLayerProps, key, { includeUnifiedButton: false }),
+      });
+    }
+  }
+  if (MAP_LAYER_STATE.fireRisk) {
+    const layer = firstHitInGroup(state.layers.fireRisk, latlng);
+    if (layer?._pliLayerProps) {
+      entries.push({
+        key: "fireRisk",
+        label: "Risco de Fogo (INPE)",
+        html: fireRiskPopupHtml(
+          layer._pliLayerProps,
+          { includeUnifiedButton: false },
+        ),
+      });
+    }
+  }
+  if (MAP_LAYER_STATE.regions) {
+    const layer = firstHitInGroup(state.layers.regions, latlng);
+    if (layer?._pliLayerProps) {
+      entries.push({
+        key: "regions",
+        label: "Regiões monitoradas",
+        html: regionLayerInfoHtml(layer._pliLayerProps),
+      });
+    }
+  }
+  if (MAP_LAYER_STATE.roads) {
+    const layer = firstHitInGroup(state.layers.roads, latlng);
+    if (layer?._pliLayerProps) {
+      entries.push({
+        key: "roads",
+        label: "Malha Rodoviária Estadual",
+        html: roadLayerInfoHtml(layer._pliLayerProps),
+      });
+    }
+  }
+  for (const key of ["municipios", "rc", "uba", "cgr"]) {
+    if (!MAP_LAYER_STATE[key]) continue;
+    const layer = firstHitInGroup(state.layers[key], latlng);
+    if (layer?._pliLayerProps) {
+      entries.push({
+        key,
+        label: adminLayerTitle(key),
+        html: genericAdminInfoHtml(key, layer._pliLayerProps),
+      });
+    }
+  }
+  return entries;
+}
+
+function unifiedLayerPopupHtml(entries) {
+  if (!entries.length) {
+    return `
+      <div class="ua-popup ua-popup--unified">
+        <header class="ua-popup-header">
+          <div class="ua-popup-risk">Informações das camadas ativas</div>
+        </header>
+        <div class="ua-popup-body">
+          <p class="ua-popup-note">Nenhuma feição ativa encontrada neste ponto.</p>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="ua-popup ua-popup--unified">
+      <header class="ua-popup-header">
+        <div class="ua-popup-risk">Informações das camadas ativas</div>
+        <div class="ua-popup-region">Ordem igual ao painel de camadas</div>
+      </header>
+      <div class="ua-popup-body">
+        ${entries.map((entry, idx) => `
+          <div class="unified-popup-item" data-layer="${escapeHtml(entry.key)}">
+            <div class="unified-popup-title">${idx + 1}. ${escapeHtml(entry.label)}</div>
+            ${entry.html}
+          </div>
+        `).join("")}
+      </div>
+    </div>`;
+}
+
+function openUnifiedLayerPopup(latlng) {
+  const entries = collectLayerInfosAt(latlng);
+  L.popup({
+    className: "ua-popup-wrap unified-popup-wrap",
+    maxWidth: 420,
+    minWidth: 320,
+  })
+    .setLatLng(latlng)
+    .setContent(unifiedLayerPopupHtml(entries))
+    .openOn(state.map);
 }
 
 // ============================================================================
@@ -3806,6 +4591,7 @@ function renderHazardPanel() {
         if (e.target.checked) g.addTo(state.map);
         else state.map.removeLayer(g);
       }
+      syncInteractiveLayerOrder();
       renderHazardLegend();
       if (state.timeline.active) {
         prepareTimelineLayers(state.timeline.hazard);
@@ -3829,6 +4615,56 @@ function renderHazardPanel() {
   });
 }
 
+/** Cabeçalho compacto da legenda: tipo de risco + níveis operacionais. */
+function legendHeadHtml(h) {
+  const risk = escapeHtml(h.label || "—");
+  const subtitle = escapeHtml(
+    h.legendSubtitle || "Níveis operacionais de alerta",
+  );
+  return (
+    `<div class="legend-title">`
+    + `<span class="legend-title-risk">${risk}</span>`
+    + `<span class="legend-title-sub">${subtitle}</span>`
+    + `</div>`
+  );
+}
+
+function fireRiskLegendEntry() {
+  if (!MAP_LAYER_STATE.fireRisk) return null;
+  return [
+    "fireRisk",
+    {
+      label: "Risco de queimadas (INPE)",
+      legendSubtitle: `Risco de Fogo · ${state.fireRiskHorizon || "observado"}`,
+      palette: FIRE_RISK_ORDER.map((cls) => FIRE_RISK_COLORS[cls]),
+      labels: FIRE_RISK_ORDER.map((cls) => fireRiskClassLabel(cls)),
+      ndLabel: "Sem dado",
+      outLabel: null,
+    },
+  ];
+}
+
+function legendRowsHtml(h) {
+  const labels = h.labels || NIVEL_LABEL;
+  const rows = h.palette
+    .map(
+      (c, i) => `
+    <div class="legend-item">
+      <span class="line" style="border-top:${ROAD_WEIGHTS[i]}px solid ${c}"></span>
+      ${h.labels ? escapeHtml(labels[i]) : `${i} — ${escapeHtml(labels[i])}`}
+    </div>
+  `,
+    )
+    .join("");
+  const nd = h.ndLabel === null
+    ? ""
+    : `<div class="legend-item"><span class="line line-rd-nd"></span>${escapeHtml(h.ndLabel || "Monitorado · sem dado")}</div>`;
+  const out = h.outLabel === null
+    ? ""
+    : `<div class="legend-item"><span class="line line-out"></span>${escapeHtml(h.outLabel || "Fora da área de monitoramento")}</div>`;
+  return rows + nd + out;
+}
+
 /** Legenda dinamica no canto do mapa: so mostra paletas das camadas ativas. */
 function renderHazardLegend() {
   const root = document.getElementById("hazard-legend");
@@ -3837,6 +4673,8 @@ function renderHazardLegend() {
   const activeEntries = Object.entries(HAZARDS).filter(
     ([k, h]) => h.available && HAZARD_STATE[k],
   );
+  const fireEntry = fireRiskLegendEntry();
+  if (fireEntry) activeEntries.push(fireEntry);
 
   if (activeEntries.length === 0) {
     root.innerHTML = "";
@@ -3851,7 +4689,7 @@ function renderHazardLegend() {
     <div class="legend-block${collapsed ? " collapsed" : ""}"
          data-legend-key="${key}">
       <div class="legend-head">
-        <div class="legend-title">${h.legendTitle || escapeHtml(h.label)}</div>
+        ${legendHeadHtml(h)}
         <button type="button" class="legend-toggle"
                 aria-expanded="${collapsed ? "false" : "true"}"
                 aria-label="${collapsed ? "Expandir legenda" : "Recolher legenda"}"
@@ -3859,18 +4697,7 @@ function renderHazardLegend() {
       </div>
       <div class="legend-body">
         <div class="legend-rows">
-          ${h.palette
-            .map(
-              (c, i) => `
-            <div class="legend-item">
-              <span class="line" style="border-top:${ROAD_WEIGHTS[i]}px solid ${c}"></span>
-              ${i} — ${escapeHtml(NIVEL_LABEL[i])}
-            </div>
-          `,
-            )
-            .join("")}
-          <div class="legend-item"><span class="line line-rd-nd"></span>Monitorado · sem dado</div>
-          <div class="legend-item"><span class="line line-out"></span>Fora da área de monitoramento</div>
+          ${legendRowsHtml(h)}
         </div>
       </div>
     </div>`;

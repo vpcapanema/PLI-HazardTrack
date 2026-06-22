@@ -71,7 +71,7 @@ mesmo para 24+ pontos de monitoramento.
 | Componente | Estado | Notas |
 |---|---|---|
 | Equacoes ICC/CPC/RD | Implementadas | Tabelas oficiais REGEA 2021 |
-| Polígonos das 4 regioes | Aproximacao retangular (gap R3/R4 fechado) | Substituir por shapefile oficial em `data/regioes_pli/` |
+| Polígonos das 4 regioes | Buffer lateral de 1000 m do eixo cadastral DER (camada `regioes_estudo` do GeoPackage; exportada para `data/regioes/regioes_estudo.geojson`) | — (fonte oficial) |
 | Pontos de monitoramento | 24 amostras geradas | Refinar com KMs reais do DER |
 | Risco Analisado (RA) | Default = 1 (RA=1 forcado) | `SAMAEG_USE_MANUAL_RA=1` reativa valores hard-coded |
 | Chuva MERGE/INPE | **Streaming real (eccodes 2.x)** | Snapshot vai a `data_status=no_data` se a rede falhar — sem mock no caminho operacional |

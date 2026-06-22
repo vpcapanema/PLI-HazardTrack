@@ -1,0 +1,57 @@
+"""Preview lado-a-lado: camada ra_geologico_continuo vs Fig 3.3.3-1 do PDF."""
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import geopandas as gpd
+from PIL import Image
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = "data/pli-hazardtrack.gpkg"
+IMG_REF = "ferramentas/extracao-ra/_imgs/rageo_r0_p50_3_3_3-1.png"
+OUT = Path("ferramentas/extracao-ra/_preview_rageo.png")
+
+COR = {0: "#9C9C9C", 1: "#7FFF00", 2: "#FFFF00",
+       3: "#FF8000", 4: "#FF0000"}
+
+mun = gpd.read_file(GPKG, layer="municipios_area_estudo")
+regs = gpd.read_file(GPKG, layer="regioes_estudo")
+ra = gpd.read_file(GPKG, layer="ra_geologico_continuo")
+
+fig, axes = plt.subplots(1, 2, figsize=(22, 9), dpi=110)
+
+# painel 1: figura referencia
+ax = axes[0]
+ax.imshow(Image.open(IMG_REF))
+ax.set_title("Fonte: Fig 3.3.3-1 do PRODUTO 7 (PDF original)")
+ax.axis("off")
+
+# painel 2: camada gerada
+ax = axes[1]
+mun.plot(ax=ax, facecolor="#f5f5f0", edgecolor="#aaa", linewidth=0.5)
+regs.boundary.plot(ax=ax, color="#888", linewidth=0.8, linestyle="--")
+for k, cor in COR.items():
+    sub = ra[ra["classe_ra_geo"] == k]
+    if len(sub):
+        sub.plot(ax=ax, color=cor, linewidth=2.4,
+                 label=f"RA{k} ({sub['extensao_km'].sum():.1f} km)")
+ax.legend(loc="lower right", title="Classe RAGEO", fontsize=9)
+ax.set_title("Camada gerada: ra_geologico_continuo")
+ax.set_aspect("equal")
+ax.grid(alpha=0.2)
+
+plt.tight_layout()
+OUT.parent.mkdir(parents=True, exist_ok=True)
+plt.savefig(OUT, dpi=140, bbox_inches="tight")
+print(f"PNG: {OUT}")
+
+# Tabela de distribuicao
+print("\nDistribuicao por Regiao x Classe RA (em km):")
+pivot = (ra.groupby(["regiao_id", "classe_ra_geo"])
+              ["extensao_km"].sum().unstack(fill_value=0).round(2))
+print(pivot.to_string())
+print("\nTotal por classe (km):")
+print(ra.groupby("classe_ra_geo")["extensao_km"].sum().round(2).to_string())
+print(f"\nTotal geral: {ra['extensao_km'].sum():.2f} km / "
+      "229.70 km esperados")

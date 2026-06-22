@@ -1,0 +1,301 @@
+"""Extrai RAGEO usando as figuras DEDICADAS por regiao (alta resolucao,
+com fundo satellite ja removido pelo usuario).
+
+Cada regiao tem sua imagem (P52 R1, P54 R2, P56 R3, P58 R4) e seus
+proprios UTM bounds (detectados via ticks da moldura). Roda apenas
+nas regioes cuja imagem ja foi limpa (alpha != 255 uniformemente).
+"""
+import sys
+import numpy as np
+import geopandas as gpd
+from pathlib import Path
+from PIL import Image
+from shapely.geometry import LineString, MultiLineString
+from shapely.ops import linemerge, unary_union, substring
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = Path("data/pli-hazardtrack.gpkg")
+IMG_DIR = Path("ferramentas/extracao-ra/_imgs")
+EPSG_UTM = 31983
+
+PASSO_M = 25
+JANELA_PX = 20  # raio em px (cada figura tem escala diferente)
+
+# Configuracao por regiao: imagem + bounds UTM dos ticks visiveis no mapa
+# Bounds = (x_min, x_max, y_min, y_max) extremos dos ticks.
+REGIOES_CFG = {
+    1: {
+        "img": "rageo_r1_p52_3_3_3-3.png",
+        "utm": (350000, 430000, 7370000, 7420000),
+    },
+    2: {
+        "img": "rageo_r2_p54_3_3_3-5.png",
+        "utm": None,  # preencher depois
+    },
+    3: {
+        "img": "rageo_r3_p56_3_3_3-7.png",
+        "utm": None,
+    },
+    4: {
+        "img": "rageo_r4_p58_3_3_3-9.png",
+        "utm": None,
+    },
+}
+
+
+def carrega(img_path):
+    im = Image.open(img_path)
+    arr = np.array(im)
+    if arr.shape[-1] == 4:
+        # se foi editada, alpha=0 fora do mapa
+        alpha = arr[..., 3]
+        rgb = arr[..., :3]
+    else:
+        alpha = np.full(arr.shape[:2], 255, dtype=np.uint8)
+        rgb = arr
+    return rgb, alpha
+
+
+def detecta_frame(rgb, alpha):
+    """Detecta a moldura preta retangular que delimita o mapa.
+
+    Procura a primeira e a ultima linha/coluna com alta densidade
+    de pixels pretos.
+    """
+    H, W, _ = rgb.shape
+    preto = (
+        (rgb[..., 0] < 70)
+        & (rgb[..., 1] < 70)
+        & (rgb[..., 2] < 70)
+        & (alpha > 0)
+    )
+    col_score = preto[H // 4 : 3 * H // 4, :].sum(axis=0)
+    row_score = preto[:, W // 4 : 3 * W // 4].sum(axis=1)
+    # detecta picos: maior valor nos primeiros 50% e nos ultimos 50%
+    x0 = int(col_score[: W // 2].argmax())
+    x1 = int(W // 2 + col_score[W // 2 :].argmax())
+    y0 = int(row_score[: H // 2].argmax())
+    y1 = int(H // 2 + row_score[H // 2 :].argmax())
+    return x0, y0, x1, y1
+
+
+def utm_to_pixel(x, y, frame, bounds):
+    x0, y0, x1, y1 = frame
+    xmn, xmx, ymn, ymx = bounds
+    fx = (x - xmn) / (xmx - xmn)
+    fy = (ymx - y) / (ymx - ymn)
+    return int(round(x0 + fx * (x1 - x0))), int(round(y0 + fy * (y1 - y0)))
+
+
+def constroi_mascaras(rgb, alpha):
+    """4 mascaras (RA1..RA4) - cores nitidas, sem fundo satellite."""
+    R = rgb[..., 0].astype(np.int16)
+    G = rgb[..., 1].astype(np.int16)
+    B = rgb[..., 2].astype(np.int16)
+    valid = alpha > 0
+    mx = np.maximum(np.maximum(R, G), B)
+    mn = np.minimum(np.minimum(R, G), B)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    sat_ok = (sat >= 0.6) & valid
+
+    # exclusoes - magenta (contorno) e cinzas escuros (tics/textos)
+    magenta = sat_ok & (R >= 150) & (B >= 100) & (G <= 80)
+
+    # RA4 vermelho puro
+    m4 = sat_ok & (R >= 200) & (G <= 60) & (B <= 60) & ~magenta
+    # RA3 laranja
+    m3 = (
+        sat_ok
+        & (R >= 220)
+        & (G >= 100)
+        & (G <= 200)
+        & (B <= 90)
+        & ~m4
+        & ~magenta
+    )
+    # RA2 amarelo
+    m2 = (
+        sat_ok
+        & (R >= 200)
+        & (G >= 200)
+        & (B <= 110)
+        & ~m4
+        & ~m3
+        & ~magenta
+    )
+    # RA1 verde-lima
+    m1 = (
+        sat_ok
+        & (G >= 180)
+        & (R <= 200)
+        & (B <= 110)
+        & ~m4
+        & ~m3
+        & ~m2
+        & ~magenta
+    )
+    return {1: m1, 2: m2, 3: m3, 4: m4}
+
+
+def amostra_classe(mascaras, px, py, raio):
+    H, W = next(iter(mascaras.values())).shape
+    x0 = max(0, px - raio)
+    x1 = min(W, px + raio + 1)
+    y0 = max(0, py - raio)
+    y1 = min(H, py + raio + 1)
+    melhor = (None, float("inf"))
+    for cls, m in mascaras.items():
+        sub = m[y0:y1, x0:x1]
+        ys, xs = np.nonzero(sub)
+        if len(ys) == 0:
+            continue
+        cx = px - x0
+        cy = py - y0
+        d2 = (xs - cx) ** 2 + (ys - cy) ** 2
+        idx = int(d2.argmin())
+        if d2[idx] < melhor[1]:
+            melhor = (cls, d2[idx])
+    return melhor[0]
+
+
+def _to_line(g):
+    if isinstance(g, LineString):
+        return g
+    if isinstance(g, MultiLineString):
+        m = linemerge(list(g.geoms))
+        if isinstance(m, LineString):
+            return m
+        # se ainda for multi, pega o maior
+        return max(m.geoms, key=lambda x: x.length)
+    raise TypeError(f"geom inesperada: {type(g)}")
+
+
+def _dissolve(grupo):
+    geoms = []
+    for g in grupo.geometry:
+        if isinstance(g, MultiLineString):
+            geoms.extend(list(g.geoms))
+        elif isinstance(g, LineString):
+            geoms.append(g)
+    u = unary_union(geoms)
+    if isinstance(u, LineString):
+        return u
+    return _to_line(linemerge(list(u.geoms)) if hasattr(u, "geoms") else u)
+
+
+def _suaviza(classes, janela=5):
+    n = len(classes)
+    out = list(classes)
+    for i in range(n):
+        ini = max(0, i - janela // 2)
+        fim = min(n, i + janela // 2 + 1)
+        viz = out[ini:fim]
+        votos = {}
+        for c in viz:
+            votos[c] = votos.get(c, 0) + 1
+        out[i] = max(votos.items(), key=lambda kv: kv[1])[0]
+    return out
+
+
+def processa(rid, cfg, aux_utm):
+    img_path = IMG_DIR / cfg["img"]
+    rgb, alpha = carrega(img_path)
+    frame = detecta_frame(rgb, alpha)
+    bounds = cfg["utm"]
+    print(
+        f"\nR{rid}: {cfg['img']} {rgb.shape}  "
+        f"frame_px={frame}  bounds_utm={bounds}"
+    )
+    if bounds is None:
+        print(f"  SKIP - bounds UTM nao definidos para R{rid}")
+        return []
+
+    mascaras = constroi_mascaras(rgb, alpha)
+    print(
+        "  Pixels mascaras: "
+        + "  ".join(f"RA{k}={int(m.sum())}" for k, m in mascaras.items())
+    )
+
+    grupo = aux_utm[aux_utm["regiao_id"] == rid]
+    eixo = _dissolve(grupo)
+    L = eixo.length
+    n_amostras = max(2, int(L / PASSO_M) + 1)
+
+    classes = []
+    for i in range(n_amostras):
+        d = min(L, i * PASSO_M)
+        pt = eixo.interpolate(d)
+        px, py = utm_to_pixel(pt.x, pt.y, frame, bounds)
+        classes.append(amostra_classe(mascaras, px, py, JANELA_PX))
+    raw_none = sum(1 for c in classes if c is None)
+    classes = [0 if c is None else c for c in classes]
+    classes = _suaviza(classes, janela=5)
+
+    # quebra em segmentos contiguos
+    segs = []
+    inicio = 0
+    for i in range(1, n_amostras):
+        if classes[i] != classes[i - 1]:
+            d_ini = inicio * PASSO_M
+            d_fim = i * PASSO_M
+            s = substring(eixo, d_ini, d_fim)
+            if s.length > 0:
+                segs.append((s, classes[i - 1]))
+            inicio = i
+    d_ini = inicio * PASSO_M
+    d_fim = L
+    s = substring(eixo, d_ini, d_fim)
+    if s.length > 0:
+        segs.append((s, classes[-1]))
+
+    dist = {k: 0.0 for k in range(5)}
+    for s, c in segs:
+        dist[c] += s.length / 1000.0
+    print(
+        f"  raw_none (=> RA0)={raw_none} "
+        f"({100*raw_none/n_amostras:.1f}%)  segmentos={len(segs)}"
+    )
+    print(
+        "  extensoes (km): "
+        + "  ".join(f"RA{k}={dist[k]:.2f}" for k in range(5))
+    )
+    return [
+        {"regiao_id": rid, "classe_ra_geo": int(c), "geometry": s}
+        for s, c in segs
+    ]
+
+
+def main():
+    aux = gpd.read_file(GPKG, layer="auxilio_regioes_estudo")
+    aux_utm = aux.to_crs(EPSG_UTM)
+
+    todos = []
+    for rid, cfg in REGIOES_CFG.items():
+        segs = processa(rid, cfg, aux_utm)
+        todos.extend(segs)
+
+    if not todos:
+        print("\nNenhum segmento gerado (provavel falta de bounds UTM).")
+        return
+
+    gdf = gpd.GeoDataFrame(todos, geometry="geometry", crs=EPSG_UTM)
+    gdf["extensao_km"] = gdf.geometry.length / 1000.0
+    gdf = gdf.to_crs(4326)
+    out_layer = "ra_geologico_continuo_v2"
+    gdf.to_file(GPKG, layer=out_layer, driver="GPKG")
+    print(f"\nCamada '{out_layer}' salva: {len(gdf)} segmentos")
+    print(
+        "\nResumo por Regiao x Classe (km):\n"
+        + (
+            gdf.groupby(["regiao_id", "classe_ra_geo"])["extensao_km"]
+            .sum()
+            .unstack(fill_value=0)
+            .round(2)
+            .to_string()
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

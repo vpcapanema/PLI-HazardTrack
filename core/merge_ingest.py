@@ -17,12 +17,11 @@ import logging
 import os
 import time
 
+from . import merge_cache
 from .merge_inpe import (
     RainSample,
-    PUBLISH_LAG_HOURS,
     _eccodes_available,
     _target_hour_for,
-    _hours_to_fetch,
     _run_download_decode_batch,
     _progress_finish,
 )
@@ -30,9 +29,12 @@ from .merge_inpe import (
 log = logging.getLogger("merge_ingest")
 
 INGEST_INTERVAL_S = int(os.environ.get("SAMAEG_INGEST_INTERVAL_S", "120"))
-REFETCH_RECENT_H = int(os.environ.get("SAMAEG_REFETCH_RECENT_H", "3"))
 HOURS_BACK_DEFAULT = int(os.environ.get("SAMAEG_HOURS_BACK", "96"))
 MIN_OK_HOURS = int(os.environ.get("SAMAEG_MIN_OK_HOURS", "24"))
+# Separacao quente x tepido: o ciclo de RD precisa so de 72h passadas
+# (para ac72h_obs); 73-96h sao usadas apenas pela Linha do Tempo. O cache
+# tepido sobe sob demanda mas e cacheado em disco igualmente.
+HOURS_BACK_HOT = int(os.environ.get("SAMAEG_HOURS_BACK_HOT", "72"))
 
 
 @dataclass
@@ -59,6 +61,9 @@ class MergeIngestStore:
         self._thread: Optional[Thread] = None
         self._stop = False
         self._refreshing = False
+        # Ultima verificacao por hora ISO; usado pela politica de refetch
+        # baseada em idade (vide _hours_to_fetch_by_age + merge_cache).
+        self._last_check: Dict[str, datetime] = {}
 
     def configure(self, coords: List[Tuple[float, float]]) -> None:
         with self._lock:
@@ -73,6 +78,68 @@ class MergeIngestStore:
             self._by_iso.clear()
             self._target_hour = None
             self._ready = False
+            self._last_check: Dict[str, datetime] = {}
+        # Hidrata cache RAM com samples persistidos em disco (Fase 1).
+        # Restart deixa de baixar 96 GRIBs do zero: so re-busca as horas
+        # recentes (idade < 4h, regra de should_refetch).
+        self._hydrate_from_disk()
+
+    def _hydrate_from_disk(self) -> None:
+        """Le samples ja decodificados em disco para o cache RAM."""
+        with self._lock:
+            if not self._coords:
+                return
+            lats = list(self._lats)
+            lons_360 = list(self._lons_360)
+        chash = merge_cache.coords_hash(lats, lons_360)
+        target = _target_hour_for(datetime.now(timezone.utc))
+        loaded = 0
+        for h in range(HOURS_BACK_DEFAULT):
+            dt = target - timedelta(hours=h)
+            samples = merge_cache.read_samples(chash, dt)
+            if not samples or len(samples) != len(lats):
+                continue
+            key = dt.replace(tzinfo=timezone.utc).isoformat()
+            with self._lock:
+                self._by_iso[key] = _HourEntry(
+                    samples=list(samples),
+                    ok=True,
+                    updated_at=datetime.now(timezone.utc),
+                )
+                loaded += 1
+        if loaded:
+            with self._lock:
+                self._target_hour = target
+                self._ready = loaded >= MIN_OK_HOURS
+            log.info(
+                "MERGE cache em disco: hidratadas %d/%d horas do alvo %s",
+                loaded, HOURS_BACK_DEFAULT, target.isoformat(),
+            )
+
+    def _hours_to_fetch_by_age(
+        self,
+        hours: List[Tuple[int, datetime]],
+        by_iso: Dict[str, "_HourEntry"],
+        now: datetime,
+    ) -> List[Tuple[int, datetime]]:
+        """Decide quais horas re-baixar com base na idade do dado.
+
+        Substitui a regra antiga (`SAMAEG_REFETCH_RECENT_H`) por uma
+        politica orientada a idade: horas frescas (< 4h) sempre re-baixam
+        (CPTEC pode republicar); horas finais (>=24h) nunca; faixa
+        intermediaria so 1x/dia. Sempre re-baixa horas ausentes.
+        """
+        todo: List[Tuple[int, datetime]] = []
+        for h, dt in hours:
+            key = dt.replace(tzinfo=timezone.utc).isoformat()
+            ent = by_iso.get(key)
+            if ent is None or not getattr(ent, "ok", False):
+                todo.append((h, dt))
+                continue
+            last_check = self._last_check.get(key)
+            if merge_cache.should_refetch(dt, now, last_check):
+                todo.append((h, dt))
+        return todo
 
     def start(self) -> None:
         import multiprocessing as mp
@@ -84,8 +151,11 @@ class MergeIngestStore:
         self._thread = Thread(target=self._loop, name="merge-ingest", daemon=True)
         self._thread.start()
         log.info(
-            "Ingest MERGE iniciado (intervalo=%ds, refetch=%dh)",
-            INGEST_INTERVAL_S, REFETCH_RECENT_H,
+            "Ingest MERGE iniciado (intervalo=%ds, refetch fresh<%dh / "
+            "stale>=%dh, cache em disco)",
+            INGEST_INTERVAL_S,
+            merge_cache.REFETCH_FRESH_HOURS,
+            merge_cache.REFETCH_STALE_HOURS,
         )
 
     def is_refreshing(self) -> bool:
@@ -173,9 +243,9 @@ class MergeIngestStore:
                 for h in range(HOURS_BACK_DEFAULT)
             ]
             if force_full:
-                todo = hours
+                todo = list(hours)
             else:
-                todo = _hours_to_fetch(hours, by_iso, REFETCH_RECENT_H)
+                todo = self._hours_to_fetch_by_age(hours, by_iso, now)
 
             if not todo and self._target_hour == target:
                 with self._lock:
@@ -223,6 +293,10 @@ class MergeIngestStore:
                         ok=ok,
                         updated_at=now_u,
                     )
+                # Marca checagem para a regra de refetch por idade.
+                for h, dt in todo:
+                    key = dt.replace(tzinfo=timezone.utc).isoformat()
+                    self._last_check[key] = now_u
                 ok_count = sum(
                     1 for h in range(HOURS_BACK_DEFAULT)
                     if self._hour_ok_locked(target, h)
@@ -291,6 +365,7 @@ class MergeIngestStore:
         with_series: bool = False,
     ) -> Optional[List[RainSample]]:
         """Le batch pronto do cache (sem download no caminho quente)."""
+        _ = now_utc
         self.configure(coords)
         with self._lock:
             if not self._ready or not self._coords:
@@ -330,6 +405,7 @@ class MergeIngestStore:
         now_utc: Optional[datetime] = None,
         hours_back: int = 192,
     ):
+        _ = now_utc
         self.configure(coords)
         with self._lock:
             if not self._ready or not self._target_hour:

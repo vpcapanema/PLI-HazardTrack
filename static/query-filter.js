@@ -1,6 +1,6 @@
 /**
  * Busca avançada — filtro por atributo nas camadas monitoradas.
- * Camadas: malha rodoviária, UAs encosta e UAs inundação.
+ * Camadas: malha rodoviária, UAs encosta, UAs inundação e queimadas.
  */
 (function () {
   "use strict";
@@ -42,14 +42,21 @@
       hazard: "encosta",
       fields: [
         { key: "rd", label: "Nível RD", type: "enum", enumKey: "niveis" },
-        { key: "regiao", label: "Região PLI", type: "number" },
-        { key: "rodovia", label: "Rodovia", type: "text" },
-        { key: "ra_geo", label: "RA geológico", type: "number" },
+        { key: "regiao_id", label: "Região PLI", type: "number" },
+        { key: "regiao_nome", label: "Região (nome)", type: "text" },
+        { key: "sigla_rodovia", label: "Rodovia", type: "text" },
+        { key: "escala", label: "Escala (UA)", type: "text" },
+        { key: "tipo", label: "Tipo (UTB/SR)", type: "text" },
+        { key: "RAGEO", label: "RA geológico", type: "number" },
+        { key: "trecho_critico_geo", label: "Trecho crítico geo", type: "bool" },
         { key: "ac96h_mm", label: "Chuva 96 h (mm)", type: "number" },
         { key: "ac24h_mm", label: "Chuva 24 h (mm)", type: "number" },
         { key: "intensity_mmh", label: "Intensidade (mm/h)", type: "number" },
         { key: "cpc", label: "CPC", type: "number" },
-        { key: "regional_cgr", label: "CGR", type: "text" },
+        { key: "regional", label: "Sede Regional DER", type: "text" },
+        { key: "residencia_dr", label: "Residência DER", type: "text" },
+        { key: "uba_codigo", label: "UBA (código)", type: "text" },
+        { key: "uba_nome", label: "UBA (nome)", type: "text" },
         { key: "municipio", label: "Município", type: "text" },
       ],
     },
@@ -59,12 +66,40 @@
       hazard: "inundacao",
       fields: [
         { key: "rd", label: "Nível RD", type: "enum", enumKey: "niveis" },
-        { key: "regiao", label: "Região PLI", type: "number" },
-        { key: "rodovia", label: "Rodovia", type: "text" },
-        { key: "ra_hid", label: "RA hidrológico", type: "number" },
+        { key: "regiao_id", label: "Região PLI", type: "number" },
+        { key: "regiao_nome", label: "Região (nome)", type: "text" },
+        { key: "sigla_rodovia", label: "Rodovia", type: "text" },
+        { key: "escala", label: "Escala (UA)", type: "text" },
+        { key: "tipo", label: "Tipo (UTB/SR)", type: "text" },
+        { key: "RAHID", label: "RA hidrológico", type: "number" },
+        { key: "trecho_critico_hid", label: "Trecho crítico hidro", type: "bool" },
         { key: "ac24h_mm", label: "Chuva 24 h (mm)", type: "number" },
         { key: "ac96h_mm", label: "Chuva 96 h (mm)", type: "number" },
-        { key: "regional_cgr", label: "CGR", type: "text" },
+        { key: "regional", label: "Sede Regional DER", type: "text" },
+        { key: "residencia_dr", label: "Residência DER", type: "text" },
+        { key: "uba_codigo", label: "UBA (código)", type: "text" },
+        { key: "uba_nome", label: "UBA (nome)", type: "text" },
+        { key: "municipio", label: "Município", type: "text" },
+      ],
+    },
+    fireRisk: {
+      label: "Queimadas · INPE",
+      kind: "fireRisk",
+      fields: [
+        { key: "rf_classe", label: "Classe RF", type: "enum", enumKey: "rf_classes" },
+        { key: "rf_valor", label: "RF contínuo", type: "number" },
+        { key: "rf_p90", label: "RF P90", type: "number" },
+        { key: "rf_media", label: "RF médio", type: "number" },
+        { key: "horizonte", label: "Horizonte", type: "enum", enumKey: "rf_horizontes" },
+        { key: "rodovia", label: "Rodovia", type: "text" },
+        { key: "sede_regional", label: "Sede Regional DER", type: "text" },
+        { key: "residencia_dr", label: "Residência DER", type: "text" },
+        { key: "uba_codigo", label: "UBA (código)", type: "text" },
+        { key: "uba_nome", label: "UBA (nome)", type: "text" },
+        { key: "municipio", label: "Município", type: "text" },
+        { key: "jurisdicao", label: "Jurisdição", type: "text" },
+        { key: "conservado_por", label: "Conservado por", type: "text" },
+        { key: "data_referencia", label: "Data referência", type: "text" },
       ],
     },
   };
@@ -74,6 +109,20 @@
     regionais: [],
     administra: [],
     niveis: NIVEL_LABELS.map((l, i) => ({ v: String(i), l: `${i} · ${l}` })),
+    rf_classes: [
+      { v: "minimo", l: "mínimo" },
+      { v: "baixo", l: "baixo" },
+      { v: "medio", l: "médio" },
+      { v: "alto", l: "alto" },
+      { v: "critico", l: "crítico" },
+      { v: "SEM_DADO", l: "sem dado" },
+    ],
+    rf_horizontes: [
+      { v: "observado", l: "observado" },
+      { v: "D+1", l: "D+1" },
+      { v: "D+2", l: "D+2" },
+      { v: "D+3", l: "D+3" },
+    ],
   };
 
   /** Uma consulta por camada monitorada. */
@@ -104,6 +153,7 @@
       if (layerId === "inundacao") return props.rd_hid ?? props.rd;
       if (layerId === "encosta") return props.rd_geo ?? props.rd;
     }
+    // Atributos NATIVOS de uas_area_estudo (case-sensitive: RAGEO/RAHID)
     return props[key];
   }
 
@@ -579,6 +629,10 @@
       const layerId = hazardKey === "inundacao" ? "inundacao" : "encosta";
       if (!activeRules.some((r) => r.layerId === layerId)) return true;
       return matchLayer(layerId, props);
+    },
+    matchFireRisk(props) {
+      if (!activeRules.some((r) => r.layerId === "fireRisk")) return true;
+      return matchLayer("fireRisk", props);
     },
     hasActiveRules() {
       return activeRules.length > 0;

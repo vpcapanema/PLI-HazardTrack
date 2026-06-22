@@ -1,0 +1,50 @@
+"""Preview UAs coloridas por RAGEO vs figuras hires do PDF."""
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import geopandas as gpd
+from PIL import Image
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = "data/pli-hazardtrack.gpkg"
+IMG_DIR = Path("ferramentas/extracao-ra/_imgs_hires")
+OUT = Path("ferramentas/extracao-ra/_preview_uas_rageo.png")
+
+COR = {0: "#7F7F7F", 1: "#7FFF00", 2: "#FFFF00",
+       3: "#FF8000", 4: "#FF0000"}
+FIGS = {1: "rageo_r1_p52_3_3_3-3.png",
+        2: "rageo_r2_p54_3_3_3-5.png",
+        3: "rageo_r3_p56_3_3_3-7.png",
+        4: "rageo_r4_p58_3_3_3-9.png"}
+
+regs = gpd.read_file(GPKG, layer="regioes_estudo")
+uas = gpd.read_file(GPKG, layer="uas_area_estudo")
+
+fig, axes = plt.subplots(4, 2, figsize=(18, 24), dpi=100)
+for i, rid in enumerate([1, 2, 3, 4]):
+    ax = axes[i, 0]
+    ax.imshow(Image.open(IMG_DIR / FIGS[rid]))
+    ax.set_title(f"R{rid} - PDF (figura dedicada)")
+    ax.axis("off")
+
+    ax = axes[i, 1]
+    regs[regs["regiao_id"] == rid].boundary.plot(
+        ax=ax, color="magenta", linewidth=1.0)
+    sub_r = uas[uas["regiao_id"] == rid]
+    for k, cor in COR.items():
+        sk = sub_r[sub_r["RAGEO"] == k]
+        if len(sk):
+            sk.plot(ax=ax, color=cor, linewidth=4,
+                    label=f"RA{k} ({len(sk)} UAs / "
+                          f"{sk.to_crs(31983).geometry.length.sum()/1000:.1f} km)")
+    ax.legend(loc="best", fontsize=8)
+    ax.set_title(f"R{rid} - UAs calibradas (Tabela 3.3.1-2)")
+    ax.set_aspect("equal")
+    ax.grid(alpha=0.3)
+
+plt.tight_layout()
+OUT.parent.mkdir(parents=True, exist_ok=True)
+plt.savefig(OUT, dpi=110, bbox_inches="tight")
+print(f"PNG: {OUT}")

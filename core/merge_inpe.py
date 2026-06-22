@@ -15,19 +15,23 @@ Sem dado real -> aggregator marca NO_DATA; nunca mock operacional.
 
 from __future__ import annotations
 
+import atexit
+import logging
+import os
 from concurrent.futures import (
-    ThreadPoolExecutor,
     ProcessPoolExecutor,
+    ThreadPoolExecutor,
     as_completed,
 )
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from threading import Condition, Lock
 from typing import Dict, List, Optional, Tuple
-import logging
-import os
+
 import requests
 from requests.adapters import HTTPAdapter
-from threading import Lock
+
+from . import merge_cache
 
 log = logging.getLogger("merge_inpe")
 
@@ -46,6 +50,10 @@ MAX_GRIB_RETRIES = int(os.environ.get("SAMAEG_GRIB_RETRIES", "2"))
 # Progresso de download em tempo real (lido pela UI no primeiro ciclo).
 # Reflete o batch de GRIBs em andamento, arquivo a arquivo.
 _PROGRESS_LOCK = Lock()
+# Condition compartilha o lock acima -- permite que o SSE bloqueie ate haver
+# mudanca real no progresso, sem polling de 2 req/s da UI.
+_PROGRESS_COND = Condition(_PROGRESS_LOCK)
+_PROGRESS_VERSION = {"value": 0}
 _PROGRESS: dict = {
     "active": False,
     "total": 0,
@@ -64,6 +72,35 @@ _PROGRESS: dict = {
     "min_ok_hours": 24,
     "batch_kind": "idle",
 }
+
+
+def _progress_notify() -> None:
+    """Bump na versao + notify_all. Chamar DENTRO de _PROGRESS_LOCK."""
+    _PROGRESS_VERSION["value"] += 1
+    _PROGRESS_COND.notify_all()
+
+
+def get_progress_version() -> int:
+    """Versao atual do progresso (incrementa em toda mudanca)."""
+    with _PROGRESS_LOCK:
+        return _PROGRESS_VERSION["value"]
+
+
+def wait_for_progress_change(
+    last_version: int, timeout_s: float
+) -> int:
+    """Bloqueia ate haver mudanca ou timeout. Retorna a versao atual.
+
+    Usado pelo endpoint SSE `/api/progress/stream` para empurrar updates em
+    push, sem que a UI precise fazer GET periodico de 1-2 req/s.
+    """
+    with _PROGRESS_COND:
+        _PROGRESS_COND.wait_for(
+            lambda: _PROGRESS_VERSION["value"] != last_version,
+            timeout=max(0.1, timeout_s),
+        )
+        return _PROGRESS_VERSION["value"]
+
 
 # Etapas do ciclo com mensagens amistosas, na ordem de execucao. A UI usa
 # isto para descrever o que o servidor esta fazendo apos o download.
@@ -122,6 +159,7 @@ def _progress_start_ingest_batch(
             "batch_kind": batch_kind,
             "finish_seq": 0,
         })
+        _progress_notify()
 
 
 def _progress_start_batch(
@@ -144,14 +182,21 @@ def _progress_begin(h: int) -> None:
             f["pct"] = 0
             f["bytes_done"] = 0
             f["bytes_total"] = None
+            _progress_notify()
 
 
 def _progress_bytes(h: int, done: int, total: Optional[int]) -> None:
-    """Atualiza progresso real do HTTP (bytes recebidos)."""
+    """Atualiza progresso real do HTTP (bytes recebidos).
+
+    Throttle: so notifica o SSE quando o pct cruza um bucket de 5%
+    (download de 1 MB em chunks de 64KB geraria ~16 eventos sem isso;
+    com throttle vira ~20 eventos no batch inteiro de 96 GRIBs).
+    """
     with _PROGRESS_LOCK:
         f = (_PROGRESS.get("_index") or {}).get(h)
         if f is None or f["status"] != "downloading":
             return
+        prev_bucket = int(f.get("pct", 0)) // 5
         f["bytes_done"] = done
         if total and total > 0:
             f["bytes_total"] = total
@@ -159,6 +204,9 @@ def _progress_bytes(h: int, done: int, total: Optional[int]) -> None:
             f["pct"] = min(99, int(done * 100 / total))
         else:
             f["bytes_total"] = None
+        new_bucket = int(f.get("pct", 0)) // 5
+        if new_bucket != prev_bucket:
+            _progress_notify()
 
 
 def _progress_decode_start(h: int) -> None:
@@ -169,6 +217,7 @@ def _progress_decode_start(h: int) -> None:
             return
         f["status"] = "decoding"
         f["pct"] = 0
+        _progress_notify()
 
 
 def _progress_download_done(h: int, nbytes: int) -> None:
@@ -195,6 +244,7 @@ def _progress_schedule_retry(h: int) -> None:
         f["bytes_total"] = None
         f["retries"] = f.get("retries", 0) + 1
         f.pop("terminal", None)
+        _progress_notify()
 
 
 def _progress_terminal(h: int, ok: bool) -> None:
@@ -213,6 +263,7 @@ def _progress_terminal(h: int, ok: bool) -> None:
             _PROGRESS["ok"] += 1
         else:
             _PROGRESS["fail"] += 1
+        _progress_notify()
 
 
 def _file_progress_fraction(f: dict) -> float:
@@ -293,6 +344,7 @@ def _progress_finish() -> None:
         _PROGRESS["active"] = False
         if _PROGRESS.get("phase") == "ingest":
             _PROGRESS["stage"] = None
+        _progress_notify()
 
 
 def progress_stage(key: str) -> None:
@@ -300,6 +352,7 @@ def progress_stage(key: str) -> None:
     with _PROGRESS_LOCK:
         _PROGRESS["phase"] = "processing"
         _PROGRESS["stage"] = key
+        _progress_notify()
 
 
 def progress_done() -> None:
@@ -308,6 +361,7 @@ def progress_done() -> None:
         _PROGRESS["active"] = False
         _PROGRESS["phase"] = "done"
         _PROGRESS["stage"] = None
+        _progress_notify()
 
 
 def _build_stages(phase: str, stage) -> list:
@@ -334,9 +388,9 @@ def get_download_progress() -> dict:
     ingest_ready = False
     try:
         from .merge_ingest import (
-            ingest,
             HOURS_BACK_DEFAULT,
             MIN_OK_HOURS,
+            ingest,
         )
         ingest_st = ingest.status()
         refreshing = ingest_st.get("refreshing", False)
@@ -443,27 +497,81 @@ def _eccodes_available() -> bool:
         return False
 
 
-_HTTP_SESSION: Optional[requests.Session] = None
+_HTTP_SESSION = {"session": None}
 
 
 def _http() -> requests.Session:
     """Sessao HTTP com keep-alive para reaproveitar conexoes."""
-    global _HTTP_SESSION
-    if _HTTP_SESSION is None:
+    session = _HTTP_SESSION["session"]
+    if session is None:
         pool = max(1, DEFAULT_WORKERS)
         s = requests.Session()
         s.headers.update({"User-Agent": "PLI-HazardTrack/0.1 (eccodes streaming)"})
         adapter = HTTPAdapter(pool_connections=pool, pool_maxsize=pool)
         s.mount("https://", adapter)
         s.mount("http://", adapter)
-        _HTTP_SESSION = s
-    return _HTTP_SESSION
+        _HTTP_SESSION["session"] = s
+        session = s
+    return session
+
+
+# ProcessPool singleton para decode eccodes. Spawn de processos no
+# Windows custa ~300ms/worker; manter o pool vivo entre waves elimina
+# esse overhead em batches subsequentes e em ciclos incrementais.
+_DECODE_POOL_STATE = {"pool": None, "workers": 0}
+_DECODE_POOL_LOCK = Lock()
+
+
+def _get_decode_pool(workers: int) -> ProcessPoolExecutor:
+    """Retorna o pool singleton; recria se o tamanho desejado mudou."""
+    workers = max(1, workers)
+    with _DECODE_POOL_LOCK:
+        pool = _DECODE_POOL_STATE["pool"]
+        if pool is None or _DECODE_POOL_STATE["workers"] != workers:
+            if pool is not None:
+                try:
+                    pool.shutdown(wait=False, cancel_futures=True)
+                except Exception:  # noqa: BLE001
+                    pass
+            pool = ProcessPoolExecutor(max_workers=workers)
+            _DECODE_POOL_STATE["pool"] = pool
+            _DECODE_POOL_STATE["workers"] = workers
+        return pool
+
+
+def _shutdown_decode_pool() -> None:
+    """Encerra o pool singleton (atexit). Idempotente."""
+    with _DECODE_POOL_LOCK:
+        pool = _DECODE_POOL_STATE["pool"]
+        if pool is not None:
+            try:
+                pool.shutdown(wait=False, cancel_futures=True)
+            except Exception:  # noqa: BLE001
+                pass
+            _DECODE_POOL_STATE["pool"] = None
+            _DECODE_POOL_STATE["workers"] = 0
+
+
+atexit.register(_shutdown_decode_pool)
 
 
 def _fetch_grib_bytes(
-    dt: datetime, h: Optional[int] = None
+    dt: datetime, h: Optional[int] = None,
+    *, use_cache: bool = True,
 ) -> Optional[bytes]:
-    """Baixa GRIB horario com progresso por bytes (stream HTTP)."""
+    """Baixa GRIB horario com progresso por bytes (stream HTTP).
+
+    Quando `use_cache=True` (default), olha primeiro o cache em disco
+    e so vai a rede em miss. Hit conta como bytes ja baixados (UI marca
+    o arquivo como concluido instantaneamente).
+    """
+    if use_cache:
+        cached = merge_cache.read_grib(dt)
+        if cached is not None:
+            if h is not None:
+                _progress_begin(h)
+                _progress_download_done(h, len(cached))
+            return cached
     if h is not None:
         _progress_begin(h)
     url = _hourly_url(dt)
@@ -491,6 +599,8 @@ def _fetch_grib_bytes(
             return None
         if h is not None:
             _progress_download_done(h, len(data))
+        # Persiste no cache em disco para acelerar restarts subsequentes
+        merge_cache.write_grib(dt, data)
         return data
     except Exception as e:
         log.debug("MERGE %s falhou: %s", dt, e)
@@ -589,8 +699,12 @@ def _run_download_decode_batch(
     on_hour_done=None,
 ) -> Dict[int, Tuple[Optional[List[float]], bool]]:
     """
-    Pipeline: download paralelo (threads) + decode paralelo (processos).
-    Retorna {h: (samples, ok)} para cada hora solicitada.
+    Pipeline: cache em disco -> download paralelo (threads) -> decode
+    paralelo (processos, pool singleton). Retorna {h: (samples, ok)}.
+
+    Cache hit em duas camadas:
+      1. samples cacheados (por coords_hash) -> nem baixa nem decodifica
+      2. GRIB cacheado -> baixa do disco (instantaneo), so decode
     """
     if not todo:
         return {}
@@ -614,7 +728,36 @@ def _run_download_decode_batch(
     results: Dict[int, Tuple[Optional[List[float]], bool]] = {}
     retry_queue: Dict[int, int] = {h: 0 for h, _ in todo}
 
-    pending_dl = list(todo)
+    # Fase 0: hit no cache de samples (sem rede, sem decode).
+    chash = merge_cache.coords_hash(lats, lons_360)
+    pending_after_samples_cache: List[Tuple[int, datetime]] = []
+    for h, dt in todo:
+        cached_samples = merge_cache.read_samples(chash, dt)
+        if cached_samples is not None and len(cached_samples) == len(lats):
+            _progress_begin(h)
+            # marca como "decodificado instantaneo" no progresso da UI
+            _progress_decode_start(h)
+            results[h] = (cached_samples, True)
+            _progress_terminal(h, True)
+            if on_hour_done:
+                on_hour_done(h, cached_samples, True)
+        else:
+            pending_after_samples_cache.append((h, dt))
+
+    if not pending_after_samples_cache:
+        log.info(
+            "MERGE batch: %d/%d horas vieram do cache de samples em disco",
+            len(todo), len(todo),
+        )
+        return results
+    n_cached = len(todo) - len(pending_after_samples_cache)
+    if n_cached > 0:
+        log.info(
+            "MERGE batch: %d/%d horas via cache de samples; %d a baixar/decodificar",
+            n_cached, len(todo), len(pending_after_samples_cache),
+        )
+
+    pending_dl = list(pending_after_samples_cache)
     wave_size = max(1, dl_workers)
     while pending_dl:
         wave = pending_dl[:wave_size]
@@ -643,27 +786,30 @@ def _run_download_decode_batch(
             if data:
                 _progress_decode_start(h)
 
-        with ProcessPoolExecutor(max_workers=max(1, dec_workers)) as pex:
-            futs = {
-                pex.submit(
-                    _mp_decode_grib, (h, data, lats, lons_360)
-                ): h
-                for h, data in to_decode
-            }
-            for fut in as_completed(futs):
-                h = futs[fut]
-                try:
-                    _, samples = fut.result()
-                except Exception as e:
-                    log.debug("decode future h=%d: %s", h, e)
-                    samples = None
-                decode_out[h] = samples
+        pex = _get_decode_pool(dec_workers)
+        futs = {
+            pex.submit(
+                _mp_decode_grib, (h, data, lats, lons_360)
+            ): h
+            for h, data in to_decode
+        }
+        for fut in as_completed(futs):
+            h = futs[fut]
+            try:
+                _, samples = fut.result()
+            except Exception as e:
+                log.debug("decode future h=%d: %s", h, e)
+                samples = None
+            decode_out[h] = samples
 
         for h, _data in to_decode:
             samples = decode_out.get(h)
             if samples is not None:
                 results[h] = (samples, True)
                 _progress_terminal(h, True)
+                # Persiste samples no cache em disco para acelerar
+                # restarts e ciclos futuros com a mesma malha.
+                merge_cache.write_samples(chash, hour_dt[h], samples)
                 if on_hour_done:
                     on_hour_done(h, samples, True)
             else:
@@ -800,7 +946,6 @@ def fetch_real(lat: float, lon: float,
                now_utc: Optional[datetime] = None) -> Optional[RainSample]:
     res = fetch_real_batch([(lat, lon)], now_utc)
     return res[0] if res else None
-
 
 
 def fetch(lat: float, lon: float,

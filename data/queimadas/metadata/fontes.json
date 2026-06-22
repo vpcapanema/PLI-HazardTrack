@@ -1,0 +1,76 @@
+{
+  "modulo": "queimadas",
+  "descricao": "Fontes planejadas para o modulo estadual de risco de queimadas por trecho DER-SP.",
+  "fontes": [
+    {
+      "id": "der_sp_malha_rodoviaria",
+      "tipo": "estatico",
+      "uso": "Unidade operacional de exibicao e agregacao do risco.",
+      "resolucao_temporal": "eventual",
+      "consumo": "download manual/oficial e preparacao local",
+      "destino": "data/queimadas/base/"
+    },
+    {
+      "id": "limite_sp",
+      "tipo": "estatico",
+      "uso": "Recorte estadual dos rasters e grades.",
+      "resolucao_temporal": "eventual",
+      "consumo": "download oficial IBGE/DRADT e preparacao local",
+      "destino": "data/queimadas/base/"
+    },
+    {
+      "id": "mapbiomas",
+      "tipo": "estatico_atualizacao_anual",
+      "uso": "Classes de uso/cobertura do solo para flamabilidade da vegetacao.",
+      "resolucao_espacial": "30 m",
+      "resolucao_temporal": "anual",
+      "consumo": "download raster ou extracao Google Earth Engine",
+      "destino": "data/queimadas/base/"
+    },
+    {
+      "id": "dem",
+      "tipo": "estatico",
+      "uso": "Fator topografico do metodo INPE.",
+      "resolucao_espacial": "30 m tipico",
+      "resolucao_temporal": "estatica",
+      "consumo": "download SRTM/Copernicus/IBGE",
+      "destino": "data/queimadas/base/"
+    },
+    {
+      "id": "imerg_gpm",
+      "tipo": "dinamico",
+      "uso": "Precipitacao observada e acumulados ate 120 dias.",
+      "resolucao_espacial": "aprox. 10 km",
+      "resolucao_temporal": "diaria ou subdiaria agregada para dia",
+      "consumo": "download automatizado de arquivos raster/NetCDF",
+      "destino": "data/queimadas/raw/imerg/"
+    },
+    {
+      "id": "gfs",
+      "tipo": "dinamico",
+      "uso": "Temperatura maxima, umidade minima e previsao D+1 a D+5.",
+      "resolucao_espacial": "aprox. 25 km",
+      "resolucao_temporal": "ciclos varias vezes ao dia; produto diario",
+      "consumo": "download automatizado GRIB2 NOAA/NOMADS/AWS",
+      "destino": "data/queimadas/raw/gfs/"
+    },
+    {
+      "id": "inpe_focos_queimada",
+      "tipo": "dinamico",
+      "uso": "Correcao operacional por focos detectados nos ultimos 3 dias.",
+      "resolucao_espacial": "pontos georreferenciados por satelite",
+      "resolucao_temporal": "varias atualizacoes ao dia",
+      "consumo": "API/CSV/GeoJSON/shapefile do Programa Queimadas INPE",
+      "destino": "data/queimadas/raw/focos_inpe/"
+    },
+    {
+      "id": "inmet_estacoes",
+      "tipo": "dinamico_auxiliar",
+      "uso": "Referencia Nesterov/auditoria por estacao.",
+      "resolucao_espacial": "pontual",
+      "resolucao_temporal": "horaria/diaria",
+      "consumo": "BDMEP/API/CSV conforme disponibilidade",
+      "destino": "data/queimadas/raw/inmet/"
+    }
+  ]
+}

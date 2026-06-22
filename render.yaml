@@ -22,8 +22,13 @@ services:
         value: "6"
       - key: SAMAEG_INGEST_INTERVAL_S
         value: "120"
-      - key: SAMAEG_REFETCH_RECENT_H
-        value: "3"
+      # Politica de refetch por idade do dado (substitui SAMAEG_REFETCH_RECENT_H).
+      # Hora com idade < FRESH_H sempre re-baixada; >= STALE_H nunca; entre as
+      # duas, no maximo 1x/dia. Acoplado ao cache em disco data/_cache/merge/.
+      - key: SAMAEG_REFETCH_FRESH_H
+        value: "4"
+      - key: SAMAEG_REFETCH_STALE_H
+        value: "24"
       # Area /admin - configure no painel do Render (Settings > Environment)
       - key: SIGMA_API_BASE_URL
         sync: false

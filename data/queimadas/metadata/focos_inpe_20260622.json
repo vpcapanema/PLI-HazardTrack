@@ -1,0 +1,11 @@
+{
+  "modulo": "queimadas",
+  "step": "04_fetch_focos_inpe",
+  "data_referencia": "2026-06-22",
+  "gerado_em": "2026-06-22T08:37:20.682514+00:00",
+  "source": "Programa Queimadas/INPE",
+  "target_dir": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\raw\\focos_inpe\\2026\\06\\22",
+  "status": "no_data",
+  "message": "Endpoint de focos INPE ainda nao configurado. O RF sera calculado sem correcao por focos ate haver dados reais.",
+  "files": []
+}

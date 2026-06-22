@@ -1,25 +1,44 @@
 """
 Feed publico GeoJSON das UAs com monitoramento em tempo real.
 
-Consumo externo: GET /api/public/ua-layers
+Consumo externo: GET /api/public/ua-layers[?hazard=geo|hidro][&min_rd=N]
+
+CONTRATO: as features carregam os atributos NATIVOS da camada
+`uas_area_estudo` (sem renomear) + os campos CALCULADOS pelo ciclo
+de risco (rd, nivel, ac96h_mm, etc.). Sistemas consumidores podem
+fazer spatial join direto em ua_id sem normalizacao adicional.
 """
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
 
-API_VERSION = "1"
+API_VERSION = "2"
 
 HAZARD_LABELS = {
-    "geo": "Risco geologico",
-    "hidro": "Risco hidrologico",
+    "geo": "Risco geologico (encosta)",
+    "hidro": "Risco hidrologico (inundacao)",
 }
 
-PUBLIC_PROP_KEYS = (
-    "id", "hazard", "hazard_label", "regiao", "region_name", "rodovia", "km",
-    "municipio", "ra", "ra_geo", "ra_hid", "rd", "rd_geo", "rd_hid", "nivel",
-    "ac96h_mm", "ac24h_mm", "intensity_mmh", "cpc", "icc_geo", "icc_hid",
-    "fonte_chuva", "cgr", "regional_cgr", "uba_codigo", "uba_nome",
-    "residencia_conserva", "lat", "lon",
+# Atributos NATIVOS da UA - sempre presentes nas features
+_NATIVE_COMMON = (
+    "ua_id", "regiao_id", "regiao_nome", "sigla_rodovia",
+    "escala", "tipo", "extensao_km", "ordem_no_grupo",
+    "km_inicial", "km_final", "subtrecho_der",
+    "municipio", "regional", "residencia_dr",
+    "uba_nome", "uba_codigo", "jurisdicao", "conservado_por",
+    "centroide_lon", "centroide_lat", "buffer_lateral_m",
+)
+_NATIVE_GEO = ("RAGEO", "icc_geo_thresholds", "trecho_critico_geo")
+_NATIVE_HID = ("RAHID", "icc_hid_thresholds", "trecho_critico_hid")
+
+# Atributos CALCULADOS pelo ciclo de risco
+_CALCULATED = (
+    "rd", "rd_geo", "rd_hid", "nivel",
+    "ac96h_mm", "ac24h_mm", "intensity_mmh",
+    "ac72h_obs_mm", "ac18h_obs_mm",
+    "prev24h_mm", "prev6h_mm", "fonte_chuva",
+    "cpc", "icc_geo", "icc_hid",
+    "rd_unidades",
 )
 
 
@@ -44,15 +63,19 @@ def _public_props(p: Dict[str, Any]) -> Dict[str, Any]:
         "hazard": hazard,
         "hazard_label": HAZARD_LABELS.get(hazard, hazard),
     }
-    for key in PUBLIC_PROP_KEYS:
-        if key in ("hazard", "hazard_label"):
-            continue
+    for key in _NATIVE_COMMON:
         if key in p:
             props[key] = p[key]
+    extras = _NATIVE_GEO if hazard == "geo" else _NATIVE_HID
+    for key in extras:
+        if key in p:
+            props[key] = p[key]
+    for key in _CALCULATED:
+        if key in p:
+            props[key] = p[key]
+
     if p.get("source") == "NO_DATA":
         props["monitoramento"] = "indisponivel"
-    elif p.get("source"):
-        props["monitoramento"] = "ativo"
     else:
         props["monitoramento"] = "ativo"
     return props
@@ -66,10 +89,9 @@ def point_to_feature(p: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     )
     if geom is None:
         return None
-    fid = p.get("id")
     return {
         "type": "Feature",
-        "id": fid,
+        "id": p.get("ua_id"),
         "geometry": geom,
         "properties": _public_props(p),
     }

@@ -1,53 +1,36 @@
 """
 Unidades de Analise (UAs) = unidade operacional do sistema.
 
-Duas malhas separadas (Produto 7 — processos independentes):
-  data/ua_polygons/ua_polygons.geojson — fonte canonica (geometria + RA)
-  data/ua_zones/ua_geo.geojson         — encosta (RAGEO por UA)
-  data/ua_zones/ua_hidro.geojson       — inundação (RAHID por UA)
+Duas malhas separadas (Produto 7 - canais independentes):
+  data/ua_zones/ua_geo.geojson    - encosta   (RAGEO + ICC GEO)
+  data/ua_zones/ua_hidro.geojson  - inundacao (RAHID + ICC HID)
 
-Geradas por ferramentas/geracao-uas/ (build_ua_polygons + assign_ra_to_uas).
-O centróide amostra chuva MERGE/INPE; o polígono é a tradução visual
-do alerta no mapa.
+Ambas geradas por:
+  ferramentas/geracao-geopackage/04_export_ua_geojsons.py
+a partir da camada `uas_area_estudo` do GeoPackage
+`data/pli-hazardtrack.gpkg` (fonte unica de verdade).
 
-Recarrega do disco quando os arquivos GeoJSON são regenerados (mtime).
+CONTRATO DE ATRIBUTOS: este modulo NAO renomeia nem normaliza nada.
+Cada UA propaga LITERALMENTE os campos da camada-mae para o restante
+do sistema, mais alguns campos derivados puramente geometricos
+(`lat`, `lon`, `geometry` no formato anel-latlon, `geometry_type`).
 """
+from __future__ import annotations
 
-from pathlib import Path
 import json
 import logging
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-from core.text_encoding import fix_text
 from shapely.geometry import shape
 
 log = logging.getLogger("zones")
-
-DER_PROP_KEYS = (
-    "cgr", "regional_cgr", "regional", "rc", "residencia_conserva",
-    "uba", "uba_codigo", "uba_nome",
-)
-
-
-def _der_from_props(props: dict) -> dict:
-    """Atributos DER gravados no GeoJSON da UA (intersecao com camadas)."""
-    rc = fix_text(props.get("rc") or props.get("residencia_conserva"))
-    cgr = fix_text(props.get("cgr") or props.get("regional_cgr"))
-    return {
-        "cgr": cgr,
-        "regional_cgr": cgr,
-        "regional": fix_text(props.get("regional")),
-        "rc": rc,
-        "residencia_conserva": rc,
-        "uba": fix_text(props.get("uba")),
-        "uba_codigo": fix_text(props.get("uba_codigo")),
-        "uba_nome": fix_text(props.get("uba_nome")),
-    }
 
 _DATA = Path(__file__).resolve().parent.parent / "data" / "ua_zones"
 _GEOJSON_GEO = _DATA / "ua_geo.geojson"
 _GEOJSON_HIDRO = _DATA / "ua_hidro.geojson"
 
-_cache = {
+_cache: Dict[str, Any] = {
     "geo": [],
     "hidro": [],
     "token": (0.0, 0.0),
@@ -61,12 +44,12 @@ def _file_mtime(path: Path) -> float:
         return 0.0
 
 
-def zones_disk_token() -> tuple:
-    """Par (mtime geo, mtime hidro) para detectar alteracao no disco."""
+def zones_disk_token() -> Tuple[float, float]:
+    """(mtime geo, mtime hidro) - detector de alteracao no disco."""
     return (_file_mtime(_GEOJSON_GEO), _file_mtime(_GEOJSON_HIDRO))
 
 
-def _to_int(v):
+def _to_int(v: Any) -> Optional[int]:
     if v is None:
         return None
     try:
@@ -75,35 +58,71 @@ def _to_int(v):
         return None
 
 
-def _centroid_and_ring(geom):
-    """Retorna (lat, lon, ring_latlon, geometry_type) a partir da geometria."""
+def _to_float(v: Any) -> Optional[float]:
+    if v is None:
+        return None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_thresholds(raw: Any) -> Optional[List[float]]:
+    """Converte 'a;b;c;d' em [a, b, c, d] (mantem ordem)."""
+    if raw is None:
+        return None
+    if isinstance(raw, list):
+        return [float(x) for x in raw]
+    txt = str(raw).strip()
+    if not txt:
+        return None
+    parts = [p for p in txt.replace(",", ";").split(";") if p.strip()]
+    try:
+        return [float(p) for p in parts]
+    except ValueError:
+        return None
+
+
+def _ring_from_coords(coords: List[List[float]]) -> List[List[float]]:
+    """Converte [[lon, lat, ...], ...] -> [[lat, lon], ...] descartando Z."""
+    return [[float(c[1]), float(c[0])] for c in coords]
+
+
+def _centroid_and_ring(
+    geom: Dict[str, Any],
+    centroide_lat: Optional[float],
+    centroide_lon: Optional[float],
+) -> Tuple[float, float, Optional[List[List[float]]], str]:
+    """Retorna (lat, lon, ring_latlon, geometry_type)."""
     g = shape(geom)
     c = g.centroid
-    lat, lon = float(c.y), float(c.x)
+    lat = float(centroide_lat) if centroide_lat is not None \
+        else float(c.y)
+    lon = float(centroide_lon) if centroide_lon is not None \
+        else float(c.x)
     gtype = geom.get("type")
     if gtype == "Polygon":
-        ring = [[float(la), float(lo)]
-                for lo, la in geom["coordinates"][0]]
-        return lat, lon, ring, "polygon"
+        return lat, lon, _ring_from_coords(geom["coordinates"][0]), \
+            "polygon"
     if gtype == "LineString":
-        coords = geom.get("coordinates", [])
-        if coords:
-            lon, lat = coords[len(coords) // 2]
-            ring = [[float(la), float(lo)] for lo, la in coords]
-            return float(lat), float(lon), ring, "polyline"
+        return lat, lon, _ring_from_coords(geom.get("coordinates", [])), \
+            "polyline"
     if gtype == "MultiPolygon" and geom["coordinates"]:
-        ring = [[float(la), float(lo)]
-                for lo, la in geom["coordinates"][0][0]]
-        return lat, lon, ring, "polygon"
+        return lat, lon, _ring_from_coords(geom["coordinates"][0][0]), \
+            "polygon"
+    if gtype == "MultiLineString" and geom["coordinates"]:
+        return lat, lon, _ring_from_coords(geom["coordinates"][0]), \
+            "polyline"
     return lat, lon, None, "point"
 
 
-def _load_hazard_zones(path: Path, hazard: str):
-    """Carrega UAs de um GeoJSON mono-canal (geo ou hidro)."""
+def _load_hazard_zones(path: Path, hazard: str) -> List[Dict[str, Any]]:
+    """Le um GeoJSON mono-canal e devolve lista de UAs (dicts)."""
     if not path.exists():
         log.warning(
-            "%s nao encontrado. Rode ferramentas/geracao-uas/"
-            "build_ua_polygons.py e assign_ra_to_uas.py.", path
+            "%s nao encontrado. Rode "
+            "ferramentas/geracao-geopackage/04_export_ua_geojsons.py.",
+            path,
         )
         return []
     try:
@@ -112,51 +131,68 @@ def _load_hazard_zones(path: Path, hazard: str):
         log.error("falha ao ler %s: %s", path, e)
         return []
 
-    label = "GEO" if hazard == "geo" else "HIDRO"
-    out = []
-    for i, feat in enumerate(data.get("features", [])):
-        props = feat.get("properties", {}) or {}
+    ra_key = "RAGEO" if hazard == "geo" else "RAHID"
+    icc_key = "icc_geo_thresholds" if hazard == "geo" \
+        else "icc_hid_thresholds"
+    flag_key = "trecho_critico_geo" if hazard == "geo" \
+        else "trecho_critico_hid"
+
+    out: List[Dict[str, Any]] = []
+    for feat in data.get("features", []):
+        props = feat.get("properties") or {}
         geom = feat.get("geometry") or {}
         gtype = geom.get("type")
-        if gtype not in ("Polygon", "LineString", "MultiPolygon"):
+        if gtype not in ("Polygon", "LineString", "MultiPolygon",
+                         "MultiLineString"):
             continue
-        lat, lon, ring, geometry_type = _centroid_and_ring(geom)
+        lat, lon, ring, geometry_type = _centroid_and_ring(
+            geom,
+            _to_float(props.get("centroide_lat")),
+            _to_float(props.get("centroide_lon")),
+        )
         if ring is None or len(ring) < 2:
             continue
-        regiao = _to_int(props.get("regiao"))
-        rodovia = props.get("rodovia")
-        km = props.get("km")
-        ra = _to_int(props.get("ra"))
-        zid = props.get("id") or f"R{regiao}-{i:03d}"
-        km_txt = f" km {km:.1f}" if isinstance(km, (int, float)) else ""
-        suffix = " encosta" if hazard == "geo" else " hidro"
-        ra_key = "ra_geo" if hazard == "geo" else "ra_hid"
-        zone = {
-            "id": zid,
-            "nome": fix_text(f"{rodovia}{km_txt} (R{regiao}){suffix}"),
-            "rodovia": fix_text(rodovia) if rodovia else rodovia,
-            "km": km,
-            "regiao": regiao,
+
+        zone: Dict[str, Any] = {
+            # Identificacao
+            "ua_id": props.get("ua_id"),
+            "regiao_id": _to_int(props.get("regiao_id")),
+            "regiao_nome": props.get("regiao_nome"),
+            "sigla_rodovia": props.get("sigla_rodovia"),
+            "escala": props.get("escala"),
+            "tipo": props.get("tipo"),
+            "extensao_km": _to_float(props.get("extensao_km")),
+            "ordem_no_grupo": _to_int(props.get("ordem_no_grupo")),
+            # Linear referencing (km cadastral)
+            "km_inicial": _to_float(props.get("km_inicial")),
+            "km_final": _to_float(props.get("km_final")),
+            "subtrecho_der": props.get("subtrecho_der"),
+            # Atributos administrativos DER
+            "municipio": props.get("municipio"),
+            "regional": props.get("regional"),
+            "residencia_dr": props.get("residencia_dr"),
+            "uba_nome": props.get("uba_nome"),
+            "uba_codigo": props.get("uba_codigo"),
+            "jurisdicao": props.get("jurisdicao"),
+            "conservado_por": props.get("conservado_por"),
+            # Geometria
+            "centroide_lon": _to_float(props.get("centroide_lon")) or lon,
+            "centroide_lat": _to_float(props.get("centroide_lat")) or lat,
             "lat": lat,
             "lon": lon,
-            "hazard": hazard,
-            "ra": ra,
-            ra_key: ra,
-            "ra_source": (
-                props.get("fonte") or props.get("ra_fonte") or "figura"
-            ),
             "geometry": ring,
             "geometry_type": geometry_type,
-            "municipio": fix_text(props.get("municipio")),
+            "buffer_lateral_m": _to_int(props.get("buffer_lateral_m")),
+            # ICC do canal corrente
+            icc_key: _parse_thresholds(props.get(icc_key)),
+            # Flag de trecho critico do canal
+            flag_key: bool(props.get(flag_key)),
+            # Hazard + RA do canal
+            "hazard": hazard,
+            ra_key: _to_int(props.get(ra_key)),
         }
-        zone.update(_der_from_props(props))
-        if hazard == "geo":
-            zone["ra_geo"] = ra
-            zone["ra_hid"] = None
-        else:
-            zone["ra_hid"] = ra
-            zone["ra_geo"] = None
         out.append(zone)
+    label = "GEO" if hazard == "geo" else "HIDRO"
     log.info("ZONES_%s carregado: %d UAs", label, len(out))
     return out
 
@@ -176,12 +212,12 @@ def reload_zones_if_changed(force: bool = False) -> bool:
     return True
 
 
-def get_zones_geo() -> list:
+def get_zones_geo() -> List[Dict[str, Any]]:
     reload_zones_if_changed()
     return _cache["geo"]
 
 
-def get_zones_hidro() -> list:
+def get_zones_hidro() -> List[Dict[str, Any]]:
     reload_zones_if_changed()
     return _cache["hidro"]
 

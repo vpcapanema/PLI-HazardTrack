@@ -1,0 +1,48 @@
+{
+  "modulo": "queimadas",
+  "step": "05_compute_rf_grid",
+  "data_referencia": "2026-06-22",
+  "gerado_em": "2026-06-22T08:47:29.365409+00:00",
+  "metodologia": "INPE-RF-v11",
+  "status": "ok",
+  "source": "INPE Programa Queimadas - RF oficial",
+  "observed_source_file": "INPE_FireRiskModel_2.2_FireRisk_20260621.nc",
+  "message": "Produtos RF oficiais INPE baixados.",
+  "grid_products": [
+    {
+      "horizonte": "observado",
+      "path": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\interim\\rf_inpe\\20260622\\INPE_FireRiskModel_2.2_FireRisk_20260621.nc",
+      "url": "https://dataserver-coids.inpe.br/queimadas/queimadas/riscofogo_meteorologia/observado/risco_fogo/INPE_FireRiskModel_2.2_FireRisk_20260621.nc",
+      "bytes": 9778113,
+      "sha256": "4bfef82703cb8a935c492a73e18b872024d9db3aae2d41da2e5a16fa0f32198f"
+    },
+    {
+      "horizonte": "D+0",
+      "path": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\interim\\rf_inpe\\20260622\\RF.PREV.T0.tif",
+      "url": "https://dataserver-coids.inpe.br/queimadas/queimadas/riscofogo_meteorologia/previsto/risco_fogo/RF.PREV.T0.tif",
+      "bytes": 17149583,
+      "sha256": "ff2fa6863c4faa4727fa8787aab5fa6c49b1b64f46215d51d680ddcf151965f4"
+    },
+    {
+      "horizonte": "D+1",
+      "path": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\interim\\rf_inpe\\20260622\\RF.PREV.T1.tif",
+      "url": "https://dataserver-coids.inpe.br/queimadas/queimadas/riscofogo_meteorologia/previsto/risco_fogo/RF.PREV.T1.tif",
+      "bytes": 17368597,
+      "sha256": "9989cfb8b4294e7430a1ed08d99be08800cd2ed3f4e3185cd47ec1538d98070f"
+    },
+    {
+      "horizonte": "D+2",
+      "path": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\interim\\rf_inpe\\20260622\\RF.PREV.T2.tif",
+      "url": "https://dataserver-coids.inpe.br/queimadas/queimadas/riscofogo_meteorologia/previsto/risco_fogo/RF.PREV.T2.tif",
+      "bytes": 17466496,
+      "sha256": "18e3b0f30fc51888cea6363fdc173c745d0fc60ac1ed9e014735e7a3d9902d8f"
+    },
+    {
+      "horizonte": "D+3",
+      "path": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\interim\\rf_inpe\\20260622\\RF.PREV.T3.tif",
+      "url": "https://dataserver-coids.inpe.br/queimadas/queimadas/riscofogo_meteorologia/previsto/risco_fogo/RF.PREV.T3.tif",
+      "bytes": 17441310,
+      "sha256": "31f4ba665a0beeba08ec3f9fe23bd4652ef6a3256bd70fcd7bb2c2a33937244b"
+    }
+  ]
+}

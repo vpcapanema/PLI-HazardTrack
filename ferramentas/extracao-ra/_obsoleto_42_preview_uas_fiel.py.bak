@@ -1,0 +1,110 @@
+"""
+Preview visual das UAs (refeitas com metodologia oficial) vs as Figuras
+3.3.3-x do PRODUTO 7 (PDF).
+
+Mostra para cada Regiao:
+  - Lado esquerdo: figura do PDF (verdade visual)
+  - Lado direito : UAs com RAGEO ou RAHID colorido
+    - UTBs (1:25K, 1:10K): linha FINA (cobertura regular da rodovia)
+    - SRs  (1:1K)        : linha GROSSA (sobreposicao destacada nos
+                            trechos criticos)
+"""
+import sys
+from pathlib import Path
+
+import geopandas as gpd
+import matplotlib.pyplot as plt
+from PIL import Image
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = "data/pli-hazardtrack.gpkg"
+IMG_DIR = Path("ferramentas/extracao-ra/_imgs_hires")
+OUT_GEO = Path("ferramentas/extracao-ra/_preview_uas_rageo_fiel.png")
+OUT_HID = Path("ferramentas/extracao-ra/_preview_uas_rahid_fiel.png")
+
+COR = {0: "#7F7F7F", 1: "#7FFF00", 2: "#FFFF00",
+       3: "#FF8000", 4: "#FF0000"}
+
+FIGS_GEO = {1: "rageo_r1_p52_3_3_3-3.png",
+            2: "rageo_r2_p54_3_3_3-5.png",
+            3: "rageo_r3_p56_3_3_3-7.png",
+            4: "rageo_r4_p58_3_3_3-9.png"}
+FIGS_HID = {1: "rahid_r1_p63_3_3_3-13.png",
+            2: "rahid_r2_p65_3_3_3-15.png",
+            3: "rahid_r3_p67_3_3_3-17.png",
+            4: "rahid_r4_p69_3_3_3-19.png"}
+
+
+def render(coluna, figs_map, titulo, out_path):
+    regs = gpd.read_file(GPKG, layer="regioes_estudo")
+    uas = gpd.read_file(GPKG, layer="uas_area_estudo")
+
+    fig, axes = plt.subplots(4, 2, figsize=(18, 26), dpi=100)
+    for i, rid in enumerate([1, 2, 3, 4]):
+        # Lado esquerdo: PDF
+        ax = axes[i, 0]
+        fig_path = IMG_DIR / figs_map[rid]
+        if fig_path.exists():
+            ax.imshow(Image.open(fig_path))
+            ax.set_title(f"R{rid} - PDF ({figs_map[rid]})")
+        else:
+            ax.text(0.5, 0.5, f"PDF ausente:\n{figs_map[rid]}",
+                    ha="center", va="center", transform=ax.transAxes)
+            ax.set_title(f"R{rid} - PDF (n/d)")
+        ax.axis("off")
+
+        # Lado direito: UAs
+        ax = axes[i, 1]
+        regs[regs["regiao_id"] == rid].boundary.plot(
+            ax=ax, color="magenta", linewidth=0.8)
+        sub_r = uas[uas["regiao_id"] == rid]
+        # Primeiro UTBs (fundo, linha fina)
+        for k, cor in COR.items():
+            sk = sub_r[(sub_r[coluna] == k) & (sub_r["tipo"] == "UTB")]
+            if len(sk):
+                sk.plot(ax=ax, color=cor, linewidth=1.5)
+        # Depois SRs (em cima, linha grossa)
+        for k, cor in COR.items():
+            sk = sub_r[(sub_r[coluna] == k) & (sub_r["tipo"] == "SR")]
+            if len(sk):
+                sk.plot(ax=ax, color=cor, linewidth=4.5)
+        # Legenda combinada
+        handles = []
+        for k, cor in COR.items():
+            qtd_utb = ((sub_r[coluna] == k) & (sub_r["tipo"] == "UTB")).sum()
+            qtd_sr = ((sub_r[coluna] == k) & (sub_r["tipo"] == "SR")).sum()
+            if qtd_utb + qtd_sr:
+                from matplotlib.lines import Line2D
+                handles.append(Line2D(
+                    [], [], color=cor, linewidth=4,
+                    label=f"RA{k}: UTB={qtd_utb} SR={qtd_sr}"
+                ))
+        ax.legend(handles=handles, loc="best", fontsize=8)
+        ax.set_title(f"R{rid} - {coluna} oficial "
+                     f"(UTB=fino, SR=grosso)")
+        ax.set_aspect("equal")
+        ax.grid(alpha=0.3)
+
+    plt.suptitle(titulo, fontsize=14, fontweight="bold", y=0.999)
+    plt.tight_layout()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(out_path, dpi=110, bbox_inches="tight")
+    plt.close()
+    print(f"  -> {out_path}")
+
+
+def main():
+    print("=" * 70)
+    print("PREVIEW: UAs (geometria + RAs) vs Figuras do PDF")
+    print("=" * 70)
+    render("RAGEO", FIGS_GEO,
+           "RAGEO - Risco Analisado Geologico (Tab 3.3.1-2)",
+           OUT_GEO)
+    render("RAHID", FIGS_HID,
+           "RAHID - Risco Analisado Hidrologico (Tab 3.3.2-2)",
+           OUT_HID)
+
+
+if __name__ == "__main__":
+    main()

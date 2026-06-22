@@ -18,7 +18,6 @@ import time
 from threading import Lock
 
 from .regions import load_regions, find_region_for_point, Region
-from .text_encoding import fix_text
 from .zones import (
     get_zones_geo,
     get_zones_hidro,
@@ -38,6 +37,63 @@ from .notifier import notifier
 
 log = logging.getLogger("aggregator")
 
+# Atributos NATIVOS da camada `uas_area_estudo` propagados em cada
+# ponto do snapshot (sem renomear, sem normalizar). Lista usada por
+# _seed_point, _no_data_point e _process_zone para garantir contrato
+# estavel com frontend e feed publico GeoJSON.
+_UA_NATIVE_KEYS_COMMON = (
+    "ua_id", "regiao_id", "regiao_nome", "sigla_rodovia",
+    "escala", "tipo", "extensao_km", "ordem_no_grupo",
+    "km_inicial", "km_final", "subtrecho_der",
+    "municipio", "regional", "residencia_dr",
+    "uba_nome", "uba_codigo", "jurisdicao", "conservado_por",
+    "centroide_lon", "centroide_lat", "buffer_lateral_m",
+    "geometry", "geometry_type",
+)
+# Atributos especificos do canal (presentes apenas no canal correspondente)
+_UA_GEO_ONLY = ("RAGEO", "icc_geo_thresholds", "trecho_critico_geo")
+_UA_HID_ONLY = ("RAHID", "icc_hid_thresholds", "trecho_critico_hid")
+
+
+def _region_snapshot_entry(r: Region) -> Dict[str, Any]:
+    """Constroi o dict da regiao para o snapshot (consumido pelo
+    frontend para a camada 'Regioes monitoradas' e popups).
+
+    Propaga TODOS os atributos nativos de `regioes_estudo` (regiao_id,
+    regiao_nome, sigla_rodovia, km_inicial/final, area_km2, municipios,
+    residencias_dr, regionais, ubas, jurisdicoes, conservado_por,
+    subtrechos_der, n_subtrechos_der, k_geo, cpc_breaks, hid24h_breaks
+    etc.) MAIS o poligono em (lat, lon) MAIS aliases legados
+    (`id`/`nome`/`rodovia`) para compatibilidade com codigo antigo.
+    """
+    out: Dict[str, Any] = dict(r.native) if r.native else {}
+    # Garante os campos calculados/derivados pelo backend
+    out.setdefault("regiao_id", r.id)
+    out.setdefault("regiao_nome", r.nome)
+    out.setdefault("sigla_rodovia", r.rodovia)
+    out.setdefault("k_geo", r.k_geo)
+    out.setdefault("cpc_breaks", r.cpc_breaks)
+    out.setdefault("hid24h_breaks", r.hid24h_breaks)
+    out["polygon"] = [[lat, lon] for lat, lon in r.polygon]
+    # Aliases legados (frontend antigo ainda referencia em pontos)
+    out["id"] = r.id
+    out["nome"] = r.nome
+    out["rodovia"] = r.rodovia
+    return out
+
+
+def _ua_native(p: Dict[str, Any], hazard: str) -> Dict[str, Any]:
+    """Copia os atributos NATIVOS da UA para o dict do snapshot."""
+    out: Dict[str, Any] = {k: p.get(k) for k in _UA_NATIVE_KEYS_COMMON}
+    out["hazard"] = hazard
+    extras = _UA_GEO_ONLY if hazard == "geo" else _UA_HID_ONLY
+    for k in extras:
+        out[k] = p.get(k)
+    # lat/lon: alias geometrico do centroide para conveniencia
+    out["lat"] = p.get("centroide_lat") or p.get("lat")
+    out["lon"] = p.get("centroide_lon") or p.get("lon")
+    return out
+
 # Limite de horas faltando na janela de 24h para marcar "degraded"
 DEGRADED_MISSING_24H_THRESHOLD = int(
     os.environ.get("SAMAEG_DEGRADED_24H", "6")
@@ -52,48 +108,27 @@ HISTORY_MAX_DAYS = int(os.environ.get("SAMAEG_HISTORY_MAX_DAYS", "1460"))
 MIN_OK_HOURS_FOR_HISTORY = int(os.environ.get("SAMAEG_MIN_OK_HOURS", "24"))
 
 
-def _seed_point(p: Dict[str, Any], region: Optional[Region],
-                hazard: str) -> Dict[str, Any]:
+def _seed_point(p: Dict[str, Any], hazard: str) -> Dict[str, Any]:
     """Ponto inicial antes do primeiro ciclo MERGE."""
-    return {
-        "id": p["id"], "nome": p["nome"],
-        "rodovia": p["rodovia"], "km": p["km"],
-        "lat": p["lat"], "lon": p["lon"],
-        "hazard": hazard,
-        "region_id": region.id if region else None,
-        "region_name": region.nome if region else None,
+    base = _ua_native(p, hazard)
+    base.update({
         "ac96h_mm": 0.0, "ac24h_mm": 0.0, "intensity_mmh": 0.0,
         "cpc": None, "icc_geo": 0, "icc_hid": 0,
-        "ra": p.get("ra"),
-        "ra_geo": p.get("ra_geo"), "ra_hid": p.get("ra_hid"),
         "rd_geo": 0, "rd_hid": 0, "rd": 0, "nivel": "Aguardando",
-        "geometry": p.get("geometry"),
-        "geometry_type": p.get("geometry_type", "polyline"),
         "source": "NO_DATA",
-    }
+    })
+    return base
 
 
-def _no_data_point(p: Dict[str, Any], region: Optional[Region],
-                   hazard: str) -> Dict[str, Any]:
-    return {
-        "id": p["id"], "nome": p["nome"],
-        "rodovia": p["rodovia"], "km": p["km"],
-        "lat": p["lat"], "lon": p["lon"],
-        "hazard": hazard,
-        "region_id": region.id if region else None,
-        "region_name": region.nome if region else None,
-        "ac96h_mm": 0.0, "ac24h_mm": 0.0,
-        "intensity_mmh": 0.0,
-        "cpc": None,
-        "icc_geo": 0, "icc_hid": 0,
-        "ra": p.get("ra"),
-        "ra_geo": p.get("ra_geo"), "ra_hid": p.get("ra_hid"),
-        "rd_geo": 0, "rd_hid": 0,
-        "rd": 0, "nivel": "Sem dado",
-        "geometry": p.get("geometry"),
-        "geometry_type": p.get("geometry_type", "polyline"),
+def _no_data_point(p: Dict[str, Any], hazard: str) -> Dict[str, Any]:
+    base = _ua_native(p, hazard)
+    base.update({
+        "ac96h_mm": 0.0, "ac24h_mm": 0.0, "intensity_mmh": 0.0,
+        "cpc": None, "icc_geo": 0, "icc_hid": 0,
+        "rd_geo": 0, "rd_hid": 0, "rd": 0, "nivel": "Sem dado",
         "source": "NO_DATA",
-    }
+    })
+    return base
 
 
 def _process_zone(
@@ -112,24 +147,27 @@ def _process_zone(
         prev24h_mm=fc.ac24h_mm if fc else None,
         prev6h_mm=fc.ac6h_mm if fc else None,
     )
+    ra_canal = p.get("RAGEO") if hazard == "geo" else p.get("RAHID")
+    lat_p = p.get("centroide_lat") or p.get("lat")
+    lon_p = p.get("centroide_lon") or p.get("lon")
     if hazard == "geo":
         result = evaluate_point(
-            lat=p["lat"], lon=p["lon"], region=region,
+            lat=lat_p, lon=lon_p, region=region,
             ac96h=ac96h_use, intensity=rain.intensity_mmh,
             ac24h=ac24h_use,
-            ra_geo=p.get("ra"), ra_hid=None,
+            ra_geo=ra_canal, ra_hid=None,
         )
         rd = result.rd_geo
     else:
         result = evaluate_point(
-            lat=p["lat"], lon=p["lon"], region=region,
+            lat=lat_p, lon=lon_p, region=region,
             ac96h=ac96h_use, intensity=rain.intensity_mmh,
             ac24h=ac24h_use,
-            ra_geo=None, ra_hid=p.get("ra"),
+            ra_geo=None, ra_hid=ra_canal,
         )
         rd = result.rd_hid
 
-    hist_key = f"{p['id']}:{hazard}"
+    hist_key = f"{p['ua_id']}:{hazard}"
     hist = history.setdefault(hist_key, deque(maxlen=24))
     hist.append({
         "ts": now.isoformat(),
@@ -141,14 +179,11 @@ def _process_zone(
         "cpc": result.cpc,
     })
 
-    return {
-        "id": p["id"], "nome": fix_text(p.get("nome")),
-        "rodovia": fix_text(p.get("rodovia")), "km": p["km"],
-        "lat": p["lat"], "lon": p["lon"],
-        "hazard": hazard,
-        "region_id": result.region_id,
-        "region_name": fix_text(result.region_name),
-        "ac96h_mm": result.ac96h_mm, "ac24h_mm": result.ac24h_mm,
+    out = _ua_native(p, hazard)
+    out.update({
+        # Variaveis CALCULADAS no ciclo (chuva + risco dinamico)
+        "ac96h_mm": result.ac96h_mm,
+        "ac24h_mm": result.ac24h_mm,
         "intensity_mmh": result.intensity_mmh,
         "ac72h_obs_mm": rain.ac72h_mm,
         "ac18h_obs_mm": rain.ac18h_mm,
@@ -156,31 +191,31 @@ def _process_zone(
         "prev6h_mm": fc.ac6h_mm if fc else None,
         "fonte_chuva": fonte_prev,
         "cpc": result.cpc,
-        "icc_geo": result.icc_geo, "icc_hid": result.icc_hid,
-        "ra": p.get("ra"),
-        "ra_geo": p.get("ra_geo"), "ra_hid": p.get("ra_hid"),
-        "ra_source": p.get("ra_source"),
-        "rd_geo": result.rd_geo, "rd_hid": result.rd_hid,
-        "rd": rd, "nivel": result.nivel,
+        "icc_geo": result.icc_geo,
+        "icc_hid": result.icc_hid,
+        "rd_geo": result.rd_geo,
+        "rd_hid": result.rd_hid,
+        "rd": rd,
+        "nivel": result.nivel,
         "rd_geo_dist": result.rd_geo_dist,
         "rd_hid_dist": result.rd_hid_dist,
         "rd_unidades": result.rd_unidades,
-        "geometry": p.get("geometry"),
-        "geometry_type": p.get("geometry_type", "polyline"),
         "source": rain.source,
         "history": list(hist),
-        "rc": fix_text(p.get("rc")),
-        "residencia_conserva": fix_text(
-            p.get("residencia_conserva") or p.get("rc")
-        ),
-        "uba": fix_text(p.get("uba")),
-        "uba_codigo": fix_text(p.get("uba_codigo")),
-        "uba_nome": fix_text(p.get("uba_nome")),
-        "regional": fix_text(p.get("regional")),
-        "regional_cgr": fix_text(p.get("regional_cgr")),
-        "municipio": fix_text(p.get("municipio")),
         "_rd": rd,
-    }
+    })
+    return out
+
+
+def _ua_label(p: Dict[str, Any]) -> str:
+    """Rotulo curto humano-legivel da UA, derivado dos campos nativos."""
+    rod = p.get("sigla_rodovia") or "UA"
+    ki = p.get("km_inicial")
+    kf = p.get("km_final")
+    rid = p.get("regiao_id")
+    if ki is not None and kf is not None:
+        return f"{rod} km {ki:.1f}-{kf:.1f} (R{rid})"
+    return f"{rod} (R{rid})"
 
 
 def _rollup_levels(points: List[Dict[str, Any]]) -> Dict[int, int]:
@@ -263,14 +298,8 @@ class State:
         # Seed inicial: pontos visiveis no mapa em "loading" (estilo sem dado).
         # Importante para Render free, onde o primeiro ciclo MERGE pode levar
         # 30-60 s e nao queremos tela vazia ate la.
-        seed_geo = []
-        seed_hidro = []
-        for p in self.points_geo:
-            region = find_region_for_point(p["lat"], p["lon"], self.regions)
-            seed_geo.append(_seed_point(p, region, "geo"))
-        for p in self.points_hidro:
-            region = find_region_for_point(p["lat"], p["lon"], self.regions)
-            seed_hidro.append(_seed_point(p, region, "hidro"))
+        seed_geo = [_seed_point(p, "geo") for p in self.points_geo]
+        seed_hidro = [_seed_point(p, "hidro") for p in self.points_hidro]
 
         self.snapshot: Dict[str, Any] = {
             "timestamp_utc": None,
@@ -297,13 +326,7 @@ class State:
                 "missing_24h": 0,
                 "missing_96h": 0,
             },
-            "regions": [
-                {
-                    "id": r.id, "nome": r.nome, "rodovia": r.rodovia,
-                    "k_geo": r.k_geo,
-                    "polygon": [[lat, lon] for lat, lon in r.polygon]
-                } for r in self.regions
-            ]
+            "regions": [_region_snapshot_entry(r) for r in self.regions]
         }
 
     def _maybe_reload_zones(self) -> bool:
@@ -315,19 +338,26 @@ class State:
         self.points_geo = get_zones_geo()
         self.points_hidro = get_zones_hidro()
         self._zones_token = token
-        geo_tpl = {p["id"]: p for p in self.points_geo}
-        hid_tpl = {p["id"]: p for p in self.points_hidro}
+        geo_tpl = {p["ua_id"]: p for p in self.points_geo}
+        hid_tpl = {p["ua_id"]: p for p in self.points_hidro}
         for key, tpl in (("points_geo", geo_tpl), ("points_hidro", hid_tpl)):
             pts = self.snapshot.get(key) or []
             for pt in pts:
-                src = tpl.get(pt.get("id"))
+                src = tpl.get(pt.get("ua_id"))
                 if not src:
                     continue
-                pt["geometry"] = src["geometry"]
-                pt["geometry_type"] = src.get("geometry_type", "polyline")
-                pt["lat"] = src["lat"]
-                pt["lon"] = src["lon"]
-                pt["nome"] = src["nome"]
+                # Repropaga atributos NATIVOS atualizados (geometria,
+                # km cadastrais, RA, identificacao) sem mexer nos
+                # calculados deste ciclo (rd, chuva, nivel etc.).
+                for k in _UA_NATIVE_KEYS_COMMON:
+                    pt[k] = src.get(k)
+                extras = (
+                    _UA_GEO_ONLY if key == "points_geo" else _UA_HID_ONLY
+                )
+                for k in extras:
+                    pt[k] = src.get(k)
+                pt["lat"] = src.get("centroide_lat") or src.get("lat")
+                pt["lon"] = src.get("centroide_lon") or src.get("lon")
         log.info("Snapshot: geometria UA atualizada apos reload do disco")
         return True
 
@@ -466,7 +496,7 @@ class State:
                     p, rain, fc, region, "geo", now, self.point_rd_history
                 ))
             except Exception as e:
-                log.error("erro UA geo %s: %s", p["id"], e)
+                log.error("erro UA geo %s: %s", p["ua_id"], e)
 
         for idx, p in enumerate(self.points_hidro):
             try:
@@ -479,7 +509,7 @@ class State:
                     p, rain, fc, region, "hidro", now, self.point_rd_history
                 ))
             except Exception as e:
-                log.error("erro UA hidro %s: %s", p["id"], e)
+                log.error("erro UA hidro %s: %s", p["ua_id"], e)
 
         for pt in new_geo + new_hidro:
             pt.pop("_rd", None)
@@ -515,8 +545,12 @@ class State:
                 "by_level_geo": by_level_geo,
                 "by_level_hidro": by_level_hidro,
                 "max_rd": max_rd,
-                "max_rd_point": max_rd_point["id"] if max_rd_point else None,
-                "max_rd_name": max_rd_point["nome"] if max_rd_point else None,
+                "max_rd_point": (
+                    max_rd_point["ua_id"] if max_rd_point else None
+                ),
+                "max_rd_name": (
+                    _ua_label(max_rd_point) if max_rd_point else None
+                ),
                 "max_rd_hazard": max_rd_hazard,
                 "data_source": data_source,
                 "data_status": data_status,
@@ -562,14 +596,8 @@ class State:
         onde o eccodes pode estar indisponivel ou o INPE com latencia).
         Pontos aparecem com source="NO_DATA" para o frontend distinguir.
         """
-        new_geo = []
-        new_hidro = []
-        for p in self.points_geo:
-            region = find_region_for_point(p["lat"], p["lon"], self.regions)
-            new_geo.append(_no_data_point(p, region, "geo"))
-        for p in self.points_hidro:
-            region = find_region_for_point(p["lat"], p["lon"], self.regions)
-            new_hidro.append(_no_data_point(p, region, "hidro"))
+        new_geo = [_no_data_point(p, "geo") for p in self.points_geo]
+        new_hidro = [_no_data_point(p, "hidro") for p in self.points_hidro]
         n0 = len(new_geo) + len(new_hidro)
 
         with self._lock:
@@ -697,8 +725,12 @@ class State:
                 "by_level_geo": by_level_geo,
                 "by_level_hidro": by_level_hidro,
                 "max_rd": max_rd,
-                "max_rd_point": max_rd_point["id"] if max_rd_point else None,
-                "max_rd_name": max_rd_point["nome"] if max_rd_point else None,
+                "max_rd_point": (
+                    max_rd_point["ua_id"] if max_rd_point else None
+                ),
+                "max_rd_name": (
+                    _ua_label(max_rd_point) if max_rd_point else None
+                ),
                 "max_rd_hazard": max_rd_hazard,
                 "data_source": "MERGE/INPE (consulta historica)",
                 "data_status": data_status,
@@ -722,14 +754,8 @@ class State:
     def _historical_error(
         self, as_of_utc: datetime, message: str,
     ) -> Dict[str, Any]:
-        new_geo = []
-        new_hidro = []
-        for p in self.points_geo:
-            region = find_region_for_point(p["lat"], p["lon"], self.regions)
-            new_geo.append(_no_data_point(p, region, "geo"))
-        for p in self.points_hidro:
-            region = find_region_for_point(p["lat"], p["lon"], self.regions)
-            new_hidro.append(_no_data_point(p, region, "hidro"))
+        new_geo = [_no_data_point(p, "geo") for p in self.points_geo]
+        new_hidro = [_no_data_point(p, "hidro") for p in self.points_hidro]
         n0 = len(new_geo) + len(new_hidro)
         return {
             "timestamp_utc": as_of_utc.isoformat(),
@@ -826,7 +852,7 @@ class State:
                     ac24h=sum(s[h:h + 24]),
                     ra_geo=p.get("ra"), ra_hid=None,
                 )
-                rd_geo[p["id"]] = result.rd_geo
+                rd_geo[p["ua_id"]] = result.rd_geo
             for i, p in enumerate(self.points_hidro):
                 s = series[i]
                 result = evaluate_point(
@@ -836,7 +862,7 @@ class State:
                     ac24h=sum(s[h:h + 24]),
                     ra_geo=None, ra_hid=p.get("ra"),
                 )
-                rd_hidro[p["id"]] = result.rd_hid
+                rd_hidro[p["ua_id"]] = result.rd_hid
             out_frames.append({
                 "ts": ts,
                 "rd_geo": rd_geo,

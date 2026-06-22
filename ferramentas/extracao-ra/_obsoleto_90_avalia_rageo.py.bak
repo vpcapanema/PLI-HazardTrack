@@ -1,0 +1,134 @@
+"""Avalia exatidao da camada ra_geologico_continuo vs tabela oficial
+3.3.1-2 do PRODUTO 7 (extensoes esperadas por Regiao x Classe RA).
+"""
+import sys
+from pathlib import Path
+
+import geopandas as gpd
+import pandas as pd
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = Path("data/pli-hazardtrack.gpkg")
+
+# Tabela 3.3.1-2 do PRODUTO 7 - QUANTIDADE de UAs por
+# (Regiao, Escala, Classe RAGEO)
+QTDS_GEO = {
+    # R1
+    (1, "25K", 0): 19, (1, "25K", 1): 11, (1, "25K", 2): 10,
+    (1, "25K", 3): 4,  (1, "25K", 4): 19,
+    (1, "10K", 1): 11,
+    (1, "1K",  2): 16, (1, "1K",  3): 14, (1, "1K",  4): 7,
+    # R2
+    (2, "10K", 1): 97, (2, "10K", 2): 1,
+    (2, "1K", 0): 8,   (2, "1K", 1): 10,  (2, "1K", 2): 11,
+    (2, "1K", 3): 28,  (2, "1K", 4): 33,
+    # R3
+    (3, "10K", 1): 103,
+    (3, "1K", 0): 7,   (3, "1K", 1): 33,  (3, "1K", 2): 63,
+    (3, "1K", 3): 69,  (3, "1K", 4): 80,
+    # R4
+    (4, "10K", 1): 123,
+    (4, "1K", 0): 5,   (4, "1K", 1): 8,   (4, "1K", 2): 5,
+    (4, "1K", 3): 12,  (4, "1K", 4): 2,
+}
+
+# Extensao km/UA por (Regiao, Escala) calculada da Tabela 5-1
+EXT_POR_UA = {
+    (1, "25K"): (14.28 + 8.51) / (41 + 22),         # 0.362
+    (1, "10K"): 5.68 / 11,                          # 0.516
+    (1, "1K"):  (0.66 + 5.54) / (5 + 32),           # 0.168
+    (2, "10K"): (22.32 + 16.40) / (68 + 30),        # 0.395
+    (2, "1K"):  (7.19 + 12.85) / (30 + 60),         # 0.223
+    (3, "10K"): 34.60 / 103,                        # 0.336
+    (3, "1K"):  43.56 / 252,                        # 0.173
+    (4, "10K"): (36.59 + 11.56) / (87 + 36),        # 0.392
+    (4, "1K"):  (5.92 + 3.21) / (16 + 16),          # 0.285
+}
+
+
+def calc_esperado():
+    """Devolve dict {(regiao, classe): km_esperado}."""
+    esperado = {}
+    for (rid, esc, cls), qtd in QTDS_GEO.items():
+        km = qtd * EXT_POR_UA[(rid, esc)]
+        esperado[(rid, cls)] = esperado.get((rid, cls), 0.0) + km
+    return esperado
+
+
+def main():
+    esperado = calc_esperado()
+    df_esp = pd.DataFrame(
+        [(r, c, v) for (r, c), v in esperado.items()],
+        columns=["regiao_id", "classe_ra_geo", "km_esperado"]
+    )
+
+    ra = gpd.read_file(GPKG, layer="ra_geologico_continuo")
+    df_ext = (ra.groupby(["regiao_id", "classe_ra_geo"])
+                ["extensao_km"].sum().reset_index()
+                .rename(columns={"extensao_km": "km_extraido"}))
+
+    cmp = pd.merge(df_esp, df_ext, on=["regiao_id", "classe_ra_geo"],
+                   how="outer").fillna(0)
+    cmp["erro_km"] = cmp["km_extraido"] - cmp["km_esperado"]
+    cmp["erro_pct"] = cmp.apply(
+        lambda r: (r["erro_km"] / r["km_esperado"] * 100)
+                  if r["km_esperado"] > 0 else float("inf"),
+        axis=1,
+    )
+
+    print("=" * 78)
+    print("RAGEO - Comparacao: Tabela oficial vs Extracao")
+    print("=" * 78)
+    print(cmp.round(2).to_string(index=False))
+
+    # Sumario por classe
+    print("\n" + "=" * 78)
+    print("Resumo por classe (km)")
+    print("=" * 78)
+    soma = cmp.groupby("classe_ra_geo").agg(
+        esperado=("km_esperado", "sum"),
+        extraido=("km_extraido", "sum"),
+    ).round(2)
+    soma["erro"] = (soma["extraido"] - soma["esperado"]).round(2)
+    soma["erro_%"] = ((soma["erro"] / soma["esperado"]) * 100).round(1)
+    print(soma.to_string())
+
+    # Sumario por regiao
+    print("\n" + "=" * 78)
+    print("Resumo por regiao (km)")
+    print("=" * 78)
+    rgn = cmp.groupby("regiao_id").agg(
+        esperado=("km_esperado", "sum"),
+        extraido=("km_extraido", "sum"),
+    ).round(2)
+    rgn["erro"] = (rgn["extraido"] - rgn["esperado"]).round(2)
+    print(rgn.to_string())
+
+    # Metricas globais (em km)
+    total_esp = cmp["km_esperado"].sum()
+    total_ext = cmp["km_extraido"].sum()
+    mae = cmp["erro_km"].abs().sum()       # erro absoluto total
+    # accuracy ponderada: 1 - mae_normalizado
+    acc = 1 - mae / (2 * total_esp)  # 2x pq erros aparecem em A e B
+
+    # Concordancia por classe (acerto = min(extraido, esperado))
+    cmp["acerto_km"] = cmp.apply(
+        lambda r: min(r["km_esperado"], r["km_extraido"]), axis=1)
+    acerto_total = cmp["acerto_km"].sum()
+    print("\n" + "=" * 78)
+    print("Metricas globais")
+    print("=" * 78)
+    print(f"  Total ESPERADO:   {total_esp:.2f} km")
+    print(f"  Total EXTRAIDO:   {total_ext:.2f} km")
+    print(f"  Acerto absoluto:  {acerto_total:.2f} km")
+    print(f"  Concordancia:     {100*acerto_total/total_esp:.1f}% "
+          f"do esperado")
+    print(f"  Erro abs total:   {mae:.2f} km")
+    print(f"  Erro abs medio:   {cmp['erro_km'].abs().mean():.2f} "
+          "km/(reg x classe)")
+    print(f"  Accuracy:         {100*acc:.1f}%")
+
+
+if __name__ == "__main__":
+    main()

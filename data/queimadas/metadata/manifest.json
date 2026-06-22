@@ -1,0 +1,51 @@
+{
+  "modulo": "queimadas",
+  "status": "modulo_operacional_rf_inpe_oficial",
+  "spec_version": "1.0",
+  "spec_path": "data/queimadas/README.md",
+  "implementado": {
+    "base_layers": true,
+    "dem_tiles": true,
+    "pipeline_safe_sem_dado": true,
+    "backend_reader": true,
+    "public_endpoints": true,
+    "public_exports": true,
+    "rf_numerico_real": true,
+    "rf_source": "INPE_RF_OFICIAL"
+  },
+  "metodologia_planejada": "INPE Risco de Fogo; INMET/Nesterov como referencia auxiliar",
+  "cobertura": "Estado de Sao Paulo",
+  "unidade_saida": "trecho rodoviario DER-SP",
+  "horizontes": [
+    "observado",
+    "D+1",
+    "D+2",
+    "D+3",
+    "D+4",
+    "D+5"
+  ],
+  "pastas": {
+    "base": "data/queimadas/base",
+    "raw": "data/queimadas/raw",
+    "interim": "data/queimadas/interim",
+    "processed": "data/queimadas/processed",
+    "public": "static/data/queimadas"
+  },
+  "produtos_planejados": [
+    "data/queimadas/processed/risco_trechos_der.gpkg",
+    "static/data/queimadas/risco_trechos_der_latest.geojson",
+    "static/data/queimadas/risco_trechos_der_latest.json"
+  ],
+  "produtos_atuais": [
+    "data/queimadas/processed/risco_trechos_der.gpkg",
+    "static/data/queimadas/risco_trechos_der_latest.geojson",
+    "static/data/queimadas/risco_trechos_der_latest.json",
+    "static/data/queimadas/risco_trechos_der_stats.json"
+  ],
+  "pendencias_para_rf_real": [
+    "Integrar camada no frontend static/app.js",
+    "Configurar endpoint de focos INPE em 04_fetch_focos_inpe.py para auditoria/ocorrencias",
+    "Exportar MapBiomas SP via Google Earth Engine apenas se for reimplementar RF localmente",
+    "Conectar IMERG/GFS apenas se for reimplementar RF localmente"
+  ]
+}

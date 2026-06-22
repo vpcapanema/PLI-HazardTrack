@@ -1,0 +1,12 @@
+{
+  "modulo": "queimadas",
+  "step": "02_fetch_imerg",
+  "data_referencia": "2026-06-22",
+  "gerado_em": "2026-06-22T08:37:18.088496+00:00",
+  "source": "IMERG/GPM",
+  "target_dir": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\raw\\imerg\\2026\\06",
+  "status": "no_data",
+  "message": "Download IMERG requer configuracao Earthdata. Defina EARTHDATA_TOKEN ou implemente .netrc antes do uso operacional.",
+  "earthdata_token_configured": false,
+  "files": []
+}

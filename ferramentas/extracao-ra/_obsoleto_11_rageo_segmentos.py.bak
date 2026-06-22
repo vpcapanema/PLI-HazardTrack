@@ -1,0 +1,295 @@
+"""PASSO 2 (RAGEO): para cada regiao com imagem dedicada limpa,
+identifica os trechos coloridos (RA0..RA4) e extrai INICIO e FIM
+de cada trecho como par de coordenadas (UTM -> km cadastral).
+Corta a linha ra_geologico_linha nesses kms e atribui a classe.
+
+Cores (paleta da legenda do PDF):
+  RA0 = cinza escuro
+  RA1 = verde limao
+  RA2 = amarelo
+  RA3 = laranja
+  RA4 = vermelho
+"""
+import sys
+from pathlib import Path
+
+import numpy as np
+import geopandas as gpd
+from PIL import Image, ImageDraw
+from scipy import ndimage
+from shapely.geometry import LineString, Point
+from shapely.ops import substring
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = Path("data/pli-hazardtrack.gpkg")
+IMG_DIR = Path("ferramentas/extracao-ra/_imgs_hires")  # 300 DPI
+EPSG_UTM = 31983
+
+BUFFER_EIXO_PX = 200  # raio (px) ao redor do eixo cadastral (300 DPI)
+# ^ ~8 km perpendicular - precisa ser grande pq o shapefile DER
+# usado pelo estudo (passa pela costa) e o shapefile cadastral atual
+# (passa por dentro) podem divergir varios km em alguns trechos.
+GAP_MAX_M = 200       # gap (m) ate considerar segmento separado
+
+# Bounds UTM dos ticks visiveis em cada imagem dedicada
+REGIOES_CFG = {
+    1: {
+        "img": "rageo_r1_p52_3_3_3-3.png",
+        "utm": (350000, 430000, 7370000, 7420000),
+    },
+    2: {
+        "img": "rageo_r2_p54_3_3_3-5.png",
+        "utm": (430000, 530000, 7370000, 7430000),
+    },
+    3: {
+        "img": "rageo_r3_p56_3_3_3-7.png",
+        "utm": (420000, 460000, 7360000, 7380000),
+    },
+    4: {
+        "img": "rageo_r4_p58_3_3_3-9.png",
+        "utm": (360000, 420000, 7350000, 7380000),
+    },
+}
+
+
+# -------- IO ---------
+
+def carrega(p):
+    arr = np.array(Image.open(p))
+    if arr.shape[-1] == 4:
+        rgb, alpha = arr[..., :3], arr[..., 3]
+    else:
+        rgb = arr
+        alpha = np.full(arr.shape[:2], 255, np.uint8)
+    return rgb, alpha
+
+
+def detecta_frame(rgb, alpha):
+    """Detecta o retangulo interno (barra dos ticks) procurando
+    linhas horizontais/verticais mais densas nas BORDAS da imagem."""
+    H, W, _ = rgb.shape
+    preto = ((rgb[..., 0] < 70) & (rgb[..., 1] < 70)
+             & (rgb[..., 2] < 70) & (alpha > 0))
+    margem = 60
+    # top: linha horizontal mais densa em y in [0, margem]
+    y0 = int(preto[:margem].sum(axis=1).argmax())
+    # bottom
+    y1 = H - margem + int(preto[H - margem:].sum(axis=1).argmax())
+    # left: coluna mais densa em x in [0, margem]
+    x0 = int(preto[:, :margem].sum(axis=0).argmax())
+    # right
+    x1 = W - margem + int(preto[:, W - margem:].sum(axis=0).argmax())
+    return x0, y0, x1, y1
+
+
+def utm_to_pixel(x, y, frame, bounds):
+    x0, y0, x1, y1 = frame
+    xmn, xmx, ymn, ymx = bounds
+    fx = (x - xmn) / (xmx - xmn)
+    fy = (ymx - y) / (ymx - ymn)
+    return int(round(x0 + fx * (x1 - x0))), int(round(y0 + fy * (y1 - y0)))
+
+
+def pixel_to_utm(px, py, frame, bounds):
+    x0, y0, x1, y1 = frame
+    xmn, xmx, ymn, ymx = bounds
+    fx = (px - x0) / (x1 - x0)
+    fy = (py - y0) / (y1 - y0)
+    return xmn + fx * (xmx - xmn), ymx - fy * (ymx - ymn)
+
+
+# -------- classificacao de pixels ----------
+
+def constroi_mapa_classes(rgb, alpha):
+    """Devolve mapa[H,W] = classe (0..4) ou 255 (nao-classe)."""
+    R = rgb[..., 0].astype(np.int16)
+    G = rgb[..., 1].astype(np.int16)
+    B = rgb[..., 2].astype(np.int16)
+    valid = alpha > 0
+    mx = np.maximum(np.maximum(R, G), B)
+    mn = np.minimum(np.minimum(R, G), B)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    sat_ok = (sat >= 0.55) & valid
+    sat_low = (sat < 0.20) & valid
+
+    # exclui magenta (contorno)
+    magenta = sat_ok & (R >= 150) & (B >= 100) & (G <= 80)
+
+    m4 = sat_ok & (R >= 200) & (G <= 60) & (B <= 60) & ~magenta
+    m3 = (sat_ok & (R >= 220) & (G >= 100) & (G <= 200)
+          & (B <= 90) & ~m4 & ~magenta)
+    m2 = (sat_ok & (R >= 200) & (G >= 200) & (B <= 110)
+          & ~m4 & ~m3 & ~magenta)
+    m1 = (sat_ok & (G >= 180) & (R <= 200) & (B <= 110)
+          & ~m4 & ~m3 & ~m2 & ~magenta)
+    # RA0 cinza escuro: cinza com lum 100-180
+    lum = (R + G + B) // 3
+    m0 = sat_low & (lum >= 90) & (lum <= 180)
+
+    mapa = np.full(rgb.shape[:2], 255, np.uint8)
+    mapa[m0] = 0
+    mapa[m1] = 1
+    mapa[m2] = 2
+    mapa[m3] = 3
+    mapa[m4] = 4
+    return mapa
+
+
+def rasteriza_buffer_eixo(eixo_utm, shape_hw, frame, bounds, raio_px):
+    H, W = shape_hw
+    img = Image.new("L", (W, H), 0)
+    draw = ImageDraw.Draw(img)
+    coords_px = [
+        utm_to_pixel(c[0], c[1], frame, bounds)
+        for c in eixo_utm.coords
+    ]
+    draw.line(coords_px, fill=255, width=raio_px * 2)
+    return np.array(img) > 0
+
+
+# -------- extracao de segmentos ----------
+
+def extrai_segmentos(rid, cfg, eixos_diss):
+    img_path = IMG_DIR / cfg["img"]
+    rgb, alpha = carrega(img_path)
+    frame = detecta_frame(rgb, alpha)
+    bounds = cfg["utm"]
+    eixo = eixos_diss[eixos_diss["regiao_id"] == rid].geometry.iloc[0]
+    L = eixo.length
+    print(f"\nR{rid}: {cfg['img']}  shape={rgb.shape[:2]}  "
+          f"frame_px={frame}  L_eixo={L/1000:.3f} km")
+
+    mapa = constroi_mapa_classes(rgb, alpha)
+
+    # Limpa RA0 isolado: manter so componentes conexos GRANDES
+    # (>= 30 px) - elimina tics, anti-aliasing, lixo das bordas
+    ra0_mask = mapa == 0
+    lbl, n = ndimage.label(ra0_mask, structure=np.ones((3, 3)))
+    if n > 0:
+        sizes = ndimage.sum(ra0_mask, lbl, range(1, n + 1))
+        manter = np.where(sizes >= 30)[0] + 1
+        ra0_clean = np.isin(lbl, manter)
+        mapa[ra0_mask & ~ra0_clean] = 255  # remove RA0 falso
+
+    qtd = {k: int((mapa == k).sum()) for k in range(5)}
+    print(f"  Pixels totais (RA0..4): "
+          + "  ".join(f"RA{k}={qtd[k]}" for k in range(5)))
+
+    # Pre-computa coordenadas pixel de TODOS pixels classificados
+    # para cada classe (vetorizado)
+    pix_por_classe = {}
+    for cls in range(5):
+        ys, xs = np.where(mapa == cls)
+        if len(ys) == 0:
+            pix_por_classe[cls] = None
+            continue
+        # converte para UTM em batch
+        x0, y0, x1, y1 = frame
+        xmn, xmx, ymn, ymx = bounds
+        ux = xmn + (xs - x0) / (x1 - x0) * (xmx - xmn)
+        uy = ymx - (ys - y0) / (y1 - y0) * (ymx - ymn)
+        pix_por_classe[cls] = np.stack([ux, uy], axis=1)
+
+    # Amostra ao longo do eixo cadastral a cada PASSO_M.
+    # Para cada ponto, busca o pixel COLORIDO mais proximo de
+    # qualquer classe (ate 4km). Versao validada (~83% accuracy).
+    PASSO_M = 25
+    DIST_MAX_M = 4000
+    n = int(L / PASSO_M) + 1
+    classes = []
+    for i in range(n):
+        d = min(L, i * PASSO_M)
+        pt = eixo.interpolate(d)
+        px_x, px_y = pt.x, pt.y
+        melhor_cls = -1
+        melhor_d2 = DIST_MAX_M ** 2
+        for cls in range(5):
+            pix = pix_por_classe[cls]
+            if pix is None:
+                continue
+            dx = pix[:, 0] - px_x
+            dy = pix[:, 1] - px_y
+            d2 = dx * dx + dy * dy
+            mn_d2 = float(d2.min())
+            if mn_d2 < melhor_d2:
+                melhor_d2 = mn_d2
+                melhor_cls = cls
+        classes.append(melhor_cls)
+    sem = sum(1 for c in classes if c < 0)
+    print(f"  amostras sem-dado: {sem}/{n} ({100*sem/n:.1f}%)")
+
+    # Suaviza com mediana de janela 5
+    def suaviza(seq, j=5):
+        out = list(seq)
+        for i in range(len(seq)):
+            i0 = max(0, i - j // 2)
+            i1 = min(len(seq), i + j // 2 + 1)
+            votos = {}
+            for c in seq[i0:i1]:
+                votos[c] = votos.get(c, 0) + 1
+            out[i] = max(votos.items(), key=lambda kv: kv[1])[0]
+        return out
+
+    classes = suaviza(classes, j=5)
+
+    # Detecta transicoes e corta em substrings
+    out = []
+    ini = 0
+    for i in range(1, n):
+        if classes[i] != classes[i - 1]:
+            m_ini = ini * PASSO_M
+            m_fim = i * PASSO_M
+            cls = classes[i - 1]
+            if cls >= 0:
+                s = substring(eixo, m_ini, min(L, m_fim))
+                if not s.is_empty and s.length > 1:
+                    out.append({
+                        "regiao_id": rid,
+                        "classe_ra_geo": int(cls),
+                        "geometry": s,
+                    })
+            ini = i
+    # ultimo trecho
+    m_ini = ini * PASSO_M
+    m_fim = L
+    cls = classes[-1]
+    if cls >= 0:
+        s = substring(eixo, m_ini, m_fim)
+        if not s.is_empty and s.length > 1:
+            out.append({
+                "regiao_id": rid,
+                "classe_ra_geo": int(cls),
+                "geometry": s,
+            })
+
+    dist = {k: 0.0 for k in range(5)}
+    for s in out:
+        dist[s["classe_ra_geo"]] += s["geometry"].length / 1000.0
+    print(f"  extensoes (km): "
+          + "  ".join(f"RA{k}={dist[k]:.2f}" for k in range(5)))
+    return out
+
+
+# -------- main ----------
+
+def main():
+    eixos = gpd.read_file(GPKG, layer="ra_geologico_linha").to_crs(EPSG_UTM)
+    todos = []
+    for rid, cfg in REGIOES_CFG.items():
+        todos.extend(extrai_segmentos(rid, cfg, eixos))
+
+    if not todos:
+        print("Nenhum segmento extraido")
+        return
+
+    gdf = gpd.GeoDataFrame(todos, geometry="geometry", crs=EPSG_UTM)
+    gdf["extensao_km"] = gdf.geometry.length / 1000.0
+    gdf = gdf.to_crs(4326)
+    out_layer = "ra_geologico_continuo"
+    gdf.to_file(GPKG, layer=out_layer, driver="GPKG")
+    print(f"\nCamada '{out_layer}' salva: {len(gdf)} segmentos")
+
+
+if __name__ == "__main__":
+    main()

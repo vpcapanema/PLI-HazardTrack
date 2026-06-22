@@ -1,0 +1,220 @@
+"""RAGEO via OBIA real:
+  1. Constroi mapa de classes (RA0..4) na imagem hires.
+  2. Para cada classe RA1..RA4, faz connected components.
+  3. Filtra componentes pequenos (ruido).
+  4. Para cada COMPONENTE (objeto), projeta TODOS os pixels no eixo
+     cadastral -> faixa de km [min, max] do objeto.
+  5. Resolve sobreposicoes por severidade (RA4 > RA3 > RA2 > RA1).
+  6. Trechos sem cobertura = RA0.
+  7. Corta o eixo cadastral em segmentos contiguos.
+"""
+import sys
+from pathlib import Path
+
+import numpy as np
+import geopandas as gpd
+from PIL import Image
+from scipy import ndimage
+from shapely.geometry import LineString, Point
+from shapely.ops import substring
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = Path("data/pli-hazardtrack.gpkg")
+IMG_DIR = Path("ferramentas/extracao-ra/_imgs_hires")
+EPSG_UTM = 31983
+
+# Tamanho minimo de componente (px) para ser objeto valido
+MIN_PIXELS_OBJ = {
+    1: 30,  # RA1 (verde) - mais comum, pode ser maior
+    2: 15,  # RA2 (amarelo) - manchas medias
+    3: 15,  # RA3 (laranja) - manchas medias
+    4: 10,  # RA4 (vermelho) - permite manchas pequenas
+}
+BUCKET_M = 25  # resolucao da grade de km
+DIST_MAX_PROJ_M = 4000  # pixel descartado se > 4km do eixo
+
+REGIOES_CFG = {
+    1: {
+        "img": "rageo_r1_p52_3_3_3-3.png",
+        "utm": (350000, 430000, 7370000, 7420000),
+    },
+    2: {
+        "img": "rageo_r2_p54_3_3_3-5.png",
+        "utm": (430000, 530000, 7370000, 7430000),
+    },
+    3: {
+        "img": "rageo_r3_p56_3_3_3-7.png",
+        "utm": (420000, 460000, 7360000, 7380000),
+    },
+    4: {
+        "img": "rageo_r4_p58_3_3_3-9.png",
+        "utm": (360000, 420000, 7350000, 7380000),
+    },
+}
+
+
+# -------- IO / mapa de classes ----------
+
+def carrega(p):
+    arr = np.array(Image.open(p))
+    if arr.shape[-1] == 4:
+        return arr[..., :3], arr[..., 3]
+    return arr, np.full(arr.shape[:2], 255, np.uint8)
+
+
+def detecta_frame(rgb, alpha):
+    H, W, _ = rgb.shape
+    preto = ((rgb[..., 0] < 70) & (rgb[..., 1] < 70)
+             & (rgb[..., 2] < 70) & (alpha > 0))
+    m = 60
+    y0 = int(preto[:m].sum(axis=1).argmax())
+    y1 = H - m + int(preto[H - m:].sum(axis=1).argmax())
+    x0 = int(preto[:, :m].sum(axis=0).argmax())
+    x1 = W - m + int(preto[:, W - m:].sum(axis=0).argmax())
+    return x0, y0, x1, y1
+
+
+def constroi_mapa_classes(rgb, alpha):
+    R = rgb[..., 0].astype(np.int16)
+    G = rgb[..., 1].astype(np.int16)
+    B = rgb[..., 2].astype(np.int16)
+    valid = alpha > 0
+    mx = np.maximum(np.maximum(R, G), B)
+    mn = np.minimum(np.minimum(R, G), B)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    sat_ok = (sat >= 0.55) & valid
+    lum = (R + G + B) // 3
+
+    magenta = sat_ok & (R >= 150) & (B >= 100) & (G <= 80)
+    m4 = sat_ok & (R >= 200) & (G <= 60) & (B <= 60) & ~magenta
+    m3 = (sat_ok & (R >= 220) & (G >= 100) & (G <= 200)
+          & (B <= 90) & ~m4 & ~magenta)
+    m2 = (sat_ok & (R >= 200) & (G >= 200) & (B <= 110)
+          & ~m4 & ~m3 & ~magenta)
+    m1 = (sat_ok & (G >= 180) & (R <= 200) & (B <= 110)
+          & ~m4 & ~m3 & ~m2 & ~magenta)
+    return {1: m1, 2: m2, 3: m3, 4: m4}
+
+
+# -------- OBIA: componentes conexos -> objetos ----------
+
+def detecta_objetos(mascaras):
+    """Faz connected components 8-conectados em cada classe.
+    Devolve lista de (classe, lista_de_pixels_yx, area_px)."""
+    objetos = []
+    estrut = np.ones((3, 3), dtype=bool)
+    for cls, m in mascaras.items():
+        lbl, n = ndimage.label(m, structure=estrut)
+        if n == 0:
+            continue
+        for i in range(1, n + 1):
+            ys, xs = np.where(lbl == i)
+            area = len(ys)
+            if area < MIN_PIXELS_OBJ[cls]:
+                continue
+            objetos.append((cls, ys, xs, area))
+    return objetos
+
+
+def projeta_objeto_no_eixo(ys, xs, frame, bounds, eixo):
+    """Devolve (km_min, km_max, dist_media_m) projetando todos os
+    pixels do objeto no eixo cadastral."""
+    x0, y0, x1, y1 = frame
+    xmn, xmx, ymn, ymx = bounds
+    ux = xmn + (xs - x0) / (x1 - x0) * (xmx - xmn)
+    uy = ymx - (ys - y0) / (y1 - y0) * (ymx - ymn)
+    kms = np.array([eixo.project(Point(float(x), float(y)))
+                    for x, y in zip(ux, uy)])
+    # dist do pixel ao eixo (perpendicular)
+    dists = np.array([eixo.distance(Point(float(x), float(y)))
+                      for x, y in zip(ux, uy)])
+    return float(kms.min()), float(kms.max()), float(dists.mean())
+
+
+def processa_regiao(rid, cfg, eixos):
+    img_path = IMG_DIR / cfg["img"]
+    rgb, alpha = carrega(img_path)
+    frame = detecta_frame(rgb, alpha)
+    bounds = cfg["utm"]
+    eixo = eixos[eixos["regiao_id"] == rid].geometry.iloc[0]
+    L = eixo.length
+    print(f"\n=== R{rid}: {cfg['img']} {rgb.shape[:2]}  "
+          f"L={L/1000:.2f} km ===")
+
+    masks = constroi_mapa_classes(rgb, alpha)
+    print(f"  pixels RA1..4: " + "  ".join(
+        f"RA{k}={int(m.sum())}" for k, m in masks.items()))
+
+    objetos = detecta_objetos(masks)
+    print(f"  objetos detectados: {len(objetos)}")
+    por_cls = {1: 0, 2: 0, 3: 0, 4: 0}
+    for cls, _, _, _ in objetos:
+        por_cls[cls] += 1
+    print(f"  por classe: " + "  ".join(
+        f"RA{k}={n}" for k, n in por_cls.items()))
+
+    # Projeta cada objeto no eixo
+    objetos_proj = []
+    for cls, ys, xs, area in objetos:
+        kmin, kmax, dmed = projeta_objeto_no_eixo(
+            ys, xs, frame, bounds, eixo)
+        if dmed > DIST_MAX_PROJ_M:
+            continue
+        objetos_proj.append((cls, kmin, kmax, dmed, area))
+    print(f"  objetos validos (<=4km do eixo): {len(objetos_proj)}")
+
+    # Grade de buckets - severidade vence
+    n_buckets = int(L / BUCKET_M) + 1
+    sev = np.full(n_buckets, 0, dtype=np.int8)  # default RA0
+    for cls, kmin, kmax, _, _ in objetos_proj:
+        i0 = max(0, int(kmin / BUCKET_M))
+        i1 = min(n_buckets - 1, int(kmax / BUCKET_M))
+        for i in range(i0, i1 + 1):
+            if cls > sev[i]:
+                sev[i] = cls
+
+    # Converte buckets em segmentos
+    segs = []
+    i = 0
+    while i < n_buckets:
+        cls = int(sev[i])
+        j = i
+        while j + 1 < n_buckets and sev[j + 1] == cls:
+            j += 1
+        m_ini = i * BUCKET_M
+        m_fim = min(L, (j + 1) * BUCKET_M)
+        if m_fim - m_ini > 0.5:
+            s = substring(eixo, m_ini, m_fim)
+            if not s.is_empty and s.length > 1:
+                segs.append({
+                    "regiao_id": rid,
+                    "classe_ra_geo": cls,
+                    "geometry": s,
+                })
+        i = j + 1
+
+    dist = {k: 0.0 for k in range(5)}
+    for s in segs:
+        dist[s["classe_ra_geo"]] += s["geometry"].length / 1000.0
+    print(f"  extensoes (km): " + "  ".join(
+        f"RA{k}={dist[k]:.2f}" for k in range(5)))
+    return segs
+
+
+def main():
+    eixos = gpd.read_file(GPKG, layer="ra_geologico_linha").to_crs(EPSG_UTM)
+    todos = []
+    for rid, cfg in REGIOES_CFG.items():
+        todos.extend(processa_regiao(rid, cfg, eixos))
+
+    gdf = gpd.GeoDataFrame(todos, geometry="geometry", crs=EPSG_UTM)
+    gdf["extensao_km"] = gdf.geometry.length / 1000.0
+    gdf = gdf.to_crs(4326)
+    out_layer = "ra_geologico_continuo"
+    gdf.to_file(GPKG, layer=out_layer, driver="GPKG")
+    print(f"\nCamada '{out_layer}' salva: {len(gdf)} segmentos")
+
+
+if __name__ == "__main__":
+    main()

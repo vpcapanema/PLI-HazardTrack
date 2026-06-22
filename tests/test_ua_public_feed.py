@@ -22,7 +22,8 @@ class TestUaPublicFeed(unittest.TestCase):
         self.assertEqual(fc["type"], "FeatureCollection")
         self.assertIn("metadata", fc)
         self.assertIn("features", fc)
-        self.assertEqual(fc["metadata"]["api_version"], "1")
+        # v2 = atributos NATIVOS de uas_area_estudo (ua_id, RAGEO, ...)
+        self.assertEqual(fc["metadata"]["api_version"], "2")
         self.assertGreater(len(fc["features"]), 0)
 
     def test_geojson_coordinates_lon_lat(self):
@@ -56,12 +57,33 @@ class TestUaPublicFeed(unittest.TestCase):
 
     def test_public_properties(self):
         fc = build_ua_layers_geojson(self.snap, hazard="geo")
+        feat = fc["features"][0]
+        props = feat["properties"]
+        # Atributos NATIVOS da camada uas_area_estudo + calculados
+        for key in (
+            "ua_id", "sigla_rodovia", "regiao_id", "regiao_nome",
+            "km_inicial", "km_final", "escala", "tipo",
+            "municipio", "regional", "residencia_dr",
+            "uba_codigo", "uba_nome",
+            "RAGEO", "icc_geo_thresholds", "trecho_critico_geo",
+            "rd", "nivel", "hazard",
+        ):
+            self.assertIn(key, props, f"falta {key}")
+        # Feature ID = ua_id (sem campo legado "id" no properties)
+        self.assertEqual(feat["id"], props["ua_id"])
+
+    def test_hidro_public_properties(self):
+        fc = build_ua_layers_geojson(self.snap, hazard="hidro")
         props = fc["features"][0]["properties"]
-        for key in ("id", "rodovia", "km", "ra", "rd", "nivel", "hazard"):
+        for key in (
+            "RAHID", "icc_hid_thresholds", "trecho_critico_hid",
+        ):
             self.assertIn(key, props)
+        self.assertNotIn("RAGEO", props)
+        self.assertNotIn("icc_geo_thresholds", props)
 
     def test_point_to_feature_skips_empty(self):
-        self.assertIsNone(point_to_feature({"id": "x", "geometry": []}))
+        self.assertIsNone(point_to_feature({"ua_id": "x", "geometry": []}))
 
 
 class TestPublicUaLayersRoute(unittest.TestCase):

@@ -1,0 +1,71 @@
+"""Preview da camada ra_geologico_continuo - 4 paineis (R1, R2, R3, R4)
+com a figura hires de cada regiao e a camada extraida lado a lado."""
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import geopandas as gpd
+from PIL import Image
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = "data/pli-hazardtrack.gpkg"
+IMG_DIR = Path("ferramentas/extracao-ra/_imgs_hires")
+OUT = Path("ferramentas/extracao-ra/_preview_rageo_4regioes.png")
+
+COR = {0: "#7F7F7F", 1: "#7FFF00", 2: "#FFFF00",
+       3: "#FF8000", 4: "#FF0000"}
+
+FIGS = {
+    1: "rageo_r1_p52_3_3_3-3.png",
+    2: "rageo_r2_p54_3_3_3-5.png",
+    3: "rageo_r3_p56_3_3_3-7.png",
+    4: "rageo_r4_p58_3_3_3-9.png",
+}
+
+regs = gpd.read_file(GPKG, layer="regioes_estudo")
+linha = gpd.read_file(GPKG, layer="ra_geologico_linha")
+ra = gpd.read_file(GPKG, layer="ra_geologico_continuo")
+
+fig, axes = plt.subplots(4, 2, figsize=(18, 24), dpi=100)
+
+for i, rid in enumerate([1, 2, 3, 4]):
+    img_path = IMG_DIR / FIGS[rid]
+    # painel esquerdo: imagem hires limpa
+    ax = axes[i, 0]
+    ax.imshow(Image.open(img_path))
+    ax.set_title(f"R{rid} - PDF (Fig. dedicada hires)")
+    ax.axis("off")
+
+    # painel direito: camada gerada
+    ax = axes[i, 1]
+    regs[regs["regiao_id"] == rid].boundary.plot(
+        ax=ax, color="magenta", linewidth=1.0)
+    linha[linha["regiao_id"] == rid].plot(
+        ax=ax, color="black", linewidth=0.6, linestyle="--",
+        label="Eixo cadastral DER")
+    for k, cor in COR.items():
+        sub = ra[(ra["regiao_id"] == rid) & (ra["classe_ra_geo"] == k)]
+        if len(sub):
+            sub.plot(ax=ax, color=cor, linewidth=4,
+                     label=f"RA{k} ({sub['extensao_km'].sum():.2f} km)")
+    ax.legend(loc="best", fontsize=8)
+    ax.set_title(f"R{rid} - ra_geologico_continuo")
+    ax.set_aspect("equal")
+    ax.grid(alpha=0.3)
+
+plt.tight_layout()
+OUT.parent.mkdir(parents=True, exist_ok=True)
+plt.savefig(OUT, dpi=110, bbox_inches="tight")
+print(f"PNG: {OUT}")
+
+# Resumo final
+print("\nDistribuicao por Regiao x Classe (km):")
+pivot = ra.groupby(["regiao_id", "classe_ra_geo"])["extensao_km"] \
+    .sum().unstack(fill_value=0).round(2)
+print(pivot.to_string())
+print("\nSomas por regiao:")
+print(ra.groupby("regiao_id")["extensao_km"].sum().round(2).to_string())
+print("\nTotais por classe (km):")
+print(ra.groupby("classe_ra_geo")["extensao_km"].sum().round(2).to_string())
+print(f"\nTotal geral: {ra['extensao_km'].sum():.2f} km")

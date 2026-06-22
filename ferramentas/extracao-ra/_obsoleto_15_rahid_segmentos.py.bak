@@ -1,0 +1,227 @@
+"""RAHID: extrai segmentos coloridos das figuras hires por regiao.
+
+Mesma metodologia do 11_rageo_segmentos.py - so muda fontes:
+  - Figuras: 3.3.3-13 (R1) a 3.3.3-19 (R4)
+  - UTM bounds iguais (mesma area geografica)
+Salva camada: ra_hidrologico_continuo
+"""
+import sys
+from pathlib import Path
+
+import numpy as np
+import geopandas as gpd
+from PIL import Image, ImageDraw
+from scipy import ndimage
+from shapely.geometry import Point
+from shapely.ops import substring
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = Path("data/pli-hazardtrack.gpkg")
+IMG_DIR = Path("ferramentas/extracao-ra/_imgs_hires")
+EPSG_UTM = 31983
+
+BUFFER_EIXO_PX = 200  # ~8km perpendicular
+PASSO_M = 25
+DIST_MAX_M = 4000
+
+REGIOES_CFG = {
+    1: {
+        "img": "rahid_r1_p63_3_3_3-13.png",
+        "utm": (350000, 430000, 7370000, 7420000),
+    },
+    2: {
+        "img": "rahid_r2_p65_3_3_3-15.png",
+        "utm": (430000, 530000, 7370000, 7430000),
+    },
+    3: {
+        "img": "rahid_r3_p67_3_3_3-17.png",
+        "utm": (420000, 460000, 7360000, 7380000),
+    },
+    4: {
+        "img": "rahid_r4_p69_3_3_3-19.png",
+        "utm": (360000, 420000, 7350000, 7380000),
+    },
+}
+
+
+def carrega(p):
+    arr = np.array(Image.open(p))
+    if arr.shape[-1] == 4:
+        return arr[..., :3], arr[..., 3]
+    return arr, np.full(arr.shape[:2], 255, np.uint8)
+
+
+def detecta_frame(rgb, alpha):
+    H, W, _ = rgb.shape
+    preto = ((rgb[..., 0] < 70) & (rgb[..., 1] < 70)
+             & (rgb[..., 2] < 70) & (alpha > 0))
+    m = 60
+    y0 = int(preto[:m].sum(axis=1).argmax())
+    y1 = H - m + int(preto[H - m:].sum(axis=1).argmax())
+    x0 = int(preto[:, :m].sum(axis=0).argmax())
+    x1 = W - m + int(preto[:, W - m:].sum(axis=0).argmax())
+    return x0, y0, x1, y1
+
+
+def constroi_mapa_classes(rgb, alpha):
+    R = rgb[..., 0].astype(np.int16)
+    G = rgb[..., 1].astype(np.int16)
+    B = rgb[..., 2].astype(np.int16)
+    valid = alpha > 0
+    mx = np.maximum(np.maximum(R, G), B)
+    mn = np.minimum(np.minimum(R, G), B)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    sat_ok = (sat >= 0.55) & valid
+    lum = (R + G + B) // 3
+
+    magenta = sat_ok & (R >= 150) & (B >= 100) & (G <= 80)
+    m4 = sat_ok & (R >= 200) & (G <= 60) & (B <= 60) & ~magenta
+    m3 = (sat_ok & (R >= 220) & (G >= 100) & (G <= 200)
+          & (B <= 90) & ~m4 & ~magenta)
+    m2 = (sat_ok & (R >= 200) & (G >= 200) & (B <= 110)
+          & ~m4 & ~m3 & ~magenta)
+    m1 = (sat_ok & (G >= 180) & (R <= 200) & (B <= 110)
+          & ~m4 & ~m3 & ~m2 & ~magenta)
+    m0 = (sat < 0.08) & (lum >= 100) & (lum <= 150) & valid
+
+    mapa = np.full(rgb.shape[:2], 255, np.uint8)
+    mapa[m0] = 0
+    mapa[m1] = 1
+    mapa[m2] = 2
+    mapa[m3] = 3
+    mapa[m4] = 4
+    return mapa
+
+
+def extrai_segmentos(rid, cfg, eixos):
+    img_path = IMG_DIR / cfg["img"]
+    rgb, alpha = carrega(img_path)
+    frame = detecta_frame(rgb, alpha)
+    bounds = cfg["utm"]
+    eixo = eixos[eixos["regiao_id"] == rid].geometry.iloc[0]
+    L = eixo.length
+    print(f"\nR{rid}: {cfg['img']}  shape={rgb.shape[:2]}  "
+          f"frame_px={frame}  L_eixo={L/1000:.3f} km")
+
+    mapa = constroi_mapa_classes(rgb, alpha)
+
+    # Limpa RA0 isolado: manter so componentes >= 30 px
+    ra0_mask = mapa == 0
+    lbl, n = ndimage.label(ra0_mask, structure=np.ones((3, 3)))
+    if n > 0:
+        sizes = ndimage.sum(ra0_mask, lbl, range(1, n + 1))
+        manter = np.where(sizes >= 30)[0] + 1
+        ra0_clean = np.isin(lbl, manter)
+        mapa[ra0_mask & ~ra0_clean] = 255
+
+    qtd = {k: int((mapa == k).sum()) for k in range(5)}
+    print(f"  Pixels (RA0..4): "
+          + "  ".join(f"RA{k}={qtd[k]}" for k in range(5)))
+
+    # Pre-computa pixels por classe em UTM
+    pix_por_classe = {}
+    x0, y0, x1, y1 = frame
+    xmn, xmx, ymn, ymx = bounds
+    for cls in range(5):
+        ys, xs = np.where(mapa == cls)
+        if len(ys) == 0:
+            pix_por_classe[cls] = None
+            continue
+        ux = xmn + (xs - x0) / (x1 - x0) * (xmx - xmn)
+        uy = ymx - (ys - y0) / (y1 - y0) * (ymx - ymn)
+        pix_por_classe[cls] = np.stack([ux, uy], axis=1)
+
+    # Para cada amostra no eixo, busca pixel mais proximo (qualquer
+    # classe ate DIST_MAX_M)
+    n = int(L / PASSO_M) + 1
+    classes = []
+    for i in range(n):
+        d = min(L, i * PASSO_M)
+        pt = eixo.interpolate(d)
+        px_x, px_y = pt.x, pt.y
+        melhor_cls = -1
+        melhor_d2 = DIST_MAX_M ** 2
+        for cls in range(5):
+            pix = pix_por_classe[cls]
+            if pix is None:
+                continue
+            dx = pix[:, 0] - px_x
+            dy = pix[:, 1] - px_y
+            d2 = dx * dx + dy * dy
+            mn_d2 = float(d2.min())
+            if mn_d2 < melhor_d2:
+                melhor_d2 = mn_d2
+                melhor_cls = cls
+        classes.append(melhor_cls)
+    sem = sum(1 for c in classes if c < 0)
+    print(f"  amostras sem-dado: {sem}/{n} ({100*sem/n:.1f}%)")
+
+    def suaviza(seq, j=5):
+        out = list(seq)
+        for i in range(len(seq)):
+            i0 = max(0, i - j // 2)
+            i1 = min(len(seq), i + j // 2 + 1)
+            votos = {}
+            for c in seq[i0:i1]:
+                votos[c] = votos.get(c, 0) + 1
+            out[i] = max(votos.items(), key=lambda kv: kv[1])[0]
+        return out
+
+    classes = suaviza(classes, j=5)
+
+    out = []
+    ini = 0
+    for i in range(1, n):
+        if classes[i] != classes[i - 1]:
+            m_ini = ini * PASSO_M
+            m_fim = i * PASSO_M
+            cls = classes[i - 1]
+            if cls >= 0:
+                s = substring(eixo, m_ini, min(L, m_fim))
+                if not s.is_empty and s.length > 1:
+                    out.append({
+                        "regiao_id": rid,
+                        "classe_ra_hid": int(cls),
+                        "geometry": s,
+                    })
+            ini = i
+    m_ini = ini * PASSO_M
+    cls = classes[-1]
+    if cls >= 0:
+        s = substring(eixo, m_ini, L)
+        if not s.is_empty and s.length > 1:
+            out.append({
+                "regiao_id": rid,
+                "classe_ra_hid": int(cls),
+                "geometry": s,
+            })
+
+    dist = {k: 0.0 for k in range(5)}
+    for s in out:
+        dist[s["classe_ra_hid"]] += s["geometry"].length / 1000.0
+    print(f"  extensoes (km): "
+          + "  ".join(f"RA{k}={dist[k]:.2f}" for k in range(5)))
+    return out
+
+
+def main():
+    eixos = gpd.read_file(GPKG, layer="ra_hidrologico_linha").to_crs(EPSG_UTM)
+    todos = []
+    for rid, cfg in REGIOES_CFG.items():
+        todos.extend(extrai_segmentos(rid, cfg, eixos))
+
+    if not todos:
+        print("Nenhum segmento")
+        return
+
+    gdf = gpd.GeoDataFrame(todos, geometry="geometry", crs=EPSG_UTM)
+    gdf["extensao_km"] = gdf.geometry.length / 1000.0
+    gdf = gdf.to_crs(4326)
+    out_layer = "ra_hidrologico_continuo"
+    gdf.to_file(GPKG, layer=out_layer, driver="GPKG")
+    print(f"\nCamada '{out_layer}' salva: {len(gdf)} segmentos")
+
+
+if __name__ == "__main__":
+    main()

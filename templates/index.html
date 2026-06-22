@@ -859,10 +859,32 @@
         <div class="map-layer-control map-layer-control--floating" id="map-layer-control">
           <div class="map-layer-control-head">
             <span class="map-layer-control-title">Camadas</span>
+            <button
+              type="button"
+              class="map-layer-control-toggle"
+              aria-expanded="true"
+              aria-label="Recolher painel de camadas"
+              title="Recolher"
+            >
+              ◂
+            </button>
           </div>
           <div class="map-layer-control-body">
             <div class="ck-group-title">Riscos Monitorados</div>
             <div id="hazard-toggles"></div>
+            <label class="ck">
+              <input type="checkbox" id="layer-fireRisk" />
+              Risco de queimadas (INPE)
+            </label>
+            <label class="ck ck--sub">
+              Horizonte
+              <select id="layer-fireRisk-horizon" class="layer-mini-select">
+                <option value="observado">Observado</option>
+                <option value="D+1">D+1</option>
+                <option value="D+2">D+2</option>
+                <option value="D+3">D+3</option>
+              </select>
+            </label>
             <div class="ck-group-title">Camadas de apoio</div>
             <label class="ck">
               <input type="checkbox" id="layer-regions" />

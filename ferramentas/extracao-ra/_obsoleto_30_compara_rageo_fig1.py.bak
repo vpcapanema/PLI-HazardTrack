@@ -1,0 +1,87 @@
+"""Compara coluna RAGEO das UAs (final calibrado) com a Figura 3.3.3-1
+(visao geral RAGEO de toda a area de estudo).
+"""
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import geopandas as gpd
+import numpy as np
+from PIL import Image
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+GPKG = "data/pli-hazardtrack.gpkg"
+FIG1 = Path(
+    "ferramentas/extracao-ra/_imgs_hires/rageo_r0_p50_3_3_3-1.png")
+OUT = Path("ferramentas/extracao-ra/_compara_rageo_vs_fig1.png")
+
+COR = {0: "#7F7F7F", 1: "#7FFF00", 2: "#FFFF00",
+       3: "#FF8000", 4: "#FF0000"}
+LBL = {0: "RA0 Nulo/Quase nulo", 1: "RA1 Muito Baixo/Baixo",
+       2: "RA2 Medio", 3: "RA3 Alto", 4: "RA4 Muito Alto"}
+
+# Bounds UTM da Figura 3.3.3-1 (lidos das marcas do eixo)
+FIG_UTM = (350000, 530000, 7340000, 7440000)  # xmin, xmax, ymin, ymax
+FIG_EPSG = 31983
+
+uas = gpd.read_file(GPKG, layer="uas_area_estudo").to_crs(FIG_EPSG)
+regs = gpd.read_file(GPKG, layer="regioes_estudo").to_crs(FIG_EPSG)
+
+print("Contagem UAs por classe RAGEO (Tabela 3.3.1-2 calibrada):")
+print(uas.groupby("RAGEO").size().to_string())
+
+# Detecta frame preto da imagem para fazer plot georreferenciado
+img = np.array(Image.open(FIG1))
+H, W = img.shape[:2]
+if img.shape[-1] == 4:
+    alpha = img[..., 3]
+else:
+    alpha = np.full((H, W), 255, np.uint8)
+preto = ((img[..., 0] < 70) & (img[..., 1] < 70)
+         & (img[..., 2] < 70) & (alpha > 0))
+m = 60
+y0 = int(preto[:m].sum(axis=1).argmax())
+y1 = H - m + int(preto[H - m:].sum(axis=1).argmax())
+x0 = int(preto[:, :m].sum(axis=0).argmax())
+x1 = W - m + int(preto[:, W - m:].sum(axis=0).argmax())
+print(f"frame_px=({x0},{y0},{x1},{y1})  img={W}x{H}")
+
+xmn, xmx, ymn, ymx = FIG_UTM
+# extent para imshow em coordenadas UTM (recortando dentro do frame)
+ext_l = xmn + (0 - x0) / (x1 - x0) * (xmx - xmn)
+ext_r = xmn + (W - x0) / (x1 - x0) * (xmx - xmn)
+ext_b = ymx - (H - y0) / (y1 - y0) * (ymx - ymn)
+ext_t = ymx - (0 - y0) / (y1 - y0) * (ymx - ymn)
+
+fig, axes = plt.subplots(2, 1, figsize=(20, 18), dpi=110)
+
+ax = axes[0]
+ax.imshow(img, extent=(ext_l, ext_r, ext_b, ext_t), origin="upper")
+ax.set_xlim(xmn, xmx)
+ax.set_ylim(ymn, ymx)
+ax.set_aspect("equal")
+ax.set_title("PDF - Figura 3.3.3-1 (RAGEO geral oficial)", fontsize=14)
+ax.grid(alpha=0.3)
+
+ax = axes[1]
+regs.boundary.plot(ax=ax, color="magenta", linewidth=1.0)
+for k, cor in COR.items():
+    sk = uas[uas["RAGEO"] == k]
+    if len(sk):
+        km = sk.geometry.length.sum() / 1000.0
+        sk.plot(ax=ax, color=cor, linewidth=3,
+                label=f"{LBL[k]} - {len(sk)} UAs ({km:.1f} km)")
+ax.set_xlim(xmn, xmx)
+ax.set_ylim(ymn, ymx)
+ax.set_aspect("equal")
+ax.legend(loc="lower right", fontsize=10)
+ax.set_title("uas_area_estudo.RAGEO (resultado calibrado)",
+             fontsize=14)
+ax.grid(alpha=0.3)
+
+plt.tight_layout()
+OUT.parent.mkdir(parents=True, exist_ok=True)
+plt.savefig(OUT, dpi=120, bbox_inches="tight")
+print(f"PNG: {OUT}")

@@ -1,0 +1,19 @@
+{
+  "modulo": "queimadas",
+  "step": "06_aggregate_to_der_segments",
+  "data_referencia": "2026-06-22",
+  "status": "ok",
+  "source_grid": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\interim\\rf_inpe\\20260622\\rf_index.json",
+  "output": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\processed\\risco_trechos_der.gpkg",
+  "output_layer": "risco_diario",
+  "monitored_layer": "malha_rodoviaria_estadual_monitorada",
+  "features": 18332,
+  "monitored_features": 4583,
+  "horizontes": [
+    "observado",
+    "D+1",
+    "D+2",
+    "D+3"
+  ],
+  "message": "Produto por trecho gerado com RF oficial INPE."
+}

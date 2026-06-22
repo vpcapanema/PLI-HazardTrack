@@ -24,6 +24,12 @@ from core.admin import admin_bp
 from core.actions import get_summary_actions, get_protocolo_completo
 from core.merge_ingest import ingest
 from core.ua_public_feed import build_ua_layers_geojson
+from core.public_api import (
+    apply_public_api_headers,
+    build_public_api_manifest,
+    public_api_key_configured,
+    verify_public_api_access,
+)
 from core.zones import get_zones_geo, get_zones_hidro
 
 _DEV_LOG = os.environ.get("SAMAEG_DEV_LOG") == "1"
@@ -327,12 +333,28 @@ if (
 # ============================================================================
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template(
+        "index.html",
+        public_api_key=os.environ.get("PUBLIC_API_KEY", "").strip(),
+        public_api_auth_required=public_api_key_configured(),
+    )
+
+
+@app.before_request
+def _guard_public_api():
+    path = request.path or ""
+    if not path.startswith("/api/public"):
+        return None
+    denied = verify_public_api_access(request)
+    if denied is not None:
+        resp, status = denied
+        return apply_public_api_headers(resp), status
+    return None
 
 
 @app.route("/api/history-hints")
 def api_history_hints():
-    """Datas sugeridas com alerta elevado (validacao / backtest documentado)."""
+    """Datas sugeridas com alerta elevado (validacao / backtest)."""
     from core.history_hints import get_history_hints
     return jsonify(get_history_hints())
 
@@ -593,6 +615,16 @@ def api_timeline():
     return jsonify(state.build_timeline(frames=frames))
 
 
+@app.route("/api/public")
+def api_public_manifest():
+    """Catalogo dos feeds publicos e requisitos de autenticacao."""
+    base = request.url_root.rstrip("/")
+    if request.headers.get("X-Forwarded-Prefix"):
+        base += request.headers.get("X-Forwarded-Prefix").rstrip("/")
+    resp = jsonify(build_public_api_manifest(base))
+    return apply_public_api_headers(resp, max_age=600)
+
+
 @app.route("/api/public/ua-layers")
 def api_public_ua_layers():
     """Feed publico GeoJSON das UAs com RD e chuva em tempo real.
@@ -629,9 +661,7 @@ def api_public_ua_layers():
     body = build_ua_layers_geojson(snap, hazard=hazard, min_rd=min_rd)
     resp = jsonify(body)
     resp.headers["Content-Type"] = "application/geo+json; charset=utf-8"
-    resp.headers["Cache-Control"] = "public, max-age=30"
-    resp.headers["Access-Control-Allow-Origin"] = "*"
-    return resp
+    return apply_public_api_headers(resp, max_age=30)
 
 
 @app.route("/api/public/fire-risk/layers")
@@ -644,9 +674,7 @@ def api_public_fire_risk_layers():
     body = get_fire_risk_geojson(horizonte=horizonte, min_class=min_class)
     resp = jsonify(body)
     resp.headers["Content-Type"] = "application/geo+json; charset=utf-8"
-    resp.headers["Cache-Control"] = "public, max-age=300"
-    resp.headers["Access-Control-Allow-Origin"] = "*"
-    return resp
+    return apply_public_api_headers(resp, max_age=300)
 
 
 @app.route("/api/public/fire-risk/snapshot")
@@ -655,9 +683,7 @@ def api_public_fire_risk_snapshot():
     from core.fire_risk import get_fire_risk_snapshot
 
     resp = jsonify(get_fire_risk_snapshot())
-    resp.headers["Cache-Control"] = "public, max-age=300"
-    resp.headers["Access-Control-Allow-Origin"] = "*"
-    return resp
+    return apply_public_api_headers(resp, max_age=300)
 
 
 @app.route("/api/public/fire-risk/trecho/<trecho_id>")
@@ -673,9 +699,7 @@ def api_public_fire_risk_trecho(trecho_id):
             "trecho_id": trecho_id,
         }), 404
     resp = jsonify(body)
-    resp.headers["Cache-Control"] = "public, max-age=300"
-    resp.headers["Access-Control-Allow-Origin"] = "*"
-    return resp
+    return apply_public_api_headers(resp, max_age=300)
 
 
 @app.route("/api/health")

@@ -22,7 +22,24 @@ const LITORAL_BOUNDS = [
 // Prefixo da app, injetado pelo template (vazio em raiz, "/hazardtrack" atras de Nginx em path)
 const APP_BASE =
   typeof window !== "undefined" && window.APP_BASE ? window.APP_BASE : "";
+const PUBLIC_API_KEY =
+  typeof window !== "undefined" && window.PLI_PUBLIC_API_KEY
+    ? window.PLI_PUBLIC_API_KEY
+    : "";
 const apiUrl = (path) => APP_BASE + path;
+
+function publicApiHeaders(extra = {}) {
+  const headers = { ...(extra || {}) };
+  if (PUBLIC_API_KEY) headers["X-API-Key"] = PUBLIC_API_KEY;
+  return headers;
+}
+
+function publicApiFetch(path, options = {}) {
+  return fetch(apiUrl(path), {
+    ...options,
+    headers: publicApiHeaders(options.headers),
+  });
+}
 
 const NIVEL_LABEL = [
   "Monitoramento",
@@ -1448,11 +1465,15 @@ function installMapLayerControl() {
 
 function fillApiModalUrls() {
   const paths = {
+    "api-url-catalog": "/api/public",
     "api-url-live": "/api/public/ua-layers?hazard=geo",
     "api-url-all": "/api/public/ua-layers",
     "api-url-geo": "/api/public/ua-layers?hazard=geo",
     "api-url-hidro": "/api/public/ua-layers?hazard=hidro",
     "api-url-alerts": "/api/public/ua-layers?min_rd=3",
+    "api-url-fire-layers": "/api/public/fire-risk/layers?horizonte=observado",
+    "api-url-fire-layers-ref": "/api/public/fire-risk/layers?horizonte=observado",
+    "api-url-fire-snapshot": "/api/public/fire-risk/snapshot",
   };
   const origin = window.location.origin || "";
   Object.entries(paths).forEach(([id, path]) => {
@@ -1461,11 +1482,22 @@ function fillApiModalUrls() {
   });
   const ex = document.getElementById("api-fetch-example");
   if (ex) {
-    const sample = origin + apiUrl("/api/public/ua-layers?hazard=geo");
+    const authHdr = PUBLIC_API_KEY
+      ? '  headers: { "X-API-Key": "<sua-chave>" },\n'
+      : "";
+    const geo = origin + apiUrl("/api/public/ua-layers?hazard=geo");
+    const hidro = origin + apiUrl("/api/public/ua-layers?hazard=hidro");
+    const fogo = origin + apiUrl(
+      "/api/public/fire-risk/layers?horizonte=observado",
+    );
     ex.textContent =
-      `const res = await fetch("${sample}");\n` +
-      "const geojson = await res.json();\n" +
-      "console.log(geojson.metadata.timestamp_utc, geojson.features.length);";
+      `const opts = {${authHdr ? `\n${authHdr}` : ""}};\n\n` +
+      `// Movimentos de massa\n` +
+      `const geo = await (await fetch("${geo}", opts)).json();\n\n` +
+      `// Inundacao\n` +
+      `const hidro = await (await fetch("${hidro}", opts)).json();\n\n` +
+      `// Risco de fogo (INPE)\n` +
+      `const fogo = await (await fetch("${fogo}", opts)).json();`;
   }
 }
 
@@ -4308,11 +4340,10 @@ async function loadFireRiskLayer(horizonte = state.fireRiskHorizon) {
     return;
   }
   try {
-    const url = apiUrl(
+    const url =
       "/api/public/fire-risk/layers?horizonte=" +
-      encodeURIComponent(horizon),
-    );
-    const gj = await (await fetch(url)).json();
+      encodeURIComponent(horizon);
+    const gj = await (await publicApiFetch(url)).json();
     state.fireRiskGeoJSON[horizon] = gj;
     renderFireRiskLayer();
   } catch (e) {
@@ -4329,11 +4360,13 @@ async function loadFireRiskSnapshot() {
   // endpoint publico se o estatico nao estiver presente.
   const sources = [
     apiUrl("/static/data/queimadas/risco_trechos_der_stats.json"),
-    apiUrl("/api/public/fire-risk/snapshot"),
+    "/api/public/fire-risk/snapshot",
   ];
   for (const url of sources) {
     try {
-      const res = await fetch(url);
+      const res = url.startsWith("/api/public/")
+        ? await publicApiFetch(url)
+        : await fetch(url);
       if (!res.ok) continue;
       const snap = await res.json();
       if (snap && snap.total_trechos) {

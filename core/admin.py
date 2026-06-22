@@ -41,6 +41,7 @@ from .merge_inpe import (
     _eccodes_available, _hourly_url, INPE_BASE, PUBLISH_LAG_HOURS,
 )
 from . import admin_auth
+from .admin_dashboard import build_report, collect_dashboard
 from .sigma_auth import SigmaConnectionError
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -127,7 +128,10 @@ def _safe_version(modname: str) -> Optional[str]:
 def _registered_routes() -> List[Dict[str, Any]]:
     out = []
     for rule in current_app.url_map.iter_rules():
-        methods = sorted(m for m in (rule.methods or set()) if m not in {"HEAD", "OPTIONS"})
+        methods = sorted(
+            m for m in (rule.methods or set())
+            if m not in {"HEAD", "OPTIONS"}
+        )
         out.append({
             "rule": str(rule),
             "endpoint": rule.endpoint,
@@ -138,7 +142,7 @@ def _registered_routes() -> List[Dict[str, Any]]:
 
 
 def collect_diagnostics() -> Dict[str, Any]:
-    """Monta o blob completo de diagnostico, organizado por responsabilidade."""
+    """Monta o blob de diagnostico por responsabilidade."""
     snap = state.get_snapshot()
     runtime = state.get_runtime()
     summary = snap.get("summary", {})
@@ -162,7 +166,9 @@ def collect_diagnostics() -> Dict[str, Any]:
         "cycle_fail": runtime["cycle_fail"],
         # Semaforos
         "lights": {
-            "data": _light_for_data(data_status, summary.get("missing_24h", 0)),
+            "data": _light_for_data(
+                data_status, summary.get("missing_24h", 0),
+            ),
             "scheduler": "ok" if runtime["cycle_count"] > 0 else "warn",
             "eccodes": "ok" if eccodes_ok else "fail",
             "errors": "fail" if runtime["last_error"] else "ok",
@@ -173,6 +179,12 @@ def collect_diagnostics() -> Dict[str, Any]:
     now = datetime.now(timezone.utc)
     target = now.replace(minute=0, second=0, microsecond=0)
     sample_url = _hourly_url(target)
+    carto_tile = (
+        "https://a.basemaps.cartocdn.com/light_all/6/30/35.png"
+    )
+    google_fonts_url = (
+        "https://fonts.googleapis.com/css2?family=Inter&display=swap"
+    )
     external = {
         "merge_inpe": {
             "name": "MERGE / CPTEC / INPE",
@@ -182,24 +194,23 @@ def collect_diagnostics() -> Dict[str, Any]:
             "sample_url": sample_url,
             "reachability": _check_url(sample_url, timeout=8.0),
             "notes": (
-                "Producao do INPE costuma ter latencia de ~3h entre observacao "
-                "e disponibilizacao. Em tempestades essa latencia pode subir."
+                "Producao do INPE costuma ter latencia de ~3h entre "
+                "observacao e disponibilizacao. Em tempestades essa "
+                "latencia pode subir."
             ),
         },
         "basemap_carto": {
             "name": "Basemap CARTO Light",
             "role": "Tiles de base para o mapa Leaflet",
-            "sample_url": "https://a.basemaps.cartocdn.com/light_all/6/30/35.png",
-            "reachability": _check_url(
-                "https://a.basemaps.cartocdn.com/light_all/6/30/35.png", timeout=5.0
-            ),
+            "sample_url": carto_tile,
+            "reachability": _check_url(carto_tile, timeout=5.0),
         },
         "google_fonts": {
             "name": "Google Fonts (Inter / Poppins)",
             "role": "Fontes da interface",
-            "sample_url": "https://fonts.googleapis.com/css2?family=Inter&display=swap",
+            "sample_url": google_fonts_url,
             "reachability": _check_url(
-                "https://fonts.googleapis.com/css2?family=Inter&display=swap",
+                google_fonts_url,
                 timeout=5.0,
             ),
             "notes": "Self-host opcional ainda nao aplicado.",
@@ -239,7 +250,9 @@ def collect_diagnostics() -> Dict[str, Any]:
         "env_flags": {
 
             "SAMAEG_DEGRADED_24H": os.environ.get("SAMAEG_DEGRADED_24H", "6"),
-            "SAMAEG_USE_MANUAL_RA": os.environ.get("SAMAEG_USE_MANUAL_RA", "0"),
+            "SAMAEG_USE_MANUAL_RA": os.environ.get(
+                "SAMAEG_USE_MANUAL_RA", "0",
+            ),
             "SAMAEG_WORKERS": os.environ.get("SAMAEG_WORKERS", "12"),
             "SAMAEG_DECODE_WORKERS": os.environ.get(
                 "SAMAEG_DECODE_WORKERS", "6"
@@ -300,11 +313,18 @@ def collect_diagnostics() -> Dict[str, Any]:
         ],
         "points_total": len(points),
         "points_by_region": by_region,
-        "ra_mode": "manual" if os.environ.get("SAMAEG_USE_MANUAL_RA") == "1" else "neutralized (RA=1)",
+        "ra_mode": (
+            "manual"
+            if os.environ.get("SAMAEG_USE_MANUAL_RA") == "1"
+            else "neutralized (RA=1)"
+        ),
         "formulas": {
             "envoltoria_critica": "I = K * Ac96h^(-0.9)",
             "cpc": "CPC = I_observada / I_envoltoria",
-            "rd": "RD = matriz oficial RA x ICC; RD final = max(RD_geo, RD_hid)",
+            "rd": (
+                "RD = matriz oficial RA x ICC; "
+                "RD final = max(RD_geo, RD_hid)"
+            ),
         },
         "niveis": {
             "0": "Monitoramento",
@@ -406,7 +426,10 @@ def api_auth_login():
     body = request.get_json(silent=True) or {}
     username = str(body.get("username", "")).strip()
     password = str(body.get("password", ""))
-    next_url = str(body.get("next", "/admin/status")).strip() or "/admin/status"
+    next_url = (
+        str(body.get("next", "/admin/status")).strip()
+        or "/admin/status"
+    )
 
     if not next_url.startswith("/admin"):
         next_url = "/admin/status"
@@ -441,8 +464,31 @@ def logout():
 @admin_bp.route("/status", methods=["GET"])
 @_login_required
 def status_page():
-    diag = collect_diagnostics()
-    return render_template("admin_status.html", diag=diag)
+    return render_template("admin_status.html")
+
+
+@admin_bp.route("/api/dashboard", methods=["GET"])
+@_login_required
+def api_dashboard():
+    return jsonify(collect_dashboard())
+
+
+@admin_bp.route("/api/reports/export", methods=["GET"])
+@_login_required
+def api_report_export():
+    report_type = request.args.get("type", "overview")
+    try:
+        ctype, filename, body = build_report(report_type)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    from flask import Response
+    return Response(
+        body,
+        mimetype=ctype,
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )
 
 
 @admin_bp.route("/api/diagnostics", methods=["GET"])

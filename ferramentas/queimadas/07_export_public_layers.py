@@ -35,6 +35,7 @@ def main() -> None:
         )
 
     import geopandas as gpd
+    import pandas as pd
 
     gdf = gpd.read_file(RISK_GPKG, layer="risco_diario").to_crs("EPSG:4326")
     horizontes = sorted(gdf["horizonte"].dropna().astype(str).unique())
@@ -62,7 +63,7 @@ def main() -> None:
         "horizonte_publicado": "observado",
         "total_trechos": int(len(gdf_web)),
         "classes": {str(k): int(v) for k, v in counts.items()},
-        "source": str(RISK_GPKG),
+        "source": "data/queimadas/processed/risco_trechos_der.gpkg",
     }
     geojson["metadata"] = metadata
 
@@ -102,7 +103,11 @@ def main() -> None:
         **metadata,
         "trechos": [
             {
-                key: row.get(key)
+                key: (
+                    None
+                    if key == "rf_valor" and pd.isna(row.get(key))
+                    else row.get(key)
+                )
                 for key in (
                     "trecho_id", "rodovia", "km_ini", "km_fim",
                     "municipio", "regional", "sede_regional",

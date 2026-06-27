@@ -27,6 +27,54 @@
     SEM_DADO: "#cbd5e1",
   };
 
+  const RD_LABELS = {
+    0: "Monitoramento",
+    1: "Observação",
+    2: "Atenção",
+    3: "Alerta",
+    4: "Alerta Máximo",
+  };
+
+  const RF_LABELS = {
+    minimo: "Mínimo",
+    baixo: "Baixo",
+    medio: "Médio",
+    alto: "Alto",
+    critico: "Crítico",
+    SEM_DADO: "Sem dado",
+  };
+
+  const COL_LABELS = {
+    ua_id: "UA",
+    sigla_rodovia: "Rodovia",
+    rd: "RD",
+    nivel: "Nível",
+    ac96h_mm: "Chuva 96h (mm)",
+    rodovia: "Rodovia",
+    km_ini: "Km inicial",
+    km_fim: "Km final",
+    rf_valor: "RF",
+    rf_classe: "Classe",
+    municipio: "Município",
+  };
+
+  const STATUS_LABELS = {
+    ok: "OK",
+    degraded: "Degradado",
+    loading: "Carregando",
+    no_data: "Sem dado",
+    warn: "Atenção",
+    fail: "Falha",
+    fresh: "Atualizado",
+    skip: "Ignorado",
+    busy: "Ocupado",
+    error: "Erro",
+    disabled: "Desligado",
+    unknown: "Desconhecido",
+  };
+
+  const TZ_BR = "America/Sao_Paulo";
+
   const REPORTS = [
     {
       id: "operacional",
@@ -223,7 +271,7 @@
     if (!dashboard) return;
     document.getElementById("updated-at").textContent =
       "Atualizado " +
-      new Date(dashboard.generated_at).toLocaleString("pt-BR");
+      (dashboard.generated_at_fmt || fmtDateTime(dashboard.generated_at));
     renderOverview();
     renderHealth();
     renderControls();
@@ -245,8 +293,58 @@
     d.textContent = s == null ? "" : String(s);
     return d.innerHTML;
   }
+  function fmtDateTime(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return String(iso);
+    const parts = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: TZ_BR,
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }).formatToParts(d);
+    const get = (t) => parts.find((p) => p.type === t)?.value || "";
+    return (
+      get("day") + "/" + get("month") + "/" + get("year") + " " +
+      get("hour") + ":" + get("minute") + ":" + get("second")
+    );
+  }
+
+  function fmtDate(value) {
+    if (!value) return "—";
+    const text = String(value);
+    const m = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[3] + "/" + m[2] + "/" + m[1];
+    return fmtDateTime(value).slice(0, 10);
+  }
+
   function fmtTime(iso) {
-    return iso ? new Date(iso).toLocaleString("pt-BR") : "—";
+    return fmtDateTime(iso);
+  }
+
+  function fmtStatus(code) {
+    if (code == null || code === "") return "—";
+    const key = String(code).toLowerCase();
+    return STATUS_LABELS[key] || String(code);
+  }
+
+  function rfColorKey(labelOrKey) {
+    const raw = String(labelOrKey || "").toLowerCase();
+    if (raw === "sem dado" || raw === "sem_dado") return "SEM_DADO";
+    const byLabel = Object.entries(RF_LABELS).find(
+      ([, lbl]) => lbl.toLowerCase() === raw,
+    );
+    if (byLabel) return byLabel[0];
+    return raw.replace(/\s+/g, "_");
+  }
+
+  function fmtRfClass(cls) {
+    if (!cls) return "—";
+    return RF_LABELS[String(cls)] || String(cls);
   }
   function fmtSec(s) {
     if (s == null) return "—";
@@ -295,7 +393,7 @@
       ["Alertas RD (3+4)", ov.geodinamico.alertas_rd, "geo warn"],
       ["Trechos fogo", ov.risco_fogo.total_trechos, "fire"],
       ["RF alto/crítico", ov.risco_fogo.alertas_rf, "fire warn"],
-      ["Ref. fogo", ov.risco_fogo.data_referencia || "—", "fire"],
+      ["Ref. fogo", ov.risco_fogo.data_referencia_fmt || fmtDate(ov.risco_fogo.data_referencia) || "—", "fire"],
     ];
     for (const [label, val, mod] of cards) {
       const c = el("div", "kpi-card " + mod);
@@ -306,8 +404,8 @@
     document.getElementById("visao-geo").innerHTML = "";
     document.getElementById("visao-geo").appendChild(
       kvGrid([
-        ["Status", geo.data_status || "—"],
-        ["Última atualização", fmtTime(geo.last_update)],
+        ["Status", fmtStatus(geo.data_status)],
+        ["Última atualização", geo.last_update_fmt || fmtDateTime(geo.last_update)],
         ["Fonte chuva", geo.data_source || "—"],
         ["Faltando 24h", geo.missing_24h ?? "—"],
         ["Cobertura", geo.uas_geo + " encosta · " + geo.uas_hidro + " inundação"],
@@ -322,9 +420,9 @@
     document.getElementById("visao-fire").innerHTML = "";
     document.getElementById("visao-fire").appendChild(
       kvGrid([
-        ["Status", dashboard.health.risco_fogo.status],
-        ["Data referência", fire.data_referencia || "—"],
-        ["Metodologia", fire.modulo ? "INPE-RF-v11" : "—"],
+        ["Status", fmtStatus(dashboard.health.risco_fogo.status)],
+        ["Data referência", fire.data_referencia_fmt || fmtDate(fire.data_referencia)],
+        ["Metodologia", fire.metodologia || dashboard.health.risco_fogo.metodologia || "—"],
         ["Horizontes", (fire.horizontes || []).join(", ") || "—"],
       ])
     );
@@ -335,7 +433,7 @@
     document.getElementById("visao-fire").appendChild(
       barChart(
         rfItems,
-        rfItems.map((i) => RF_COLORS[i.label.toLowerCase()] || "#3ec26e")
+        rfItems.map((i) => RF_COLORS[rfColorKey(i.label)] || "#3ec26e")
       )
     );
   }
@@ -359,9 +457,9 @@
       const tr = document.createElement("tr");
       tr.className = h.outcome === "ok" ? "row-ok" : "row-fail";
       tr.innerHTML =
-        `<td>${esc(h.started_at)}</td>` +
+        `<td>${esc(h.started_at_fmt || fmtDateTime(h.started_at))}</td>` +
         `<td>${fmtSec(h.duration_s)}</td>` +
-        `<td>${esc(h.outcome)} · ${esc(h.data_status || "")}</td>` +
+        `<td>${esc(fmtStatus(h.outcome))} · ${esc(fmtStatus(h.data_status || ""))}</td>` +
         `<td>${esc(h.max_rd ?? "—")}</td>` +
         `<td>${esc(h.files_ok ?? "—")}</td>` +
         `<td><code>${esc(h.error || "")}</code></td>`;
@@ -399,7 +497,7 @@
     if (kind === "geo") {
       root.appendChild(
         kvGrid([
-          ["Status", block.status],
+          ["Status", fmtStatus(block.status)],
           ["Ciclos OK", block.scheduler.cycle_success + " / " + block.scheduler.cycle_count],
           ["Última duração", fmtSec(block.scheduler.last_duration_s)],
           ["Files OK", block.data_quality.files_ok ?? "—"],
@@ -420,10 +518,10 @@
       const inpe = block.inpe || {};
       root.appendChild(
         kvGrid([
-          ["Status", block.status],
+          ["Status", fmtStatus(block.status)],
           ["Polling", ar.enabled ? "a cada " + ar.poll_min + " min" : "desligado"],
           ["Último arquivo INPE", ar.last_file || "—"],
-          ["Última execução", fmtTime(ar.last_run)],
+          ["Última execução", ar.last_run_fmt || fmtDateTime(ar.last_run)],
           ["Arquivo mais recente (INPE)", inpe.latest_file || "—"],
           ["Atualização pendente", inpe.pending_update ? "sim" : "não"],
         ])
@@ -495,7 +593,7 @@
     geoRoot.appendChild(buildToggleCard(geo.execution));
     geoRoot.appendChild(
       kvGrid([
-        ["Status dados", geo.status],
+        ["Status dados", fmtStatus(geo.status)],
         ["Ingest pronto", geo.merge_ingest?.ready ? "sim" : "não"],
         ["Horas em cache", geo.merge_ingest?.hours_cached_ok ?? "—"],
         ["Intervalo ingest", (geo.merge_ingest?.ingest_interval_s || "—") + " s"],
@@ -510,9 +608,9 @@
         ["Resolucao INPE", fire.execution?.inpe_resolution || "diaria"],
         ["Polling", "a cada " + (ar.poll_min || "—") + " min"],
         ["Arquivo INPE", inpe.latest_file || "—"],
-        ["Produto local", fire.data_referencia || "—"],
+        ["Produto local", fire.data_referencia_fmt || fmtDate(fire.data_referencia)],
         ["Atualização pendente", inpe.pending_update ? "sim" : "não"],
-        ["Ultima execucao", fmtTime(ar.last_run)],
+        ["Última execução", ar.last_run_fmt || fmtDateTime(ar.last_run)],
       ])
     );
   }
@@ -539,17 +637,12 @@
     document.getElementById("stats-rf-bars").appendChild(
       barChart(
         rfItems,
-        rfItems.map((i) => {
-          const key = Object.keys(fire.classes_label).find(
-            (k) => fire.classes_label[k] === i.label
-          );
-          return RF_COLORS[key] || "#3ec26e";
-        })
+        rfItems.map((i) => RF_COLORS[rfColorKey(i.label)] || "#3ec26e")
       )
     );
 
-    renderRegionTable("stats-region-geo", geo.by_region_geo);
-    renderRegionTable("stats-region-fire", fire.by_regional, true);
+    renderRegionTable("stats-region-geo", geo.by_region_geo_label || geo.by_region_geo);
+    renderRegionTable("stats-region-fire", fire.by_regional_label || fire.by_regional, true);
     renderTopTable("stats-top-geo", geo.top_uas_geo, [
       "ua_id",
       "sigla_rodovia",
@@ -579,7 +672,12 @@
     for (const [region, counts] of Object.entries(data)) {
       const tr = document.createElement("tr");
       const detail = Object.entries(counts)
-        .map(([k, v]) => `${k}: ${v}`)
+        .map(([k, v]) => {
+          const lbl = isFire
+            ? (RF_LABELS[rfColorKey(k)] || k)
+            : (RD_LABELS[Number(k)] || k);
+          return `${lbl}: ${v}`;
+        })
         .join(" · ");
       tr.innerHTML = `<td>${esc(region)}</td><td>${esc(detail)}</td>`;
       tb.appendChild(tr);
@@ -598,12 +696,18 @@
     const t = el("table", "small-table");
     t.innerHTML =
       "<thead><tr>" +
-      cols.map((c) => `<th>${esc(c)}</th>`).join("") +
+      cols.map((c) => `<th>${esc(COL_LABELS[c] || c)}</th>`).join("") +
       "</tr></thead>";
     const tb = el("tbody");
     for (const r of rows) {
       const tr = document.createElement("tr");
-      tr.innerHTML = cols.map((c) => `<td>${esc(r[c])}</td>`).join("");
+      tr.innerHTML = cols.map((c) => {
+        let val = r[c];
+        if (c === "rf_classe") val = fmtRfClass(val);
+        if (c === "ac96h_mm" && val != null) val = Number(val).toFixed(1);
+        if (c === "rf_valor" && val != null) val = Number(val).toFixed(3);
+        return `<td>${esc(val)}</td>`;
+      }).join("");
       tb.appendChild(tr);
     }
     t.appendChild(tb);
@@ -649,14 +753,16 @@
       const bar = el("div", "spark-bar");
       bar.style.height = h + "px";
       bar.style.background = color;
-      bar.title = fmtTime(p.at) + ": " + vals[i];
+      bar.title = (p.at_fmt || fmtDateTime(p.at)) + ": " + vals[i];
       wrap.appendChild(bar);
     });
     root.appendChild(wrap);
     const labels = el("div", "spark-labels");
+    const p0 = points[0];
+    const pN = points[points.length - 1];
     labels.innerHTML =
-      `<span>${fmtTime(points[0].at)}</span>` +
-      `<span>${fmtTime(points[points.length - 1].at)}</span>`;
+      `<span>${p0.at_fmt || fmtDateTime(p0.at)}</span>` +
+      `<span>${pN.at_fmt || fmtDateTime(pN.at)}</span>`;
     root.appendChild(labels);
   }
 
@@ -681,7 +787,7 @@
     prev.innerHTML = "";
     prev.appendChild(
       kvGrid([
-        ["Snapshot gerado", fmtTime(dashboard.generated_at)],
+        ["Snapshot gerado", dashboard.generated_at_fmt || fmtDateTime(dashboard.generated_at)],
         ["RD máx atual", geo.max_rd + " (" + (geo.max_rd_name || "—") + ")"],
         ["UAs alerta 3+4", geo.alert_count],
         ["Trechos RF alto/crit", fire.alertas_rf],
@@ -700,15 +806,75 @@
       return;
     }
     const p = diagnostics.platform || {};
+    const ov = diagnostics.overview || {};
+    const pipe = diagnostics.pipeline || {};
+    const sched = pipe.scheduler || {};
+    const ingestSt = pipe.merge_ingest || {};
+
     root.appendChild(
       kvGrid([
+        ["Gerado em", diagnostics.generated_at_fmt || fmtDateTime(diagnostics.generated_at)],
         ["Python", (p.python || {}).version],
         ["Hostname", (p.system || {}).hostname],
         ["Memória RSS", ((p.process || {}).memory_rss_mb || "—") + " MB"],
-        ["eccodes", (p.dependencies || {}).eccodes_lib_loaded ? "OK" : "FAIL"],
+        ["eccodes", (p.dependencies || {}).eccodes_lib_loaded ? "OK" : "FALHA"],
         ["Uptime", fmtSec((p.process || {}).uptime_s)],
       ])
     );
+
+    const lights = el("div", "lights mt");
+    const lightLabels = {
+      data: "Dados MERGE/RD",
+      scheduler: "Scheduler",
+      eccodes: "Decodificador GRIB",
+      errors: "Erros recentes",
+    };
+    for (const [k, v] of Object.entries(ov.lights || {})) {
+      const tile = el("div", "light-tile");
+      tile.innerHTML =
+        lightDot(v) +
+        `<div class="light-label"><b>${esc(lightLabels[k] || k)}</b></div>`;
+      lights.appendChild(tile);
+    }
+    root.appendChild(lights);
+
+    root.appendChild(
+      el("h3", "subhead", "Pipeline geodinâmico")
+    );
+    root.appendChild(
+      kvGrid([
+        ["Status dados", fmtStatus(ov.data_status)],
+        ["Última atualização", ov.last_update_fmt || fmtDateTime(ov.last_update)],
+        ["Pontos carregados", ov.points_loaded ?? "—"],
+        ["Ciclos OK", (sched.cycle_success ?? "—") + " / " + (sched.cycle_count ?? "—")],
+        ["Último ciclo", sched.last_started_at ? fmtDateTime(sched.last_started_at) : "—"],
+        ["Duração último ciclo", fmtSec(sched.last_duration_s)],
+        ["Ingest pronto", ingestSt.ready ? "sim" : "não"],
+        ["Horas em cache", ingestSt.hours_cached_ok ?? "—"],
+        ["Último refresh ingest", ingestSt.last_refresh_at ? fmtDateTime(ingestSt.last_refresh_at) : "—"],
+      ])
+    );
+
+    const ext = diagnostics.external_sources || {};
+    if (Object.keys(ext).length) {
+      root.appendChild(el("h3", "subhead", "Fontes externas"));
+      const t = el("table", "small-table");
+      t.innerHTML =
+        "<thead><tr><th>Fonte</th><th>Status</th><th>Tempo</th></tr></thead>";
+      const tb = el("tbody");
+      for (const src of Object.values(ext)) {
+        const reach = src.reachability || {};
+        const tr = document.createElement("tr");
+        tr.innerHTML =
+          `<td>${esc(src.name || "—")}</td>` +
+          `<td>${reach.ok ? "OK" : "FALHA"}${reach.status ? " (" + reach.status + ")" : ""}</td>` +
+          `<td>${reach.elapsed_ms != null ? reach.elapsed_ms + " ms" : "—"}</td>`;
+        tb.appendChild(tr);
+      }
+      t.appendChild(tb);
+      root.appendChild(t);
+    }
+
     const auth = diagnostics.auth_backend || {};
     root.appendChild(
       el("div", "subcard mt",
@@ -720,6 +886,21 @@
           ]).outerHTML
       )
     );
+
+    const meth = diagnostics.methodology || {};
+    if (meth.ra_mode) {
+      root.appendChild(
+        el("div", "subcard mt",
+          `<div class="subcard-head"><b>Metodologia RD</b></div>` +
+            kvGrid([
+              ["Modo RA", meth.ra_mode],
+              ["Pontos monitorados", meth.points_total ?? "—"],
+              ["Regiões", (meth.regions || []).length],
+            ]).outerHTML
+        )
+      );
+    }
+
     document.getElementById("raw-diagnostics").textContent = JSON.stringify(
       diagnostics,
       null,

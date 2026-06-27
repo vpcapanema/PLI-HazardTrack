@@ -1029,6 +1029,7 @@ body.admin-app {
     margin: 0.5rem 0;
 }
 .subcard.mt { margin-top: 0.85rem; }
+.lights.mt { margin-top: 0.85rem; }
 
 .exec-control {
     margin-top: 1rem;

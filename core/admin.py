@@ -39,6 +39,7 @@ from flask import (
     request, session, url_for
 )
 
+from .admin_format import format_datetime_br
 from .aggregator import state
 from .merge_ingest import ingest
 from .merge_inpe import (
@@ -160,6 +161,7 @@ def collect_diagnostics() -> Dict[str, Any]:
         "data_status": data_status,
         "data_source": summary.get("data_source"),
         "last_update": snap.get("timestamp_utc"),
+        "last_update_fmt": format_datetime_br(snap.get("timestamp_utc")),
         "points_loaded": len(snap.get("points", [])),
         "max_rd": summary.get("max_rd", 0),
         "max_rd_name": summary.get("max_rd_name"),
@@ -175,7 +177,11 @@ def collect_diagnostics() -> Dict[str, Any]:
             "data": _light_for_data(
                 data_status, summary.get("missing_24h", 0),
             ),
-            "scheduler": "ok" if runtime["cycle_count"] > 0 else "warn",
+            "scheduler": (
+                "ok"
+                if runtime["cycle_count"] > 0 or ingest.status().get("ready")
+                else "warn"
+            ),
             "eccodes": "ok" if eccodes_ok else "fail",
             "errors": "fail" if runtime["last_error"] else "ok",
         },
@@ -305,7 +311,7 @@ def collect_diagnostics() -> Dict[str, Any]:
     points = snap.get("points", []) or []
     by_region: Dict[str, int] = {}
     for p in points:
-        key = p.get("region_name") or "Fora de cobertura"
+        key = p.get("regiao_nome") or p.get("region_name") or "Fora de cobertura"
         by_region[key] = by_region.get(key, 0) + 1
     methodology = {
         "regions": [
@@ -320,9 +326,9 @@ def collect_diagnostics() -> Dict[str, Any]:
         "points_total": len(points),
         "points_by_region": by_region,
         "ra_mode": (
-            "manual"
+            "manual (SAMAEG_USE_MANUAL_RA=1)"
             if os.environ.get("SAMAEG_USE_MANUAL_RA") == "1"
-            else "neutralized (RA=1)"
+            else "oficial (RAGEO/RAHID da camada uas_area_estudo)"
         ),
         "formulas": {
             "envoltoria_critica": "I = K * Ac96h^(-0.9)",
@@ -371,6 +377,7 @@ def collect_diagnostics() -> Dict[str, Any]:
 
     return {
         "generated_at": now.isoformat(),
+        "generated_at_fmt": format_datetime_br(now),
         "overview": overview,
         "external_sources": external,
         "platform": plat,

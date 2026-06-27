@@ -9,11 +9,12 @@ from __future__ import annotations
 import csv
 import io
 import json
-import os
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .admin_format import format_date_br, format_datetime_br, sanitize_source_path
 from .aggregator import state
 from .merge_ingest import ingest
 
@@ -96,7 +97,7 @@ def _by_region(points: List[Dict]) -> Dict[str, Dict[str, int]]:
 
 
 def _fire_health() -> Dict[str, Any]:
-    from core import alert_controls, fire_pipeline
+    from core import fire_pipeline
 
     stats = _read_json(FIRE_STATS)
     runner = fire_pipeline.get_runner_status()
@@ -125,6 +126,7 @@ def _fire_health() -> Dict[str, Any]:
             "pipeline_lock": "warn" if lock_active else "ok",
         },
         "data_referencia": ref,
+        "data_referencia_fmt": format_date_br(ref),
         "data_status": stats.get("data_status"),
         "total_trechos": stats.get("total_trechos"),
         "horizontes": stats.get("horizontes_disponiveis", []),
@@ -140,6 +142,7 @@ def _fire_health() -> Dict[str, Any]:
             "poll_min": poll_min,
             "last_file": marker_file,
             "last_run": runner.get("last_run"),
+            "last_run_fmt": format_datetime_br(runner.get("last_run")),
             "lock_active": lock_active,
         },
         "inpe": {
@@ -165,17 +168,24 @@ def _fire_stats() -> Dict[str, Any]:
         bucket = by_regional.setdefault(reg, {})
         bucket[cls] = bucket.get(cls, 0) + 1
         val = t.get("rf_valor")
-        if val is not None and cls not in {"SEM_DADO", "None"}:
-            top.append({
-                "trecho_id": t.get("trecho_id"),
-                "rodovia": t.get("rodovia"),
-                "km_ini": t.get("km_ini"),
-                "km_fim": t.get("km_fim"),
-                "municipio": t.get("municipio"),
-                "regional": reg,
-                "rf_valor": round(float(val), 3),
-                "rf_classe": cls,
-            })
+        try:
+            fval = float(val)
+            if not math.isfinite(fval):
+                continue
+        except (TypeError, ValueError):
+            continue
+        if cls in {"SEM_DADO", "None"}:
+            continue
+        top.append({
+            "trecho_id": t.get("trecho_id"),
+            "rodovia": t.get("rodovia"),
+            "km_ini": t.get("km_ini"),
+            "km_fim": t.get("km_fim"),
+            "municipio": t.get("municipio"),
+            "regional": reg,
+            "rf_valor": round(fval, 3),
+            "rf_classe": cls,
+        })
     top.sort(
         key=lambda r: (order.get(r["rf_classe"], 0), r["rf_valor"]),
         reverse=True,
@@ -187,13 +197,23 @@ def _fire_stats() -> Dict[str, Any]:
     return {
         "modulo": "risco_fogo",
         "data_referencia": stats.get("data_referencia"),
+        "data_referencia_fmt": format_date_br(stats.get("data_referencia")),
         "total_trechos": stats.get("total_trechos", 0),
+        "data_status": stats.get("data_status"),
+        "metodologia": stats.get("metodologia", "INPE-RF-v11"),
+        "source": sanitize_source_path(stats.get("source")),
         "classes": {str(k): int(v) for k, v in classes.items()},
         "classes_label": {
             RF_LABELS.get(k, k): int(v) for k, v in classes.items()
         },
         "alertas_rf": crit,
         "by_regional": by_regional,
+        "by_regional_label": {
+            reg: {
+                RF_LABELS.get(k, k): int(v) for k, v in counts.items()
+            }
+            for reg, counts in by_regional.items()
+        },
         "top_trechos": top[:15],
         "horizontes": stats.get("horizontes_disponiveis", []),
     }
@@ -215,6 +235,7 @@ def _geo_stats() -> Dict[str, Any]:
         "data_status": summary.get("data_status"),
         "data_source": summary.get("data_source"),
         "last_update": snap.get("timestamp_utc"),
+        "last_update_fmt": format_datetime_br(snap.get("timestamp_utc")),
         "uas_total": len(points),
         "uas_geo": len(geo_pts),
         "uas_hidro": len(hid_pts),
@@ -231,6 +252,10 @@ def _geo_stats() -> Dict[str, Any]:
         "by_level_hidro": summary.get("by_level_hidro") or {},
         "by_region_geo": _by_region(geo_pts),
         "by_region_hidro": _by_region(hid_pts),
+        "by_region_geo_label": {
+            reg: {RD_LABELS.get(int(k), k): int(v) for k, v in counts.items()}
+            for reg, counts in _by_region(geo_pts).items()
+        },
         "top_uas_geo": _top_points(geo_pts, 10),
         "top_uas_hidro": _top_points(hid_pts, 10),
         "missing_24h": summary.get("missing_24h"),
@@ -254,7 +279,11 @@ def _geo_health(runtime: Dict[str, Any]) -> Dict[str, Any]:
         "status": data_status or "unknown",
         "lights": {
             "dados": _light(data_status),
-            "scheduler": "ok" if runtime.get("cycle_count", 0) > 0 else "warn",
+            "scheduler": (
+                "ok"
+                if runtime.get("cycle_count", 0) > 0 or ingest_st.get("ready")
+                else "warn"
+            ),
             "eccodes": "ok" if eccodes_ok else "fail",
             "erros": "fail" if runtime.get("last_error") else "ok",
         },
@@ -289,11 +318,13 @@ def _analytics(runtime: Dict[str, Any]) -> Dict[str, Any]:
     for h in history[-24:]:
         rd_trend.append({
             "at": h.get("started_at"),
+            "at_fmt": format_datetime_br(h.get("started_at")),
             "max_rd": h.get("max_rd", 0),
             "data_status": h.get("data_status"),
         })
         duration_trend.append({
             "at": h.get("started_at"),
+            "at_fmt": format_datetime_br(h.get("started_at")),
             "duration_s": h.get("duration_s"),
             "outcome": h.get("outcome"),
         })
@@ -307,7 +338,14 @@ def _analytics(runtime: Dict[str, Any]) -> Dict[str, Any]:
         "uptime_s": runtime.get("uptime_s"),
         "rd_trend": rd_trend,
         "duration_trend": duration_trend,
-        "recent_cycles": list(reversed(history[-12:])),
+        "recent_cycles": [
+            {
+                **h,
+                "started_at_fmt": format_datetime_br(h.get("started_at")),
+                "finished_at_fmt": format_datetime_br(h.get("finished_at")),
+            }
+            for h in reversed(history[-12:])
+        ],
     }
 
 
@@ -327,18 +365,21 @@ def collect_dashboard() -> Dict[str, Any]:
             "uas_monitoradas": geo["uas_total"],
             "alertas_rd": geo["alert_count"],
             "last_update": geo["last_update"],
+            "last_update_fmt": geo.get("last_update_fmt"),
         },
         "risco_fogo": {
             "status": fire_h["status"],
             "total_trechos": fire["total_trechos"],
             "alertas_rf": fire["alertas_rf"],
             "data_referencia": fire["data_referencia"],
+            "data_referencia_fmt": fire.get("data_referencia_fmt"),
             "classes_top": fire["classes"],
         },
     }
 
     return {
         "generated_at": _now_iso(),
+        "generated_at_fmt": format_datetime_br(_now_iso()),
         "alert_controls": __import__(
             "core.alert_controls", fromlist=["get_state"],
         ).get_state(),
@@ -480,7 +521,7 @@ min-width:140px}}
 @media print{{body{{margin:1cm}}}}
 </style></head><body>
 <h1>PLI-HazardTrack — Relatorio operacional</h1>
-<p class="meta">Gerado em {data['generated_at']} · ref {ts}</p>
+<p class="meta">Gerado em {format_datetime_br(data['generated_at'])} · ref {ts}</p>
 <div class="kpi">
 <div><small>RD maximo</small><b>{ov['geodinamico']['max_rd']}</b>
 {ov['geodinamico']['max_rd_label']}</div>

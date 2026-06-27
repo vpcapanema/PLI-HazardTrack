@@ -160,17 +160,25 @@ def _auto_allowed() -> bool:
     return alert_controls.is_fire_enabled()
 
 
-def get_runner_status() -> Dict[str, Any]:
-    """Estado do runner para painel admin."""
-    latest = latest_observed_filename(timeout=8)
+def get_runner_status(poll_inpe: bool = True) -> Dict[str, Any]:
+    """Estado do runner para painel admin.
+
+    poll_inpe=False evita a chamada de rede a INPE (usado em /api/health,
+    que precisa ser rapido e nao pode depender de rede externa).
+    """
     marker = _read_marker()
     try:
         poll_min = int(os.environ.get("QUEIMADAS_POLL_MIN", "30") or 30)
     except ValueError:
         poll_min = 30
+    if poll_inpe:
+        latest = latest_observed_filename(timeout=8)
+    else:
+        latest = marker.get("observed_file")
     return {
         "monitoring_enabled": _auto_allowed(),
         "poll_min": poll_min,
+        "inpe_checked_live": poll_inpe,
         "inpe_latest_file": latest,
         "inpe_latest_date": _file_reference_date(latest),
         "observed_file": marker.get("observed_file"),
@@ -178,7 +186,7 @@ def get_runner_status() -> Dict[str, Any]:
         "last_run": marker.get("ran_at"),
         "last_reason": marker.get("reason"),
         "synced": _is_synced(latest),
-        "pending_update": _needs_update(latest),
+        "pending_update": _needs_update(latest) if poll_inpe else None,
         "lock_active": LOCK_PATH.exists(),
     }
 

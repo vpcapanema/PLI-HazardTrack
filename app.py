@@ -851,7 +851,7 @@ em prod."""
     from core import alert_controls
     try:
         from core import fire_pipeline
-        fire_runner = fire_pipeline.get_runner_status()
+        fire_runner = fire_pipeline.get_runner_status(poll_inpe=False)
     except Exception:
         fire_runner = {}
     ingest_st = ingest.status()

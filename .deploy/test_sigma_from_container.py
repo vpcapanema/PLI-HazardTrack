@@ -1,30 +1,37 @@
-#!/usr/bin/env python3
+"""Testa conexao SIGMA a partir do container (usa variaveis de ambiente)."""
+from __future__ import annotations
+
 import os
 import sys
 
-os.environ.setdefault("SIGMA_POSTGRES_HOST", "host.docker.internal")
-os.environ.setdefault("SIGMA_POSTGRES_PORT", "5433")
-os.environ.setdefault("SIGMA_POSTGRES_DATABASE", "sigma_pli_qr53")
-os.environ.setdefault("SIGMA_POSTGRES_USER", "sigma_user")
-os.environ.setdefault("SIGMA_POSTGRES_PASSWORD", "Malditas131533***")
-os.environ.setdefault("SIGMA_POSTGRES_SSLMODE", "disable")
-
 import psycopg
 
-for host in ("host.docker.internal", "172.17.0.1", "56.125.163.194"):
+
+def main() -> int:
+    host = os.environ.get("SIGMA_POSTGRES_HOST", "sigma-db")
+    port = os.environ.get("SIGMA_POSTGRES_PORT", "5432")
+    db = os.environ.get("SIGMA_POSTGRES_DATABASE", "sigma_pli_qr53")
+    user = os.environ.get("SIGMA_POSTGRES_USER", "sigma_user")
+    password = os.environ.get("SIGMA_POSTGRES_PASSWORD", "")
+    if not password:
+        print("ERRO: SIGMA_POSTGRES_PASSWORD nao definida")
+        return 1
     try:
         conn = psycopg.connect(
             host=host,
-            port=5433,
-            dbname="sigma_pli_qr53",
-            user="sigma_user",
-            password="Malditas131533***",
-            connect_timeout=5,
+            port=port,
+            dbname=db,
+            user=user,
+            password=password,
+            connect_timeout=8,
         )
         conn.close()
-        print("OK", host)
-        sys.exit(0)
+        print(f"OK {host}:{port}/{db}")
+        return 0
     except Exception as exc:
-        print("FAIL", host, str(exc)[:80])
+        print(f"ERRO {host}:{port}/{db}: {exc}")
+        return 1
 
-sys.exit(1)
+
+if __name__ == "__main__":
+    raise SystemExit(main())

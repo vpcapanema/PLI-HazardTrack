@@ -9,7 +9,7 @@ NGINX_DST="/etc/nginx/sites-available/pli-hazardtrack"
 PUBLIC_HOST="pli-hazardtrack.56-125-163-194.sslip.io"
 PUBLIC_URL="https://$PUBLIC_HOST"
 EXPECTED_REPO_FRAGMENT="vpcapanema/PLI-HazardTrack"
-RUNTIME_RE='^(Dockerfile|docker-compose\.vm\.yml|requirements|app\.py|core/|static/|templates/|data/ua_)'
+RUNTIME_RE='^(Dockerfile|docker-compose\.vm\.yml|requirements|app\.py|core/|static/|templates/|data/ua_|\.deploy/postgres/|\.deploy/ensure_sigma_db\.sh|\.deploy/patch_vm_sigma_env\.sh)'
 
 step() { printf "\n\033[1;36m▶ %s\033[0m\n" "$1"; }
 ok()   { printf "  \033[1;32m✓\033[0m %s\n" "$1"; }
@@ -47,6 +47,15 @@ else
 fi
 
 [[ -f "$COMPOSE_FILE" ]] || die "docker-compose.vm.yml nao encontrado"
+
+step "Configurando PostgreSQL dedicado (SIGMA)"
+PATCH_SCRIPT="$APP_DIR/.deploy/patch_vm_sigma_env.sh"
+ENSURE_DB="$APP_DIR/.deploy/ensure_sigma_db.sh"
+[[ -f "$PATCH_SCRIPT" ]] || die "patch_vm_sigma_env.sh ausente"
+[[ -f "$ENSURE_DB" ]] || die "ensure_sigma_db.sh ausente"
+sed -i 's/\r$//' "$PATCH_SCRIPT" "$ENSURE_DB" 2>/dev/null || true
+bash "$PATCH_SCRIPT"
+bash "$ENSURE_DB"
 
 step "Verificando proxy Nginx + HTTPS"
 NGINX_SNIPPET_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack-locations.conf"
@@ -154,11 +163,30 @@ MOUNTED=$(
 ok "volume $MERGE_VOL montado"
 
 for EXTRA_VOL in pli_hazardtrack_runtime pli_hazardtrack_queimadas \
-    pli_hazardtrack_queimadas_pub; do
+    pli_hazardtrack_queimadas_pub pli_hazardtrack_sigma_db; do
     docker volume inspect "$EXTRA_VOL" >/dev/null 2>&1 \
         || docker volume create "$EXTRA_VOL" >/dev/null
     ok "volume $EXTRA_VOL disponivel"
 done
+
+step "Autenticacao SIGMA (PostgreSQL dedicado)"
+if docker exec pli_hazardtrack_app python3 - <<'PY' 2>/dev/null; then
+import os
+from core.sigma_auth import healthcheck
+h = healthcheck()
+host = os.environ.get("SIGMA_POSTGRES_HOST", "")
+print(f"host={host} ok={h.get('ok')} mode={h.get('mode')}")
+raise SystemExit(0 if h.get("ok") else 1)
+PY
+    ok "app conecta ao sigma-db"
+else
+    if docker exec pli_hazardtrack_app python3 \
+        /app/.deploy/postgres/bootstrap_gestor.py 2>/dev/null; then
+        ok "gestor inicial criado (ADMIN_USER/ADMIN_PASS)"
+    else
+        warn "SIGMA DB: verifique SIGMA_POSTGRES_* e usuarios.usuario"
+    fi
+fi
 
 step "Estatisticas do cache MERGE em disco"
 if docker exec pli_hazardtrack_app python - <<'PY' 2>/dev/null; then

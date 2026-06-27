@@ -2,6 +2,37 @@
 # Subir: docker compose -f docker-compose.vm.yml up -d
 
 services:
+  sigma-db:
+    image: postgres:16-alpine
+    container_name: pli_sigma_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${SIGMA_POSTGRES_DATABASE:-sigma_pli_qr53}
+      POSTGRES_USER: ${SIGMA_POSTGRES_USER:-sigma_user}
+      POSTGRES_PASSWORD: ${SIGMA_POSTGRES_PASSWORD:?defina SIGMA_POSTGRES_PASSWORD no .env}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pli_hazardtrack_sigma_db:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${SIGMA_POSTGRES_USER:-sigma_user} -d ${SIGMA_POSTGRES_DATABASE:-sigma_pli_qr53}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - pli_hazardtrack_net
+
   app:
     build:
       context: .
@@ -20,6 +51,8 @@ services:
     mem_limit: 1536m
     mem_reservation: 512m
     cpus: 1.5
+    env_file:
+      - .env
     environment:
       PORT: "5050"
       SAMAEG_FORCE_MOCK: "0"
@@ -36,8 +69,8 @@ services:
       GUNICORN_TIMEOUT: "3600"
       SIGMA_API_BASE_URL: "${SIGMA_API_BASE_URL:-}"
       SIGMA_DATABASE_URL: "${SIGMA_DATABASE_URL:-}"
-      SIGMA_POSTGRES_HOST: "${SIGMA_POSTGRES_HOST:-}"
-      SIGMA_POSTGRES_PORT: "${SIGMA_POSTGRES_PORT:-5433}"
+      SIGMA_POSTGRES_HOST: "${SIGMA_POSTGRES_HOST:-sigma-db}"
+      SIGMA_POSTGRES_PORT: "${SIGMA_POSTGRES_PORT:-5432}"
       SIGMA_POSTGRES_DATABASE: "${SIGMA_POSTGRES_DATABASE:-sigma_pli_qr53}"
       SIGMA_POSTGRES_USER: "${SIGMA_POSTGRES_USER:-sigma_user}"
       SIGMA_POSTGRES_PASSWORD: "${SIGMA_POSTGRES_PASSWORD:-}"
@@ -57,6 +90,9 @@ services:
     # worker "sync" e timeout 30s (matava o SSE e reiniciava o worker em
     # loop, impedindo o ingest de rodar). Manter tudo numa unica linha.
     command: sh -c "exec gunicorn app:app --bind 0.0.0.0:5050 --worker-class gthread --workers 1 --threads 8 --timeout 3600 --graceful-timeout 30 --keep-alive 75 --worker-tmp-dir /dev/shm --access-logfile - --error-logfile -"
+    depends_on:
+      sigma-db:
+        condition: service_healthy
     ports:
       - "127.0.0.1:5050:5050"
     extra_hosts:
@@ -85,14 +121,11 @@ services:
       - pli_hazardtrack_queimadas_pub:/app/static/data/queimadas
     networks:
       - pli_hazardtrack_net
-      - sra_net
 
 networks:
   pli_hazardtrack_net:
     name: pli_hazardtrack_net
     driver: bridge
-  sra_net:
-    external: true
 
 volumes:
   pli_hazardtrack_merge_cache:
@@ -103,3 +136,5 @@ volumes:
     name: pli_hazardtrack_queimadas
   pli_hazardtrack_queimadas_pub:
     name: pli_hazardtrack_queimadas_pub
+  pli_hazardtrack_sigma_db:
+    name: pli_hazardtrack_sigma_db

@@ -53,6 +53,11 @@ data/queimadas/**/*.grib
 data/queimadas/**/*.grib2
 data/queimadas/**/*.idx
 
+# Runtime: controles de alerta + locks/grids gerados pelo runner de fogo
+data/_runtime/
+data/queimadas/metadata/.auto_runner.lock
+data/queimadas/metadata/rf_grid_*.json
+
 # Logs
 *.log
 

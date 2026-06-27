@@ -62,6 +62,7 @@ class MergeIngestStore:
         self._disk_sync_thread: Optional[Thread] = None
         self._stop = False
         self._refreshing = False
+        self._paused = False
         # Ultima verificacao por hora ISO; usado pela politica de refetch
         # baseada em idade (vide _hours_to_fetch_by_age + merge_cache).
         self._last_check: Dict[str, datetime] = {}
@@ -253,8 +254,24 @@ class MergeIngestStore:
     def stop(self) -> None:
         self._stop = True
 
+    def pause(self) -> None:
+        with self._lock:
+            self._paused = True
+        log.info("MERGE ingest pausado (controle admin)")
+
+    def resume(self) -> None:
+        with self._lock:
+            self._paused = False
+        log.info("MERGE ingest retomado (controle admin)")
+
     def _loop(self) -> None:
         while not self._stop:
+            from core import alert_controls
+            with self._lock:
+                paused = self._paused
+            if paused or not alert_controls.is_geo_enabled():
+                time.sleep(INGEST_INTERVAL_S)
+                continue
             try:
                 with self._lock:
                     need_full = not self._ready
@@ -470,6 +487,7 @@ class MergeIngestStore:
         return target, series
 
     def status(self) -> dict:
+        from core import alert_controls
         with self._lock:
             ok_h = 0
             if self._target_hour:
@@ -480,6 +498,8 @@ class MergeIngestStore:
             return {
                 "ready": self._ready,
                 "refreshing": self._refreshing,
+                "paused": self._paused,
+                "monitoring_enabled": alert_controls.is_geo_enabled(),
                 "cache_root": str(merge_cache.CACHE_ROOT),
                 "cache_disk": merge_cache.disk_stats(),
                 "target_hour": (

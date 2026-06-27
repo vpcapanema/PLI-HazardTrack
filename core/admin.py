@@ -24,6 +24,7 @@ import os
 import platform
 import socket
 import sys
+import threading
 import time
 from datetime import datetime, timezone
 from functools import wraps
@@ -42,6 +43,8 @@ from .merge_inpe import (
 )
 from . import admin_auth
 from .admin_dashboard import build_report, collect_dashboard
+from . import alert_controls
+from .scheduler_registry import get_scheduler
 from .sigma_auth import SigmaConnectionError
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -495,3 +498,44 @@ def api_report_export():
 @_login_required
 def api_diagnostics():
     return jsonify(collect_diagnostics())
+
+
+@admin_bp.route("/api/alert-controls", methods=["GET"])
+@_login_required
+def api_alert_controls_get():
+    return jsonify(alert_controls.get_state())
+
+
+@admin_bp.route("/api/alert-controls", methods=["POST"])
+@_login_required
+def api_alert_controls_set():
+    body = request.get_json(silent=True) or {}
+    system = str(body.get("system", "")).strip()
+    if system not in ("geo_monitoring", "fire_monitoring"):
+        return jsonify({
+            "error": "system invalido (geo_monitoring | fire_monitoring)",
+        }), 400
+    if "enabled" not in body:
+        return jsonify({"error": "campo 'enabled' obrigatorio"}), 400
+    enabled = bool(body.get("enabled"))
+    user = session.get("admin_user") or {}
+    actor = user.get("username") or user.get("email") or "admin"
+    state_out = alert_controls.set_system(system, enabled, actor=actor)
+    alert_controls.apply_to_scheduler(get_scheduler())
+    if system == "fire_monitoring" and enabled:
+        from core import fire_pipeline
+        threading.Thread(
+            target=fire_pipeline.bootstrap_initial,
+            daemon=True,
+            name="fire-enable-bootstrap",
+        ).start()
+    elif system == "geo_monitoring" and enabled:
+        from core.merge_ingest import ingest
+        ingest.start()
+        ingest.resume()
+        threading.Thread(
+            target=state.update,
+            daemon=True,
+            name="geo-enable-update",
+        ).start()
+    return jsonify(state_out)

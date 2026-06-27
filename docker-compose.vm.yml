@@ -47,6 +47,9 @@ services:
       ADMIN_SECRET: "${ADMIN_SECRET:-}"
       DEPLOY_ENV: "vm-aws-sa-east-1"
       FORCE_HTTPS_COOKIES: "1"
+      PLI_RUNTIME_DIR: "/app/data/_runtime"
+      QUEIMADAS_AUTO: "1"
+      QUEIMADAS_POLL_MIN: "30"
       SAMAEG_MERGE_CACHE_DIR: "/app/data/_cache/merge"
     command: >
       sh -c "exec gunicorn app:app
@@ -65,11 +68,17 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:5050/api/health"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-fsS",
+          "http://127.0.0.1:5050/api/health",
+        ]
       interval: 60s
-      timeout: 10s
-      start_period: 45s
-      retries: 3
+      timeout: 15s
+      start_period: 300s
+      retries: 5
     logging:
       driver: json-file
       options:
@@ -77,6 +86,9 @@ services:
         max-file: "5"
     volumes:
       - pli_hazardtrack_merge_cache:/app/data/_cache/merge
+      - pli_hazardtrack_runtime:/app/data/_runtime
+      - pli_hazardtrack_queimadas:/app/data/queimadas
+      - pli_hazardtrack_queimadas_pub:/app/static/data/queimadas
     networks:
       - pli_hazardtrack_net
       - sra_net
@@ -91,3 +103,9 @@ networks:
 volumes:
   pli_hazardtrack_merge_cache:
     name: pli_hazardtrack_merge_cache
+  pli_hazardtrack_runtime:
+    name: pli_hazardtrack_runtime
+  pli_hazardtrack_queimadas:
+    name: pli_hazardtrack_queimadas
+  pli_hazardtrack_queimadas_pub:
+    name: pli_hazardtrack_queimadas_pub

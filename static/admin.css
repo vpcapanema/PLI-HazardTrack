@@ -971,6 +971,78 @@ body.admin-app {
 }
 .subcard.mt { margin-top: 0.85rem; }
 
+.exec-control {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--line, #e2e8f0);
+}
+
+.toggle-card {
+    background: var(--surface-2, #f8fafc);
+    border: 1px solid var(--line, #e2e8f0);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.85rem;
+}
+
+.toggle-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.toggle-sub {
+    font-size: 0.78rem;
+    color: var(--ink-3, #64748b);
+    margin-top: 0.2rem;
+}
+
+.toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    border: 1px solid var(--line, #cbd5e1);
+    background: #fff;
+    border-radius: 999px;
+    padding: 0.35rem 0.65rem 0.35rem 0.4rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.toggle-btn:disabled { opacity: 0.6; cursor: wait; }
+
+.toggle-track {
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: #94a3b8;
+    position: relative;
+    display: inline-block;
+    transition: background 0.2s ease;
+}
+
+.toggle-track i {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.2s ease;
+}
+
+.toggle-btn.on .toggle-track { background: #16a34a; }
+.toggle-btn.on .toggle-track i { transform: translateX(18px); }
+.toggle-btn.on .toggle-label { color: #166534; }
+
+.toggle-btn.off .toggle-track { background: #94a3b8; }
+.toggle-btn.off .toggle-label { color: #64748b; }
+
 @media (max-width: 960px) {
     .admin-sidebar {
         position: fixed;

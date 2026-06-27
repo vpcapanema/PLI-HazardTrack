@@ -276,56 +276,61 @@ def _bootstrap():
         )
         return
 
-    ingest.start()
+    from core import alert_controls, scheduler_registry
+
+    if alert_controls.is_geo_enabled():
+        ingest.start()
+    else:
+        log.info("MERGE ingest desligado (controle admin; default=ligado)")
 
     if _DEV_LOG:
         log.info("[boot 5/5] Scheduler e primeiro ciclo de RD...")
 
-    # Primeiro update em background para nao bloquear o boot do gunicorn
-    def _first_update():
-        try:
-            state.update()
-        except Exception as e:
-            log.exception("Falha no primeiro update: %s", e)
+    if alert_controls.is_geo_enabled():
+        def _first_update():
+            try:
+                state.update()
+            except Exception as e:
+                log.exception("Falha no primeiro update: %s", e)
 
-    threading.Thread(
-        target=_first_update, daemon=True
-    ).start()
+        threading.Thread(
+            target=_first_update, daemon=True
+        ).start()
 
     scheduler = BackgroundScheduler(daemon=True)
-    # Atualizacao a cada 10 minutos (MERGE horario tem latencia ~3h, mas como
-    # pode ter
-    # republicacao, atualizamos com mais frequencia para nao perder)
-    scheduler.add_job(state.update, "interval", minutes=10, id="merge_refresh")
+    scheduler.add_job(
+        state.update, "interval", minutes=10, id="merge_refresh",
+    )
 
-    # --- Risco de fogo (queimadas): runner automatico, isolado do MERGE -----
-    if os.environ.get("QUEIMADAS_AUTO", "1") != "0":
-        from core import fire_pipeline
+    from core import fire_pipeline
 
+    if alert_controls.is_fire_enabled():
         threading.Thread(
             target=fire_pipeline.bootstrap_initial, daemon=True
         ).start()
-        try:
-            fire_poll_min = int(
-                os.environ.get("QUEIMADAS_POLL_MIN", "30") or 30
-            )
-        except ValueError:
-            fire_poll_min = 30
-        scheduler.add_job(
-            fire_pipeline.poll_and_maybe_run,
-            "interval",
-            minutes=fire_poll_min,
-            id="fire_refresh",
-            max_instances=1,
-            coalesce=True,
+    try:
+        fire_poll_min = int(
+            os.environ.get("QUEIMADAS_POLL_MIN", "30") or 30
         )
-        log.info(
-            "Scheduler de risco de fogo ativo (poll a cada %d min)",
-            fire_poll_min,
-        )
+    except ValueError:
+        fire_poll_min = 30
+    scheduler.add_job(
+        fire_pipeline.poll_and_maybe_run,
+        "interval",
+        minutes=fire_poll_min,
+        id="fire_refresh",
+        max_instances=1,
+        coalesce=True,
+    )
+    log.info(
+        "Scheduler de risco de fogo (poll INPE diario a cada %d min)",
+        fire_poll_min,
+    )
 
     scheduler.start()
-    log.info("Scheduler ativo (refresh a cada 10 min)")
+    scheduler_registry.set_scheduler(scheduler)
+    alert_controls.apply_to_scheduler(scheduler)
+    log.info("Scheduler ativo (RD 10 min; fogo poll %d min)", fire_poll_min)
     if _DEV_LOG:
         log.info(
             "Aguardando /api/health - ingest MERGE pode levar 1-3 min "
@@ -542,6 +547,12 @@ def api_road_stats():
 @app.route("/api/refresh", methods=["POST"])
 def api_refresh():
     """Forca atualizacao manual."""
+    from core import alert_controls
+    if not alert_controls.is_geo_enabled():
+        return jsonify({
+            "ok": False,
+            "error": "monitoramento geodinamico desligado",
+        }), 409
     state.update()
     return jsonify({"ok": True, "snapshot": state.get_snapshot()["summary"]})
 
@@ -837,8 +848,20 @@ em prod."""
 
     snap = state.get_snapshot()
     summary = snap.get("summary", {})
+    from core import alert_controls
+    try:
+        from core import fire_pipeline
+        fire_runner = fire_pipeline.get_runner_status()
+    except Exception:
+        fire_runner = {}
+    ingest_st = ingest.status()
+    operational = (
+        summary.get("data_status") in ("ok", "degraded")
+        and bool(ingest_st.get("ready"))
+    )
     return jsonify({
-        "status": "ok",
+        "status": "ok" if operational else "warming",
+        "operational": operational,
         "last_update": snap.get("timestamp_utc"),
         "points_loaded": len(_snapshot_points(snap)),
         "points_geo": len(snap.get("points_geo") or []),
@@ -854,7 +877,9 @@ em prod."""
         "deps": {
             "eccodes": eccodes_ok,
         },
-        "ingest": ingest.status(),
+        "alert_controls": alert_controls.get_state(),
+        "fire_runner": fire_runner,
+        "ingest": ingest_st,
         "notifier": _notifier_status(),
     })
 

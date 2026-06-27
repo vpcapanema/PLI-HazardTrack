@@ -72,11 +72,16 @@ else
 fi
 
 NEED_BUILD=0
+COMPOSE_CHANGED=0
 if [[ "$OLD_SHA" != "$NEW_SHA" ]]; then
     if git diff --name-only "$OLD_SHA" "$NEW_SHA" | grep -qE "$RUNTIME_RE"; then
         NEED_BUILD=1
     else
         info "mudancas sem runtime — rebuild nao necessario"
+    fi
+    if git diff --name-only "$OLD_SHA" "$NEW_SHA" \
+        | grep -q "^docker-compose.vm.yml$"; then
+        COMPOSE_CHANGED=1
     fi
 fi
 
@@ -91,10 +96,16 @@ else
 fi
 
 step "Reiniciando container"
-docker compose -f "$COMPOSE_FILE" up -d --force-recreate
+if [[ "$NEED_BUILD" -eq 1 || "$COMPOSE_CHANGED" -eq 1 ]]; then
+    info "recriando container (imagem ou compose alterados)"
+    docker compose -f "$COMPOSE_FILE" up -d --force-recreate
+else
+    info "reload sem recreate (processo continuo preservado)"
+    docker compose -f "$COMPOSE_FILE" up -d
+fi
 ok "container pli_hazardtrack_app em execucao"
 
-step "Aguardando aplicacao ficar saudavel (ate 120 s)"
+step "Aguardando HTTP interno (ate 120 s)"
 HEALTH_OK=0
 for i in $(seq 1 24); do
     if curl -fsS http://127.0.0.1:5050/api/health >/dev/null 2>&1; then
@@ -102,11 +113,32 @@ for i in $(seq 1 24); do
         ok "healthcheck interno OK (tentativa $i)"
         break
     fi
-    printf "  · aguardando... (%ds)\n" "$((i * 5))"
+    printf "  · aguardando HTTP... (%ds)\n" "$((i * 5))"
     sleep 5
 done
 [[ "${HEALTH_OK//[$'\r\n']/}" == "1" ]] \
     || die "app nao respondeu em /api/health"
+
+step "Aguardando monitoramento operacional (ate 600 s)"
+OPS_OK=0
+for i in $(seq 1 72); do
+    OPS=$(
+        curl -sS http://127.0.0.1:5050/api/health 2>/dev/null \
+        | python3 -c "import sys,json; d=json.load(sys.stdin); print('1' if d.get('operational') else '0')" \
+        2>/dev/null || echo "0"
+    )
+    if [[ "$OPS" == "1" ]]; then
+        OPS_OK=1
+        ok "MERGE/RD operacional (tentativa $i)"
+        break
+    fi
+    if (( i % 6 == 0 )); then
+        printf "  · aquecendo ingest... (%ds)\n" "$((i * 5))"
+    fi
+    sleep 5
+done
+[[ "$OPS_OK" -eq 1 ]] \
+    || warn "monitoramento ainda aquecendo (container up; aguarde)"
 
 step "Volume MERGE cache (disco persistente Docker)"
 MERGE_VOL="pli_hazardtrack_merge_cache"
@@ -120,6 +152,13 @@ MOUNTED=$(
 [[ "$MOUNTED" == "$MERGE_VOL" ]] \
     || die "container sem volume $MERGE_VOL em /app/data/_cache/merge"
 ok "volume $MERGE_VOL montado"
+
+for EXTRA_VOL in pli_hazardtrack_runtime pli_hazardtrack_queimadas \
+    pli_hazardtrack_queimadas_pub; do
+    docker volume inspect "$EXTRA_VOL" >/dev/null 2>&1 \
+        || docker volume create "$EXTRA_VOL" >/dev/null
+    ok "volume $EXTRA_VOL disponivel"
+done
 
 step "Estatisticas do cache MERGE em disco"
 if docker exec pli_hazardtrack_app python - <<'PY' 2>/dev/null; then

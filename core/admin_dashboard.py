@@ -10,7 +10,7 @@ import csv
 import io
 import json
 import os
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -22,7 +22,6 @@ _FIRE_PUB = ROOT / "static" / "data" / "queimadas"
 FIRE_STATS = _FIRE_PUB / "risco_trechos_der_stats.json"
 FIRE_SNAPSHOT = _FIRE_PUB / "risco_trechos_der_latest.json"
 FIRE_MARKER = ROOT / "data" / "queimadas" / "metadata" / "auto_runner.json"
-FIRE_LOCK = ROOT / "data" / "queimadas" / "metadata" / ".auto_runner.lock"
 
 RD_LABELS = {
     0: "Monitoramento",
@@ -97,27 +96,20 @@ def _by_region(points: List[Dict]) -> Dict[str, Dict[str, int]]:
 
 
 def _fire_health() -> Dict[str, Any]:
-    from core import fire_pipeline
+    from core import alert_controls, fire_pipeline
 
     stats = _read_json(FIRE_STATS)
-    marker = _read_json(FIRE_MARKER)
-    latest_inpe = fire_pipeline.latest_observed_filename(timeout=8)
+    runner = fire_pipeline.get_runner_status()
+    latest_inpe = runner.get("inpe_latest_file")
+    marker_file = runner.get("observed_file")
     ref = stats.get("data_referencia")
-    today = date.today().isoformat()
-    fresh = ref == today and stats.get("data_status") == "ok"
-    inpe_new = (
-        latest_inpe
-        and marker.get("observed_file")
-        and latest_inpe != marker.get("observed_file")
-    )
-    lock_active = FIRE_LOCK.exists()
-    auto_on = os.environ.get("QUEIMADAS_AUTO", "1") != "0"
-    try:
-        poll_min = int(os.environ.get("QUEIMADAS_POLL_MIN", "30") or 30)
-    except ValueError:
-        poll_min = 30
+    synced = runner.get("synced")
+    inpe_new = runner.get("pending_update")
+    lock_active = runner.get("lock_active")
+    auto_on = runner.get("monitoring_enabled", True)
+    poll_min = runner.get("poll_min", 30)
 
-    if fresh:
+    if synced and stats.get("data_status") == "ok":
         status = "ok"
     elif stats.get("data_status"):
         status = "warn"
@@ -136,15 +128,23 @@ def _fire_health() -> Dict[str, Any]:
         "data_status": stats.get("data_status"),
         "total_trechos": stats.get("total_trechos"),
         "horizontes": stats.get("horizontes_disponiveis", []),
+        "execution": {
+            "system_key": "fire_monitoring",
+            "enabled": auto_on,
+            "label": "Monitoramento continuo de risco de fogo",
+            "poll_min": poll_min,
+            "inpe_resolution": "diaria (arquivo observado/dia)",
+        },
         "auto_runner": {
             "enabled": auto_on,
             "poll_min": poll_min,
-            "last_file": marker.get("observed_file"),
-            "last_run": marker.get("ran_at"),
+            "last_file": marker_file,
+            "last_run": runner.get("last_run"),
             "lock_active": lock_active,
         },
         "inpe": {
             "latest_file": latest_inpe,
+            "latest_date": runner.get("inpe_latest_date"),
             "pending_update": bool(inpe_new),
         },
         "metodologia": stats.get("metodologia", "INPE-RF-v11"),
@@ -240,12 +240,15 @@ def _geo_stats() -> Dict[str, Any]:
 
 
 def _geo_health(runtime: Dict[str, Any]) -> Dict[str, Any]:
+    from core import alert_controls
     snap = state.get_snapshot()
     summary = snap.get("summary", {})
     data_status = summary.get("data_status")
     from core.merge_inpe import _eccodes_available
 
     eccodes_ok = _eccodes_available()
+    ingest_st = ingest.status()
+    geo_on = alert_controls.is_geo_enabled()
     return {
         "modulo": "geodinamico",
         "status": data_status or "unknown",
@@ -255,7 +258,14 @@ def _geo_health(runtime: Dict[str, Any]) -> Dict[str, Any]:
             "eccodes": "ok" if eccodes_ok else "fail",
             "erros": "fail" if runtime.get("last_error") else "ok",
         },
-        "merge_ingest": ingest.status(),
+        "execution": {
+            "system_key": "geo_monitoring",
+            "enabled": geo_on,
+            "label": "Monitoramento continuo MERGE / RD",
+            "ingest_interval_s": ingest_st.get("ingest_interval_s"),
+            "scheduler_interval_min": 10,
+        },
+        "merge_ingest": ingest_st,
         "scheduler": {
             "interval_min": 10,
             "cycle_count": runtime.get("cycle_count"),
@@ -329,6 +339,9 @@ def collect_dashboard() -> Dict[str, Any]:
 
     return {
         "generated_at": _now_iso(),
+        "alert_controls": __import__(
+            "core.alert_controls", fromlist=["get_state"],
+        ).get_state(),
         "overview": overview,
         "health": {
             "geodinamico": geo_h,

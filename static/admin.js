@@ -7,6 +7,10 @@
   const PANEL_META = {
     visao: ["Visão geral", "Panorama dos dois módulos de monitoramento"],
     saude: ["Saúde dos sistemas", "Semáforos, pipelines e fontes de dados"],
+    controles: [
+      "Controles de alerta",
+      "Ligar ou desligar cada sistema (default: ligado)",
+    ],
     estatisticas: ["Estatísticas", "Distribuição atual dos níveis monitorados"],
     analytics: ["Analytics", "Tendências operacionais e desempenho"],
     relatorios: ["Relatórios", "Exportação inteligente para operação e auditoria"],
@@ -111,6 +115,7 @@
       new Date(dashboard.generated_at).toLocaleString("pt-BR");
     renderOverview();
     renderHealth();
+    renderControls();
     renderStats();
     renderAnalytics();
     renderReports();
@@ -228,6 +233,8 @@
   function renderHealth() {
     renderHealthBlock("health-geo", dashboard.health.geodinamico, "geo");
     renderHealthBlock("health-fire", dashboard.health.risco_fogo, "fire");
+    renderExecControl("exec-geo", dashboard.health.geodinamico);
+    renderExecControl("exec-fire", dashboard.health.risco_fogo);
 
     const tbody = document.querySelector("#cycle-history tbody");
     tbody.innerHTML = "";
@@ -311,6 +318,92 @@
         ])
       );
     }
+  }
+
+  function renderExecControl(rootId, block) {
+    const root = document.getElementById(rootId);
+    if (!root || !block?.execution) return;
+    const ex = block.execution;
+    root.innerHTML = "";
+    root.appendChild(buildToggleCard(ex));
+  }
+
+  function buildToggleCard(ex) {
+    const wrap = el("div", "toggle-card");
+    const head = el("div", "toggle-head");
+    head.innerHTML =
+      `<div><strong>Execução contínua</strong>` +
+      `<div class="toggle-sub">${esc(ex.label || "")}</div></div>`;
+    const btn = el("button", "toggle-btn" + (ex.enabled ? " on" : " off"));
+    btn.type = "button";
+    btn.dataset.system = ex.system_key;
+    btn.setAttribute("aria-pressed", ex.enabled ? "true" : "false");
+    btn.innerHTML =
+      `<span class="toggle-track"><i></i></span>` +
+      `<span class="toggle-label">${ex.enabled ? "LIGADO" : "DESLIGADO"}</span>`;
+    btn.addEventListener("click", () => setAlertSystem(ex.system_key, !ex.enabled, btn));
+    head.appendChild(btn);
+    wrap.appendChild(head);
+    return wrap;
+  }
+
+  async function setAlertSystem(system, enabled, btn) {
+    if (btn) btn.disabled = true;
+    try {
+      const res = await fetch("/admin/api/alert-controls", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ system, enabled }),
+      });
+      if (res.status === 401) {
+        window.location = "/admin/login";
+        return;
+      }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || "Falha ao alterar controle");
+        return;
+      }
+      await refresh();
+    } catch (e) {
+      console.warn("alert control:", e);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function renderControls() {
+    const geoRoot = document.getElementById("control-geo");
+    const fireRoot = document.getElementById("control-fire");
+    if (!geoRoot || !fireRoot) return;
+    const geo = dashboard.health.geodinamico;
+    const fire = dashboard.health.risco_fogo;
+    geoRoot.innerHTML = "";
+    fireRoot.innerHTML = "";
+    geoRoot.appendChild(buildToggleCard(geo.execution));
+    geoRoot.appendChild(
+      kvGrid([
+        ["Status dados", geo.status],
+        ["Ingest pronto", geo.merge_ingest?.ready ? "sim" : "não"],
+        ["Horas em cache", geo.merge_ingest?.hours_cached_ok ?? "—"],
+        ["Intervalo ingest", (geo.merge_ingest?.ingest_interval_s || "—") + " s"],
+        ["Scheduler RD", "a cada 10 min"],
+      ])
+    );
+    const ar = fire.auto_runner || {};
+    const inpe = fire.inpe || {};
+    fireRoot.appendChild(buildToggleCard(fire.execution));
+    fireRoot.appendChild(
+      kvGrid([
+        ["Resolucao INPE", fire.execution?.inpe_resolution || "diaria"],
+        ["Polling", "a cada " + (ar.poll_min || "—") + " min"],
+        ["Arquivo INPE", inpe.latest_file || "—"],
+        ["Produto local", fire.data_referencia || "—"],
+        ["Atualização pendente", inpe.pending_update ? "sim" : "não"],
+        ["Ultima execucao", fmtTime(ar.last_run)],
+      ])
+    );
   }
 
   // ---- estatísticas ----------------------------------------------------

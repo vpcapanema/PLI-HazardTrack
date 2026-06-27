@@ -363,6 +363,11 @@ class State:
 
     def update(self):
         """Roda um ciclo completo de atualizacao."""
+        from core import alert_controls
+        if not alert_controls.is_geo_enabled():
+            log.debug("monitoramento geodinamico desligado; ciclo ignorado")
+            return
+
         now = _resolve_now()
         t0 = time.monotonic()
         self.cycle_count += 1

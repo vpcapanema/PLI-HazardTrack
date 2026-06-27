@@ -31,7 +31,7 @@ import subprocess
 import sys
 import threading
 import time
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -121,12 +121,72 @@ def _products_exist() -> bool:
     return LATEST_GEOJSON.exists() and STATS_JSON.exists()
 
 
+def _file_reference_date(filename: Optional[str]) -> Optional[str]:
+    """Data YYYY-MM-DD embutida no nome do NetCDF observado INPE."""
+    if not filename:
+        return None
+    m = re.search(r"FireRisk_(\d{4})(\d{2})(\d{2})\.nc", filename)
+    if not m:
+        return None
+    return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+
+
+def _is_synced(latest: Optional[str]) -> bool:
+    """True somente se o pipeline PROCESSOU o ultimo arquivo INPE."""
+    if not latest or not _products_exist():
+        return False
+    marker = _read_marker()
+    if marker.get("observed_file") != latest:
+        return False
+    if not marker.get("ran_at"):
+        return False
+    ref = _stats_reference_date()
+    file_ref = _file_reference_date(latest)
+    if ref and file_ref and ref < file_ref:
+        return False
+    return True
+
+
+def _needs_update(latest: Optional[str]) -> bool:
+    if not latest:
+        return not _products_exist()
+    return not _is_synced(latest)
+
+
+def _auto_allowed() -> bool:
+    from core import alert_controls
+    if os.environ.get("QUEIMADAS_AUTO", "1") == "0":
+        return False
+    return alert_controls.is_fire_enabled()
+
+
+def get_runner_status() -> Dict[str, Any]:
+    """Estado do runner para painel admin."""
+    latest = latest_observed_filename(timeout=8)
+    marker = _read_marker()
+    try:
+        poll_min = int(os.environ.get("QUEIMADAS_POLL_MIN", "30") or 30)
+    except ValueError:
+        poll_min = 30
+    return {
+        "monitoring_enabled": _auto_allowed(),
+        "poll_min": poll_min,
+        "inpe_latest_file": latest,
+        "inpe_latest_date": _file_reference_date(latest),
+        "observed_file": marker.get("observed_file"),
+        "data_referencia": _stats_reference_date(),
+        "last_run": marker.get("ran_at"),
+        "last_reason": marker.get("reason"),
+        "synced": _is_synced(latest),
+        "pending_update": _needs_update(latest),
+        "lock_active": LOCK_PATH.exists(),
+    }
+
+
 def _data_is_fresh() -> bool:
-    """True se ha produto publicado com data de referencia de hoje (local)."""
-    return (
-        _products_exist()
-        and _stats_reference_date() == date.today().isoformat()
-    )
+    """True se produto local reflete o ultimo arquivo observado do INPE."""
+    latest = latest_observed_filename(timeout=12)
+    return _is_synced(latest)
 
 
 def _acquire_lock() -> bool:
@@ -183,16 +243,15 @@ def run_once(force: bool = False, reason: str = "manual") -> Dict[str, Any]:
 
     Retorna um dict de status (status: skip|ok|busy|error|no_source).
     """
+    if not force and not _auto_allowed():
+        return {"status": "disabled", "reason": reason}
     if not _RUN_LOCK.acquire(blocking=False):
         return {"status": "busy", "reason": reason}
     try:
         latest = latest_observed_filename()
-        marker = _read_marker()
-        if not force and latest and marker.get("observed_file") == latest \
-                and _products_exist():
+        if not force and latest and _is_synced(latest):
             return {"status": "skip", "latest": latest, "reason": reason}
         if not latest and not force:
-            # Sem listagem INPE e sem forcar: nada a fazer agora.
             return {"status": "no_source", "reason": reason}
 
         if not _acquire_lock():
@@ -227,30 +286,22 @@ def run_once(force: bool = False, reason: str = "manual") -> Dict[str, Any]:
 
 
 def poll_and_maybe_run() -> Dict[str, Any]:
-    """Job periodico do scheduler: roda so quando o INPE publica algo novo."""
-    if os.environ.get("QUEIMADAS_AUTO", "1") == "0":
+    """Job periodico: poll INPE (resolucao diaria) e processa se necessario."""
+    if not _auto_allowed():
         return {"status": "disabled"}
     return run_once(force=False, reason="poll")
 
 
 def bootstrap_initial() -> Dict[str, Any]:
-    """Chamado no boot. Atualiza se os produtos estiverem defasados/ausentes.
-
-    Se ja houver produto com a data de hoje, apenas registra o marker com o
-    ultimo arquivo INPE para evitar reprocessamento desnecessario.
-    """
-    if os.environ.get("QUEIMADAS_AUTO", "1") == "0":
+    """No boot, sincroniza produto local com o ultimo arquivo observado INPE."""
+    if not _auto_allowed():
         return {"status": "disabled"}
-    if _data_is_fresh():
-        latest = latest_observed_filename()
-        if latest and _read_marker().get("observed_file") != latest:
-            _write_marker({
-                "observed_file": latest,
-                "data_referencia": _stats_reference_date(),
-                "ran_at": None,
-                "reason": "boot-fresh",
-            })
-        log.info("[fire] produto do dia ja presente; runner em modo polling")
-        return {"status": "fresh"}
-    log.info("[fire] produto ausente/defasado no boot; rodando pipeline")
+    latest = latest_observed_filename()
+    if not _needs_update(latest):
+        log.info("[fire] produto sincronizado com INPE (%s)", latest)
+        return {"status": "fresh", "latest": latest}
+    log.info(
+        "[fire] produto defasado/ausente (INPE=%s); rodando pipeline",
+        latest,
+    )
     return run_once(force=False, reason="boot")

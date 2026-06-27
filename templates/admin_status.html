@@ -30,6 +30,9 @@
             <button type="button" class="nav-item" data-panel="relatorios">
                 Relatórios
             </button>
+            <button type="button" class="nav-item" data-panel="controles">
+                Controles de alerta
+            </button>
             <button type="button" class="nav-item" data-panel="sistema">
                 Sistema técnico
             </button>
@@ -77,6 +80,21 @@
                 </div>
             </section>
 
+            <!-- CONTROLES DE ALERTA -->
+            <section class="panel" id="panel-controles" data-title="Controles de alerta"
+                     data-subtitle="Ligar ou desligar cada sistema de monitoramento (default: ligado)">
+                <div class="two-col">
+                    <article class="card" id="control-geo-card">
+                        <h2>Geodinâmico — MERGE / RD</h2>
+                        <div id="control-geo"></div>
+                    </article>
+                    <article class="card" id="control-fire-card">
+                        <h2>Risco de fogo — INPE RF</h2>
+                        <div id="control-fire"></div>
+                    </article>
+                </div>
+            </section>
+
             <!-- SAÚDE -->
             <section class="panel" id="panel-saude" data-title="Saúde dos sistemas"
                      data-subtitle="Semáforos, pipelines e fontes de dados">
@@ -84,10 +102,12 @@
                     <article class="card">
                         <h2>Geodinâmico (MERGE / RD)</h2>
                         <div id="health-geo"></div>
+                        <div class="exec-control" id="exec-geo"></div>
                     </article>
                     <article class="card">
                         <h2>Risco de fogo (INPE RF)</h2>
                         <div id="health-fire"></div>
+                        <div class="exec-control" id="exec-fire"></div>
                     </article>
                 </div>
                 <article class="card card-full">

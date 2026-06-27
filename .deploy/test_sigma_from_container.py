@@ -8,9 +8,9 @@ import psycopg
 
 
 def main() -> int:
-    host = os.environ.get("SIGMA_POSTGRES_HOST", "sigma-db")
+    host = os.environ.get("SIGMA_POSTGRES_HOST", "pli-hazardtrack-db")
     port = os.environ.get("SIGMA_POSTGRES_PORT", "5432")
-    db = os.environ.get("SIGMA_POSTGRES_DATABASE", "sigma_pli_qr53")
+    db = os.environ.get("SIGMA_POSTGRES_DATABASE", "pli_hazzardtracker_db")
     user = os.environ.get("SIGMA_POSTGRES_USER", "sigma_user")
     password = os.environ.get("SIGMA_POSTGRES_PASSWORD", "")
     if not password:

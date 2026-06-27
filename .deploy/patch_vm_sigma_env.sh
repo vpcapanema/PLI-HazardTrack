@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ajusta .env da VM para PostgreSQL dedicado do stack (sigma-db:5432).
+# Ajusta .env da VM para PostgreSQL dedicado pli_hazzardtracker_db.
 set -eu
 
 ENV_FILE="/opt/pli-hazardtrack/.env"
@@ -8,7 +8,6 @@ ENV_FILE="/opt/pli-hazardtrack/.env"
 
 cp "$ENV_FILE" "${ENV_FILE}.bak.$(date +%Y%m%d%H%M%S)"
 
-# Migra OPS_SECRET legado -> ADMIN_SECRET
 if grep -q '^OPS_SECRET=' "$ENV_FILE" && ! grep -q '^ADMIN_SECRET=' "$ENV_FILE"; then
     OPS_VAL=$(grep -E '^OPS_SECRET=' "$ENV_FILE" | cut -d= -f2-)
     printf '\nADMIN_SECRET=%s\n' "$OPS_VAL" >> "$ENV_FILE"
@@ -24,9 +23,9 @@ set_or_replace() {
     fi
 }
 
-set_or_replace SIGMA_POSTGRES_HOST "sigma-db"
+set_or_replace SIGMA_POSTGRES_HOST "pli-hazardtrack-db"
 set_or_replace SIGMA_POSTGRES_PORT "5432"
-set_or_replace SIGMA_POSTGRES_DATABASE "sigma_pli_qr53"
+set_or_replace SIGMA_POSTGRES_DATABASE "pli_hazzardtracker_db"
 set_or_replace SIGMA_POSTGRES_USER "sigma_user"
 set_or_replace SIGMA_POSTGRES_SSLMODE "disable"
 
@@ -37,4 +36,4 @@ if ! grep -q '^SIGMA_POSTGRES_PASSWORD=' "$ENV_FILE" \
 fi
 
 chmod 600 "$ENV_FILE"
-echo "ok: .env aponta para sigma-db:5432 ($ENV_FILE)"
+echo "ok: .env -> pli-hazardtrack-db:5432 / pli_hazzardtracker_db"

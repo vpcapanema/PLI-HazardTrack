@@ -178,7 +178,7 @@ host = os.environ.get("SIGMA_POSTGRES_HOST", "")
 print(f"host={host} ok={h.get('ok')} mode={h.get('mode')}")
 raise SystemExit(0 if h.get("ok") else 1)
 PY
-    ok "app conecta ao sigma-db"
+    ok "app conecta ao pli_hazzardtracker_db"
 else
     if docker exec pli_hazardtrack_app python3 \
         /app/.deploy/postgres/bootstrap_gestor.py 2>/dev/null; then

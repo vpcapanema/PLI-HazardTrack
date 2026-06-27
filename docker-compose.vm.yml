@@ -1,15 +1,16 @@
 # PLI-HazardTrack - stack de producao para a VM AWS (sa-east-1)
 # Subir: docker compose -f docker-compose.vm.yml up -d
+# Banco dedicado deste sistema: pli_hazzardtracker_db (container pli_hazzardtracker_db)
 
 services:
-  sigma-db:
+  pli-hazardtrack-db:
     image: postgres:16-alpine
-    container_name: pli_sigma_db
+    container_name: pli_hazzardtracker_db
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      POSTGRES_DB: ${SIGMA_POSTGRES_DATABASE:-sigma_pli_qr53}
+      POSTGRES_DB: pli_hazzardtracker_db
       POSTGRES_USER: ${SIGMA_POSTGRES_USER:-sigma_user}
       POSTGRES_PASSWORD: ${SIGMA_POSTGRES_PASSWORD:?defina SIGMA_POSTGRES_PASSWORD no .env}
       PGDATA: /var/lib/postgresql/data/pgdata
@@ -19,7 +20,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${SIGMA_POSTGRES_USER:-sigma_user} -d ${SIGMA_POSTGRES_DATABASE:-sigma_pli_qr53}",
+          "pg_isready -U ${SIGMA_POSTGRES_USER:-sigma_user} -d pli_hazzardtracker_db",
         ]
       interval: 10s
       timeout: 5s
@@ -69,9 +70,9 @@ services:
       GUNICORN_TIMEOUT: "3600"
       SIGMA_API_BASE_URL: "${SIGMA_API_BASE_URL:-}"
       SIGMA_DATABASE_URL: "${SIGMA_DATABASE_URL:-}"
-      SIGMA_POSTGRES_HOST: "${SIGMA_POSTGRES_HOST:-sigma-db}"
-      SIGMA_POSTGRES_PORT: "${SIGMA_POSTGRES_PORT:-5432}"
-      SIGMA_POSTGRES_DATABASE: "${SIGMA_POSTGRES_DATABASE:-sigma_pli_qr53}"
+      SIGMA_POSTGRES_HOST: pli-hazardtrack-db
+      SIGMA_POSTGRES_PORT: "5432"
+      SIGMA_POSTGRES_DATABASE: pli_hazzardtracker_db
       SIGMA_POSTGRES_USER: "${SIGMA_POSTGRES_USER:-sigma_user}"
       SIGMA_POSTGRES_PASSWORD: "${SIGMA_POSTGRES_PASSWORD:-}"
       SIGMA_POSTGRES_SSLMODE: "${SIGMA_POSTGRES_SSLMODE:-disable}"
@@ -84,14 +85,9 @@ services:
       QUEIMADAS_AUTO: "1"
       QUEIMADAS_POLL_MIN: "30"
       SAMAEG_MERGE_CACHE_DIR: "/app/data/_cache/merge"
-    # IMPORTANTE: comando em UMA linha. Em YAML, um bloco ">" mantem as
-    # quebras de linha das linhas mais indentadas, e "exec gunicorn app:app"
-    # sozinho numa linha encerra antes das flags -> gunicorn subia com
-    # worker "sync" e timeout 30s (matava o SSE e reiniciava o worker em
-    # loop, impedindo o ingest de rodar). Manter tudo numa unica linha.
     command: sh -c "exec gunicorn app:app --bind 0.0.0.0:5050 --worker-class gthread --workers 1 --threads 8 --timeout 3600 --graceful-timeout 30 --keep-alive 75 --worker-tmp-dir /dev/shm --access-logfile - --error-logfile -"
     depends_on:
-      sigma-db:
+      pli-hazardtrack-db:
         condition: service_healthy
     ports:
       - "127.0.0.1:5050:5050"

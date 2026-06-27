@@ -75,8 +75,8 @@ def sigma_database_dsn() -> str:
         pw = quote_plus(password)
         port = _env("SIGMA_POSTGRES_PORT", "5433") or "5433"
         db = (
-            _env("SIGMA_POSTGRES_DATABASE", "sigma_pli_qr53")
-            or "sigma_pli_qr53"
+            _env("SIGMA_POSTGRES_DATABASE", "pli_hazzardtracker_db")
+            or "pli_hazzardtracker_db"
         )
         sslmode = _env("SIGMA_POSTGRES_SSLMODE", "disable") or "disable"
         return (

@@ -564,6 +564,65 @@ body.access-page .access-main {
     font-size: 0.85rem;
 }
 
+.card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.4rem;
+}
+.card-head h2 {
+    margin: 0;
+}
+.btn-refresh-now {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--line);
+    background: var(--pli-verde-escuro);
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.34rem 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.btn-refresh-now:hover:not(:disabled) {
+    opacity: 0.9;
+}
+.btn-refresh-now:disabled {
+    opacity: 0.55;
+    cursor: progress;
+}
+.btn-refresh-now .brn-ico {
+    font-size: 0.95rem;
+    line-height: 1;
+}
+.refresh-msg {
+    margin: 0 0 0.7rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    border: 1px solid var(--line);
+}
+.refresh-msg--info {
+    background: #eef4fb;
+    color: #1c4e80;
+    border-color: #cfe0f2;
+}
+.refresh-msg--ok {
+    background: #eaf7ee;
+    color: #1d6b39;
+    border-color: #cdead6;
+}
+.refresh-msg--error {
+    background: #fcebeb;
+    color: #9b2226;
+    border-color: #f3cccc;
+}
+
 .subhead {
     margin: 1.1rem 0 0.55rem;
     font-size: 0.9rem;

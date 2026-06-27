@@ -65,6 +65,12 @@
     btn.addEventListener("click", () => showPanel(btn.dataset.panel));
   });
   document.getElementById("btn-refresh").addEventListener("click", refresh);
+  document
+    .getElementById("btn-refresh-geo")
+    ?.addEventListener("click", () => forceRefresh("geo"));
+  document
+    .getElementById("btn-refresh-fire")
+    ?.addEventListener("click", () => forceRefresh("fire"));
   document.getElementById("sidebar-toggle").addEventListener("click", () => {
     document.getElementById("admin-sidebar").classList.toggle("open");
   });
@@ -75,6 +81,111 @@
 
   setInterval(refresh, 60_000);
   refresh();
+
+  const REFRESH_META = {
+    geo: {
+      btn: "btn-refresh-geo",
+      msg: "refresh-geo-msg",
+      label: "Atualizar agora",
+      doneMsg: "Leitura MERGE/INPE atualizada e RD recalculado.",
+    },
+    fire: {
+      btn: "btn-refresh-fire",
+      msg: "refresh-fire-msg",
+      label: "Atualizar agora",
+      doneMsg: "Risco de fogo recalculado com o arquivo mais atual do INPE.",
+    },
+  };
+
+  async function forceRefresh(system) {
+    const meta = REFRESH_META[system];
+    if (!meta) return;
+    const btn = document.getElementById(meta.btn);
+    const msg = document.getElementById(meta.msg);
+    const lbl = btn?.querySelector(".brn-lbl");
+    if (btn) btn.disabled = true;
+    if (lbl) lbl.textContent = "Atualizando…";
+    showRefreshMsg(msg, "Atualização em andamento — puxando dados da fonte…",
+      "info");
+    try {
+      const res = await fetch(`/admin/api/refresh/${system}`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      if (res.status === 401) {
+        window.location = "/admin/login";
+        return;
+      }
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showRefreshMsg(msg, body.error || "Falha ao iniciar atualização.",
+          "error");
+        resetRefreshBtn(btn, lbl, meta.label);
+        return;
+      }
+      pollRefresh(system, meta, btn, lbl, msg);
+    } catch (e) {
+      console.warn("force refresh:", e);
+      showRefreshMsg(msg, "Erro de rede ao iniciar atualização.", "error");
+      resetRefreshBtn(btn, lbl, meta.label);
+    }
+  }
+
+  async function pollRefresh(system, meta, btn, lbl, msg, attempt) {
+    attempt = attempt || 0;
+    if (attempt > 120) {
+      showRefreshMsg(msg, "Ainda processando em segundo plano…", "info");
+      resetRefreshBtn(btn, lbl, meta.label);
+      return;
+    }
+    try {
+      const res = await fetch("/admin/api/refresh/status", {
+        credentials: "same-origin",
+      });
+      const st = (await res.json())[system] || {};
+      if (st.running) {
+        setTimeout(
+          () => pollRefresh(system, meta, btn, lbl, msg, attempt + 1),
+          3000,
+        );
+        return;
+      }
+      const last = st.last || {};
+      if (last.outcome && last.outcome !== "error" &&
+          last.outcome !== "no_source") {
+        showRefreshMsg(
+          msg,
+          `${meta.doneMsg} (${last.elapsed_s ?? "?"}s)`,
+          "ok",
+        );
+        await refresh();
+      } else if (last.outcome === "no_source") {
+        showRefreshMsg(msg, "Sem arquivo novo na fonte agora.", "info");
+      } else {
+        showRefreshMsg(
+          msg,
+          "Falha na atualização: " + (last.error || "erro desconhecido"),
+          "error",
+        );
+      }
+    } catch (e) {
+      console.warn("poll refresh:", e);
+    } finally {
+      resetRefreshBtn(btn, lbl, meta.label);
+    }
+  }
+
+  function resetRefreshBtn(btn, lbl, label) {
+    if (btn) btn.disabled = false;
+    if (lbl) lbl.textContent = label;
+  }
+
+  function showRefreshMsg(el, text, kind) {
+    if (!el) return;
+    el.hidden = false;
+    el.className = "refresh-msg refresh-msg--" + (kind || "info");
+    el.textContent = text;
+  }
 
   function showPanel(id) {
     document.querySelectorAll(".nav-item").forEach((b) => {

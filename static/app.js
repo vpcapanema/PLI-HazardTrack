@@ -761,26 +761,6 @@ async function loadSpMask() {
 // ============================================================================
 
 function attachEvents() {
-  document.getElementById("btn-refresh").addEventListener("click", async () => {
-    const btn = document.getElementById("btn-refresh");
-    const lbl = btn.querySelector(".sb-tool-lbl");
-    btn.disabled = true;
-    const original = lbl ? lbl.textContent : btn.textContent;
-    if (lbl) lbl.textContent = "…";
-    else btn.textContent = "…";
-    try {
-      if (state.historyMode) await exitHistoryMode(false);
-      await fetch(apiUrl("/api/refresh"), { method: "POST" });
-      await refresh();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      if (lbl) lbl.textContent = original;
-      else btn.textContent = original;
-      btn.disabled = false;
-    }
-  });
-
   document.getElementById("btn-fit").addEventListener("click", () => {
     state.map.fitBounds(SP_BOUNDS);
   });
@@ -1724,11 +1704,8 @@ async function exitHistoryMode(refreshLive) {
   if (refreshLive) {
     setBadge("badge-update", "Ao vivo…", "loading");
     setMapHistoryBanner(null);
-    try {
-      await fetch(apiUrl("/api/refresh"), { method: "POST" });
-    } catch {
-      /* ignora */
-    }
+    // Apenas re-busca o snapshot ao vivo; atualizacao forcada (recompute)
+    // e atribuicao tecnica e fica no painel /admin.
     await refresh();
   }
 }

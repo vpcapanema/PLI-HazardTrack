@@ -20,6 +20,7 @@ em /admin/api/diagnostics, organizada por responsabilidade:
 """
 from __future__ import annotations
 
+import logging
 import os
 import platform
 import socket
@@ -29,6 +30,8 @@ import time
 from datetime import datetime, timezone
 from functools import wraps
 from typing import Any, Dict, List, Optional
+
+log = logging.getLogger("admin")
 
 import requests
 from flask import (
@@ -498,6 +501,111 @@ def api_report_export():
 @_login_required
 def api_diagnostics():
     return jsonify(collect_diagnostics())
+
+
+# ---------------------------------------------------------------------------
+# Atualizacao forcada (atribuicao tecnica)
+# ---------------------------------------------------------------------------
+
+# Guarda o estado da ultima atualizacao manual disparada pelo painel.
+_manual_refresh: Dict[str, Dict[str, Any]] = {
+    "geo": {"running": False, "last": None},
+    "fire": {"running": False, "last": None},
+}
+
+
+def _manual_status() -> Dict[str, Any]:
+    return {
+        "geo": dict(_manual_refresh["geo"]),
+        "fire": dict(_manual_refresh["fire"]),
+    }
+
+
+@admin_bp.route("/api/refresh/status", methods=["GET"])
+@_login_required
+def api_refresh_status():
+    return jsonify(_manual_status())
+
+
+@admin_bp.route("/api/refresh/geo", methods=["POST"])
+@_login_required
+def api_refresh_geo():
+    """Forca ingest das horas mais recentes do MERGE + recalculo do RD."""
+    if not alert_controls.is_geo_enabled():
+        return jsonify({
+            "error": "monitoramento geodinamico desligado",
+        }), 409
+    if _manual_refresh["geo"]["running"]:
+        return jsonify({"status": "busy", "system": "geo"}), 409
+
+    def _run():
+        _manual_refresh["geo"]["running"] = True
+        started = time.time()
+        outcome = "ok"
+        err = None
+        try:
+            ingest.refresh()
+            state.update()
+        except Exception as exc:  # noqa: BLE001
+            outcome = "error"
+            err = str(exc)
+            log.exception("refresh manual geo falhou: %s", exc)
+        finally:
+            _manual_refresh["geo"] = {
+                "running": False,
+                "last": {
+                    "at": datetime.now(timezone.utc).isoformat(),
+                    "outcome": outcome,
+                    "elapsed_s": round(time.time() - started, 1),
+                    "error": err,
+                },
+            }
+
+    threading.Thread(
+        target=_run, daemon=True, name="admin-geo-refresh",
+    ).start()
+    return jsonify({"ok": True, "status": "started", "system": "geo"})
+
+
+@admin_bp.route("/api/refresh/fire", methods=["POST"])
+@_login_required
+def api_refresh_fire():
+    """Forca o pipeline de fogo com o arquivo mais atual da INPE."""
+    if not alert_controls.is_fire_enabled():
+        return jsonify({
+            "error": "monitoramento de fogo desligado",
+        }), 409
+    if _manual_refresh["fire"]["running"]:
+        return jsonify({"status": "busy", "system": "fire"}), 409
+
+    def _run():
+        _manual_refresh["fire"]["running"] = True
+        started = time.time()
+        from core import fire_pipeline
+        result = {}
+        try:
+            result = fire_pipeline.run_once(
+                force=True, reason="admin-manual",
+            )
+        except Exception as exc:  # noqa: BLE001
+            result = {"status": "error", "error": str(exc)}
+            log.exception("refresh manual fogo falhou: %s", exc)
+        finally:
+            _manual_refresh["fire"] = {
+                "running": False,
+                "last": {
+                    "at": datetime.now(timezone.utc).isoformat(),
+                    "outcome": result.get("status"),
+                    "elapsed_s": round(time.time() - started, 1),
+                    "error": result.get("error"),
+                    "result": result,
+                },
+            }
+
+    threading.Thread(
+        target=_run, daemon=True, name="admin-fire-refresh",
+    ).start()
+    return jsonify({"ok": True, "status": "started", "system": "fire"})
 
 
 @admin_bp.route("/api/alert-controls", methods=["GET"])

@@ -70,11 +70,31 @@
                 <div class="kpi-grid" id="kpi-overview"></div>
                 <div class="two-col">
                     <article class="card">
-                        <h2>Movimentos de massa e inundação</h2>
+                        <div class="card-head">
+                            <h2>Movimentos de massa e inundação</h2>
+                            <button type="button" class="btn-refresh-now"
+                                    id="btn-refresh-geo"
+                                    data-system="geo"
+                                    title="Puxar dados MERGE/INPE do momento e recalcular o RD">
+                                <span class="brn-ico" aria-hidden="true">↻</span>
+                                <span class="brn-lbl">Atualizar agora</span>
+                            </button>
+                        </div>
+                        <div id="refresh-geo-msg" class="refresh-msg" hidden></div>
                         <div id="visao-geo"></div>
                     </article>
                     <article class="card">
-                        <h2>Risco de fogo (INPE)</h2>
+                        <div class="card-head">
+                            <h2>Risco de fogo (INPE)</h2>
+                            <button type="button" class="btn-refresh-now"
+                                    id="btn-refresh-fire"
+                                    data-system="fire"
+                                    title="Puxar o arquivo mais atual da INPE e recalcular o risco de fogo">
+                                <span class="brn-ico" aria-hidden="true">↻</span>
+                                <span class="brn-lbl">Atualizar agora</span>
+                            </button>
+                        </div>
+                        <div id="refresh-fire-msg" class="refresh-msg" hidden></div>
                         <div id="visao-fire"></div>
                     </article>
                 </div>

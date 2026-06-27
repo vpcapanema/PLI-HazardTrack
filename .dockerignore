@@ -26,6 +26,12 @@ AGENTS.md
 
 # Dev / geracao offline (nao usados em runtime)
 ferramentas/
+# ...exceto o pipeline de fogo (queimadas), que roda EM RUNTIME no
+# container via core/fire_pipeline.py (steps 05->06->07). Sem estes
+# scripts o runner falha com "script ausente" e o risco de fogo nunca
+# atualiza.
+!ferramentas/queimadas/
+!ferramentas/queimadas/*.py
 data/Tema30_Resiliencia/
 data/**/pdf-forge-exports/
 data/**/extracted-pdfs/

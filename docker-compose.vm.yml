@@ -51,18 +51,12 @@ services:
       QUEIMADAS_AUTO: "1"
       QUEIMADAS_POLL_MIN: "30"
       SAMAEG_MERGE_CACHE_DIR: "/app/data/_cache/merge"
-    command: >
-      sh -c "exec gunicorn app:app
-        --bind 0.0.0.0:5050
-        --worker-class gthread
-        --workers ${GUNICORN_WORKERS:-1}
-        --threads ${GUNICORN_THREADS:-8}
-        --timeout ${GUNICORN_TIMEOUT:-3600}
-        --graceful-timeout 30
-        --keep-alive 75
-        --worker-tmp-dir /dev/shm
-        --access-logfile -
-        --error-logfile -"
+    # IMPORTANTE: comando em UMA linha. Em YAML, um bloco ">" mantem as
+    # quebras de linha das linhas mais indentadas, e "exec gunicorn app:app"
+    # sozinho numa linha encerra antes das flags -> gunicorn subia com
+    # worker "sync" e timeout 30s (matava o SSE e reiniciava o worker em
+    # loop, impedindo o ingest de rodar). Manter tudo numa unica linha.
+    command: sh -c "exec gunicorn app:app --bind 0.0.0.0:5050 --worker-class gthread --workers 1 --threads 8 --timeout 3600 --graceful-timeout 30 --keep-alive 75 --worker-tmp-dir /dev/shm --access-logfile - --error-logfile -"
     ports:
       - "127.0.0.1:5050:5050"
     extra_hosts:

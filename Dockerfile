@@ -13,6 +13,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libeccodes0 \
         libeccodes-tools \
+        libexpat1 \
         curl \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*

@@ -1,4 +1,5 @@
 """Autenticacao da area /admin — sessao Flask (local ou SIGMA-PLI)."""
+
 from __future__ import annotations
 
 import logging
@@ -19,6 +20,7 @@ class AdminUser:
     username: str
     tipo_usuario: str
     email: str | None = None
+    full_name: str | None = None
 
 
 def _env(name: str) -> str:
@@ -44,6 +46,7 @@ def authenticate(username: str, password: str) -> AdminUser | None:
                 username=user.username,
                 tipo_usuario=user.tipo_usuario,
                 email=user.email,
+                full_name=getattr(user, "full_name", user.username),
             )
         return None
 
@@ -57,6 +60,7 @@ def authenticate(username: str, password: str) -> AdminUser | None:
                 user_id="local",
                 username=identifier,
                 tipo_usuario=GESTOR_PROFILE,
+                full_name=identifier,
             )
     return None
 
@@ -65,6 +69,7 @@ def session_payload(user: AdminUser) -> dict:
     return {
         "id": user.user_id,
         "username": user.username,
+        "full_name": user.full_name or user.username,
         "tipo_usuario": user.tipo_usuario,
         "email": user.email,
     }
@@ -79,9 +84,9 @@ def auth_context() -> dict:
         "profile": GESTOR_PROFILE if sigma_auth.sigma_configured() else "admin",
         "identifier": {
             "label": "Usuário",
-            "placeholder": "admin" if local else (
-                "gestor.silva ou gestor.silva@orgao.gov.br"
-            ),
+            "placeholder": "admin"
+            if local
+            else ("gestor.silva ou gestor.silva@orgao.gov.br"),
             "hint": "",
         },
         "password": {
@@ -101,9 +106,12 @@ def auth_backend_diag() -> dict:
     else:
         mode = "local"
         provider = "Credenciais locais (ADMIN_USER / ADMIN_PASS)"
-        health = {"configured": True, "ok": bool(
-            _env("ADMIN_USER") and _env("ADMIN_PASS")
-        ), "mode": "local", "error": None}
+        health = {
+            "configured": True,
+            "ok": bool(_env("ADMIN_USER") and _env("ADMIN_PASS")),
+            "mode": "local",
+            "error": None,
+        }
     return {
         "provider": provider,
         "configured": auth_configured(),

@@ -1,4 +1,5 @@
 """Autenticacao de gestores contra o SIGMA-PLI (API HTTP ou PostgreSQL)."""
+
 from __future__ import annotations
 
 import logging
@@ -17,6 +18,8 @@ from .sigma_password import verify_password
 log = logging.getLogger("sigma_auth")
 
 GESTOR_PROFILE = "GESTOR"
+DEFAULT_SIGMA_PUBLIC_BASE_URL = "http://56.125.163.194"
+DEFAULT_SIGMA_API_BASE_URL = DEFAULT_SIGMA_PUBLIC_BASE_URL
 
 
 class SigmaConnectionError(Exception):
@@ -25,21 +28,31 @@ class SigmaConnectionError(Exception):
 
 _LOOKUP_SQL = """
 SELECT
-    id::text,
-    username,
-    email_institucional,
-    password_hash,
-    tipo_usuario,
-    ativo,
-    bloqueado_ate
-FROM usuarios.usuario
+        u.id::text,
+        u.username,
+        u.email_institucional,
+        u.password_hash,
+        u.tipo_usuario,
+        u.ativo,
+        u.bloqueado_ate,
+        COALESCE(NULLIF(TRIM(p.nome_completo), ''), u.username) AS nome_completo
+FROM usuarios.usuario u
+LEFT JOIN cadastro.pessoa p ON p.id = u.pessoa_id
 WHERE (
-    LOWER(username) = LOWER(%(identifier)s)
-    OR LOWER(email_institucional) = LOWER(%(identifier)s)
+        LOWER(u.username) = LOWER(%(identifier)s)
+        OR LOWER(u.email_institucional) = LOWER(%(identifier)s)
 )
   AND UPPER(tipo_usuario) = %(profile)s
-  AND ativo = true
+    AND u.ativo = true
 LIMIT 2
+"""
+
+_FULL_NAME_BY_USER_ID_SQL = """
+SELECT NULLIF(TRIM(p.nome_completo), '') AS nome_completo
+FROM usuarios.usuario u
+LEFT JOIN cadastro.pessoa p ON p.id = u.pessoa_id
+WHERE u.id::text = %(user_id)s
+LIMIT 1
 """
 
 
@@ -49,6 +62,7 @@ class SigmaUser:
     username: str
     email: str | None
     tipo_usuario: str
+    full_name: str
 
 
 def _env(name: str, default: str = "") -> str:
@@ -56,7 +70,18 @@ def _env(name: str, default: str = "") -> str:
 
 
 def sigma_api_base_url() -> str:
-    return _env("SIGMA_API_BASE_URL")
+    configured = os.environ.get("SIGMA_API_BASE_URL")
+    if configured is None:
+        return DEFAULT_SIGMA_API_BASE_URL
+    return configured.strip().rstrip("/")
+
+
+def sigma_public_base_url() -> str:
+    return (
+        _env("SIGMA_PUBLIC_BASE_URL")
+        or sigma_api_base_url()
+        or DEFAULT_SIGMA_PUBLIC_BASE_URL
+    ).rstrip("/")
 
 
 def sigma_database_dsn() -> str:
@@ -74,15 +99,14 @@ def sigma_database_dsn() -> str:
         user = quote_plus(_env("SIGMA_POSTGRES_USER", "sigma_user"))
         pw = quote_plus(password)
         port = _env("SIGMA_POSTGRES_PORT", "5433") or "5433"
-        db = (
-            _env("SIGMA_POSTGRES_DATABASE", "pli_hazzardtracker_db")
-            or "pli_hazzardtracker_db"
-        )
+        db = _env("SIGMA_POSTGRES_DATABASE", "sigma_pli_qr53") or "sigma_pli_qr53"
         sslmode = _env("SIGMA_POSTGRES_SSLMODE", "disable") or "disable"
-        return (
-            f"postgresql://{user}:{pw}@{host}:{port}/{db}?sslmode={sslmode}"
-        )
+        return f"postgresql://{user}:{pw}@{host}:{port}/{db}?sslmode={sslmode}"
     return ""
+
+
+def _connect_sigma_db(*args: Any, **kwargs: Any) -> Any:
+    return psycopg.connect(*args, **kwargs)
 
 
 def sigma_api_configured() -> bool:
@@ -98,7 +122,7 @@ def sigma_configured() -> bool:
 
 
 def sigma_auth_links() -> dict[str, str] | None:
-    base = sigma_api_base_url().rstrip("/")
+    base = sigma_public_base_url()
     if not base:
         return None
     return {
@@ -121,8 +145,38 @@ def _row_blocked(row: dict[str, Any]) -> bool:
     return False
 
 
+def _api_user_name(user: dict[str, Any]) -> str:
+    for key in ("nome_completo", "full_name", "nome"):
+        value = user.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return str(user.get("username") or "")
+
+
+def _lookup_full_name_by_user_id(user_id: object) -> str | None:
+    dsn = sigma_database_dsn()
+    if not dsn or not user_id:
+        return None
+    try:
+        conn = _connect_sigma_db(dsn, row_factory=dict_row, connect_timeout=5)
+        try:
+            row = getattr(conn, "execute")(
+                _FULL_NAME_BY_USER_ID_SQL, {"user_id": str(user_id)}
+            ).fetchone()
+        finally:
+            getattr(conn, "close")()
+    except Exception:
+        log.warning("Nao foi possivel buscar nome completo no SIGMA", exc_info=True)
+        return None
+    if not row:
+        return None
+    name = row.get("nome_completo")
+    return str(name).strip() if name else None
+
+
 def _authenticate_gestor_via_api(
-    identifier: str, password: str,
+    identifier: str,
+    password: str,
 ) -> SigmaUser | None:
     base = sigma_api_base_url().rstrip("/")
     url = f"{base}/api/auth/login"
@@ -176,26 +230,29 @@ def _authenticate_gestor_via_api(
         return None
 
     email = user.get("email_institucional")
+    full_name = _lookup_full_name_by_user_id(user_id) or _api_user_name(user)
     return SigmaUser(
         id=str(user_id),
         username=str(username),
         email=str(email) if email else None,
         tipo_usuario=tipo,
+        full_name=full_name,
     )
 
 
 def _authenticate_gestor_via_db(
-    identifier: str, password: str,
+    identifier: str,
+    password: str,
 ) -> SigmaUser | None:
     params = {"identifier": identifier.strip(), "profile": GESTOR_PROFILE}
     dsn = sigma_database_dsn()
 
     try:
-        conn = psycopg.connect(dsn, row_factory=dict_row, connect_timeout=8)
+        conn = _connect_sigma_db(dsn, row_factory=dict_row, connect_timeout=8)
         try:
-            rows = conn.execute(_LOOKUP_SQL, params).fetchall()
+            rows = getattr(conn, "execute")(_LOOKUP_SQL, params).fetchall()
         finally:
-            conn.close()
+            getattr(conn, "close")()
     except Exception as exc:
         err_name = type(exc).__name__
         if (
@@ -211,9 +268,7 @@ def _authenticate_gestor_via_db(
     if not rows:
         return None
     if len(rows) > 1:
-        log.warning(
-            "Login ambiguo para identifier=%s (multiplos gestores)", identifier
-        )
+        log.warning("Login ambiguo para identifier=%s (multiplos gestores)", identifier)
         return None
 
     row = rows[0]
@@ -229,6 +284,7 @@ def _authenticate_gestor_via_db(
         username=row["username"],
         email=row.get("email_institucional"),
         tipo_usuario=str(row.get("tipo_usuario") or GESTOR_PROFILE),
+        full_name=str(row.get("nome_completo") or row["username"]),
     )
 
 
@@ -270,13 +326,13 @@ def healthcheck() -> dict:
 
     dsn = sigma_database_dsn()
     try:
-        conn = psycopg.connect(dsn, connect_timeout=5)
+        conn = _connect_sigma_db(dsn, connect_timeout=5)
         try:
-            with conn.cursor() as cur:
+            with getattr(conn, "cursor")() as cur:
                 cur.execute("SELECT 1 AS ok")
                 cur.fetchone()
         finally:
-            conn.close()
+            getattr(conn, "close")()
         return {"configured": True, "ok": True, "mode": "db", "error": None}
     except Exception as e:
         return {

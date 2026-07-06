@@ -56,7 +56,7 @@
             </div>
             <div class="header-actions">
                 {% if session.admin_user %}
-                <span class="who">{{ session.admin_user.username or session.admin_user.email }}</span>
+                <span class="who">{{ session.admin_user.full_name or session.admin_user.username or session.admin_user.email }}</span>
                 {% endif %}
                 <span id="updated-at" class="updated-at">—</span>
                 <button id="btn-refresh" type="button" class="btn-secondary">Atualizar</button>

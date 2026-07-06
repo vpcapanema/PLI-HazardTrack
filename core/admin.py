@@ -31,8 +31,6 @@ from datetime import datetime, timezone
 from functools import wraps
 from typing import Any, Dict, List, Optional
 
-log = logging.getLogger("admin")
-
 import requests
 from flask import (
     Blueprint, current_app, jsonify, redirect, render_template,
@@ -50,6 +48,8 @@ from .admin_dashboard import build_report, collect_dashboard
 from . import alert_controls
 from .scheduler_registry import get_scheduler
 from .sigma_auth import SigmaConnectionError
+
+log = logging.getLogger("admin")
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -646,7 +646,6 @@ def api_alert_controls_set():
             name="fire-enable-bootstrap",
         ).start()
     elif system == "geo_monitoring" and enabled:
-        from core.merge_ingest import ingest
         ingest.start()
         ingest.resume()
         threading.Thread(

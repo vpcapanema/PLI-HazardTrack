@@ -504,6 +504,7 @@
           ["Faltando 24h", block.data_quality.missing_24h ?? "—"],
         ])
       );
+      renderGaugeCorrection(root, block.gauge_correction);
       if (block.scheduler.last_error) {
         root.appendChild(
           el(
@@ -527,6 +528,40 @@
         ])
       );
     }
+  }
+
+  function renderGaugeCorrection(root, gc) {
+    if (!gc) return;
+    const card = el("div", "kv-section");
+    let head = "<b>Correção por solo (DAEE/CEMADEN)</b>";
+    if (!gc.enabled) {
+      card.innerHTML = head + '<div class="muted">desativada</div>';
+      root.appendChild(card);
+      return;
+    }
+    const rows = [
+      ["Fonte", gc.source || "—"],
+      ["Estado", gc.applied ? "aplicada" : (gc.error ? "indisponível" : "sem ancoragem")],
+      ["Janela de ancoragem", (gc.anchor_hours ?? "—") + " h"],
+      ["Raio de influência", (gc.radius_km ?? "—") + " km"],
+      ["Estações recentes", gc.stations_recent ?? "—"],
+      ["UAs ancoradas", (gc.points_corrected ?? 0) + " / " + (gc.points_total ?? 0)],
+      ["Fator médio", gc.mean_factor ?? "—"],
+      ["Maior redução", gc.max_downscale != null ? "×" + gc.max_downscale : "—"],
+      ["Maior aumento", gc.max_upscale != null ? "×" + gc.max_upscale : "—"],
+    ];
+    if (gc.error) rows.push(["Erro", gc.error]);
+    card.innerHTML = head;
+    card.appendChild(kvGrid(rows));
+    const note = el(
+      "div",
+      "muted",
+      "Ancoragem multiplicativa do satélite MERGE/IMERG às medições de " +
+        "pluviômetros por IDW (p=2); fator da janela de 24 h aplicado a " +
+        "todas as janelas. Fonte complementar — nunca substitui o satélite."
+    );
+    card.appendChild(note);
+    root.appendChild(card);
   }
 
   function renderExecControl(rootId, block) {

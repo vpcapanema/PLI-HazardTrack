@@ -308,6 +308,7 @@ def _geo_health(runtime: Dict[str, Any]) -> Dict[str, Any]:
             "missing_24h": summary.get("missing_24h"),
             "missing_96h": summary.get("missing_96h"),
         },
+        "gauge_correction": runtime.get("gauge_correction"),
     }
 
 

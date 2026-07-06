@@ -33,6 +33,7 @@ from .merge_inpe import (
 from .merge_ingest import ingest
 from .forecast_wrf_prec_hourly import fetch_forecast_accum_batch
 from .risk import evaluate_point, compose_pdf_windows
+from .gauge_correction import correct_rain_batch
 from .notifier import notifier
 
 log = logging.getLogger("aggregator")
@@ -294,6 +295,9 @@ class State:
         # Cache da serie horaria do ultimo ciclo (reaproveitada pela
         # Linha do Tempo, evitando novo download dos GRIBs)
         self._series_cache: Optional[Dict[str, Any]] = None
+        # Metadados da correcao por solo (DAEE/CEMADEN) do ultimo ciclo.
+        # Consumido APENAS pelas paginas administrativas (metodologia).
+        self._gauge_meta: Optional[Dict[str, Any]] = None
 
         # Seed inicial: pontos visiveis no mapa em "loading" (estilo sem dado).
         # Importante para Render free, onde o primeiro ciclo MERGE pode levar
@@ -458,6 +462,19 @@ class State:
                     "target": now,
                     "series": [r.series for r in rain_batch],
                 }
+            # Correcao por solo (DAEE/CEMADEN): ancora os acumulados
+            # satelitais do MERGE nas medicoes de pluviometros. Roda apos
+            # guardar a serie horaria bruta (a Linha do Tempo continua com o
+            # dado satelital cru). Falha da API => satelite puro (transparente).
+            try:
+                gauge_meta = correct_rain_batch(coords, rain_batch)
+            except Exception as e:  # noqa: BLE001
+                log.warning("correcao por solo falhou (%s)", e)
+                gauge_meta = None
+            with self._lock:
+                self._gauge_meta = (
+                    gauge_meta.as_dict() if gauge_meta else None
+                )
             data_source = "MERGE/INPE"
             data_status = (
                 "ok"
@@ -908,6 +925,8 @@ class State:
                 "history": list(self.cycle_history),
 
                 "degraded_threshold": DEGRADED_MISSING_24H_THRESHOLD,
+                # Correcao por solo (DAEE/CEMADEN) - uso administrativo.
+                "gauge_correction": self._gauge_meta,
             }
 
 

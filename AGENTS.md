@@ -23,6 +23,23 @@ para rodovias da Regiao do Litoral Norte de Sao Paulo (DER-SP).
   calculados rd/nivel/ac96h_mm/...).
 - `core/aggregator.py` - Agrega dados de chuva + risco; propaga
   atributos nativos da UA em cada ponto do snapshot.
+- `core/gauge_correction.py` - Correcao por solo (DAEE/CEMADEN via SIBH):
+  ancora os acumulados satelitais do MERGE/IMERG-late nas medicoes de
+  pluviometros automaticos do Estado de SP. API publica
+  `https://apps.spaguas.sp.gov.br/sibh/api/v2/measurements/now`
+  (station_type_id=2, hours=N, public=true; campo `measurements`).
+  Metodologia: IDW p=2 num raio de `SAMAEG_GAUGE_RADIUS_KM` (30 km) ->
+  fator multiplicativo ancorado na janela de 24 h, aplicado a TODAS as
+  janelas (18/24/72/96 h) + intensidade, com clamp `[SAMAEG_GAUGE_FMIN,
+  SAMAEG_GAUGE_FMAX]` e peso do solo `<= SAMAEG_GAUGE_MAX_WEIGHT` (0.85).
+  Fonte COMPLEMENTAR: sem estacao no raio ou API fora -> satelite puro
+  (degradacao transparente, nunca inventa dado). Toggle
+  `SAMAEG_GAUGE_CORRECTION` (default on). Metadados (`_gauge_meta`) sao
+  expostos SOMENTE nas paginas administrativas (`get_runtime()`), nao no
+  feed publico. NOTA: a variavel #1 do GRIB MERGE (eccodes rotula
+  "rdp/radar") e na verdade `PREC` Surface Precipitation [mm/hr] do
+  produto GPM-IMERG-late (confirmado pelo `.ctl` do INPE); a #2 e `NEST`
+  (nº de estacoes que corrigiram a celula).
 - `core/merge_inpe.py` - Download/decode MERGE/INPE (ThreadPool + ProcessPool)
 - `core/merge_ingest.py` - Ingest continuo em background + cache RAM incremental
 - `core/forecast_wrf_prec_hourly.py` - Previsao WRF (composicao PDF)

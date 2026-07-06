@@ -303,6 +303,7 @@ def collect_diagnostics() -> Dict[str, Any]:
             "max_rd": summary.get("max_rd", 0),
             "by_level": summary.get("by_level"),
         },
+        "gauge_correction": runtime.get("gauge_correction"),
         "history": runtime["history"],
     }
 

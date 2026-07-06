@@ -1,0 +1,30 @@
+{
+  "modulo": "queimadas",
+  "step": "07_export_public_layers",
+  "data_referencia": "2026-07-06",
+  "status": "ok",
+  "outputs": [
+    "D:\\REPOSITORIOS\\PLI-HazardTrack\\static\\data\\queimadas\\risco_trechos_der_latest.geojson",
+    "D:\\REPOSITORIOS\\PLI-HazardTrack\\static\\data\\queimadas\\risco_trechos_der_latest.json",
+    "D:\\REPOSITORIOS\\PLI-HazardTrack\\static\\data\\queimadas\\risco_trechos_der_stats.json"
+  ],
+  "aggregate": {
+    "modulo": "queimadas",
+    "step": "06_aggregate_to_der_segments",
+    "data_referencia": "2026-07-06",
+    "status": "ok",
+    "source_grid": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\interim\\rf_inpe\\20260706\\rf_index.json",
+    "output": "D:\\REPOSITORIOS\\PLI-HazardTrack\\data\\queimadas\\processed\\risco_trechos_der.gpkg",
+    "output_layer": "risco_diario",
+    "monitored_layer": "malha_rodoviaria_estadual_monitorada",
+    "features": 18332,
+    "monitored_features": 4583,
+    "horizontes": [
+      "observado",
+      "D+1",
+      "D+2",
+      "D+3"
+    ],
+    "message": "Produto por trecho gerado com RF oficial INPE."
+  }
+}

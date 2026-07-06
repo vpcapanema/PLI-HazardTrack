@@ -1,6 +1,7 @@
 {
-  "observed_file": "INPE_FireRiskModel_2.2_FireRisk_20260621.nc",
-  "data_referencia": "2026-06-22",
-  "ran_at": null,
-  "reason": "boot-fresh"
+  "observed_file": "INPE_FireRiskModel_2.2_FireRisk_20260705.nc",
+  "data_referencia": "2026-07-06",
+  "ran_at": "2026-07-06T20:11:26.639194+00:00",
+  "elapsed_s": 59.7,
+  "reason": "boot"
 }

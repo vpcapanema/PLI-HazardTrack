@@ -1,11 +1,6 @@
 # PLI-HazardTrack — HTTP only (bootstrap ACME / sem certificado ainda)
 # Hostname: pli-hazardtrack.56-125-163-194.sslip.io
 
-upstream pli_hazardtrack_app {
-    server 127.0.0.1:5050;
-    keepalive 32;
-}
-
 server {
     listen 80;
     listen [::]:80;

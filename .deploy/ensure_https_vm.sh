@@ -12,6 +12,7 @@ SSL_PARAMS_DST="/etc/nginx/snippets/pli-hazardtrack-ssl-params.conf"
 NGINX_HTTPS_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack"
 NGINX_HTTP_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack-http-bootstrap"
 NGINX_DST="/etc/nginx/sites-available/pli-hazardtrack"
+NGINX_ENABLED="/etc/nginx/sites-enabled/pli-hazardtrack"
 CERT_DIR="/etc/letsencrypt/live/$PUBLIC_HOST"
 
 step() { printf "\n\033[1;36mâ–¶ %s\033[0m\n" "$1"; }
@@ -66,11 +67,13 @@ reload_nginx() {
 
 deploy_http_bootstrap() {
     sudo cp "$NGINX_HTTP_SRC" "$NGINX_DST"
+    sudo ln -sfn "$NGINX_DST" "$NGINX_ENABLED"
     reload_nginx
 }
 
 deploy_https_vhost() {
     sudo cp "$NGINX_HTTPS_SRC" "$NGINX_DST"
+    sudo ln -sfn "$NGINX_DST" "$NGINX_ENABLED"
     reload_nginx
 }
 

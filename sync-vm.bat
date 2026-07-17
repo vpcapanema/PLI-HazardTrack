@@ -7,6 +7,8 @@ chcp 65001 > nul
 set "ROOT=%~dp0"
 set "PLINK=C:\Program Files\PuTTY\plink.exe"
 set "PPK=%ROOT%SRV-SISTEMA-30001480.ppk"
+type "%PPK%" >nul 2>&1
+if errorlevel 1 set "PPK=%ROOT%temp_key.ppk"
 set "VM=ubuntu@56.125.163.194"
 set "APP_URL=https://pli-hazardtrack.56-125-163-194.sslip.io"
 

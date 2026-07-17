@@ -4,10 +4,11 @@ set -eu
 
 APP_DIR="/opt/pli-hazardtrack"
 COMPOSE_FILE="docker-compose.vm.yml"
-NGINX_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack"
-NGINX_DST="/etc/nginx/sites-available/pli-hazardtrack"
-PUBLIC_HOST="pli-hazardtrack.56-125-163-194.sslip.io"
-PUBLIC_URL="https://$PUBLIC_HOST"
+NGINX_SNIPPET_SRC="$APP_DIR/.deploy/nginx/pli-hazardtrack-subpath.conf"
+NGINX_SNIPPET_DST="/etc/nginx/snippets/pli-hazardtrack-subpath.conf"
+LEGACY_NGINX_SITE="/etc/nginx/sites-available/pli-hazardtrack"
+LEGACY_NGINX_ENABLED="/etc/nginx/sites-enabled/pli-hazardtrack"
+PUBLIC_URL="https://56.125.163.194/pli-hazardtrack"
 EXPECTED_REPO_FRAGMENT="vpcapanema/PLI-HazardTrack"
 RUNTIME_RE='^(Dockerfile|docker-compose\.vm\.yml|requirements|app\.py|core/|static/|templates/|data/ua_|\.deploy/postgres/|\.deploy/ensure_sigma_db\.sh|\.deploy/patch_vm_sigma_env\.sh)'
 
@@ -57,28 +58,15 @@ sed -i 's/\r$//' "$PATCH_SCRIPT" "$ENSURE_DB" 2>/dev/null || true
 bash "$PATCH_SCRIPT"
 bash "$ENSURE_DB"
 
-step "Verificando proxy Nginx + HTTPS"
-NGINX_SNIPPET_SRC="$APP_DIR/.deploy/nginx-host/pli-hazardtrack-locations.conf"
-HTTPS_SCRIPT="$APP_DIR/.deploy/ensure_https_vm.sh"
-[[ -f "$NGINX_SRC" ]] || die "config nginx nao encontrada em $NGINX_SRC"
+step "Configurando rota exclusiva no proxy HTTPS por IP"
 [[ -f "$NGINX_SNIPPET_SRC" ]] \
     || die "snippet nginx nao encontrado em $NGINX_SNIPPET_SRC"
-
-if [[ -f "$HTTPS_SCRIPT" ]]; then
-    sed -i 's/\r$//' "$HTTPS_SCRIPT" 2>/dev/null || true
-    bash "$HTTPS_SCRIPT"
-else
-    warn "ensure_https_vm.sh ausente — copia nginx HTTP legado"
-    if ! sudo cmp -s "$NGINX_SRC" "$NGINX_DST" 2>/dev/null; then
-        sudo cp "$NGINX_DST" "${NGINX_DST}.bak.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
-        sudo cp "$NGINX_SRC" "$NGINX_DST"
-        sudo nginx -t
-        sudo systemctl reload nginx
-        ok "Nginx recarregado"
-    else
-        ok "Nginx ja estava atualizado"
-    fi
-fi
+sudo mkdir -p /etc/nginx/snippets
+sudo cp "$NGINX_SNIPPET_SRC" "$NGINX_SNIPPET_DST"
+sudo rm -f "$LEGACY_NGINX_ENABLED" "$LEGACY_NGINX_SITE"
+sudo nginx -t
+sudo systemctl reload nginx
+ok "rota ativa somente em $PUBLIC_URL/"
 
 NEED_BUILD=0
 COMPOSE_CHANGED=0
@@ -199,27 +187,18 @@ else
     warn "nao foi possivel ler stats do cache (container ainda subindo?)"
 fi
 
-step "Testando URL publica (ate 120 s)"
+step "Testando rota publica exclusiva (ate 120 s)"
 PUB_OK=0
 PUB_CODE="000"
 for i in $(seq 1 24); do
     PUB_CODE=$(curl -s -o /dev/null -w '%{http_code}' \
-        "https://$PUBLIC_HOST/api/health" 2>/dev/null || echo "000")
+        "$PUBLIC_URL/api/health" 2>/dev/null || echo "000")
     if [[ "$PUB_CODE" == "200" ]]; then
         PUB_OK=1
         ok "HTTPS publico OK (HTTP $PUB_CODE, tentativa $i)"
         break
     fi
-    PUB_CODE=$(curl -s -o /dev/null -w '%{http_code}' \
-        -H "Host: $PUBLIC_HOST" \
-        http://127.0.0.1/api/health 2>/dev/null || echo "000")
-    if [[ "$PUB_CODE" == "200" ]]; then
-        PUB_OK=1
-        warn "app OK em HTTP — HTTPS ainda indisponivel (HTTP $PUB_CODE)"
-        PUBLIC_URL="http://$PUBLIC_HOST"
-        break
-    fi
-    printf "  · aguardando proxy... (%ds, HTTPS/HTTP %s)\n" "$((i * 5))" \
+    printf "  · aguardando proxy... (%ds, HTTP %s)\n" "$((i * 5))" \
         "$PUB_CODE"
     sleep 5
 done

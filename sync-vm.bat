@@ -10,7 +10,7 @@ set "PPK=%ROOT%SRV-SISTEMA-30001480.ppk"
 type "%PPK%" >nul 2>&1
 if errorlevel 1 set "PPK=%ROOT%temp_key.ppk"
 set "VM=ubuntu@56.125.163.194"
-set "APP_URL=https://pli-hazardtrack.56-125-163-194.sslip.io"
+set "APP_URL=https://56.125.163.194/pli-hazardtrack"
 
 if not exist "%PLINK%" (
     echo [ERRO] PuTTY plink.exe nao encontrado em "%PLINK%"

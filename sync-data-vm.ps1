@@ -8,7 +8,7 @@ $Vm = "ubuntu@56.125.163.194"
 $RemoteZip = "/tmp/pli-hazardtrack-heavy-data.zip"
 $AppDir = "/opt/pli-hazardtrack"
 $Container = "pli_hazardtrack_app"
-$AppUrl = "http://pli-hazardtrack.56-125-163-194.sslip.io"
+$AppUrl = "https://56.125.163.194/pli-hazardtrack"
 $Zip = Join-Path $env:TEMP "pli-hazardtrack-heavy-data.zip"
 $Stage = Join-Path $env:TEMP "pli-hazardtrack-heavy-data"
 

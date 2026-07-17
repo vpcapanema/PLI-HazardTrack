@@ -39,13 +39,16 @@ import sys
 from pathlib import Path
 
 import geopandas as gpd
-from shapely.geometry import LineString
+from shapely.geometry import LineString, MultiLineString
+from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge, substring, unary_union
 
 sys.path.insert(0, str(Path("ferramentas/extracao-ra").resolve()))
 ot = import_module("40_oficial_tabelas")
 
-sys.stdout.reconfigure(encoding="utf-8")
+_reconfigure_stdout = getattr(sys.stdout, "reconfigure", None)
+if callable(_reconfigure_stdout):
+    _reconfigure_stdout(encoding="utf-8")
 
 GPKG = Path("data/pli-hazardtrack.gpkg")
 EPSG_UTM = 31983
@@ -67,17 +70,19 @@ SIGLA_MUN = {
 ROD_POR_REGIAO = {1: "SP-098", 2: "SP-055", 3: "SP-055", 4: "SP-055"}
 
 
-def _to_line(g):
-    if g.geom_type == "LineString":
+def _to_line(g: BaseGeometry) -> LineString:
+    if isinstance(g, LineString):
         return g
-    if g.geom_type == "MultiLineString":
+    if isinstance(g, MultiLineString):
         parts = list(g.geoms)
         if len(parts) == 1:
             return parts[0]
         merged = linemerge(g)
-        if merged.geom_type == "LineString":
+        if isinstance(merged, LineString):
             return merged
-        return max(merged.geoms, key=lambda x: x.length)
+        if isinstance(merged, MultiLineString):
+            return max(merged.geoms, key=lambda x: x.length)
+        raise RuntimeError(f"Falha ao unir geometria {g.geom_type}")
     raise RuntimeError(f"Geom inesperada {g.geom_type}")
 
 
@@ -215,7 +220,12 @@ def main():
             merged = partes[0]
         else:
             u = unary_union(partes)
-            merged = linemerge(u) if u.geom_type != "LineString" else u
+            if isinstance(u, LineString):
+                merged = u
+            elif isinstance(u, MultiLineString):
+                merged = linemerge(u)
+            else:
+                raise RuntimeError(f"Eixo invalido em R{rid}-{mun}")
         if merged.geom_type != "LineString":
             raise RuntimeError(f"Eixo nao-contiguo em R{rid}-{mun}")
         line = _ordena_eixo(merged, grupo)

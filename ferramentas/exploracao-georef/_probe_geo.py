@@ -20,6 +20,6 @@ print('\nrotulos numericos (UTM candidatos):')
 for w in words:
     txt = w[4]
     if re.fullmatch(r'\d{6,7}', txt):
-        cx = (w[0] + w[2]) / 2
-        cy = (w[1] + w[3]) / 2
+        cx = (float(w[0]) + float(w[2])) / 2
+        cy = (float(w[1]) + float(w[3])) / 2
         print(f'  {txt:>8}  cx={cx:7.1f} cy={cy:7.1f}')

@@ -149,8 +149,12 @@ def _process_zone(
         prev6h_mm=fc.ac6h_mm if fc else None,
     )
     ra_canal = p.get("RAGEO") if hazard == "geo" else p.get("RAHID")
-    lat_p = p.get("centroide_lat") or p.get("lat")
-    lon_p = p.get("centroide_lon") or p.get("lon")
+    lat_raw = p.get("centroide_lat") or p.get("lat")
+    lon_raw = p.get("centroide_lon") or p.get("lon")
+    if lat_raw is None or lon_raw is None:
+        raise ValueError(f"UA {p.get('ua_id')} sem coordenadas de centroide")
+    lat_p = float(lat_raw)
+    lon_p = float(lon_raw)
     if hazard == "geo":
         result = evaluate_point(
             lat=lat_p, lon=lon_p, region=region,
@@ -842,6 +846,11 @@ class State:
                 }
             target_hour, series = res
 
+        if series is None or target_hour is None:
+            return {
+                "available": False,
+                "reason": "serie horaria sem referencia temporal",
+            }
         avail = len(series[0]) if series and series[0] else 0
         frames = min(frames, avail)
         if frames < 2:

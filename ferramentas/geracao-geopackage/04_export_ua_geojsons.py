@@ -17,7 +17,9 @@ from pathlib import Path
 
 import geopandas as gpd
 
-sys.stdout.reconfigure(encoding="utf-8")
+_reconfigure_stdout = getattr(sys.stdout, "reconfigure", None)
+if callable(_reconfigure_stdout):
+    _reconfigure_stdout(encoding="utf-8")
 
 ROOT = Path(__file__).resolve().parents[2]
 GPKG = ROOT / "data" / "pli-hazardtrack.gpkg"

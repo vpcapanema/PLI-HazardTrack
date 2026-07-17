@@ -1,8 +1,8 @@
-"""Extrai texto bruto dos PDFs do Plano de Contingencia (PyPDF2)."""
+"""Extrai texto bruto dos PDFs do Plano de Contingencia (pypdf)."""
 import os
 from pathlib import Path
 
-import PyPDF2
+import pypdf
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -31,7 +31,7 @@ for f in files:
     out_path = out_dir / f.replace(".pdf", ".txt").replace(".PDF", ".txt")
     print(f"Extraindo: {f} ...")
     try:
-        reader = PyPDF2.PdfReader(open(path, "rb"))
+        reader = pypdf.PdfReader(open(path, "rb"))
         text = ""
         for i, page in enumerate(reader.pages):
             try:

@@ -546,6 +546,7 @@
       ["Raio de influência", (gc.radius_km ?? "—") + " km"],
       ["Estações recentes", gc.stations_recent ?? "—"],
       ["UAs ancoradas", (gc.points_corrected ?? 0) + " / " + (gc.points_total ?? 0)],
+      ["Overrides por consenso seco", gc.points_ground_override ?? 0],
       ["Fator médio", gc.mean_factor ?? "—"],
       ["Maior redução", gc.max_downscale != null ? "×" + gc.max_downscale : "—"],
       ["Maior aumento", gc.max_upscale != null ? "×" + gc.max_upscale : "—"],
@@ -558,7 +559,8 @@
       "muted",
       "Ancoragem multiplicativa do satélite MERGE/IMERG às medições de " +
         "pluviômetros por IDW (p=2); fator da janela de 24 h aplicado a " +
-        "todas as janelas. Fonte complementar — nunca substitui o satélite."
+        "todas as janelas. Consenso redundante de solo seco invalida " +
+        "picos extremos incompatíveis do satélite."
     );
     card.appendChild(note);
     root.appendChild(card);

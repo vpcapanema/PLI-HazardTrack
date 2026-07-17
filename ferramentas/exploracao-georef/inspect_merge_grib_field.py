@@ -67,11 +67,9 @@ def _sample_nearest(gid: Any, lat: float, lon: float) -> float:
     nearest = eccodes.codes_grib_find_nearest(gid, lat, lons_360)
     # Em ecCodes Python, o retorno pode ser uma lista/tuple ou um objeto;
     # aqui mantemos compatível com o uso já existente no backend.
-    try:
-        return float(nearest[0].value)
-    except Exception:
-        # fallback: tenta atributo `.value`
-        return float(nearest.value)
+    first = nearest[0] if isinstance(nearest, (list, tuple)) else nearest
+    value = getattr(first, "value", first)
+    return float(value)
 
 
 def main(argv: Optional[List[str]] = None) -> int:

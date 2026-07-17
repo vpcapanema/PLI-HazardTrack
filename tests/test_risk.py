@@ -9,15 +9,7 @@ Cobrem:
 - evaluate_point: integracao ponto-a-ponto, incluindo regiao=None.
 """
 
-import math
-import os
-import sys
 import unittest
-
-# Permite rodar via "python -m unittest" a partir da raiz do projeto.
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if ROOT not in sys.path:
-    sys.path.insert(0, ROOT)
 
 from core.risk import (
     calculate_cpc,
@@ -52,6 +44,7 @@ class TestCalculateCPC(unittest.TestCase):
         # 100^0.9 ~= 63.0957 -> I_env ~= 15.849
         # I=15 -> CPC ~= 0.9464
         cpc = calculate_cpc(intensity_mmh=15.0, ac96h_mm=100.0, k_geo=1000)
+        assert cpc is not None
         self.assertAlmostEqual(cpc, 15.0 / (1000.0 * 100.0 ** -0.9), places=6)
         self.assertAlmostEqual(cpc, 0.9464, places=3)
 
@@ -59,6 +52,8 @@ class TestCalculateCPC(unittest.TestCase):
         # Mesma chuva, K menor (Sao Sebastiao K=200) tem envoltoria menor -> CPC maior
         cpc_mogi = calculate_cpc(intensity_mmh=15.0, ac96h_mm=100.0, k_geo=1000)  # R1
         cpc_sseb = calculate_cpc(intensity_mmh=15.0, ac96h_mm=100.0, k_geo=200)   # R3
+        assert cpc_mogi is not None
+        assert cpc_sseb is not None
         self.assertGreater(cpc_sseb, cpc_mogi)
         # Razao deve ser exatamente 5x (1000/200), porque K e linear no denominador
         self.assertAlmostEqual(cpc_sseb / cpc_mogi, 5.0, places=6)
@@ -179,6 +174,7 @@ class TestEvaluatePoint(unittest.TestCase):
         self.assertEqual(r.icc_hid, 4)
         self.assertEqual(r.rd, 4)
         self.assertEqual(r.nivel, NIVEIS[4])
+        assert r.cpc is not None
         self.assertGreater(r.cpc, 16.0)
         self.assertLess(r.cpc, 24.0)
 
@@ -225,6 +221,7 @@ class TestRegionPolygons(unittest.TestCase):
         for lat, lon in [(-23.745, -45.430), (-23.785, -45.510), (-23.810, -45.600)]:
             r = find_region_for_point(lat, lon, regions)
             self.assertIsNotNone(r)
+            assert r is not None
             self.assertEqual(r.id, 3, msg=f"Esperado regiao 3 em ({lat}, {lon}), veio {r.id}")
 
 

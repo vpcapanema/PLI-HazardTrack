@@ -58,7 +58,7 @@ def sample(east_utm, north_utm, win=2):
     if not votes:
         return None, pix_col, pix_row
     # voto majoritario (robusto a artefatos JPEG nas bordas)
-    best = max(votes, key=votes.get)
+    best = max(votes, key=lambda key: votes[key])
     return best, pix_col, pix_row
 
 

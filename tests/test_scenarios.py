@@ -21,6 +21,7 @@ CENARIO HIDROLOGICO (Produto 7, item 3.3.3):
 import os
 import sys
 import unittest
+from importlib import import_module
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
@@ -29,7 +30,7 @@ sys.path.insert(0, os.path.join(ROOT, "ferramentas", "relatorios-plano-contingen
 
 from core.risk import evaluate_point, rd_distribution, NIVEIS  # pylint: disable=wrong-import-position
 from core.regions import APPROXIMATE_REGIONS, Region  # pylint: disable=wrong-import-position
-from ra_official import get_ra_dist_for_point  # pylint: disable=wrong-import-position
+get_ra_dist_for_point = import_module("ra_official").get_ra_dist_for_point
 
 
 def _region(idx: int) -> Region:

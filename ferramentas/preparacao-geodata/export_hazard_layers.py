@@ -15,6 +15,7 @@ Output:
 from pathlib import Path
 import sys
 import geopandas as gpd
+from typing import Any, cast
 
 # Permite importar core/regions.py
 ROOT = Path(__file__).resolve().parents[2]
@@ -122,7 +123,7 @@ def process_shapefile():
             gdf.at[idx, "region_id"] = int(region_id)
             gdf.at[idx, "region_name"] = region_name
             gdf.at[idx, "monitored"] = True
-            gdf.at[idx, "hazards"] = DEFAULT_HAZARDS
+            gdf.at[idx, "hazards"] = cast(Any, DEFAULT_HAZARDS)
     
     monitored = gdf[gdf["monitored"]].shape[0]
     print(f"   {monitored}/{len(gdf)} trechos monitorados")

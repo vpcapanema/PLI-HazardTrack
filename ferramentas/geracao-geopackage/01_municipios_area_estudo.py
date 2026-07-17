@@ -18,7 +18,9 @@ import sys
 from pathlib import Path
 import geopandas as gpd
 
-sys.stdout.reconfigure(encoding="utf-8")
+_reconfigure_stdout = getattr(sys.stdout, "reconfigure", None)
+if callable(_reconfigure_stdout):
+    _reconfigure_stdout(encoding="utf-8")
 
 SHAPE_IN = Path("data/_dradt_src/dradt_mvw_lml_municipio_a_2021.shp")
 GPKG_OUT = Path("data/pli-hazardtrack.gpkg")
@@ -164,17 +166,25 @@ def main():
     sel = sel.to_crs(4326)
 
     # Garante MultiPolygon (alguns municipios costeiros tem ilhas)
-    from shapely.geometry import MultiPolygon
-    sel["geometry"] = sel["geometry"].apply(
-        lambda g: g if isinstance(g, MultiPolygon)
-        else MultiPolygon([g])
-    )
+    from shapely.geometry import MultiPolygon, Polygon
+    multi_geometries = []
+    for geometry in sel.geometry:
+        if isinstance(geometry, MultiPolygon):
+            multi_geometries.append(geometry)
+        elif isinstance(geometry, Polygon):
+            multi_geometries.append(MultiPolygon([geometry]))
+        else:
+            raise TypeError(f"Geometria municipal invalida: {geometry}")
+    sel = sel.set_geometry(gpd.GeoSeries(
+        multi_geometries, index=sel.index, crs=sel.crs,
+    ))
 
     # Grava no GeoPackage
     GPKG_OUT.parent.mkdir(parents=True, exist_ok=True)
     sel.to_file(GPKG_OUT, layer=LAYER, driver="GPKG", index=False)
     print(f"\n  Camada '{LAYER}' gravada em {GPKG_OUT}")
-    print(f"  CRS de saida: EPSG:{sel.crs.to_epsg()}")
+    epsg = sel.crs.to_epsg() if sel.crs is not None else None
+    print(f"  CRS de saida: EPSG:{epsg}")
 
     print("\nRESUMO DA CAMADA:")
     print(sel.drop(columns="geometry").to_string(index=False))

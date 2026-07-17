@@ -70,7 +70,8 @@ def _sample_from_src(src, coords: Iterable[Tuple[float, float]]):
     coords_list = list(coords)
     if src.crs and src.crs.to_string() not in ("EPSG:4326", "OGC:CRS84"):
         xs, ys = zip(*coords_list)
-        tx, ty = transform("EPSG:4326", src.crs, xs, ys)
+        transformed = transform("EPSG:4326", src.crs, xs, ys)
+        tx, ty = transformed[0], transformed[1]
         coords_list = list(zip(tx, ty))
     vals = []
     for arr in src.sample(coords_list):

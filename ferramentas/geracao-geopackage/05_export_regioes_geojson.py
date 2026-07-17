@@ -24,7 +24,9 @@ import geopandas as gpd
 from shapely.ops import linemerge
 from shapely.geometry import LineString, MultiLineString
 
-sys.stdout.reconfigure(encoding="utf-8")
+_reconfigure_stdout = getattr(sys.stdout, "reconfigure", None)
+if callable(_reconfigure_stdout):
+    _reconfigure_stdout(encoding="utf-8")
 
 ROOT = Path(__file__).resolve().parents[2]
 GPKG = ROOT / "data" / "pli-hazardtrack.gpkg"
@@ -65,16 +67,16 @@ CLIMATIC_PARAMS: dict[int, dict] = {
 def _inject_climatic(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     g = gdf.copy()
     g["k_geo"] = g["regiao_id"].map(
-        lambda rid: CLIMATIC_PARAMS[int(rid)]["k_geo"]
+        lambda rid: CLIMATIC_PARAMS[int(str(rid))]["k_geo"]
     )
     g["cpc_breaks"] = g["regiao_id"].map(
         lambda rid: ";".join(
-            str(x) for x in CLIMATIC_PARAMS[int(rid)]["cpc_breaks"]
+            str(x) for x in CLIMATIC_PARAMS[int(str(rid))]["cpc_breaks"]
         )
     )
     g["hid24h_breaks"] = g["regiao_id"].map(
         lambda rid: ";".join(
-            str(x) for x in CLIMATIC_PARAMS[int(rid)]["hid24h_breaks"]
+            str(x) for x in CLIMATIC_PARAMS[int(str(rid))]["hid24h_breaks"]
         )
     )
     return g
@@ -108,7 +110,7 @@ def _dissolve_eixos(gdf_lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         else:
             geom = MultiLineString(flat)
         row = {c: sub.iloc[0][c] for c in cols}
-        row["regiao_id"] = int(rid)
+        row["regiao_id"] = int(str(rid))
         row["n_subtrechos_der"] = int(len(sub))
         row["geometry"] = geom
         rows.append(row)

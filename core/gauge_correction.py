@@ -36,6 +36,11 @@ Para cada Unidade de Analise (ponto p) e uma janela de acumulacao:
    (18/24/72/96 h) e a intensidade horaria, mantendo a monotonicidade.
 5. Quando o satelite esta ~seco mas o solo mediu chuva, aplica-se correcao
    ADITIVA (nao ha estrutura satelital para escalar).
+6. Guarda de falso positivo: se pelo menos 3 estacoes proximas, recentes e
+   com cobertura suficiente concordarem que esta seco, enquanto o satelite
+   indicar chuva extrema, o IDW de solo substitui a ancora de 24 h sem o
+   piso multiplicativo. Isso impede que o residuo de um erro extremo do
+   satelite gere alerta operacional.
 
 Politica: fonte COMPLEMENTAR ao MERGE, nunca substituta. Sem estacao no raio,
 o valor satelital permanece intacto. Falha da API -> ciclo segue com satelite
@@ -49,6 +54,7 @@ import math
 import os
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from threading import Lock
 from typing import Dict, List, Optional, Tuple
 
@@ -79,6 +85,28 @@ STATION_MAX_AGE_H = float(os.environ.get("SAMAEG_GAUGE_MAX_AGE_H", "3"))
 DRY_MM = 0.5
 # Janela de ancoragem (h). 24 h e a mais robusta na cadencia das estacoes.
 ANCHOR_HOURS = 24
+# Guarda conservadora contra falso positivo por persistencia do IMERG.
+DRY_GUARD_ENABLED = os.environ.get(
+    "SAMAEG_GAUGE_DRY_GUARD", "1",
+).strip() not in ("0", "false", "False", "no")
+DRY_GUARD_MIN_STATIONS = int(os.environ.get(
+    "SAMAEG_GAUGE_DRY_MIN_STATIONS", "3",
+))
+DRY_GUARD_MAX_NEAREST_KM = float(os.environ.get(
+    "SAMAEG_GAUGE_DRY_MAX_NEAREST_KM", "15",
+))
+DRY_GUARD_MAX_GAUGE_MM = float(os.environ.get(
+    "SAMAEG_GAUGE_DRY_MAX_MM", "2",
+))
+DRY_GUARD_MIN_SAT_MM = float(os.environ.get(
+    "SAMAEG_GAUGE_DRY_MIN_SAT_MM", "50",
+))
+DRY_GUARD_MIN_FRACTION = float(os.environ.get(
+    "SAMAEG_GAUGE_DRY_MIN_FRACTION", "0.8",
+))
+DRY_GUARD_MIN_COVERAGE_H = float(os.environ.get(
+    "SAMAEG_GAUGE_DRY_MIN_COVERAGE_H", "18",
+))
 
 
 @dataclass
@@ -89,6 +117,8 @@ class GaugeStation:
     name: str
     owner: str
     city: str
+    observed_at: Optional[datetime] = None
+    coverage_hours: Optional[float] = None
 
 
 @dataclass
@@ -102,6 +132,7 @@ class GaugeCorrectionMeta:
     stations_total: int = 0
     stations_recent: int = 0
     points_corrected: int = 0
+    points_ground_override: int = 0
     points_total: int = 0
     mean_factor: Optional[float] = None
     max_downscale: Optional[float] = None   # menor fator aplicado (<1)
@@ -119,6 +150,7 @@ class GaugeCorrectionMeta:
             "stations_total": self.stations_total,
             "stations_recent": self.stations_recent,
             "points_corrected": self.points_corrected,
+            "points_ground_override": self.points_ground_override,
             "points_total": self.points_total,
             "mean_factor": self.mean_factor,
             "max_downscale": self.max_downscale,
@@ -144,9 +176,13 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def _parse_station(raw: Dict) -> Optional[GaugeStation]:
+    lat_raw = raw.get("latitude")
+    lon_raw = raw.get("longitude")
+    if lat_raw is None or lon_raw is None:
+        return None
     try:
-        lat = float(raw.get("latitude"))
-        lon = float(raw.get("longitude"))
+        lat = float(lat_raw)
+        lon = float(lon_raw)
     except (TypeError, ValueError):
         return None
     if not (-35 < lat < 5 and -75 < lon < -30):
@@ -158,11 +194,32 @@ def _parse_station(raw: Dict) -> Optional[GaugeStation]:
         value = None
     if value is None or value < 0:
         return None
+    observed_at = None
+    max_date = raw.get("max_date")
+    if max_date:
+        try:
+            observed_at = datetime.fromisoformat(
+                str(max_date).replace("Z", "+00:00")
+            )
+        except ValueError:
+            pass
+    coverage_hours = None
+    count_raw = raw.get("qtd")
+    gap_raw = raw.get("measurement_gap")
+    try:
+        if count_raw is not None and gap_raw is not None:
+            count = float(count_raw)
+            gap_minutes = float(gap_raw)
+            coverage_hours = count * gap_minutes / 60.0
+    except (TypeError, ValueError):
+        pass
     return GaugeStation(
         lat=lat, lon=lon, value_mm=value,
         name=str(raw.get("station_name") or ""),
         owner=str(raw.get("station_owner") or ""),
         city=str(raw.get("city") or ""),
+        observed_at=observed_at,
+        coverage_hours=coverage_hours,
     )
 
 
@@ -196,7 +253,15 @@ def _fetch_stations(hours: int) -> List[GaugeStation]:
         rows = payload
     if not isinstance(rows, list):
         raise ValueError("resposta SIBH sem lista de medicoes")
-    stations = [s for s in (_parse_station(x) for x in rows) if s]
+    cutoff = datetime.now(timezone.utc).timestamp() - STATION_MAX_AGE_H * 3600
+    stations = [
+        station
+        for station in (_parse_station(x) for x in rows)
+        if station is not None and (
+            station.observed_at is None
+            or station.observed_at.timestamp() >= cutoff
+        )
+    ]
     with _CACHE_LOCK:
         _CACHE[hours] = (now, stations)
     log.info("SIBH: %d estacoes (janela %dh)", len(stations), hours)
@@ -224,6 +289,33 @@ def _idw(
     if den <= 0:
         return None, d_min
     return num / den, d_min
+
+
+def _dry_ground_consensus(
+    stations: List[GaugeStation], lat: float, lon: float, g24: float,
+) -> bool:
+    """Confirma solo seco com redundancia espacial e temporal."""
+    if not DRY_GUARD_ENABLED or g24 > DRY_GUARD_MAX_GAUGE_MM:
+        return False
+    nearby = []
+    for station in stations:
+        distance = _haversine_km(lat, lon, station.lat, station.lon)
+        coverage = station.coverage_hours
+        if (
+            distance <= GAUGE_RADIUS_KM
+            and coverage is not None
+            and coverage >= DRY_GUARD_MIN_COVERAGE_H
+        ):
+            nearby.append((distance, station))
+    if len(nearby) < DRY_GUARD_MIN_STATIONS:
+        return False
+    if min(distance for distance, _ in nearby) > DRY_GUARD_MAX_NEAREST_KM:
+        return False
+    dry_count = sum(
+        station.value_mm <= DRY_GUARD_MAX_GAUGE_MM
+        for _, station in nearby
+    )
+    return dry_count / len(nearby) >= DRY_GUARD_MIN_FRACTION
 
 
 def correct_rain_batch(
@@ -262,6 +354,7 @@ def correct_rain_batch(
     down: List[float] = []
     up: List[float] = []
     corrected = 0
+    ground_overrides = 0
 
     for i, (lat, lon) in enumerate(coords):
         if i >= len(rain_batch) or rain_batch[i] is None:
@@ -279,7 +372,17 @@ def correct_rain_batch(
 
         if s24 <= DRY_MM and g24 <= DRY_MM:
             continue  # ambos secos: nada a corrigir
-        if s24 > DRY_MM:
+        ground_override = (
+            s24 >= DRY_GUARD_MIN_SAT_MM
+            and _dry_ground_consensus(stations, lat, lon, g24)
+        )
+        if ground_override:
+            # Consenso de solo substitui apenas uma divergencia extrema.
+            # Sem piso: o residuo do satelite nao pode fabricar um alerta.
+            factor = max(0.0, min(1.0, g24 / s24))
+            _anchor_recent_24h_to_ground(rain, g24, factor)
+            ground_overrides += 1
+        elif s24 > DRY_MM:
             factor = blend24 / s24
             factor = max(FACTOR_MIN, min(FACTOR_MAX, factor))
             _scale_rain(rain, factor)
@@ -298,6 +401,7 @@ def correct_rain_batch(
 
     meta.applied = corrected > 0
     meta.points_corrected = corrected
+    meta.points_ground_override = ground_overrides
     if factors:
         meta.mean_factor = round(sum(factors) / len(factors), 3)
     if down:
@@ -305,8 +409,9 @@ def correct_rain_batch(
     if up:
         meta.max_upscale = round(max(up), 3)
     log.info(
-        "correcao por solo: %d/%d pontos ancorados (fator medio %s)",
-        corrected, len(coords), meta.mean_factor,
+        "correcao por solo: %d/%d pontos ancorados, %d override(s) de "
+        "satélite extremo (fator medio %s)",
+        corrected, len(coords), ground_overrides, meta.mean_factor,
     )
     return meta
 
@@ -318,6 +423,30 @@ def _scale_rain(rain, factor: float) -> None:
         v = getattr(rain, attr, None)
         if v is not None:
             setattr(rain, attr, round(float(v) * factor, 2))
+    _enforce_monotonic(rain)
+
+
+def _anchor_recent_24h_to_ground(
+    rain, ground24: float, factor: float,
+) -> None:
+    """Substitui 24 h pelo solo sem apagar chuva anterior a essa janela."""
+    satellite24 = float(getattr(rain, "ac24h_mm", 0.0) or 0.0)
+    satellite72 = float(getattr(rain, "ac72h_mm", 0.0) or 0.0)
+    satellite96 = float(getattr(rain, "ac96h_mm", 0.0) or 0.0)
+    satellite18 = float(getattr(rain, "ac18h_mm", 0.0) or 0.0)
+    intensity = float(getattr(rain, "intensity_mmh", 0.0) or 0.0)
+
+    setattr(rain, "ac18h_mm", round(satellite18 * factor, 2))
+    setattr(rain, "ac24h_mm", round(ground24, 2))
+    setattr(
+        rain, "ac72h_mm",
+        round(max(0.0, satellite72 - satellite24) + ground24, 2),
+    )
+    setattr(
+        rain, "ac96h_mm",
+        round(max(0.0, satellite96 - satellite24) + ground24, 2),
+    )
+    setattr(rain, "intensity_mmh", round(intensity * factor, 2))
     _enforce_monotonic(rain)
 
 

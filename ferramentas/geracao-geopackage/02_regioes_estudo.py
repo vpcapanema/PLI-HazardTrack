@@ -27,10 +27,14 @@ from pathlib import Path
 
 import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Point, MultiPolygon
+from shapely.geometry import (
+    LineString, MultiLineString, Point, Polygon, MultiPolygon,
+)
 from shapely.ops import unary_union, linemerge
 
-sys.stdout.reconfigure(encoding="utf-8")
+_reconfigure_stdout = getattr(sys.stdout, "reconfigure", None)
+if callable(_reconfigure_stdout):
+    _reconfigure_stdout(encoding="utf-8")
 
 SHP_DER = Path("data/_der_src/MALHA_RODOVIARIA.shp")
 SHP_RC = Path(
@@ -84,8 +88,8 @@ def construir_auxilio():
     for rid, meta in REGIOES.items():
         sel = gdf[
             (gdf["Rodovia"] == meta["rodovia_shp"])
-            & (gdf["KmInicial"] >= meta["km_ini"] - 1e-3)
-            & (gdf["KmFinal"] <= meta["km_fim"] + 1e-3)
+            & (gdf["KmInicial"] >= float(meta["km_ini"]) - 1e-3)
+            & (gdf["KmFinal"] <= float(meta["km_fim"]) + 1e-3)
         ].copy()
         sel["regiao_id"] = rid
         sel["regiao_nome"] = meta["nome"]
@@ -198,9 +202,15 @@ def construir_regioes(aux_4326):
     linhas_por_regiao = {}
     for rid in [1, 2, 3, 4]:
         sub = aux_utm[aux_utm["regiao_id"] == rid]
-        merged = linemerge(unary_union(sub.geometry.tolist()))
+        union = unary_union(sub.geometry.tolist())
+        if isinstance(union, LineString):
+            merged = union
+        elif isinstance(union, MultiLineString):
+            merged = linemerge(union)
+        else:
+            raise RuntimeError(f"Geometria linear invalida em R{rid}")
         linhas_por_regiao[rid] = merged
-        if hasattr(merged, "geoms"):
+        if isinstance(merged, MultiLineString):
             parts = list(merged.geoms)
             print(f"  R{rid}: MultiLineString {len(parts)} partes, "
                   f"L_geom={merged.length / 1000:.3f} km")
@@ -290,9 +300,17 @@ def construir_regioes(aux_4326):
     ]
     gdf = gdf[schema].sort_values("regiao_id").reset_index(drop=True)
     gdf = gdf.to_crs(EPSG_OUT)
-    gdf["geometry"] = gdf["geometry"].apply(
-        lambda g: g if isinstance(g, MultiPolygon) else MultiPolygon([g])
-    )
+    multi_geometries = []
+    for geometry in gdf.geometry:
+        if isinstance(geometry, MultiPolygon):
+            multi_geometries.append(geometry)
+        elif isinstance(geometry, Polygon):
+            multi_geometries.append(MultiPolygon([geometry]))
+        else:
+            raise TypeError(f"Geometria regional invalida: {geometry}")
+    gdf = gdf.set_geometry(gpd.GeoSeries(
+        multi_geometries, index=gdf.index, crs=gdf.crs,
+    ))
     gdf.to_file(GPKG, layer="regioes_estudo", driver="GPKG", index=False)
     print(f"\n  Camada 'regioes_estudo' salva: {len(gdf)} features no GPKG")
     return gdf, linhas_por_regiao

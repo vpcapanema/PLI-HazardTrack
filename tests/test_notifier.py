@@ -31,7 +31,6 @@ def _make_enabled():
     n.enabled_email = False
     n.threshold = 3
     n.cooldown = timedelta(hours=6)
-    n.sent = []
     n._send_webhook = lambda *a, **k: True
     n._send_email = lambda *a, **k: True
     return n

@@ -13,6 +13,7 @@ Estratégia:
 """
 
 from pathlib import Path
+from importlib import import_module
 import sys
 import geopandas as gpd
 import pandas as pd
@@ -21,7 +22,9 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "ferramentas" / "relatorios-plano-contingencia"))
-from ra_official import RA_GEO_BY_SEGMENT, RA_HID_BY_SEGMENT  # noqa: E402
+_ra_official = import_module("ra_official")
+RA_GEO_BY_SEGMENT = _ra_official.RA_GEO_BY_SEGMENT
+RA_HID_BY_SEGMENT = _ra_official.RA_HID_BY_SEGMENT
 
 # Shapefiles já exportados
 EXPORT_DIR = ROOT / "data" / "export"

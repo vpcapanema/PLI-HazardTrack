@@ -246,6 +246,7 @@ def get_ra_dist_for_point(
         return out
 
     ref = geo_hit or hid_hit
+    assert ref is not None
     out["regiao"] = ref.get("regiao")
     out["uba"] = ref.get("uba")
     out["desc"] = ref.get("desc")

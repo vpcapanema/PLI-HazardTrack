@@ -32,6 +32,11 @@ para rodovias da Regiao do Litoral Norte de Sao Paulo (DER-SP).
   fator multiplicativo ancorado na janela de 24 h, aplicado a TODAS as
   janelas (18/24/72/96 h) + intensidade, com clamp `[SAMAEG_GAUGE_FMIN,
   SAMAEG_GAUGE_FMAX]` e peso do solo `<= SAMAEG_GAUGE_MAX_WEIGHT` (0.85).
+  Guarda de falso positivo (`SAMAEG_GAUGE_DRY_GUARD`, default on): quando
+  >=3 estacoes recentes com >=18 h de cobertura, uma a <=15 km e >=80%
+  delas secas contradizem MERGE extremo (>=50 mm/24 h), o IDW de solo
+  substitui a ancora sem piso multiplicativo. Sem consenso suficiente,
+  preserva a fusao normal e nunca inventa medicao.
   Fonte COMPLEMENTAR: sem estacao no raio ou API fora -> satelite puro
   (degradacao transparente, nunca inventa dado). Toggle
   `SAMAEG_GAUGE_CORRECTION` (default on). Metadados (`_gauge_meta`) sao

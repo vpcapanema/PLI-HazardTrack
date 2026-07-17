@@ -49,7 +49,7 @@ class TestCoordsHash(unittest.TestCase):
         int(h, 16)  # so digitos hex
 
 
-class _TmpCacheMixin:
+class _TmpCacheMixin(unittest.TestCase):
     """Redireciona CACHE_ROOT/GRIB_DIR/SAMPLES_DIR para tmpdir."""
 
     def _patch_cache_root(self, root: Path) -> None:
@@ -63,7 +63,7 @@ class _TmpCacheMixin:
             self.addCleanup(p.stop)
 
 
-class TestGribRoundtrip(_TmpCacheMixin, unittest.TestCase):
+class TestGribRoundtrip(_TmpCacheMixin):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
@@ -98,7 +98,7 @@ class TestGribRoundtrip(_TmpCacheMixin, unittest.TestCase):
         self.assertEqual(leftovers, [])
 
 
-class TestSamplesRoundtrip(_TmpCacheMixin, unittest.TestCase):
+class TestSamplesRoundtrip(_TmpCacheMixin):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
@@ -192,7 +192,7 @@ class TestShouldRefetch(unittest.TestCase):
         self.assertTrue(mc.should_refetch(dt))
 
 
-class TestPruneOld(_TmpCacheMixin, unittest.TestCase):
+class TestPruneOld(_TmpCacheMixin):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
@@ -231,7 +231,7 @@ class TestPruneOld(_TmpCacheMixin, unittest.TestCase):
         self.assertIsNotNone(mc.read_grib(dt))
 
 
-class TestDiskStats(_TmpCacheMixin, unittest.TestCase):
+class TestDiskStats(_TmpCacheMixin):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)

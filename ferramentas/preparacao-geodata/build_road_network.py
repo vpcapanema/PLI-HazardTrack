@@ -15,6 +15,7 @@ from pathlib import Path
 import sys
 import geopandas as gpd
 import json
+from typing import Any, cast
 
 # Permite importar core/regions.py (precisa rodar do projeto)
 ROOT = Path(__file__).resolve().parents[2]
@@ -172,11 +173,11 @@ for idx, geom in gdf["geometry"].items():
         gdf.at[idx, "region_id"] = int(rid)
         gdf.at[idx, "region_name"] = fix_text(rname)
         gdf.at[idx, "monitored"] = True
-        gdf.at[idx, "hazards"] = list(DEFAULT_HAZARDS)
+        gdf.at[idx, "hazards"] = cast(Any, list(DEFAULT_HAZARDS))
         monitored_count += 1
         region_distribution[rname] = region_distribution.get(rname, 0) + 1
     else:
-        gdf.at[idx, "hazards"] = []
+        gdf.at[idx, "hazards"] = cast(Any, [])
 
 print(f"  {monitored_count}/{len(gdf)} trechos cobertos pelo sistema")
 for nome, qtd in sorted(region_distribution.items(), key=lambda kv: -kv[1]):

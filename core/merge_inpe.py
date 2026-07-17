@@ -497,7 +497,7 @@ def _eccodes_available() -> bool:
         return False
 
 
-_HTTP_SESSION = {"session": None}
+_HTTP_SESSION: Dict[str, Optional[requests.Session]] = {"session": None}
 
 
 def _http() -> requests.Session:

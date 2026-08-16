@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>PLI-HazardTrack · Administração</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/admin.css">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body class="admin-app">
     <aside class="admin-sidebar" id="admin-sidebar">
@@ -38,8 +38,8 @@
             </button>
         </nav>
         <div class="sidebar-foot">
-            <a href="/" class="sidebar-link">Mapa público</a>
-            <form method="POST" action="/admin/logout">
+            <a href="{{ url_for('index') }}" class="sidebar-link">Mapa público</a>
+            <form method="POST" action="{{ url_for('admin.logout') }}">
                 <button type="submit" class="sidebar-link sidebar-logout">Sair</button>
             </form>
         </div>
@@ -230,6 +230,7 @@
         </div>
     </div>
 
-    <script src="/static/admin.js"></script>
+    <script>window.__BASE_PATH__ = {{ request.script_root|tojson }};</script>
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
 </body>
 </html>

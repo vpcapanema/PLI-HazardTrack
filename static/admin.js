@@ -4,6 +4,12 @@
 (function () {
   "use strict";
 
+  function appPath(path) {
+    const prefix = window.__BASE_PATH__ || "";
+    if (!prefix || path.startsWith(prefix + "/")) return path;
+    return prefix + path;
+  }
+
   const PANEL_META = {
     visao: ["Visão geral", "Panorama dos dois módulos de monitoramento"],
     saude: ["Saúde dos sistemas", "Semáforos, pipelines e fontes de dados"],
@@ -156,12 +162,12 @@
     showRefreshMsg(msg, "Atualização em andamento — puxando dados da fonte…",
       "info");
     try {
-      const res = await fetch(`/admin/api/refresh/${system}`, {
+      const res = await fetch(appPath(`/admin/api/refresh/${system}`), {
         method: "POST",
         credentials: "same-origin",
       });
       if (res.status === 401) {
-        window.location = "/admin/login";
+        window.location = appPath("/admin/login");
         return;
       }
       const body = await res.json().catch(() => ({}));
@@ -187,7 +193,7 @@
       return;
     }
     try {
-      const res = await fetch("/admin/api/refresh/status", {
+      const res = await fetch(appPath("/admin/api/refresh/status"), {
         credentials: "same-origin",
       });
       const st = (await res.json())[system] || {};
@@ -252,11 +258,11 @@
   async function refresh() {
     try {
       const [dashRes, diagRes] = await Promise.all([
-        fetch("/admin/api/dashboard", { credentials: "same-origin" }),
-        fetch("/admin/api/diagnostics", { credentials: "same-origin" }),
+        fetch(appPath("/admin/api/dashboard"), { credentials: "same-origin" }),
+        fetch(appPath("/admin/api/diagnostics"), { credentials: "same-origin" }),
       ]);
       if (dashRes.status === 401) {
-        window.location = "/admin/login";
+        window.location = appPath("/admin/login");
         return;
       }
       dashboard = await dashRes.json();
@@ -596,14 +602,14 @@
   async function setAlertSystem(system, enabled, btn) {
     if (btn) btn.disabled = true;
     try {
-      const res = await fetch("/admin/api/alert-controls", {
+      const res = await fetch(appPath("/admin/api/alert-controls"), {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ system, enabled }),
       });
       if (res.status === 401) {
-        window.location = "/admin/login";
+        window.location = appPath("/admin/login");
         return;
       }
       if (!res.ok) {
@@ -814,7 +820,7 @@
         `<h3>${esc(r.title)}</h3>` +
         `<p>${esc(r.desc)}</p>` +
         `<span class="report-fmt">${esc(r.fmt)}</span>` +
-        `<a class="btn-primary report-dl" href="/admin/api/reports/export?type=${r.id}">Baixar</a>`;
+        `<a class="btn-primary report-dl" href="${appPath(`/admin/api/reports/export?type=${r.id}`)}">Baixar</a>`;
       grid.appendChild(card);
     }
 

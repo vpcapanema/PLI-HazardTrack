@@ -10,10 +10,10 @@
 </head>
 <body class="admin-app">
     <aside class="admin-sidebar" id="admin-sidebar">
-        <div class="sidebar-brand">
-            <strong>PLI-HazardTrack</strong>
-            <span>Painel administrativo</span>
-        </div>
+        <a href="{{ url_for('index') }}" class="sidebar-brand" title="Ir para a página inicial">
+            <span class="sidebar-brand-pli">PLI</span>
+            <span class="sidebar-brand-product">HazardTrack</span>
+        </a>
         <nav class="sidebar-nav" aria-label="Seções do painel">
             <button type="button" class="nav-item active" data-panel="visao">
                 Visão geral
@@ -38,9 +38,15 @@
             </button>
         </nav>
         <div class="sidebar-foot">
-            <a href="{{ url_for('index') }}" class="sidebar-link">Mapa público</a>
+            <a href="{{ url_for('index') }}" class="sidebar-link sidebar-link-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+                Voltar ao mapa
+            </a>
             <form method="POST" action="{{ url_for('admin.logout') }}">
-                <button type="submit" class="sidebar-link sidebar-logout">Sair</button>
+                <button type="submit" class="sidebar-link sidebar-logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Sair
+                </button>
             </form>
         </div>
     </aside>

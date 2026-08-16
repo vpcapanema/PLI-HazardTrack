@@ -68,7 +68,7 @@ services:
       GUNICORN_WORKERS: "1"
       GUNICORN_THREADS: "8"
       GUNICORN_TIMEOUT: "3600"
-      SIGMA_API_BASE_URL: "${SIGMA_API_BASE_URL:-http://56.125.163.194}"
+      SIGMA_API_BASE_URL: "${SIGMA_API_BASE_URL:-http://sigma_pli_backend_prod:8000}"
       SIGMA_DATABASE_URL: "${SIGMA_DATABASE_URL:-}"
       SIGMA_POSTGRES_HOST: sigma_pli_db
       SIGMA_POSTGRES_PORT: "5432"

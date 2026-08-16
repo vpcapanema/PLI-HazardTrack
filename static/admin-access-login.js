@@ -7,7 +7,8 @@
     if (!prefix || path.indexOf(prefix + '/') === 0) return path;
     return prefix + path;
   }
-`r`n  function applyAuthContext(ctx) {
+
+  function applyAuthContext(ctx) {
     if (!ctx) return;
     var idField = ctx.identifier;
     if (idField) {

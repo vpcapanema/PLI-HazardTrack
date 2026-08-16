@@ -2,7 +2,12 @@
 (function () {
   function $(sel) { return document.querySelector(sel); }
 
-  function applyAuthContext(ctx) {
+  function appPath(path) {
+    var prefix = window.__BASE_PATH__ || '';
+    if (!prefix || path.indexOf(prefix + '/') === 0) return path;
+    return prefix + path;
+  }
+`r`n  function applyAuthContext(ctx) {
     if (!ctx) return;
     var idField = ctx.identifier;
     if (idField) {
@@ -50,7 +55,7 @@
     var password = $('#login-pass').value;
     var nextUrl = $('#login-next').value || '/admin/status';
     try {
-      var res = await fetch('/admin/api/auth/login', {
+      var res = await fetch(appPath('/admin/api/auth/login'), {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
@@ -74,7 +79,7 @@
         return;
       }
       $('#login-pass').value = '';
-      location.href = data.redirect || nextUrl;
+      location.href = appPath(data.redirect || nextUrl);
     } catch (_err) {
       $('#login-error').hidden = false;
       $('#login-error').textContent =
@@ -84,7 +89,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     bindPasswordToggle();
-    fetch('/admin/api/auth/context', { credentials: 'same-origin' })
+    fetch(appPath('/admin/api/auth/context'), { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(applyAuthContext)
       .catch(function () {});

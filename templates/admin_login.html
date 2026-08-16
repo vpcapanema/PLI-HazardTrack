@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>PLI-HazardTrack — Administração</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/admin.css">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body class="access-page">
     <header class="access-topbar">
         <h1>Administração</h1>
         <nav>
-            <a href="/">Monitoramento</a>
-            <a href="/admin/login" aria-current="page">Admin</a>
+            <a href="{{ url_for('index') }}">Monitoramento</a>
+            <a href="{{ url_for('admin.login_page') }}" aria-current="page">Admin</a>
         </nav>
     </header>
     <main class="access-main">
@@ -21,7 +21,7 @@
             <section id="login-panel" class="access-login-card">
                 <div class="access-branding">
                     <img
-                        src="/static/favicon.svg"
+                        src="{{ url_for('static', filename='favicon.svg') }}"
                         alt=""
                         class="access-app-icon"
                         width="64"
@@ -106,6 +106,7 @@
             </section>
         </div>
     </main>
-    <script src="/static/admin-access-login.js"></script>
+    <script>window.__BASE_PATH__ = {{ request.script_root|tojson }};</script>
+    <script src="{{ url_for('static', filename='admin-access-login.js') }}"></script>
 </body>
 </html>

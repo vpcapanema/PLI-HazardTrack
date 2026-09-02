@@ -282,12 +282,29 @@ body.access-page .access-main {
     background: linear-gradient(135deg, var(--pli-primary) 0%, var(--pli-secondary) 100%);
 }
 
+/* Mesma marca da sidebar: icone verde + nome branco; slogan · PLI-SP abaixo. */
+.access-branding {
+    /* Escala da marca: nome = 1em, slogan = 0.49em (proporcao da referencia). */
+    font-size: 1.5rem;
+}
+
+.access-brand-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    margin: 0;
+    font-size: 1em;
+    color: #fff;
+}
+
 .access-app-icon {
-    width: 56px;
-    height: 56px;
-    margin: 0 auto 0.6rem;
-    display: block;
+    flex-shrink: 0;
+    display: inline-flex;
+    width: 1.08em;
+    height: 1.08em;
     color: var(--pli-verde);
+    line-height: 0;
 }
 
 .access-app-icon svg {
@@ -296,31 +313,28 @@ body.access-page .access-main {
     display: block;
 }
 
-.access-app-title {
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 0.35rem;
-    font-size: 1.5rem;
-    font-weight: 800;
-    margin: 0 0 0.35rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+.access-app-name {
+    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+    font-size: 1em;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+    white-space: nowrap;
 }
 
-.access-app-title-pli {
-    color: var(--pli-verde);
-}
-
-.access-app-title-name {
-    color: #fff;
+.access-context {
+    margin: 0 0 var(--space-lg);
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--muted);
 }
 
 .access-app-subtitle {
-    font-size: 0.9375rem;
-    color: rgba(255, 255, 255, 0.62);
-    margin: 0;
-    line-height: 1.45;
+    margin: 0.28rem 0 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.49em;
+    font-weight: 500;
+    line-height: 1.2;
 }
 
 .access-field {

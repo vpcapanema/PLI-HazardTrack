@@ -6,6 +6,7 @@
     <meta name="robots" content="noindex,nofollow">
     <title>PLI-HazardTrack — Administração</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body class="access-page">
@@ -20,23 +21,23 @@
         <div class="access-login-wrapper">
             <section id="login-panel" class="access-login-card">
                 <div class="access-branding">
-                    <span class="access-app-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            focusable="false">
-                            <path d="M9 3.5 3 6v14.5l6-2.5 6 2.5 6-2.5V6l-6 2.5" />
-                            <path d="M9 3.5v6" />
-                            <path d="M12.1 17.4h5.8a1 1 0 0 0 .87-1.5l-2.9-5a1 1 0 0 0-1.74 0l-2.9 5a1 1 0 0 0 .87 1.5Z" />
-                            <path d="M15 13v1.2" />
-                            <path d="M15 15.9v.1" />
-                        </svg>
-                    </span>
-                    <h2 class="access-app-title">
-                        <span class="access-app-title-pli">PLI</span>
-                        <span class="access-app-title-name">HazardTrack</span>
+                    <h2 class="access-brand-head">
+                        <span class="access-app-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                focusable="false">
+                                <path d="M9 3.5 3 6v14.5l6-2.5 6 2.5 6-2.5V6l-6 2.5" />
+                                <path d="M9 3.5v6" />
+                                <path d="M12.1 17.4h5.8a1 1 0 0 0 .87-1.5l-2.9-5a1 1 0 0 0-1.74 0l-2.9 5a1 1 0 0 0 .87 1.5Z" />
+                                <path d="M15 13v1.2" />
+                                <path d="M15 15.9v.1" />
+                            </svg>
+                        </span>
+                        <span class="access-app-name">PLI-HAZARDTRACK</span>
                     </h2>
-                    <p class="access-app-subtitle">Acesso administrativo</p>
+                    <p class="access-app-subtitle">Monitoramento de riscos climáticos extremos · PLI-SP / DER-SP</p>
                 </div>
+                <p class="access-context">Acesso administrativo</p>
 
                 {% if not backend_configured %}
                 <div class="access-feedback" role="alert">

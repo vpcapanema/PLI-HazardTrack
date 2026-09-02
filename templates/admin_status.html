@@ -11,8 +11,17 @@
 <body class="admin-app">
     <aside class="admin-sidebar" id="admin-sidebar">
         <a href="{{ url_for('index') }}" class="sidebar-brand" title="Ir para a página inicial">
-            <span class="sidebar-brand-pli">PLI</span>
-            <span class="sidebar-brand-product">HazardTrack</span>
+            <span class="sidebar-brand-head">
+                <span class="sidebar-brand-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 3.5 3 6v14.5l6-2.5 6 2.5 6-2.5V6l-6 2.5" /><path d="M9 3.5v6" />
+                        <path d="M12.1 17.4h5.8a1 1 0 0 0 .87-1.5l-2.9-5a1 1 0 0 0-1.74 0l-2.9 5a1 1 0 0 0 .87 1.5Z" />
+                        <path d="M15 13v1.2" /><path d="M15 15.9v.1" />
+                    </svg>
+                </span>
+                <span class="sidebar-brand-name">PLI-HAZARDTRACK</span>
+            </span>
+            <span class="sidebar-brand-sub">Riscos climáticos extremos · PLI-SP</span>
         </a>
         <nav class="sidebar-nav" aria-label="Seções do painel">
             <button type="button" class="nav-item active" data-panel="visao">
@@ -38,16 +47,10 @@
             </button>
         </nav>
         <div class="sidebar-foot">
-            <a href="{{ url_for('index') }}" class="sidebar-link sidebar-link-back">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-                Voltar ao mapa
-            </a>
-            <form method="POST" action="{{ url_for('admin.logout') }}">
-                <button type="submit" class="sidebar-link sidebar-logout">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Sair
-                </button>
-            </form>
+            <p class="sidebar-credit">
+                Desenvolvido por VPC-WebSistemas e Geoinformação<br>
+                Geoprocessamento Inteligente
+            </p>
         </div>
     </aside>
 
@@ -56,18 +59,39 @@
             <button type="button" class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">
                 ☰
             </button>
-            <div class="header-title">
-                <h1 id="panel-title">Visão geral</h1>
-                <p id="panel-subtitle">Panorama dos dois módulos de monitoramento</p>
+            <div class="header-title-row">
+                <span class="header-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                </span>
+                <div class="header-title">
+                    <h1 id="panel-title">Visão geral</h1>
+                    <p id="panel-subtitle">Panorama dos dois módulos de monitoramento</p>
+                </div>
             </div>
             <div class="header-actions">
-                {% if session.admin_user %}
-                <span class="who">{{ session.admin_user.full_name or session.admin_user.username or session.admin_user.email }}</span>
-                {% endif %}
                 <span id="updated-at" class="updated-at">—</span>
                 <button id="btn-refresh" type="button" class="btn-secondary">Atualizar</button>
             </div>
         </header>
+
+        <!-- Estrutura fixa das paginas restritas: barra de sessao logo apos o cabecalho. -->
+        <div class="adm-session-bar" aria-label="Sessão ativa">
+            <div class="adm-session-user">
+                <span class="adm-session-status" aria-hidden="true"></span>
+                {% if session.admin_user %}
+                <strong>{{ session.admin_user.full_name or session.admin_user.username or session.admin_user.email }}</strong>
+                {% if session.admin_user.username %}<span class="adm-session-username">@{{ session.admin_user.username }}</span>{% endif %}
+                {% else %}
+                <strong>Sessão administrativa</strong>
+                {% endif %}
+            </div>
+            <form method="POST" action="{{ url_for('admin.logout') }}" class="adm-session-form">
+                <button type="submit" class="adm-session-logout">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Sair
+                </button>
+            </form>
+        </div>
 
         <div class="admin-content">
             <!-- VISÃO GERAL -->

@@ -1292,3 +1292,112 @@ body.admin-app {
 .sidebar-link-back:hover { color: #fff; background: rgba(255, 255, 255, 0.07); text-decoration: none; }
 .sidebar-logout { color: rgba(255, 100, 100, 0.75); }
 .sidebar-logout:hover { color: #ff8080; background: rgba(255, 100, 100, 0.08); text-decoration: none; }
+
+/* ============================================================================
+   PAGINA DE ACESSO — skin padrao do ecossistema PLI (identico nas 3 apps).
+   Medidas em px para nao depender do font-size raiz de cada app; Montserrat na
+   pagina inteira. Fica no fim do arquivo para prevalecer sobre as regras locais.
+   ============================================================================ */
+body.access-page,
+body.access-page input,
+body.access-page button,
+body.access-page a { font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif; }
+body.access-page header.topbar { box-sizing: border-box; height: 70px; min-height: 70px; padding: 8px 24px; gap: 16px; }
+body.access-page header.topbar h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: #fff; }
+body.access-page header.topbar nav { gap: 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+body.access-page header.topbar nav a { color: rgba(255, 255, 255, 0.88); }
+body.access-page header.topbar nav a:hover,
+body.access-page header.topbar nav a[aria-current="page"] { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+body.access-page .access-main { width: 100%; max-width: 440px; margin: 0 auto; padding: 24px 16px 32px; }
+body.access-page .access-login-card { padding: 24px 24px 16px; border-radius: 10px; border-top: 4px solid #116593; }
+body.access-page .access-branding { margin: -24px -24px 24px; padding: 20px 16px; border-radius: 6px 6px 0 0; font-size: 24px; }
+body.access-page .access-brand-head { gap: 8px; font-size: 24px; }
+body.access-page .access-app-icon { width: 26px; height: 26px; }
+body.access-page .access-app-name { font-family: "Montserrat", system-ui, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+body.access-page .access-app-subtitle { margin-top: 4px; font-size: 12px; font-weight: 500; color: rgba(255, 255, 255, 0.72); }
+body.access-page .access-context { margin: 0 0 16px; font-size: 15px; color: #64748b; }
+body.access-page .access-field { margin-bottom: 16px; gap: 4px; }
+body.access-page .access-field-label { font-size: 14px; font-weight: 600; color: #1c3d59; }
+body.access-page .access-input-wrap input { min-height: 44px; padding: 8px 36px; font-size: 16px; border: 1px solid #d7dee6; border-radius: 6px; color: #0f172a; }
+body.access-page .access-input-wrap input::placeholder { font-size: 14px; color: #94a3b8; }
+body.access-page .access-feedback { font-size: 13px; }
+body.access-page .access-btn-submit { min-height: 46px; padding: 12px; font-size: 15px; font-weight: 700; border: none; border-radius: 6px; color: #fff; background: linear-gradient(135deg, #1c3d59, #116593); }
+body.access-page .access-forgot { margin-top: 16px; }
+body.access-page .access-forgot a { font-size: 13px; color: #116593; }
+body.access-page .access-divider { margin: 20px 0; }
+body.access-page .access-divider-text { font-size: 13px; }
+body.access-page .access-btn-register { min-height: 44px; padding: 10px; font-size: 14px; font-weight: 700; border: 2px solid #3ec26e; border-radius: 6px; color: #2fa854; background: transparent; }
+body.access-page .access-btn-register:hover { background: #3ec26e; color: #fff; }
+body.access-page .access-back { margin-top: 16px; font-size: 13px; }
+body.access-page .access-back a { color: #64748b; }
+body.access-page footer.footer { padding: 16px 24px; font-size: 12px; line-height: 1.5; color: #64748b; background: #fff; border-top: 1px solid #d7dee6; }
+
+/* ---- Painel administrativo: estrutura fixa das paginas restritas ---- */
+/* Marca da sidebar (identidade fixa), na altura padrao de 70px. */
+.admin-sidebar { container-type: inline-size; }
+.admin-sidebar .sidebar-brand {
+    box-sizing: border-box;
+    height: 70px;
+    min-height: 70px;
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 3px solid var(--pli-verde);
+    font-size: clamp(1.05rem, 8cqw, 1.5rem);
+}
+.admin-sidebar .sidebar-brand-head { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 1em; white-space: nowrap; }
+.admin-sidebar .sidebar-brand-icon { flex-shrink: 0; display: inline-flex; width: 1.08em; height: 1.08em; color: var(--pli-verde); line-height: 0; }
+.admin-sidebar .sidebar-brand-icon svg { width: 100%; height: 100%; display: block; }
+.admin-sidebar .sidebar-brand-name { font-family: "Poppins", "Inter", sans-serif; font-size: 1em; font-weight: 700; letter-spacing: -0.3px; line-height: 1.1; color: #fff; }
+.admin-sidebar .sidebar-brand-sub { margin-top: 0.28rem; font-size: 0.49em; font-weight: 500; line-height: 1.2; color: rgba(255, 255, 255, 0.72); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+/* Rodape da sidebar: so o credito. */
+.admin-sidebar .sidebar-foot .sidebar-credit { margin: 0; text-align: center; font-size: 10px; line-height: 1.5; color: rgba(255, 255, 255, 0.55); }
+/* Cabecalho da pagina: 70px, icone + nome da secao + complemento. */
+.admin-header {
+    box-sizing: border-box;
+    height: 70px;
+    min-height: 70px;
+    padding: 8px 19px;
+    flex-wrap: nowrap;
+}
+.header-title-row { display: flex; align-items: center; gap: 0.6rem; min-width: 0; flex: 1; }
+.header-icon { display: inline-flex; flex-shrink: 0; width: 1.35rem; height: 1.35rem; color: var(--pli-accent); }
+.header-icon svg { width: 100%; height: 100%; }
+.header-title { min-width: 0; }
+.header-title h1 { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header-title p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header-actions { flex-wrap: nowrap; }
+/* Barra de sessao, imediatamente apos o cabecalho (mesmo componente das outras apps). */
+.adm-session-bar {
+    min-height: 40px;
+    padding: 0.35rem 1.2rem;
+    background: var(--code-bg);
+    color: var(--pli-primary);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.85rem;
+}
+.adm-session-user { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.adm-session-status { width: 8px; height: 8px; border-radius: 50%; background: var(--pli-verde); flex-shrink: 0; }
+.adm-session-username { color: var(--ink-2); }
+.adm-session-form { margin: 0; }
+.adm-session-logout {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.3rem 0.7rem; border: 1px solid var(--line-2); border-radius: 0.4rem;
+    background: #fff; color: var(--pli-primary); font: inherit; font-weight: 600; cursor: pointer;
+}
+.adm-session-logout:hover { border-color: var(--pli-accent); color: var(--pli-accent); }
+
+/* O icone da marca escala com o nome: sem isto herdava o font-size reduzido da
+   regra antiga .sidebar-brand span e ficava em 12px. */
+.admin-sidebar .sidebar-brand-head > span { font-size: inherit; }
+.admin-sidebar .sidebar-brand-icon { font-size: 1em; }
+.admin-sidebar .sidebar-brand-name { font-size: 1em; }

@@ -1295,13 +1295,13 @@ body.admin-app {
 
 /* ============================================================================
    PAGINA DE ACESSO — skin padrao do ecossistema PLI (identico nas 3 apps).
-   Medidas em px para nao depender do font-size raiz de cada app; Montserrat na
-   pagina inteira. Fica no fim do arquivo para prevalecer sobre as regras locais.
+   Medidas em px para nao depender do font-size raiz de cada app; fonte da app na
+   pagina com a fonte da propria app. Fica no fim do arquivo para prevalecer sobre as regras locais.
    ============================================================================ */
 body.access-page,
 body.access-page input,
 body.access-page button,
-body.access-page a { font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif; }
+body.access-page a { font-family: 'Inter', system-ui, -apple-system, "Segoe UI", sans-serif; }
 body.access-page header.topbar { box-sizing: border-box; height: 70px; min-height: 70px; padding: 8px 24px; gap: 16px; }
 body.access-page header.topbar h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: #fff; }
 body.access-page header.topbar nav { gap: 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
@@ -1313,7 +1313,7 @@ body.access-page .access-login-card { padding: 24px 24px 16px; border-radius: 10
 body.access-page .access-branding { margin: -24px -24px 24px; padding: 20px 16px; border-radius: 6px 6px 0 0; font-size: 24px; }
 body.access-page .access-brand-head { gap: 8px; font-size: 24px; }
 body.access-page .access-app-icon { width: 26px; height: 26px; }
-body.access-page .access-app-name { font-family: "Montserrat", system-ui, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+body.access-page .access-app-name { font-family: "Poppins", "Inter", system-ui, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
 body.access-page .access-app-subtitle { margin-top: 4px; font-size: 12px; font-weight: 500; color: rgba(255, 255, 255, 0.72); }
 body.access-page .access-context { margin: 0 0 16px; font-size: 15px; color: #64748b; }
 body.access-page .access-field { margin-bottom: 16px; gap: 4px; }
@@ -1401,3 +1401,7 @@ body.access-page footer.footer { padding: 16px 24px; font-size: 12px; line-heigh
 .admin-sidebar .sidebar-brand-head > span { font-size: inherit; }
 .admin-sidebar .sidebar-brand-icon { font-size: 1em; }
 .admin-sidebar .sidebar-brand-name { font-size: 1em; }
+
+/* Cabecalho e barra de sessao grudados e fixos no topo, fora do scroll. */
+.admin-main > .admin-header { position: sticky; top: 0; z-index: 30; }
+.admin-main > .adm-session-bar { position: sticky; top: 70px; z-index: 29; margin: 0; }

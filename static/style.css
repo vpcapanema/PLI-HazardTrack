@@ -67,7 +67,9 @@
   --map-overlay-inset-top: 0.75rem;
   --map-panel-min-width: 230px;
   --map-panel-max-width: 300px;
-  --app-header-height: auto;
+  /* Altura padrao do ecossistema: a mesma do cabecalho da sidebar e do
+     cabecalho principal do Smart Router (referencia). */
+  --app-header-height: 70px;
 
   /* Escala da sidebar: cada nivel hierarquico reduz 1pt. */
   --sb-header-subtitle-size: 13pt;
@@ -188,7 +190,8 @@ body {
   min-height: var(--app-header-height, auto);
   /* Padding simetrico: a marca fica centralizada na largura da sidebar.
      O espaco para o botao de recolher (absoluto, a direita) vem do .logo. */
-  padding: 1rem 0.95rem;
+  height: var(--app-header-height);
+  padding: 0.5rem 0.95rem;
   border-bottom: 3px solid var(--sb-sep-primary);
   background: linear-gradient(135deg, var(--pli-navy) 0%, var(--pli-azul) 100%);
 }
@@ -327,7 +330,7 @@ body.sb-resizing * {
   padding: 0 1.4rem;
   text-align: center;
   /* Escala da marca: nome = 1em, slogan = 0.49em (proporcao da referencia). */
-  font-size: clamp(1.28rem, 6.5cqw, 2.05rem);
+  font-size: clamp(1.15rem, 6.5cqw, 1.5rem);
 }
 
 .logo-mark {
@@ -3026,8 +3029,9 @@ a.sb-jump:visited {
   background: var(--pli-verde-escuro);
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
+  height: var(--app-header-height);
   min-height: var(--app-header-height, auto);
-  padding: 1rem 1.5rem;
+  padding: 0.5rem 1.5rem;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;

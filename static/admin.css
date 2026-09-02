@@ -225,6 +225,10 @@ header.topbar {
     background: linear-gradient(135deg, var(--pli-primary) 0%, var(--pli-secondary) 100%);
     color: #fff;
     border-bottom: 4px solid var(--pli-verde);
+    /* Altura padrao do ecossistema (cabecalho do Smart Router). */
+    box-sizing: border-box;
+    height: 70px;
+    min-height: 70px;
     position: sticky;
     top: 0;
     z-index: 10;

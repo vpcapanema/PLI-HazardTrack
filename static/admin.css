@@ -1226,3 +1226,12 @@ body.admin-app {
 .sidebar-link-back:hover { color: #fff; background: rgba(255, 255, 255, 0.07); text-decoration: none; }
 .sidebar-logout { color: rgba(255, 100, 100, 0.75); }
 .sidebar-logout:hover { color: #ff8080; background: rgba(255, 100, 100, 0.08); text-decoration: none; }
+
+/* Credito padrao do ecossistema no rodape do login. */
+.access-footer {
+    margin-top: var(--space-lg);
+    text-align: center;
+    font-size: 10px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.55);
+}

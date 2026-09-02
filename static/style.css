@@ -1114,6 +1114,15 @@ body.sb-resizing * {
   padding-top: 0.55rem;
 }
 
+/* Credito padrao do ecossistema, igual nas demais aplicacoes. */
+.sidebar-credit {
+  margin: 0.4rem 0 0;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--sidebar-bege-dim);
+  text-align: center;
+}
+
 .sb-meta-chips {
   display: flex;
   flex-wrap: wrap;

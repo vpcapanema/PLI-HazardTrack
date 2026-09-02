@@ -20,14 +20,21 @@
         <div class="access-login-wrapper">
             <section id="login-panel" class="access-login-card">
                 <div class="access-branding">
-                    <img
-                        src="{{ url_for('static', filename='favicon.svg') }}"
-                        alt=""
-                        class="access-app-icon"
-                        width="64"
-                        height="64"
-                    />
-                    <h2 class="access-app-title">PLI-HAZARDTRACK</h2>
+                    <span class="access-app-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            focusable="false">
+                            <path d="M9 3.5 3 6v14.5l6-2.5 6 2.5 6-2.5V6l-6 2.5" />
+                            <path d="M9 3.5v6" />
+                            <path d="M12.1 17.4h5.8a1 1 0 0 0 .87-1.5l-2.9-5a1 1 0 0 0-1.74 0l-2.9 5a1 1 0 0 0 .87 1.5Z" />
+                            <path d="M15 13v1.2" />
+                            <path d="M15 15.9v.1" />
+                        </svg>
+                    </span>
+                    <h2 class="access-app-title">
+                        <span class="access-app-title-pli">PLI</span>
+                        <span class="access-app-title-name">HazardTrack</span>
+                    </h2>
                     <p class="access-app-subtitle">Acesso administrativo</p>
                 </div>
 

@@ -1295,42 +1295,84 @@ body.admin-app {
 
 /* ============================================================================
    PAGINA DE ACESSO — skin padrao do ecossistema PLI (identico nas 3 apps).
-   Medidas em px para nao depender do font-size raiz de cada app; fonte da app na
-   pagina com a fonte da propria app. Fica no fim do arquivo para prevalecer sobre as regras locais.
+   Hierarquia tipografica em Inter, com tokens e classes reutilizaveis:
+     titulo principal 24/700 · titulo de secao 20/600 · subsecao 16/600
+     rotulos e botoes 14/500 · texto comum 14/400 · texto auxiliar 12/400
+   Regra: nenhum filho e maior nem mais pesado que o elemento acima dele;
+   botoes e alertas se destacam por cor, fundo e borda, nao por tipografia.
+   Medidas em px para nao depender do font-size raiz de cada app.
    ============================================================================ */
-body.access-page,
+body.access-page {
+  --t-font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --t-title-size: 24px;      --t-title-weight: 700;
+  --t-section-size: 20px;    --t-section-weight: 600;
+  --t-subsection-size: 16px; --t-subsection-weight: 600;
+  --t-label-size: 14px;      --t-label-weight: 500;
+  --t-body-size: 14px;       --t-body-weight: 400;
+  --t-aux-size: 12px;        --t-aux-weight: 400;
+  --t-ink: #0f172a; --t-ink-2: #1c3d59; --t-muted: #64748b; --t-faint: #94a3b8;
+  --t-accent: #116593; --t-green: #3ec26e; --t-green-dark: #2fa854; --t-line: #d7dee6;
+  font-family: var(--t-font);
+  color: var(--t-ink);
+}
 body.access-page input,
 body.access-page button,
-body.access-page a { font-family: 'Inter', system-ui, -apple-system, "Segoe UI", sans-serif; }
+body.access-page a { font-family: var(--t-font); }
+
+/* Classes reutilizaveis (os elementos abaixo sao mapeados a elas). */
+body.access-page .t-title,
+body.access-page .access-app-name { font-family: var(--t-font); font-size: var(--t-title-size); font-weight: var(--t-title-weight); line-height: 1.2; letter-spacing: -0.3px; }
+body.access-page .t-section,
+body.access-page header.topbar h1 { font-size: var(--t-section-size); font-weight: var(--t-section-weight); line-height: 1.2; }
+body.access-page .t-subsection { font-size: var(--t-subsection-size); font-weight: var(--t-subsection-weight); line-height: 1.3; }
+body.access-page .t-label,
+body.access-page header.topbar nav a,
+body.access-page .access-field-label,
+body.access-page .access-btn-submit,
+body.access-page .access-btn-register { font-size: var(--t-label-size); font-weight: var(--t-label-weight); line-height: 1.3; }
+body.access-page .t-body,
+body.access-page .access-context,
+body.access-page .access-input-wrap input,
+body.access-page .access-feedback { font-size: var(--t-body-size); font-weight: var(--t-body-weight); line-height: 1.5; }
+body.access-page .t-aux,
+body.access-page .access-app-subtitle,
+body.access-page .access-forgot a,
+body.access-page .access-back a,
+body.access-page .access-divider-text,
+body.access-page footer.footer { font-size: var(--t-aux-size); font-weight: var(--t-aux-weight); line-height: 1.4; }
+
+/* Topbar: secao da pagina (20/600) > links de navegacao (14/500). */
 body.access-page header.topbar { box-sizing: border-box; height: 70px; min-height: 70px; padding: 8px 24px; gap: 16px; }
-body.access-page header.topbar h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: #fff; }
-body.access-page header.topbar nav { gap: 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+body.access-page header.topbar h1 { margin: 0; color: #fff; text-transform: uppercase; letter-spacing: 0.02em; }
+body.access-page header.topbar nav { gap: 16px; text-transform: uppercase; letter-spacing: 0.02em; }
 body.access-page header.topbar nav a { color: rgba(255, 255, 255, 0.88); }
 body.access-page header.topbar nav a:hover,
 body.access-page header.topbar nav a[aria-current="page"] { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+
+/* Card: a marca (24/700) e o titulo principal; tudo abaixo e menor ou mais leve. */
 body.access-page .access-main { width: 100%; max-width: 440px; margin: 0 auto; padding: 24px 16px 32px; }
-body.access-page .access-login-card { padding: 24px 24px 16px; border-radius: 10px; border-top: 4px solid #116593; }
-body.access-page .access-branding { margin: -24px -24px 24px; padding: 20px 16px; border-radius: 6px 6px 0 0; font-size: 24px; }
-body.access-page .access-brand-head { gap: 8px; font-size: 24px; }
+body.access-page .access-login-card { padding: 24px 24px 16px; border-radius: 10px; border-top: 4px solid var(--t-accent); }
+body.access-page .access-branding { margin: -24px -24px 24px; padding: 20px 16px; border-radius: 6px 6px 0 0; }
+body.access-page .access-brand-head { gap: 8px; }
 body.access-page .access-app-icon { width: 26px; height: 26px; }
-body.access-page .access-app-name { font-family: "Poppins", "Inter", system-ui, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
-body.access-page .access-app-subtitle { margin-top: 4px; font-size: 12px; font-weight: 500; color: rgba(255, 255, 255, 0.72); }
-body.access-page .access-context { margin: 0 0 16px; font-size: 15px; color: #64748b; }
+body.access-page .access-app-name { color: #fff; }
+body.access-page .access-app-subtitle { margin-top: 4px; color: rgba(255, 255, 255, 0.72); }
+body.access-page .access-context { margin: 0 0 16px; color: var(--t-muted); }
 body.access-page .access-field { margin-bottom: 16px; gap: 4px; }
-body.access-page .access-field-label { font-size: 14px; font-weight: 600; color: #1c3d59; }
-body.access-page .access-input-wrap input { min-height: 44px; padding: 8px 36px; font-size: 16px; border: 1px solid #d7dee6; border-radius: 6px; color: #0f172a; }
-body.access-page .access-input-wrap input::placeholder { font-size: 14px; color: #94a3b8; }
-body.access-page .access-feedback { font-size: 13px; }
-body.access-page .access-btn-submit { min-height: 46px; padding: 12px; font-size: 15px; font-weight: 700; border: none; border-radius: 6px; color: #fff; background: linear-gradient(135deg, #1c3d59, #116593); }
+body.access-page .access-field-label { color: var(--t-ink-2); }
+body.access-page .access-input-wrap input { min-height: 44px; padding: 8px 36px; color: var(--t-ink); border: 1px solid var(--t-line); border-radius: 6px; }
+body.access-page .access-input-wrap input::placeholder { color: var(--t-faint); font-weight: var(--t-body-weight); }
+body.access-page .access-feedback { border-radius: 6px; }
+body.access-page .access-btn-submit { min-height: 44px; padding: 12px; border: none; border-radius: 6px; color: #fff; background: linear-gradient(135deg, #1c3d59, var(--t-accent)); }
 body.access-page .access-forgot { margin-top: 16px; }
-body.access-page .access-forgot a { font-size: 13px; color: #116593; }
+body.access-page .access-forgot a { color: var(--t-accent); }
 body.access-page .access-divider { margin: 20px 0; }
-body.access-page .access-divider-text { font-size: 13px; }
-body.access-page .access-btn-register { min-height: 44px; padding: 10px; font-size: 14px; font-weight: 700; border: 2px solid #3ec26e; border-radius: 6px; color: #2fa854; background: transparent; }
-body.access-page .access-btn-register:hover { background: #3ec26e; color: #fff; }
-body.access-page .access-back { margin-top: 16px; font-size: 13px; }
-body.access-page .access-back a { color: #64748b; }
-body.access-page footer.footer { padding: 16px 24px; font-size: 12px; line-height: 1.5; color: #64748b; background: #fff; border-top: 1px solid #d7dee6; }
+body.access-page .access-divider-text { color: var(--t-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+body.access-page .access-btn-register { min-height: 44px; padding: 10px; border: 2px solid var(--t-green); border-radius: 6px; color: var(--t-green-dark); background: transparent; }
+body.access-page .access-btn-register:hover { background: var(--t-green); color: #fff; }
+body.access-page .access-back { margin-top: 16px; }
+body.access-page .access-back a { color: var(--t-muted); }
+body.access-page footer.footer { padding: 16px 24px; color: var(--t-muted); background: #fff; border-top: 1px solid var(--t-line); }
 
 /* ---- Painel administrativo: estrutura fixa das paginas restritas ---- */
 /* Marca da sidebar (identidade fixa), na altura padrao de 70px. */

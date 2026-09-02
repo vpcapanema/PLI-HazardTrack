@@ -10,11 +10,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body class="access-page">
-    <header class="access-topbar">
-        <h1>Administração</h1>
+    <header class="topbar">
+        <h1>Acesso Restrito</h1>
         <nav>
             <a href="{{ url_for('index') }}">Monitoramento</a>
-            <a href="{{ url_for('admin.login_page') }}" aria-current="page">Admin</a>
+            <a href="{{ url_for('docs_ajuda') }}">Ajuda</a>
+            <a href="{{ url_for('docs_glossario') }}">Glossário</a>
+            <a href="{{ url_for('admin.login_page') }}" aria-current="page">Acesso Restrito</a>
         </nav>
     </header>
     <main class="access-main">
@@ -35,7 +37,7 @@
                         </span>
                         <span class="access-app-name">PLI-HAZARDTRACK</span>
                     </h2>
-                    <p class="access-app-subtitle">Monitoramento de riscos climáticos extremos · PLI-SP / DER-SP</p>
+                    <p class="access-app-subtitle">Riscos climáticos extremos · PLI-SP</p>
                 </div>
                 <p class="access-context">Acesso administrativo</p>
 
@@ -111,12 +113,18 @@
                 </div>
 
                 <a id="link-cadastro" href="#" target="_blank" rel="noopener noreferrer" class="access-btn-register" hidden>Criar Conta</a>
+
+                <div class="access-back">
+                    <a href="{{ url_for('index') }}">← Voltar ao mapa</a>
+                </div>
             </section>
         </div>
     </main>
-    <footer class="access-footer">
-        Desenvolvido por VPC-WebSistemas e Geoinformação<br>
-        Geoprocessamento Inteligente
+    <footer class="footer">
+        <div class="footer-credit">
+            Desenvolvido por VPC-WebSistemas e Geoinformação<br>
+            Geoprocessamento Inteligente
+        </div>
     </footer>
     <script>window.__BASE_PATH__ = {{ request.script_root|tojson }};</script>
     <script src="{{ url_for('static', filename='admin-access-login.js') }}"></script>

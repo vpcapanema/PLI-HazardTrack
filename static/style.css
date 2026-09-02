@@ -334,7 +334,9 @@ body.sb-resizing * {
   font-size: clamp(1.28rem, 6.5cqw, 2.05rem);
   font-weight: 700;
   letter-spacing: -0.3px;
-  color: var(--pli-verde);
+  /* Mesma marca do PLI Hub: icone em verde institucional, nome em branco.
+     Antes era o inverso — o nome vinha verde e o icone era um PNG fixo. */
+  color: #fff;
   line-height: 1.1;
   white-space: nowrap;
 }
@@ -343,6 +345,7 @@ body.sb-resizing * {
   flex-shrink: 0;
   width: 1.08em;
   height: 1.08em;
+  color: var(--pli-verde);
 }
 
 .logo-sub {

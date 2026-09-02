@@ -18,6 +18,10 @@
       href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}"
     />
     <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.css') }}"
+    />
+    <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap"
       rel="stylesheet"
     />
@@ -1051,6 +1055,10 @@
 
     <script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/leaflet/leaflet-heat.js') }}"></script>
+    <!-- Basemap vetorial: MapLibre desenha o mapa base e a ponte gl-leaflet
+         o entrega como uma camada Leaflet comum. -->
+    <script src="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/maplibre/leaflet-maplibre-gl.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
     <script>
       // Prefixo da app injetado pelo Flask. Quando atras de Nginx em path

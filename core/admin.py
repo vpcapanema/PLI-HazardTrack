@@ -191,9 +191,7 @@ def collect_diagnostics() -> Dict[str, Any]:
     now = datetime.now(timezone.utc)
     target = now.replace(minute=0, second=0, microsecond=0)
     sample_url = _hourly_url(target)
-    carto_tile = (
-        "https://a.basemaps.cartocdn.com/light_all/6/30/35.png"
-    )
+    basemap_url = "https://tiles.openfreemap.org/styles/positron"
     google_fonts_url = (
         "https://fonts.googleapis.com/css2?family=Inter&display=swap"
     )
@@ -211,11 +209,11 @@ def collect_diagnostics() -> Dict[str, Any]:
                 "latencia pode subir."
             ),
         },
-        "basemap_carto": {
-            "name": "Basemap CARTO Light",
-            "role": "Tiles de base para o mapa Leaflet",
-            "sample_url": carto_tile,
-            "reachability": _check_url(carto_tile, timeout=5.0),
+        "basemap": {
+            "name": "Basemap OpenFreeMap Positron",
+            "role": "Tiles vetoriais de base para o mapa",
+            "sample_url": basemap_url,
+            "reachability": _check_url(basemap_url, timeout=5.0),
         },
         "google_fonts": {
             "name": "Google Fonts (Inter / Poppins)",

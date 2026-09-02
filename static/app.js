@@ -3,7 +3,7 @@
  * Sistema de monitoramento de riscos climáticos extremos em rodovias
  *
  * - Auto-refresh do snapshot a cada 30s
- * - Mapa Leaflet (CARTO Light) com camadas de risco e bases DER/IGC
+ * - Mapa Leaflet (basemap vetorial OpenFreeMap) com camadas de risco e bases DER/IGC
  * - Filtros interativos por camada
  */
 
@@ -647,29 +647,43 @@ function init() {
 // MAPA
 // ============================================================================
 
+// ---------------------------------------------------------------------------
+// BASEMAP
+//
+// OpenFreeMap: tiles vetoriais de OpenStreetMap, open source, sem API key,
+// sem registro e sem limite declarado. Substituiu o raster da CARTO, que
+// passou a exigir chave e esta sendo descontinuado pelo provedor.
+//
+// O estilo Positron e o equivalente visual do CARTO light_all usado antes.
+// ---------------------------------------------------------------------------
+
+const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
+const BASEMAP_ATTRIBUTION = "OSM | OpenFreeMap";
+
 function initMap() {
   state.map = L.map("map", {
     zoomControl: false,
     attributionControl: false,
+    // Limites antes herdados do tileLayer raster; agora explicitos porque a
+    // base vetorial nao os impoe ao mapa.
+    minZoom: 6,
+    maxZoom: 19,
   });
   state.map.fitBounds(SP_BOUNDS);
 
   // Painel Camadas persistente sobre o mapa.
   installMapLayerControl();
 
-  L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    {
-      attribution: "&copy; OpenStreetMap &copy; CARTO",
-      maxZoom: 19,
-      minZoom: 6,
-      subdomains: "abcd",
-    },
-  ).addTo(state.map);
+  L.maplibreGL({
+    style: BASEMAP_STYLE,
+    // O mapa e conduzido pelo Leaflet; o canvas MapLibre e so a base.
+    interactive: false,
+    attributionControl: false,
+  }).addTo(state.map);
 
   L.control
     .attribution({ position: "bottomright", prefix: false })
-    .addAttribution("OSM | CARTO | INPE/MERGE | DER-SP")
+    .addAttribution(`${BASEMAP_ATTRIBUTION} | INPE/MERGE | DER-SP`)
     .addTo(state.map);
 
   // Riscos Monitorados: cada hazard (encosta, inundacao) e uma camada propria

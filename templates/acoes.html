@@ -41,7 +41,11 @@
         .topbar {
             background: var(--verde-escuro);
             color: #fff;
-            padding: 0.9rem 1.5rem;
+            /* Altura padrao do ecossistema (cabecalho do Smart Router). */
+            box-sizing: border-box;
+            height: 70px;
+            min-height: 70px;
+            padding: 0.5rem 1.5rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -51,9 +55,11 @@
             z-index: 50;
             box-shadow: var(--shadow-md);
         }
-        .topbar .brand { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
-        .topbar .brand span { color: var(--verde); }
-        .topbar .brand small { display: block; font-family: var(--font); font-weight: 400; font-size: 0.68rem; color: rgba(255,255,255,.7); }
+        /* Marca: identidade fixa — icone verde + nome branco; slogan · PLI-SP a 49%. */
+        .topbar .brand { display: flex; flex-direction: column; align-items: flex-start; font-size: 1.15rem; color: #fff; }
+        .topbar .brand-head { display: inline-flex; align-items: center; gap: 0.35rem; font-family: var(--font-display); font-weight: 700; font-size: 1em; line-height: 1.1; letter-spacing: -0.3px; white-space: nowrap; }
+        .topbar .brand-icon { flex-shrink: 0; width: 1.08em; height: 1.08em; color: var(--verde); }
+        .topbar .brand small { display: block; font-family: var(--font); font-weight: 500; font-size: 0.49em; line-height: 1.2; margin-top: 0.15rem; color: rgba(255,255,255,.72); white-space: nowrap; }
         .topbar-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
         .tb-link {
             color: #fff;
@@ -442,8 +448,18 @@
     {% set cores = {0:'#3a7d5d',1:'#b08d2e',2:'#c0682f',3:'#b23b3b',4:'#7a4fa3'} %}
     <header class="topbar">
         <div class="brand">
-            PLI-<span>HazardTrack</span>
-            <small>SIGMA · Ações Operacionais de Contingência (PPDC)</small>
+            <span class="brand-head">
+                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 3.5 3 6v14.5l6-2.5 6 2.5 6-2.5V6l-6 2.5" />
+                    <path d="M9 3.5v6" />
+                    <path d="M12.1 17.4h5.8a1 1 0 0 0 .87-1.5l-2.9-5a1 1 0 0 0-1.74 0l-2.9 5a1 1 0 0 0 .87 1.5Z" />
+                    <path d="M15 13v1.2" />
+                    <path d="M15 15.9v.1" />
+                </svg>
+                <span>PLI-HAZARDTRACK</span>
+            </span>
+            <small>Riscos climáticos extremos · PLI-SP</small>
         </div>
         <div class="topbar-actions">
             <a class="tb-link" href="javascript:location.reload()">Atualizar</a>

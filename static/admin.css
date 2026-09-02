@@ -1405,3 +1405,91 @@ body.access-page footer.footer { padding: 16px 24px; font-size: 12px; line-heigh
 /* Cabecalho e barra de sessao grudados e fixos no topo, fora do scroll. */
 .admin-main > .admin-header { position: sticky; top: 0; z-index: 30; }
 .admin-main > .adm-session-bar { position: sticky; top: 70px; z-index: 29; margin: 0; }
+
+/* ============================================================================
+   SIDEBAR DA AREA RESTRITA — mesmo visual da sidebar de gestao do Smart Router
+   (referencia): gradiente navy, borda verde a direita, itens de 14px com barra
+   verde quando ativos. Medidas em px (raiz 14px do SR).
+   ============================================================================ */
+.admin-sidebar {
+    --sidebar-green: #4ade80;
+    width: 240px;
+    background: linear-gradient(180deg, #003b5a 0%, #1c3d59 100%);
+    border-right: 3px solid var(--sidebar-green);
+    box-shadow: 2px 0 12px rgba(0, 59, 90, 0.15);
+}
+.admin-sidebar .sidebar-brand {
+    padding: 7px 15px;
+    border-bottom: 3px solid var(--pli-verde);
+    background: linear-gradient(135deg, #003b5a 0%, #1c3d59 100%);
+}
+.admin-sidebar .sidebar-nav { flex: 1; padding: 17px 10px; display: flex; flex-direction: column; gap: 4px; }
+.admin-sidebar .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: none;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.admin-sidebar .nav-item:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.admin-sidebar .nav-item.active { background: rgba(62, 194, 110, 0.18); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--sidebar-green); }
+.admin-sidebar .sidebar-foot { padding: 17px 10px 21px; border-top: 1px solid rgba(255, 255, 255, 0.07); gap: 7px; }
+.admin-sidebar .sidebar-foot .sidebar-credit { margin: 0; font-size: 10px; line-height: 1.5; color: rgba(255, 255, 255, 0.55); }
+
+/* ============================================================================
+   BARRA DE SESSAO — padrao unico do ecossistema (identico nas 3 apps).
+   Altura, fonte e cores da barra do HazardTrack; "Sair" no estilo do painel
+   de gestao do Reporta (texto sublinhado, sem borda). Medidas em px.
+   ============================================================================ */
+body .adm-session-bar.adm-session-bar {
+  box-sizing: border-box;
+  height: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 19px;
+  background: #f1f5f9;
+  color: #003b5a;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13.6px;
+  line-height: 1.2;
+  box-shadow: none;
+}
+body .adm-session-bar .adm-session-user { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; font-size: 13.6px; }
+body .adm-session-bar .adm-session-user strong { font-size: 13.6px; font-weight: 700; color: #003b5a; overflow: hidden; text-overflow: ellipsis; }
+body .adm-session-bar .adm-session-status { width: 8px; height: 8px; border-radius: 50%; background: #3ec26e; box-shadow: 0 0 0 2px rgba(62, 194, 110, 0.18); flex: 0 0 auto; }
+body .adm-session-bar .adm-session-username { color: #475569; font-weight: 500; font-size: 13.6px; }
+body .adm-session-bar .adm-session-role { padding: 1px 8px; border: 1px solid rgba(62, 194, 110, 0.45); border-radius: 999px; color: #2fa854; background: #e5f6ec; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; flex: 0 0 auto; }
+body .adm-session-bar .adm-session-form { margin: 0; }
+body .adm-session-bar .adm-session-logout.adm-session-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: #1c3d59;
+  font: inherit;
+  font-size: 13.6px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+body .adm-session-bar .adm-session-logout.adm-session-logout svg { width: 14px; height: 14px; }
+body .adm-session-bar .adm-session-logout.adm-session-logout:hover { color: #2fa854; background: none; border: none; }

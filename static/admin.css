@@ -1565,3 +1565,28 @@ body .adm-session-bar .adm-session-logout.adm-session-logout:hover { color: #2fa
 .admin-sidebar .sidebar-brand-icon { width: auto; height: 100%; aspect-ratio: 1 / 1; align-self: stretch; }
 
 .admin-sidebar .sidebar-brand-icon { width: 1.79em; height: 1.79em; aspect-ratio: auto; align-self: center; }
+
+/* Login: topbar so com a navegacao (sem titulo), alinhada a direita e um pouco menor. */
+body.access-page header.topbar { justify-content: flex-end; }
+body.access-page header.topbar nav a { font-size: 13px; font-weight: 500; }
+
+/* Barra de sessao: fonte de 12px, sempre abaixo do titulo (>=18px) e do complemento (13px) do cabecalho. */
+body .adm-session-bar.adm-session-bar { font-size: 12px; }
+body .adm-session-bar .adm-session-user,
+body .adm-session-bar .adm-session-user strong,
+body .adm-session-bar .adm-session-username,
+body .adm-session-bar .adm-session-logout.adm-session-logout { font-size: 12px; }
+body .adm-session-bar .adm-session-role { font-size: 10px; }
+
+/* ============================================================================
+   TIPOGRAFIA DAS SIDEBARS RESTRITAS — padrao unico das 3 apps (Inter, px):
+   item 14/500 #fff · sub-item 12/500 rgba(255,255,255,.78) · grupo 10/700
+   maiusculo rgba(255,255,255,.45) · credito 10/400 rgba(255,255,255,.55).
+   ============================================================================ */
+.admin-sidebar { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; }
+.admin-sidebar .nav-item { font-family: inherit; font-size: 14px; font-weight: 500; color: #fff; line-height: 1.3; }
+.admin-sidebar .nav-item.active { color: #fff; font-weight: 600; }
+.admin-sidebar .nav-subitem { font-family: inherit; font-size: 12px; font-weight: 500; color: rgba(255, 255, 255, 0.78); line-height: 1.35; }
+.admin-sidebar .nav-subitem.active { color: #fff; font-weight: 600; }
+.admin-sidebar .nav-group-label { font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(255, 255, 255, 0.45); }
+.admin-sidebar .sidebar-credit { font-family: inherit; font-size: 10px; font-weight: 400; line-height: 1.5; color: rgba(255, 255, 255, 0.55); }

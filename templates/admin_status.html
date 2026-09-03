@@ -74,9 +74,11 @@
         <div class="adm-session-bar" aria-label="Sessão ativa">
             <div class="adm-session-user">
                 <span class="adm-session-status" aria-hidden="true"></span>
+                {# Ordem fixa: nome completo, username, tipo de perfil. #}
                 {% if session.admin_user %}
                 <strong>{{ session.admin_user.full_name or session.admin_user.username or session.admin_user.email }}</strong>
                 {% if session.admin_user.username %}<span class="adm-session-username">@{{ session.admin_user.username }}</span>{% endif %}
+                <span class="adm-session-role">{{ session.admin_user.tipo_usuario or 'ADMIN' }}</span>
                 {% else %}
                 <strong>Sessão administrativa</strong>
                 {% endif %}

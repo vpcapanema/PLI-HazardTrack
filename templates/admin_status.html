@@ -109,7 +109,7 @@
                             </button>
                         </div>
                         <div id="refresh-geo-msg" class="refresh-msg" hidden></div>
-                        <div id="visao-geo"></div>
+                        <div id="visao-geo" class="card-body"></div>
                     </article>
                     <article class="card">
                         <div class="card-head">
@@ -123,7 +123,7 @@
                             </button>
                         </div>
                         <div id="refresh-fire-msg" class="refresh-msg" hidden></div>
-                        <div id="visao-fire"></div>
+                        <div id="visao-fire" class="card-body"></div>
                     </article>
                 </div>
             </section>
@@ -133,12 +133,12 @@
                      data-subtitle="Ligar ou desligar cada sistema de monitoramento (default: ligado)">
                 <div class="two-col">
                     <article class="card" id="control-geo-card">
-                        <h2>Geodinâmico — MERGE / RD</h2>
-                        <div id="control-geo"></div>
+                        <div class="card-head"><h2>Geodinâmico — MERGE / RD</h2></div>
+                        <div id="control-geo" class="card-body"></div>
                     </article>
                     <article class="card" id="control-fire-card">
-                        <h2>Risco de fogo — INPE RF</h2>
-                        <div id="control-fire"></div>
+                        <div class="card-head"><h2>Risco de fogo — INPE RF</h2></div>
+                        <div id="control-fire" class="card-body"></div>
                     </article>
                 </div>
             </section>
@@ -148,27 +148,33 @@
                      data-subtitle="Semáforos, pipelines e fontes de dados">
                 <div class="two-col">
                     <article class="card">
-                        <h2>Geodinâmico (MERGE / RD)</h2>
-                        <div id="health-geo"></div>
+                        <div class="card-head"><h2>Geodinâmico (MERGE / RD)</h2></div>
+                        <div id="health-geo" class="card-body"></div>
                         <div class="exec-control" id="exec-geo"></div>
                     </article>
                     <article class="card">
-                        <h2>Risco de fogo (INPE RF)</h2>
-                        <div id="health-fire"></div>
+                        <div class="card-head"><h2>Risco de fogo (INPE RF)</h2></div>
+                        <div id="health-fire" class="card-body"></div>
                         <div class="exec-control" id="exec-fire"></div>
                     </article>
                 </div>
                 <article class="card card-full">
-                    <h2>Histórico de ciclos (geodinâmico)</h2>
+                    <div class="card-head">
+                        <h2>Últimos ciclos (geodinâmico)</h2>
+                        <span class="card-note" id="cycle-history-note"></span>
+                    </div>
                     <div class="history-wrap">
                         <table class="history-table" id="cycle-history">
                             <thead>
                                 <tr>
                                     <th>Início</th>
                                     <th>Duração</th>
-                                    <th>Status</th>
-                                    <th>RD máx</th>
-                                    <th>Files OK</th>
+                                    <th>Resultado</th>
+                                    <th>Dados</th>
+                                    <th class="num">RD máx</th>
+                                    <th class="num">Alerta 3+4</th>
+                                    <th class="num">Chuva 24h máx</th>
+                                    <th class="num">Horas OK</th>
                                     <th>Erro</th>
                                 </tr>
                             </thead>
@@ -183,42 +189,127 @@
                      data-subtitle="Distribuição atual dos níveis monitorados">
                 <div class="two-col">
                     <article class="card">
-                        <h2>RD por nível (UAs)</h2>
-                        <div id="stats-rd-bars"></div>
-                        <h3 class="subhead">Por região — encosta</h3>
-                        <div id="stats-region-geo"></div>
+                        <div class="card-head">
+                            <h2>RD por nível — encosta × inundação</h2>
+                            <span class="card-note" id="stats-rd-note"></span>
+                        </div>
+                        <div id="stats-rd-bars" class="card-body chart-box"></div>
                     </article>
                     <article class="card">
-                        <h2>RF por classe (trechos)</h2>
-                        <div id="stats-rf-bars"></div>
-                        <h3 class="subhead">Por regional — fogo</h3>
-                        <div id="stats-region-fire"></div>
+                        <div class="card-head">
+                            <h2>RF por classe — trechos DER</h2>
+                            <span class="card-note" id="stats-rf-note"></span>
+                        </div>
+                        <div id="stats-rf-bars" class="card-body chart-box"></div>
                     </article>
                 </div>
                 <div class="two-col">
                     <article class="card">
-                        <h2>Top UAs — alerta geodinâmico</h2>
-                        <div id="stats-top-geo"></div>
+                        <div class="card-head"><h2>Regiões monitoradas — UAs por nível</h2></div>
+                        <div id="stats-region-geo" class="card-body"></div>
                     </article>
                     <article class="card">
-                        <h2>Top trechos — risco de fogo</h2>
-                        <div id="stats-top-fire"></div>
+                        <div class="card-head"><h2>Regionais DER — trechos por classe RF</h2></div>
+                        <div id="stats-region-fire" class="card-body"></div>
+                    </article>
+                </div>
+                <div class="two-col">
+                    <article class="card">
+                        <div class="card-head"><h2>Chuva por região — janelas do RD</h2></div>
+                        <div id="stats-region-rain" class="card-body"></div>
+                    </article>
+                    <article class="card">
+                        <div class="card-head"><h2>Top trechos — risco de fogo</h2></div>
+                        <div id="stats-top-fire" class="card-body"></div>
+                    </article>
+                </div>
+                <div class="two-col">
+                    <article class="card">
+                        <div class="card-head"><h2>Top UAs — encosta (RDGEO)</h2></div>
+                        <div id="stats-top-geo" class="card-body"></div>
+                    </article>
+                    <article class="card">
+                        <div class="card-head"><h2>Top UAs — inundação (RDHID)</h2></div>
+                        <div id="stats-top-hidro" class="card-body"></div>
                     </article>
                 </div>
             </section>
 
             <!-- ANALYTICS -->
             <section class="panel" id="panel-analytics" data-title="Analytics"
-                     data-subtitle="Tendências operacionais e desempenho">
+                     data-subtitle="Evolução do risco, chuva e qualidade do dado">
+                <div class="panel-toolbar">
+                    <span class="toolbar-label" id="analytics-window-label">Janela de análise</span>
+                    <div class="range-seg" id="analytics-range" role="group" aria-label="Janela de análise">
+                        <button type="button" data-hours="6">6 h</button>
+                        <button type="button" data-hours="24" class="active">24 h</button>
+                        <button type="button" data-hours="72">72 h</button>
+                        <button type="button" data-hours="168">7 d</button>
+                    </div>
+                </div>
                 <div class="kpi-grid" id="kpi-analytics"></div>
                 <div class="two-col">
                     <article class="card">
-                        <h2>Tendência RD máximo (ciclos recentes)</h2>
-                        <div id="chart-rd-trend" class="chart-area"></div>
+                        <div class="card-head">
+                            <h2>UAs por nível ao longo do tempo</h2>
+                            <span class="card-note" id="chart-levels-note"></span>
+                        </div>
+                        <div id="chart-levels" class="card-body chart-box"></div>
                     </article>
                     <article class="card">
-                        <h2>Duração dos ciclos</h2>
-                        <div id="chart-duration" class="chart-area"></div>
+                        <div class="card-head">
+                            <h2>Chuva horária por região — 96 h</h2>
+                            <span class="card-note" id="chart-hourly-note"></span>
+                        </div>
+                        <div id="chart-hourly" class="card-body chart-box"></div>
+                    </article>
+                </div>
+                <div class="two-col">
+                    <article class="card">
+                        <div class="card-head">
+                            <h2>Acumulado 24 h vs limiares hidrológicos</h2>
+                            <span class="card-note">máximo entre as UAs da região · PRODUTO 6</span>
+                        </div>
+                        <div id="chart-thresholds" class="card-body"></div>
+                    </article>
+                    <article class="card">
+                        <div class="card-head">
+                            <h2>Escalada e recuo de RD</h2>
+                            <span class="card-note" id="escalation-note"></span>
+                        </div>
+                        <div id="escalation" class="card-body"></div>
+                    </article>
+                </div>
+                <div class="two-col">
+                    <article class="card">
+                        <div class="card-head">
+                            <h2>Distribuição dos acumulados entre as UAs</h2>
+                            <span class="card-note" id="dist-note"></span>
+                        </div>
+                        <div id="chart-dist" class="card-body"></div>
+                    </article>
+                    <article class="card">
+                        <div class="card-head">
+                            <h2>Risco de fogo por horizonte</h2>
+                            <span class="card-note" id="fire-horizon-note"></span>
+                        </div>
+                        <div id="chart-fire-horizons" class="card-body"></div>
+                    </article>
+                </div>
+                <div class="two-col">
+                    <article class="card">
+                        <div class="card-head">
+                            <h2>Qualidade do dado MERGE</h2>
+                            <span class="card-note">horas válidas na janela de 96 h · fator de correção por solo</span>
+                        </div>
+                        <div id="chart-quality" class="card-body chart-box"></div>
+                    </article>
+                    <article class="card">
+                        <div class="card-head">
+                            <h2>Operação do pipeline</h2>
+                            <span class="card-note" id="ops-note"></span>
+                        </div>
+                        <div id="chart-ops" class="card-body"></div>
                     </article>
                 </div>
             </section>
@@ -228,26 +319,37 @@
                      data-subtitle="Exportação inteligente para operação e auditoria">
                 <div class="report-grid" id="report-cards"></div>
                 <article class="card card-full">
-                    <h2>Pré-visualização rápida</h2>
-                    <p class="card-help">
-                        Resumo do que será exportado com base no estado atual do
-                        monitoramento.
-                    </p>
-                    <div id="report-preview"></div>
+                    <div class="card-head">
+                        <h2>Pré-visualização rápida</h2>
+                        <span class="card-note">resumo do estado atual do monitoramento</span>
+                    </div>
+                    <div id="report-preview" class="card-body"></div>
                 </article>
             </section>
 
             <!-- SISTEMA TÉCNICO -->
             <section class="panel" id="panel-sistema" data-title="Sistema técnico"
                      data-subtitle="Runtime, dependências e diagnóstico completo">
-                <article class="card">
-                    <h2>Diagnóstico técnico</h2>
-                    <p class="card-help">
-                        Dados de plataforma, rotas e autenticação. Atualizado
-                        junto com o painel principal.
-                    </p>
-                    <div id="system-diag"></div>
-                </article>
+                <div class="two-col">
+                    <article class="card">
+                        <div class="card-head"><h2>Runtime</h2></div>
+                        <div id="system-runtime" class="card-body"></div>
+                    </article>
+                    <article class="card">
+                        <div class="card-head"><h2>Pipeline geodinâmico</h2></div>
+                        <div id="system-pipeline" class="card-body"></div>
+                    </article>
+                </div>
+                <div class="two-col">
+                    <article class="card">
+                        <div class="card-head"><h2>Fontes externas</h2></div>
+                        <div id="system-sources" class="card-body"></div>
+                    </article>
+                    <article class="card">
+                        <div class="card-head"><h2>Autenticação e metodologia</h2></div>
+                        <div id="system-auth" class="card-body"></div>
+                    </article>
+                </div>
                 <article class="card card-full">
                     <details>
                         <summary>JSON completo (suporte / auditoria)</summary>

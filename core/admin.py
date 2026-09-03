@@ -482,7 +482,19 @@ def status_page():
 @admin_bp.route("/api/dashboard", methods=["GET"])
 @_login_required
 def api_dashboard():
-    return jsonify(collect_dashboard())
+    from core.admin_analytics import clamp_hours
+    hours = clamp_hours(request.args.get("hours"))
+    return jsonify(collect_dashboard(hours=hours))
+
+
+@admin_bp.route("/api/analytics", methods=["GET"])
+@_login_required
+def api_analytics():
+    """Somente o bloco Analytics (troca de janela sem recarregar tudo)."""
+    from core.admin_analytics import build_analytics, clamp_hours
+    from core.aggregator import state as _state
+    hours = clamp_hours(request.args.get("hours"))
+    return jsonify(build_analytics(_state.get_runtime(), hours))
 
 
 @admin_bp.route("/api/reports/export", methods=["GET"])

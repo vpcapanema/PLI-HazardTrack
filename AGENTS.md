@@ -61,6 +61,18 @@ para rodovias da Regiao do Litoral Norte de Sao Paulo (DER-SP).
   atributos nativos em `snap.regions[*]` (mais aliases legados
   `id`/`nome`/`rodovia`), e o frontend popula a camada "Regioes
   monitoradas" no mapa direto deles.
+- `core/admin_telemetry.py` - Telemetria persistente por ciclo do
+  pipeline geodinamico: JSONL em `PLI_RUNTIME_DIR/cycle_telemetry.jsonl`
+  (volume `pli_hazardtrack_runtime` na VM), ring buffer de 2016 ciclos
+  (14 dias). Gravado por `State.update()` via `_telemetry_entry`.
+- `core/admin_analytics.py` - Analytics do painel /admin: series por
+  ciclo (UAs por nivel, chuva max, completude MERGE), chuva horaria por
+  regiao (serie bruta em cache), acumulado 24h vs `hid24h_breaks`,
+  escalada/recuo de RD por UA (`point_rd_history`), distribuicao dos
+  acumulados, risco de fogo por horizonte (observado/D+1..D+3). API:
+  `/admin/api/analytics?hours=6..336` e `/admin/api/dashboard?hours=`.
+- `static/admin.js` / `static/admin.css` - Painel restrito. Graficos em
+  SVG puro (sem libs); grade fixa de 2 colunas e KPIs em 6 colunas.
 - `static/app.js` - Frontend (mapa, paineis, popups). Le os ATRIBUTOS
   NATIVOS direto da camada (`p.ua_id`, `p.sigla_rodovia`, `p.RAGEO`,
   `p.RAHID`, `p.km_inicial`, `p.km_final`, `p.residencia_dr`,

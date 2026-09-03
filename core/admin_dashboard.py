@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .admin_analytics import DEFAULT_HOURS, build_analytics
 from .admin_format import format_date_br, format_datetime_br, sanitize_source_path
 from .aggregator import state
 from .merge_ingest import ingest
@@ -80,7 +81,11 @@ def _top_points(points: List[Dict], n: int = 10) -> List[Dict[str, Any]]:
             "RAGEO": p.get("RAGEO"),
             "RAHID": p.get("RAHID"),
             "ac96h_mm": p.get("ac96h_mm"),
-            "hid24h_mm": p.get("hid24h_mm"),
+            "ac24h_mm": p.get("ac24h_mm"),
+            "intensity_mmh": p.get("intensity_mmh"),
+            "cpc": p.get("cpc"),
+            "icc_geo": p.get("icc_geo"),
+            "icc_hid": p.get("icc_hid"),
         })
     rows.sort(key=lambda r: (r["rd"], r.get("ac96h_mm") or 0), reverse=True)
     return rows[:n]
@@ -312,51 +317,16 @@ def _geo_health(runtime: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _analytics(runtime: Dict[str, Any]) -> Dict[str, Any]:
-    history = runtime.get("history") or []
-    rd_trend = []
-    duration_trend = []
-    for h in history[-24:]:
-        rd_trend.append({
-            "at": h.get("started_at"),
-            "at_fmt": format_datetime_br(h.get("started_at")),
-            "max_rd": h.get("max_rd", 0),
-            "data_status": h.get("data_status"),
-        })
-        duration_trend.append({
-            "at": h.get("started_at"),
-            "at_fmt": format_datetime_br(h.get("started_at")),
-            "duration_s": h.get("duration_s"),
-            "outcome": h.get("outcome"),
-        })
-    success_rate = 0.0
-    if runtime.get("cycle_count"):
-        success_rate = round(
-            100.0 * runtime["cycle_success"] / runtime["cycle_count"], 1,
-        )
-    return {
-        "cycle_success_rate_pct": success_rate,
-        "uptime_s": runtime.get("uptime_s"),
-        "rd_trend": rd_trend,
-        "duration_trend": duration_trend,
-        "recent_cycles": [
-            {
-                **h,
-                "started_at_fmt": format_datetime_br(h.get("started_at")),
-                "finished_at_fmt": format_datetime_br(h.get("finished_at")),
-            }
-            for h in reversed(history[-12:])
-        ],
-    }
-
-
-def collect_dashboard() -> Dict[str, Any]:
+def collect_dashboard(hours: int = DEFAULT_HOURS) -> Dict[str, Any]:
     """Payload principal do painel admin."""
     runtime = state.get_runtime()
     geo = _geo_stats()
     fire = _fire_stats()
     geo_h = _geo_health(runtime)
     fire_h = _fire_health()
+    analytics = build_analytics(runtime, hours)
+    # Estatisticas regionais (chuva vs limiares) compartilhadas com Analytics
+    geo["regional"] = analytics["regional"]
 
     overview = {
         "geodinamico": {
@@ -393,7 +363,7 @@ def collect_dashboard() -> Dict[str, Any]:
             "geodinamico": geo,
             "risco_fogo": fire,
         },
-        "analytics": _analytics(runtime),
+        "analytics": analytics,
     }
 
 
@@ -534,8 +504,8 @@ min-width:140px}}
 <b>{ov['risco_fogo']['total_trechos']}</b></div>
 <div><small>RF alto/critico</small>
 <b>{ov['risco_fogo']['alertas_rf']}</b></div>
-<div><small>Ciclos OK</small>
-<b>{ana['cycle_success_rate_pct']}%</b></div>
+<div><small>Ciclos OK ({ana['window_hours']} h)</small>
+<b>{ana['ops'].get('success_rate_pct') if ana['ops'].get('success_rate_pct') is not None else '—'}%</b></div>
 </div>
 <h2>Movimentos de massa e inundacao — distribuicao RD</h2>
 <table><thead><tr><th>Nivel</th><th>UAs</th><th>Share</th></tr></thead>

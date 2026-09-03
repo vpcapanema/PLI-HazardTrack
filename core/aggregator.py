@@ -35,6 +35,7 @@ from .forecast_wrf_prec_hourly import fetch_forecast_accum_batch
 from .risk import evaluate_point, compose_pdf_windows
 from .gauge_correction import correct_rain_batch
 from .notifier import notifier
+from . import admin_telemetry
 
 log = logging.getLogger("aggregator")
 
@@ -414,7 +415,7 @@ class State:
                 self.snapshot.get("summary", {})
                 if hasattr(self, "snapshot") else {}
             )
-            self.cycle_history.append({
+            entry = {
                 "started_at": now.isoformat(),
                 "finished_at": self.last_cycle_finished_at.isoformat(),
                 "duration_s": round(duration, 2),
@@ -424,7 +425,83 @@ class State:
                 "missing_24h": summary.get("missing_24h"),
                 "max_rd": summary.get("max_rd", 0),
                 "error": err_msg,
-            })
+            }
+            self.cycle_history.append(entry)
+            try:
+                admin_telemetry.record(self._telemetry_entry(entry, summary))
+            except Exception as e:  # noqa: BLE001
+                log.debug("telemetria do ciclo nao gravada: %s", e)
+
+    def _telemetry_entry(
+        self, base: Dict[str, Any], summary: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Registro compacto do ciclo para o Analytics persistente."""
+        def _levels(d: Dict[Any, Any]) -> List[int]:
+            return [int((d or {}).get(i, (d or {}).get(str(i), 0)))
+                    for i in range(5)]
+
+        levels = _levels(summary.get("by_level"))
+        out = dict(base)
+        out.update({
+            "by_level": levels,
+            "by_level_geo": _levels(summary.get("by_level_geo")),
+            "by_level_hidro": _levels(summary.get("by_level_hidro")),
+            "alert_count": levels[3] + levels[4],
+            "max_rd_name": summary.get("max_rd_name"),
+        })
+        ac24 = ac96 = inten = 0.0
+        n = 0
+        s24 = 0.0
+        for pt in self.snapshot.get("points_geo") or []:
+            v24 = pt.get("ac24h_mm")
+            if v24 is None:
+                continue
+            n += 1
+            s24 += float(v24)
+            ac24 = max(ac24, float(v24))
+            ac96 = max(ac96, float(pt.get("ac96h_mm") or 0.0))
+            inten = max(inten, float(pt.get("intensity_mmh") or 0.0))
+        out.update({
+            "ac24h_max": round(ac24, 1),
+            "ac24h_mean": round(s24 / n, 1) if n else None,
+            "ac96h_max": round(ac96, 1),
+            "intensity_max": round(inten, 2),
+        })
+        gc = self._gauge_meta or {}
+        if gc.get("enabled"):
+            out["gauge"] = {
+                "applied": bool(gc.get("applied")),
+                "mean_factor": gc.get("mean_factor"),
+                "stations_recent": gc.get("stations_recent"),
+                "points_corrected": gc.get("points_corrected"),
+            }
+        return out
+
+    def get_rain_series(self) -> Optional[Dict[str, Any]]:
+        """Serie horaria bruta (MERGE/IMERG) do ultimo ciclo, alinhada a
+        ``points_geo``. Uso administrativo (Analytics)."""
+        with self._lock:
+            cache = self._series_cache
+            if not cache:
+                return None
+            return {
+                "built_at": cache["built_at"],
+                "target": cache["target"],
+                "series": cache["series"],
+                "points": [
+                    {
+                        "ua_id": p.get("ua_id"),
+                        "regiao_id": p.get("regiao_id"),
+                        "regiao_nome": p.get("regiao_nome"),
+                    }
+                    for p in self.points_geo
+                ],
+            }
+
+    def get_point_history(self) -> Dict[str, List[Dict[str, Any]]]:
+        """Copia do historico curto de RD por UA/canal (ultimos ciclos)."""
+        with self._lock:
+            return {k: list(v) for k, v in self.point_rd_history.items()}
 
     def _do_update(self, now) -> bool:
         """

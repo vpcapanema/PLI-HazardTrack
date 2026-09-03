@@ -190,14 +190,14 @@
                 <div class="two-col">
                     <article class="card">
                         <div class="card-head">
-                            <h2>RD por nível — encosta × inundação</h2>
+                            <h2>Quantas UAs estão em cada nível de risco (encosta e inundação)</h2>
                             <span class="card-note" id="stats-rd-note"></span>
                         </div>
                         <div id="stats-rd-bars" class="card-body chart-box"></div>
                     </article>
                     <article class="card">
                         <div class="card-head">
-                            <h2>RF por classe — trechos DER</h2>
+                            <h2>Quantos trechos de rodovia estão em cada classe de risco de fogo</h2>
                             <span class="card-note" id="stats-rf-note"></span>
                         </div>
                         <div id="stats-rf-bars" class="card-body chart-box"></div>
@@ -205,31 +205,31 @@
                 </div>
                 <div class="two-col">
                     <article class="card">
-                        <div class="card-head"><h2>Regiões monitoradas — UAs por nível</h2></div>
+                        <div class="card-head"><h2>Nível de risco das UAs em cada região monitorada</h2></div>
                         <div id="stats-region-geo" class="card-body"></div>
                     </article>
                     <article class="card">
-                        <div class="card-head"><h2>Regionais DER — trechos por classe RF</h2></div>
+                        <div class="card-head"><h2>Risco de fogo por regional do DER</h2></div>
                         <div id="stats-region-fire" class="card-body"></div>
                     </article>
                 </div>
                 <div class="two-col">
                     <article class="card">
-                        <div class="card-head"><h2>Chuva por região — janelas do RD</h2></div>
+                        <div class="card-head"><h2>Quanto choveu em cada região (janelas que alimentam o RD)</h2></div>
                         <div id="stats-region-rain" class="card-body"></div>
                     </article>
                     <article class="card">
-                        <div class="card-head"><h2>Top trechos — risco de fogo</h2></div>
+                        <div class="card-head"><h2>Trechos de rodovia com maior risco de fogo agora</h2></div>
                         <div id="stats-top-fire" class="card-body"></div>
                     </article>
                 </div>
                 <div class="two-col">
                     <article class="card">
-                        <div class="card-head"><h2>Top UAs — encosta (RDGEO)</h2></div>
+                        <div class="card-head"><h2>UAs com maior risco de movimento de massa (encosta)</h2></div>
                         <div id="stats-top-geo" class="card-body"></div>
                     </article>
                     <article class="card">
-                        <div class="card-head"><h2>Top UAs — inundação (RDHID)</h2></div>
+                        <div class="card-head"><h2>UAs com maior risco de inundação</h2></div>
                         <div id="stats-top-hidro" class="card-body"></div>
                     </article>
                 </div>
@@ -251,14 +251,14 @@
                 <div class="two-col">
                     <article class="card">
                         <div class="card-head">
-                            <h2>UAs por nível ao longo do tempo</h2>
+                            <h2>Como o número de UAs em cada nível evoluiu no tempo</h2>
                             <span class="card-note" id="chart-levels-note"></span>
                         </div>
                         <div id="chart-levels" class="card-body chart-box"></div>
                     </article>
                     <article class="card">
                         <div class="card-head">
-                            <h2>Chuva horária por região — 96 h</h2>
+                            <h2>Chuva hora a hora nas últimas 96 h, por região</h2>
                             <span class="card-note" id="chart-hourly-note"></span>
                         </div>
                         <div id="chart-hourly" class="card-body chart-box"></div>
@@ -267,14 +267,14 @@
                 <div class="two-col">
                     <article class="card">
                         <div class="card-head">
-                            <h2>Acumulado 24 h vs limiares hidrológicos</h2>
+                            <h2>Quão perto cada região está do próximo nível de alerta (chuva 24 h)</h2>
                             <span class="card-note">máximo entre as UAs da região · PRODUTO 6</span>
                         </div>
                         <div id="chart-thresholds" class="card-body"></div>
                     </article>
                     <article class="card">
                         <div class="card-head">
-                            <h2>Escalada e recuo de RD</h2>
+                            <h2>Quais UAs subiram ou desceram de nível de risco</h2>
                             <span class="card-note" id="escalation-note"></span>
                         </div>
                         <div id="escalation" class="card-body"></div>
@@ -283,14 +283,14 @@
                 <div class="two-col">
                     <article class="card">
                         <div class="card-head">
-                            <h2>Distribuição dos acumulados entre as UAs</h2>
+                            <h2>Quantas UAs receberam cada faixa de chuva</h2>
                             <span class="card-note" id="dist-note"></span>
                         </div>
                         <div id="chart-dist" class="card-body"></div>
                     </article>
                     <article class="card">
                         <div class="card-head">
-                            <h2>Risco de fogo por horizonte</h2>
+                            <h2>Risco de fogo hoje e previsto para os próximos 3 dias</h2>
                             <span class="card-note" id="fire-horizon-note"></span>
                         </div>
                         <div id="chart-fire-horizons" class="card-body"></div>
@@ -299,14 +299,14 @@
                 <div class="two-col">
                     <article class="card">
                         <div class="card-head">
-                            <h2>Qualidade do dado MERGE</h2>
+                            <h2>Qualidade da chuva por satélite (horas válidas e correção por solo)</h2>
                             <span class="card-note">horas válidas na janela de 96 h · fator de correção por solo</span>
                         </div>
                         <div id="chart-quality" class="card-body chart-box"></div>
                     </article>
                     <article class="card">
                         <div class="card-head">
-                            <h2>Operação do pipeline</h2>
+                            <h2>Saúde da execução dos ciclos de cálculo</h2>
                             <span class="card-note" id="ops-note"></span>
                         </div>
                         <div id="chart-ops" class="card-body"></div>

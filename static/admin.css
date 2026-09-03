@@ -1801,3 +1801,7 @@ details summary { cursor: pointer; font-weight: 600; font-size: 0.85rem; color: 
 }
 .stat-strip span { display: block; }
 .stat-strip span i { display: inline-block; vertical-align: middle; margin-right: 6px; }
+
+/* Titulos didaticos: permitem quebra em 2 linhas */
+.card-head h2 { white-space: normal; line-height: 1.25; }
+.card-note { max-width: 40%; }

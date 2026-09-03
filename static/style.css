@@ -5506,3 +5506,33 @@ a.sb-jump:visited {
   white-space: nowrap;
   width: 1px;
 }
+
+/* ============================================================================
+   MARCA NAS SIDEBARS — layout em grade: icone a esquerda ocupando a altura das
+   duas linhas; nome e complemento em coluna, alinhados a esquerda e comecando
+   no mesmo ponto (referencia: logo do SICARD). O cabecalho da marca vira
+   display: contents para que icone, nome e complemento entrem na mesma grade.
+   ============================================================================ */
+
+.sidebar-header .logo {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 0.45em;
+  row-gap: 0.1em;
+  align-items: center;
+  align-content: center;
+  justify-content: start;
+  text-align: left;
+}
+.sidebar-header .logo-mark { display: contents; }
+.sidebar-header .logo-icon { grid-column: 1; grid-row: 1 / span 2; width: 1.8em; height: 1.8em; align-self: center; }
+.sidebar-header .logo-mark > span { grid-column: 2; grid-row: 1; align-self: end; }
+.sidebar-header .logo-sub { grid-column: 2; grid-row: 2; align-self: start; margin: 0; padding: 0; text-align: left; }
+
+.sidebar-header .logo { column-gap: 0.35em; }
+.sidebar-header .logo-icon { width: 1.6em; height: 1.6em; }
+
+.sidebar-header .logo-icon { width: auto; height: 100%; aspect-ratio: 1 / 1; align-self: stretch; }
+
+.sidebar-header .logo-icon { width: 1.79em; height: 1.79em; aspect-ratio: auto; align-self: center; }

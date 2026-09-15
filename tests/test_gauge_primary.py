@@ -2,7 +2,7 @@
 import unittest
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
+from unittest import mock
 
 from core import gauge_primary as gp
 
@@ -56,7 +56,7 @@ class TestHelpers(unittest.TestCase):
 class TestApplyGaugePrimary(unittest.TestCase):
     def _run(self, stations, values):
         rain = [FakeRain()]
-        with patch.object(gp.store, "refresh"), patch.object(
+        with mock.patch.object(gp.store, "refresh"), mock.patch.object(
             gp.store, "data",
             return_value=(stations, values, TARGET, None),
         ):
@@ -99,7 +99,7 @@ class TestApplyGaugePrimary(unittest.TestCase):
 
     def test_api_failure_keeps_merge(self):
         rain = [FakeRain()]
-        with patch.object(
+        with mock.patch.object(
             gp.store, "refresh", side_effect=RuntimeError("fora do ar"),
         ):
             meta, used = gp.apply_gauge_primary([POINT], rain, NOW)
@@ -109,11 +109,69 @@ class TestApplyGaugePrimary(unittest.TestCase):
 
     def test_disabled_returns_untouched(self):
         rain = [FakeRain()]
-        with patch.object(gp, "ENABLED", False):
+        with mock.patch.object(gp, "ENABLED", False):
             meta, used = gp.apply_gauge_primary([POINT], rain, NOW)
         self.assertFalse(meta.enabled)
         self.assertEqual(used, [])
         self.assertEqual(rain[0], FakeRain())
+
+
+WET_NEIGHBORS = {
+    "w1": (-23.5, -45.47),
+    "w2": (-23.53, -45.5),
+    "w3": (-23.5, -45.53),
+}
+DRY_STATION = (-23.5, -45.492)   # ~0.8 km do ponto
+
+
+class TestSuspectStations(unittest.TestCase):
+    def test_dry_station_among_wet_neighbors_is_suspect(self):
+        stations = dict(WET_NEIGHBORS, dry=DRY_STATION)
+        values = {sid: _constant(1.0) for sid in WET_NEIGHBORS}
+        values["dry"] = _constant(0.0)
+        self.assertEqual(
+            gp.find_suspect_stations(stations, values, TARGET), ["dry"],
+        )
+
+    def test_dry_region_has_no_suspects(self):
+        stations = dict(WET_NEIGHBORS, dry=DRY_STATION)
+        values = {sid: _constant(0.0) for sid in stations}
+        self.assertEqual(
+            gp.find_suspect_stations(stations, values, TARGET), [],
+        )
+
+    def test_requires_min_neighbors(self):
+        stations = {"w1": WET_NEIGHBORS["w1"], "w2": WET_NEIGHBORS["w2"],
+                    "dry": DRY_STATION}
+        values = {"w1": _constant(1.0), "w2": _constant(1.0),
+                  "dry": _constant(0.0)}
+        self.assertEqual(
+            gp.find_suspect_stations(stations, values, TARGET), [],
+        )
+
+    def test_neighbors_with_short_coverage_do_not_count(self):
+        stations = dict(WET_NEIGHBORS, dry=DRY_STATION)
+        values = {sid: _constant(2.0, n=12) for sid in WET_NEIGHBORS}
+        values["dry"] = _constant(0.0)
+        self.assertEqual(
+            gp.find_suspect_stations(stations, values, TARGET), [],
+        )
+
+    def test_apply_ignores_suspect_station(self):
+        stations = dict(WET_NEIGHBORS, dry=DRY_STATION)
+        values = {sid: _constant(1.0) for sid in WET_NEIGHBORS}
+        values["dry"] = _constant(0.0)
+        rain = [FakeRain()]
+        with mock.patch.object(gp.store, "refresh"), mock.patch.object(
+            gp.store, "data",
+            return_value=(stations, values, TARGET, None),
+        ):
+            meta, used = gp.apply_gauge_primary([POINT], rain, NOW)
+        self.assertEqual(used, [0])
+        self.assertEqual(meta.stations_suspect, 1)
+        self.assertEqual(meta.suspect_ids, ["dry"])
+        self.assertEqual(rain[0].intensity_mmh, 1.0)
+        self.assertEqual(rain[0].ac24h_mm, 24.0)
 
 
 class TestGaugeSeriesStore(unittest.TestCase):
@@ -126,11 +184,11 @@ class TestGaugeSeriesStore(unittest.TestCase):
             return {"1": {start: 1.0, TARGET: 2.0}}
 
         stations = {"1": POINT, "far": (-10.0, -50.0)}
-        with patch.object(
+        with mock.patch.object(
             gp, "_fetch_station_list", return_value=stations,
-        ) as st, patch.object(
+        ) as st, mock.patch.object(
             gp, "_fetch_hourly", side_effect=fake_hourly,
-        ), patch.object(
+        ), mock.patch.object(
             gp, "_now_mono", side_effect=[0.0, 100.0, 400.0],
         ):
             store.refresh([POINT], NOW)

@@ -30,6 +30,12 @@ Metodologia
    sem nenhuma estacao somam 0 mm (subestimativa limitada pelo criterio).
 5. UA sem cobertura mantem o MERGE/INPE. Falha da API -> ciclo inteiro
    segue com MERGE. Nunca inventa dado.
+6. Antes do IDW, estacao suspeita e descartada no ciclo: somou <=
+   ``SUSPECT_DRY_MM`` em 24 h enquanto a mediana de >=
+   ``SUSPECT_MIN_NEIGHBORS`` vizinhas a <= ``SUSPECT_KM`` (com leitura em
+   >= 18 h) passa de ``SUSPECT_WET_MM``. Pluviometro travado em zero
+   dominaria o IDW (peso 1/d^2); descartar uma estacao seca real so eleva
+   a estimativa (lado conservador do alerta).
 """
 
 from __future__ import annotations
@@ -38,6 +44,7 @@ import dataclasses
 import logging
 import math
 import os
+import statistics
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -80,6 +87,21 @@ FULL_REFRESH_S = 6 * 3600
 # Limite da API: "station_prefix_ids" aceita no maximo 10 itens.
 BATCH_SIZE = 10
 MIN_DISTANCE_KM = 0.5
+# Filtro de estacao suspeita (seca em 24 h cercada de vizinhas com chuva).
+SUSPECT_FILTER = os.environ.get(
+    "SAMAEG_GAUGE_PRIMARY_SUSPECT_FILTER", "1",
+).strip() not in ("0", "false", "False", "no")
+SUSPECT_KM = float(os.environ.get("SAMAEG_GAUGE_PRIMARY_SUSPECT_KM", "10"))
+SUSPECT_DRY_MM = float(os.environ.get(
+    "SAMAEG_GAUGE_PRIMARY_SUSPECT_DRY_MM", "0.5",
+))
+SUSPECT_WET_MM = float(os.environ.get(
+    "SAMAEG_GAUGE_PRIMARY_SUSPECT_WET_MM", "5",
+))
+SUSPECT_MIN_NEIGHBORS = int(os.environ.get(
+    "SAMAEG_GAUGE_PRIMARY_SUSPECT_MIN_NEIGHBORS", "3",
+))
+SUSPECT_MIN_HOURS = 18
 SOURCE_LABEL = "SIBH/SP Aguas (pluviometros)"
 
 _HEADERS = {
@@ -99,6 +121,8 @@ class GaugePrimaryMeta:
     target_hour: Optional[str] = None
     stations_near: int = 0
     stations_last_hour: int = 0
+    stations_suspect: int = 0
+    suspect_ids: List[str] = dataclasses.field(default_factory=list)
     points_total: int = 0
     points_gauge: int = 0
     points_fallback: int = 0
@@ -337,6 +361,38 @@ class GaugeSeriesStore:
             )
 
 
+def find_suspect_stations(
+    stations: Dict[str, Tuple[float, float]],
+    values: Dict[str, Dict[datetime, float]],
+    target: datetime,
+) -> List[str]:
+    """Estacoes secas em 24 h cercadas por vizinhas com chuva."""
+    hours = [target - timedelta(hours=h) for h in range(24)]
+    totals: Dict[str, float] = {}
+    counts: Dict[str, int] = {}
+    for sid in stations:
+        vals = values.get(sid, {})
+        got = [vals[h] for h in hours if h in vals]
+        totals[sid] = sum(got)
+        counts[sid] = len(got)
+    suspects: List[str] = []
+    for sid, (lat, lon) in stations.items():
+        if counts[sid] == 0 or totals[sid] > SUSPECT_DRY_MM:
+            continue
+        neighbor_totals = [
+            totals[other]
+            for other, (olat, olon) in stations.items()
+            if other != sid
+            and counts[other] >= SUSPECT_MIN_HOURS
+            and _haversine_km(lat, lon, olat, olon) <= SUSPECT_KM
+        ]
+        if len(neighbor_totals) < SUSPECT_MIN_NEIGHBORS:
+            continue
+        if statistics.median(neighbor_totals) >= SUSPECT_WET_MM:
+            suspects.append(sid)
+    return sorted(suspects)
+
+
 def build_point_series(
     coords: Sequence[Tuple[float, float]],
     stations: Dict[str, Tuple[float, float]],
@@ -429,6 +485,14 @@ def apply_gauge_primary(
     meta.target_hour = target.isoformat()
     meta.stations_near = len(stations)
     meta.stations_last_hour = sum(1 for v in values.values() if target in v)
+    if SUSPECT_FILTER:
+        suspects = find_suspect_stations(stations, values, target)
+        meta.stations_suspect = len(suspects)
+        meta.suspect_ids = suspects
+        discard = set(suspects)
+        stations = {
+            sid: ll for sid, ll in stations.items() if sid not in discard
+        }
 
     used: List[int] = []
     series = build_point_series(coords, stations, values, target)
@@ -445,9 +509,10 @@ def apply_gauge_primary(
     meta.points_fallback = len(coords) - len(used)
     log.info(
         "chuva por pluviometros: %d/%d UAs (alvo %s, %d estacoes, "
-        "%d com a ultima hora)",
+        "%d com a ultima hora, %d suspeitas descartadas)",
         len(used), len(coords), meta.target_hour,
         meta.stations_near, meta.stations_last_hour,
+        meta.stations_suspect,
     )
     return meta, used
 

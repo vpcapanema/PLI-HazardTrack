@@ -60,6 +60,11 @@ para rodovias da Regiao do Litoral Norte de Sao Paulo (DER-SP).
   (default on). Metadados em `get_runtime()["gauge_primary"]`. A Linha
   do Tempo e o Analytics horario continuam com a serie MERGE bruta, e a
   consulta historica (`?at=`) segue so com MERGE.
+  Filtro de estacao suspeita (`SAMAEG_GAUGE_PRIMARY_SUSPECT_FILTER`,
+  default on): estacao com <= 0.5 mm em 24 h e >= 3 vizinhas a <= 10 km
+  (com leitura em >= 18 h) de mediana >= 5 mm e descartada do IDW no
+  ciclo (pluviometro travado em zero dominaria o peso 1/d^2). IDs em
+  `gauge_primary.suspect_ids`.
 - `core/merge_inpe.py` - Download/decode MERGE/INPE (ThreadPool + ProcessPool)
 - `core/merge_ingest.py` - Ingest continuo em background + cache RAM incremental
 - `core/forecast_wrf_prec_hourly.py` - Previsao WRF (composicao PDF)

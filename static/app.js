@@ -3754,7 +3754,7 @@ function popupRainRows(p, hazardKey) {
       <tr><th>Chuva prevista próximas 24 horas</th><td>${formatNum(prev)} mm</td></tr>
       <tr><th>Chuva acumulada nas últimas 72 horas</th><td>${formatNum(obs)} mm</td></tr>
       <tr>
-        <th><span class="coef-label">Coeficiente de Precipitação Crítica (CPC)</span></th>
+        <th>Chuva acumulada 96 horas (72 h obs. + 24 h prev.)</th>
         <td>${formatNum(obs)} mm obs. + ${formatNum(prev)} mm prev. = ${formatNum(p.ac96h_mm)} mm</td>
       </tr>`;
   }
@@ -3764,7 +3764,7 @@ function popupRainRows(p, hazardKey) {
     <tr><th>Chuva prevista próximas 6 horas</th><td>${formatNum(prev)} mm</td></tr>
     <tr><th>Chuva acumulada nas últimas 18 horas</th><td>${formatNum(obs)} mm</td></tr>
     <tr>
-      <th><span class="coef-label">Índice de Correlação com Chuvas hidrológico (ICCHID)</span></th>
+      <th>Chuva acumulada 24 horas (18 h obs. + 6 h prev.)</th>
       <td>${formatNum(obs)} mm obs. + ${formatNum(prev)} mm prev. = ${formatNum(p.ac24h_mm)} mm</td>
     </tr>`;
 }

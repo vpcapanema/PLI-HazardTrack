@@ -18,7 +18,7 @@ import os
 import threading
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 log = logging.getLogger("admin_telemetry")
 
@@ -30,11 +30,11 @@ TELEMETRY_PATH = RUNTIME_DIR / "cycle_telemetry.jsonl"
 MAX_ENTRIES = int(os.environ.get("PLI_TELEMETRY_MAX", "2016"))
 
 _lock = threading.Lock()
-_entries: List[Dict[str, Any]] = []
+_entries: list[dict[str, Any]] = []
 _loaded = False
 
 
-def _parse_ts(value: Any) -> Optional[datetime]:
+def _parse_ts(value: Any) -> datetime | None:
     if not value:
         return None
     try:
@@ -79,7 +79,7 @@ def _rewrite_locked() -> None:
     os.replace(tmp, TELEMETRY_PATH)
 
 
-def record(entry: Dict[str, Any]) -> None:
+def record(entry: dict[str, Any]) -> None:
     """Acrescenta um ciclo; compacta o arquivo quando passa do limite."""
     with _lock:
         _load_locked()
@@ -97,9 +97,9 @@ def record(entry: Dict[str, Any]) -> None:
 
 
 def load(
-    hours: Optional[float] = None,
-    limit: Optional[int] = None,
-) -> List[Dict[str, Any]]:
+    hours: float | None = None,
+    limit: int | None = None,
+) -> list[dict[str, Any]]:
     """Registros em ordem cronologica, filtrados por janela/limite."""
     with _lock:
         _load_locked()

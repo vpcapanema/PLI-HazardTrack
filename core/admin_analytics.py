@@ -24,7 +24,7 @@ import logging
 import math
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from . import admin_telemetry
 from .admin_format import format_datetime_br
@@ -78,7 +78,7 @@ def _percentile(values: List[float], q: float) -> Optional[float]:
     return round(vals[lo] + (vals[hi] - vals[lo]) * (k - lo), 2)
 
 
-def _bin_counts(values: List[float], edges: List[float]) -> List[Dict]:
+def _bin_counts(values: List[float], edges: Sequence[float]) -> List[Dict]:
     counts = [0] * len(edges)
     for v in values:
         idx = 0
@@ -508,7 +508,7 @@ def _fire_horizons() -> Dict[str, Any]:
             for tid, c0 in obs.items():
                 c1 = nxt.get(tid)
                 r0 = _RF_RANK.get(c0)
-                r1 = _RF_RANK.get(c1)
+                r1 = _RF_RANK.get(c1) if c1 is not None else None
                 if r0 is None or r1 is None:
                     continue
                 if r1 > r0:

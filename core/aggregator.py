@@ -436,7 +436,7 @@ class State:
         self, base: Dict[str, Any], summary: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Registro compacto do ciclo para o Analytics persistente."""
-        def _levels(d: Dict[Any, Any]) -> List[int]:
+        def _levels(d: Optional[Dict[Any, Any]]) -> List[int]:
             return [int((d or {}).get(i, (d or {}).get(str(i), 0)))
                     for i in range(5)]
 

@@ -45,6 +45,21 @@ para rodovias da Regiao do Litoral Norte de Sao Paulo (DER-SP).
   "rdp/radar") e na verdade `PREC` Surface Precipitation [mm/hr] do
   produto GPM-IMERG-late (confirmado pelo `.ctl` do INPE); a #2 e `NEST`
   (nº de estacoes que corrigiram a celula).
+- `core/gauge_primary.py` - Chuva por pluviometros (SIBH/SP Aguas) como
+  fonte PRIMARIA. Serie horaria por estacao via
+  `https://apps.spaguas.sp.gov.br/sibh/api/v2/measurements`
+  (`station_prefix_ids[]`, `start_date`/`end_date` em UTC,
+  `group_type=hour` = soma das leituras da hora; API sem documentacao
+  oficial). Hora-alvo = ultima hora UTC completa. IDW p=2 hora a hora
+  num raio de `SAMAEG_GAUGE_PRIMARY_RADIUS_KM` (15 km), so com estacoes
+  que reportaram naquela hora. A UA usa pluviometros se a hora-alvo tiver
+  cobertura e >= `SAMAEG_GAUGE_PRIMARY_MIN_COVERAGE` (0.9) das horas de
+  24 h e 96 h; senao segue MERGE (+ `gauge_correction`). API fora ->
+  ciclo inteiro com MERGE. Cache RAM: 96 h na carga completa (a cada
+  6 h), ultimas 6 h nos ciclos seguintes. Toggle `SAMAEG_GAUGE_PRIMARY`
+  (default on). Metadados em `get_runtime()["gauge_primary"]`. A Linha
+  do Tempo e o Analytics horario continuam com a serie MERGE bruta, e a
+  consulta historica (`?at=`) segue so com MERGE.
 - `core/merge_inpe.py` - Download/decode MERGE/INPE (ThreadPool + ProcessPool)
 - `core/merge_ingest.py` - Ingest continuo em background + cache RAM incremental
 - `core/forecast_wrf_prec_hourly.py` - Previsao WRF (composicao PDF)

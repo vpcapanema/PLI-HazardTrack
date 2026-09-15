@@ -34,6 +34,7 @@ from .merge_ingest import ingest
 from .forecast_wrf_prec_hourly import fetch_forecast_accum_batch
 from .risk import evaluate_point, compose_pdf_windows
 from .gauge_correction import correct_rain_batch
+from .gauge_primary import SOURCE_LABEL, apply_gauge_primary
 from .notifier import notifier
 from . import admin_telemetry
 
@@ -303,6 +304,8 @@ class State:
         # Metadados da correcao por solo (DAEE/CEMADEN) do ultimo ciclo.
         # Consumido APENAS pelas paginas administrativas (metodologia).
         self._gauge_meta: Optional[Dict[str, Any]] = None
+        # Metadados da chuva por pluviometros (SIBH) do ultimo ciclo.
+        self._gauge_primary_meta: Optional[Dict[str, Any]] = None
 
         # Seed inicial: pontos visiveis no mapa em "loading" (estilo sem dado).
         # Importante para Render free, onde o primeiro ciclo MERGE pode levar
@@ -475,6 +478,14 @@ class State:
                 "stations_recent": gc.get("stations_recent"),
                 "points_corrected": gc.get("points_corrected"),
             }
+        gp = self._gauge_primary_meta or {}
+        if gp.get("enabled"):
+            out["gauge_primary"] = {
+                "applied": bool(gp.get("applied")),
+                "points_gauge": gp.get("points_gauge"),
+                "stations_near": gp.get("stations_near"),
+                "error": gp.get("error"),
+            }
         return out
 
     def get_rain_series(self) -> Optional[Dict[str, Any]]:
@@ -543,12 +554,26 @@ class State:
                     "target": now,
                     "series": [r.series for r in rain_batch],
                 }
+            # Pluviometros (SIBH/SP Aguas) como fonte PRIMARIA: UAs com
+            # cobertura de estacoes usam a serie horaria medida em solo
+            # (latencia de minutos). As demais seguem com MERGE/INPE.
+            primary_meta, gauge_idx = apply_gauge_primary(
+                coords, rain_batch, now,
+            )
+            with self._lock:
+                self._gauge_primary_meta = primary_meta.as_dict()
+            used = set(gauge_idx)
+            rest = [i for i in range(len(coords)) if i not in used]
             # Correcao por solo (DAEE/CEMADEN): ancora os acumulados
-            # satelitais do MERGE nas medicoes de pluviometros. Roda apos
-            # guardar a serie horaria bruta (a Linha do Tempo continua com o
-            # dado satelital cru). Falha da API => satelite puro (transparente).
+            # satelitais do MERGE nas medicoes de pluviometros, so nas UAs
+            # que seguem com MERGE. Roda apos guardar a serie horaria bruta
+            # (a Linha do Tempo continua com o dado satelital cru).
+            # Falha da API => satelite puro (transparente).
             try:
-                gauge_meta = correct_rain_batch(coords, rain_batch)
+                gauge_meta = correct_rain_batch(
+                    [coords[i] for i in rest],
+                    [rain_batch[i] for i in rest],
+                )
             except Exception as e:  # noqa: BLE001
                 log.warning("correcao por solo falhou (%s)", e)
                 gauge_meta = None
@@ -556,7 +581,12 @@ class State:
                 self._gauge_meta = (
                     gauge_meta.as_dict() if gauge_meta else None
                 )
-            data_source = "MERGE/INPE"
+            if not used:
+                data_source = "MERGE/INPE"
+            elif rest:
+                data_source = f"{SOURCE_LABEL} + MERGE/INPE"
+            else:
+                data_source = SOURCE_LABEL
             data_status = (
                 "ok"
                 if missing_24h < DEGRADED_MISSING_24H_THRESHOLD
@@ -1013,6 +1043,8 @@ class State:
                 "degraded_threshold": DEGRADED_MISSING_24H_THRESHOLD,
                 # Correcao por solo (DAEE/CEMADEN) - uso administrativo.
                 "gauge_correction": self._gauge_meta,
+                # Chuva por pluviometros (SIBH) - uso administrativo.
+                "gauge_primary": self._gauge_primary_meta,
             }
 
 
